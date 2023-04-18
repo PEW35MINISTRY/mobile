@@ -1,0 +1,40 @@
+{
+  "name": "mobile",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "postversion": "react-native-version",
+    "tsc": "tsc",
+    "clean": "rimraf build",
+    "build": "npm run clean && npm run tsc --",
+    "watch": "npm run build -- -w",
+    "watchAndRunAndroid": "concurrently \"npm run watch\" \"npm run android\"",
+    "buildRunAndroid": "npm run build && npm run watchAndRunAndroid ",
+    "watchAndRunIOS": "concurrently \"npm run watch\" \"npm run ios\"",
+    "buildRunIOS": "npm run build && npm run watchAndRunIOS ",
+    "watchAndStart": "concurrently \"npm run watch\" \"npm run start\"",
+    "buildAndStart": "npm run build && npm run watchAndStart"
+  },
+  "dependencies": {
+    "react": "17.0.2",
+    "react-native": "0.68.2",
+    "react-redux": "^8.0.5",
+    "redux": "^4.2.1"
+  },
+  "devDependencies": {
+    "@babel/core": "7.21.4",
+    "@babel/runtime": "7.21.0",
+    "@types/prop-types": "^15.7.5",
+    "@types/react": "^18.0.35",
+    "@types/react-dom": "^18.0.11",
+    "@types/react-native": "^0.71.5",
+    "concurrently": "^8.0.1",
+    "metro-react-native-babel-preset": "0.67.0",
+    "react-test-renderer": "17.0.2",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.4"
+  }
+}

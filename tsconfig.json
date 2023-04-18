@@ -1,0 +1,48 @@
+//https://medium.com/automating-react-native-app-release-to-google-play/react-native-with-typescript-84ae7c2f6801
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "outDir": "build",
+    "rootDir": "src",
+    "jsx": "react-native",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+  },
+  "types": [
+    "react",
+    "react-dom",
+    "react-native",
+    "react-test-renderer",
+    "jest"
+  ],
+  "include": [
+    "src"
+ ],
+  "exclude": [
+    "build",
+    "coverage",
+    "node_modules",
+    "android",
+    "ios",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js",
+    "index.js",
+    "src/app/App.js"
+  ],
+}
