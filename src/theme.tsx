@@ -79,27 +79,32 @@ export default StyleSheet.create({
         backgroundColor: COLORS.primary,
         padding: 10,
         margin: 10,
+        minWidth: 150,
 
         fontFamily: FONTS.title,
         color: COLORS.primary,
         fontSize: FONT_SIZES.l,
         fontWeight: '600',
+        textAlign: 'center',
     },
 
     flat_button: {
         backgroundColor: COLORS.accent,
         padding: 5,
         margin: 10,
+        minWidth: 150,
 
         fontFamily: FONTS.title,
         color: COLORS.accent,
         fontSize: FONT_SIZES.m,
         fontWeight: '400',
+        textAlign: 'center',
     },
 
     input: {
         padding: 5,
         margin: 10,
+        backgroundColor: COLORS.transparentWhite,
         fontFamily: FONTS.text,
         color: COLORS.white,
         fontSize: FONT_SIZES.m,
