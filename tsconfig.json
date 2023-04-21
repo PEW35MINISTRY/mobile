@@ -1,7 +1,7 @@
 //https://medium.com/automating-react-native-app-release-to-google-play/react-native-with-typescript-84ae7c2f6801
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "esnext",
     "outDir": "build",
     "rootDir": "src",
@@ -27,8 +27,7 @@
     "react",
     "react-dom",
     "react-native",
-    "react-test-renderer",
-    "jest"
+    "react-test-renderer"
   ],
   "include": [
     "src"
