@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useContext, useRef} from 'react';
-import {View, Text, Image, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, SafeAreaView, Button} from 'react-native';
+import {View, Text, Image, StyleSheet, GestureResponderEvent } from 'react-native';
+import axios from 'axios';
 import theme, {COLORS} from '../theme';
 import { useAppSelector, useAppDispatch } from '../TypesAndInterfaces/hooks';
 
@@ -9,95 +10,107 @@ import HANDS from '../../assets/hands.png';
 import FACEBOOK from '../../assets/logo-facebook.png';
 import APPLE from '../../assets/logo-apple.png';
 import GOOGLE from '../../assets/logo-google.png';
+import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 
 
 const Login = ():JSX.Element => {
     const dispatch = useAppDispatch();
-    //TODO Temporary will utilize dynamic flow with sign-up and edit forms
+    //TODO Temporary will utilize dynamic flow with sign-up and edit forms with validations
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const onLogin = () => console.log('Logging In...');
+    const onLogin = (event:GestureResponderEvent):void => {
+        if(event) event.preventDefault();
 
+        axios.post(`${process.env.DOMAIN}/login`, {
+            email: username,
+            displayName: username,
+            password: password,
+    
+            }).then(response => {   
+                console.log(`Welcome user ${response.data.userId}, ${response.data.userProfile.firstName}`);
+                dispatch({type: "save-login", payload: {
+                    JWT: response.data.JWT,
+                    userId: response.data.userId,
+                    userProfile: response.data.userProfile,
+                    }});
+            }).catch(error => console.error('Failed Authentication', username, password, error));
+    }
+
+    const onGoogle = (event:GestureResponderEvent) => console.log(`Logging in via Google`);
+
+    const onFacebook = (event:GestureResponderEvent) => console.log(`Logging in via Facebook`);
+
+    const onApple = (event:GestureResponderEvent) => console.log(`Logging in via APPLE`);
+
+    const onForgotPassword = (event:GestureResponderEvent) => console.log(`Navigating to Password Reset Page`);
+
+    const onSignUp = (event:GestureResponderEvent) => console.log(`Navigating to Sign up Page`);
  
-  return (
+    return (
     <View style={theme.background_view}>
         <Text style={styles.header} >Encouraging Prayer</Text>
         <Image source={LOGO} style={styles.logo} resizeMode='contain'></Image>
-        <TextInput
-            style={theme.input}
-            onChangeText={setUsername}
+        <Input_Field
+            label='Username/Email:'
             value={username}
-            placeholder='Username/Email'
-            placeholderTextColor={COLORS.accent}
+            onChangeText={setUsername}
             keyboardType='email-address'
         />
-        <TextInput
-            style={theme.input}
-            onChangeText={setPassword}
+        <Input_Field
+            label='Passsword:'
             value={password}
-            placeholder='Passsword'
-            placeholderTextColor={COLORS.accent}
-            keyboardType='visible-password'
+            onChangeText={setPassword}
+            textContentType='password'
         />
-        <Button 
+        <Raised_Button buttonStyle={styles.sign_in_button}
+            text='Sign In'
             onPress={onLogin}
-            title='Login'
-            color={COLORS.primary}
-            accessibilityLabel='Login into Encouraging Prayer'
         />
         <View style={theme.horizontal_row}>
-            <Text style={styles.password_button} >Forgot Password</Text>
-            <Text style={theme.divider} >|</Text>
-            <Text style={styles.sign_up_button} >Create Account</Text>
+            <Outline_Button text='Forgot Password' onPress={onForgotPassword} />
+            <View style={theme.vertical_divider} ></View>
+            <Flat_Button text='Create Account' onPress={onSignUp} />
         </View>
         <View style={theme.horizontal_row}>
-            <Image source={GOOGLE} style={styles.social_icon}></Image>
-            <Image source={FACEBOOK} style={styles.social_icon}></Image>
-            <Image source={APPLE} style={styles.social_icon}></Image>
+            <Icon_Button source={GOOGLE} imageStyle={styles.social_icon} onPress={onGoogle}/>
+            <Icon_Button source={FACEBOOK} imageStyle={styles.social_icon} onPress={onFacebook}/>
+            <Icon_Button source={APPLE} imageStyle={styles.social_icon} onPress={onApple}/>
         </View>
         <Image source={PEW35} style={styles.pew35_logo}></Image>
         <Image source={HANDS} style={styles.hands_image} resizeMode='contain'></Image>
     </View>
-  );
+    );
 }
-
 
 const styles = StyleSheet.create({
   ...theme,
   header: {
     ...theme.header,
-    marginTop: 40
+    marginVertical: 20,
   },
   logo: {
-    height: 200,
-    marginVertical: 30,
+    height: 175,
+    marginBottom: 10,
   },
   pew35_logo: {
-    width: 100,
-    height: 100,
-    margin: 'auto',
+    height: 75,
+    width: 75,
+    bottom: 0,
   },
   social_icon: {
-    width: 48,
-    height: 48,
+    width: 35,
+    height: 35,
     marginHorizontal: 15,
   },
   hands_image: {
     position: 'absolute',
     bottom: 0,
     zIndex: -1,
-    opacity: 0.7
+    opacity: 0.6
   },
-  password_button: {
-    ...theme.accent,
-    color: COLORS.primary
-  },
-  sign_up_button: {
-    ...theme.raised_button,
-    ...theme.primary,
-    backgroundColor: 'transparent',
-    color: COLORS.accent
+  sign_in_button: {
+    marginVertical: 15,
   }
 });
 
