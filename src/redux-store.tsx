@@ -1,7 +1,7 @@
 import React from 'react';
-import {createStore, combineReducers} from 'redux';
 import { ToastStyle, serverErrorResponse, ProfileResponse } from './TypesAndInterfaces/app-types';
-
+import { configureStore, createReducer, createAction, createSlice } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit';
 
 /******************************
    Account | Credentials Redux Reducer
@@ -13,49 +13,27 @@ const initialAccountState = {
   userProfile: {} as ProfileResponse
 }; 
 
-const accountReducer = (state = initialAccountState, action: { type: string; payload: any; }) => { 
-  switch(action.type) {
-   
-/* Verify cached JWT | auto login   */
-    case 'authenticate':
-      return state;
-
-/* Logging Out User   */
-      case 'load-login':
-        return {...initialAccountState};
-
-/* Save Payload to Account State | complete replace   */
-    case 'save-login': 
-      return {...action.payload};
-
-/* Logging In User   */
-    case 'login':
-          // window.localStorage.setItem('user', JSON.stringify(userPayload));
-          // window.location.assign('/portal/dashboard');
-          // store.dispatch({type: "save-login", payload: userPayload});
-        return state;
-
-  /* Logging Out User   */
-      case 'logout':
-        return {...initialAccountState};
-
-/* Resetting Account State to defaults */
-      case 'reset-login':
-        return {...initialAccountState};
-
-    default: return state; 
-  }
-}
-
-
-//Redux Store
-const allStateDomains = combineReducers({
-  account: accountReducer,
+const slice = createSlice({
+  name: 'slice',
+  initialState: initialAccountState,
+  reducers: {
+    authenticate: (state, action:PayloadAction<string>) => state,
+    loadLogin: (state, action:PayloadAction<string>) => {initialAccountState},
+    saveLogin: (state, action:PayloadAction<string>) => {action.payload},
+    login: (state, action:PayloadAction<string>) => state,
+    logout: (state, action:PayloadAction<string>) => {initialAccountState},
+    resetLogin: (state, action:PayloadAction<string>) => {initialAccountState},
+    default: (state, action:PayloadAction<string>) => state,
+  },
 });
 
-const store = createStore(allStateDomains,{});
+const store = configureStore({
+    reducer: {
+      account: slice.reducer,
+  },
+});
 
-export default  store;
+export default store;
 
 //Auto Authenticate JWT
 store.dispatch({type: "load-login", payload: {}});
