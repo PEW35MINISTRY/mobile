@@ -11,7 +11,7 @@ import FACEBOOK from '../../assets/logo-facebook.png';
 import APPLE from '../../assets/logo-apple.png';
 import GOOGLE from '../../assets/logo-google.png';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
-
+import { saveLogin, resetLogin } from '../redux-store';
 
 const Login = ():JSX.Element => {
     const dispatch = useAppDispatch();
@@ -29,11 +29,11 @@ const Login = ():JSX.Element => {
     
             }).then(response => {   
                 console.log(`Welcome user ${response.data.userId}, ${response.data.userProfile.firstName}`);
-                dispatch({type: "save-login", payload: {
+                dispatch(saveLogin({
                     JWT: response.data.JWT,
                     userId: response.data.userId,
                     userProfile: response.data.userProfile,
-                    }});
+                    }));
             }).catch(error => console.error('Failed Authentication', username, password, error));
     }
 

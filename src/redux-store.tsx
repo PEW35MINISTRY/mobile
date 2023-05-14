@@ -8,22 +8,18 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 *******************************/
 
 const initialAccountState = {
-  userId: 0,
+  userId: -1,
   JWT: '',
   userProfile: {} as ProfileResponse
 }; 
 
+// createSlice creates a reducer and actions automatically
 const slice = createSlice({
   name: 'slice',
   initialState: initialAccountState,
   reducers: {
-    authenticate: (state, action:PayloadAction<string>) => state,
-    loadLogin: (state, action:PayloadAction<string>) => {initialAccountState},
-    saveLogin: (state, action:PayloadAction<string>) => {action.payload},
-    login: (state, action:PayloadAction<string>) => state,
-    logout: (state, action:PayloadAction<string>) => {initialAccountState},
-    resetLogin: (state, action:PayloadAction<string>) => {initialAccountState},
-    default: (state, action:PayloadAction<string>) => state,
+    saveLogin: (state, action:PayloadAction<any>) => state = action.payload,
+    resetLogin: (state) => state = initialAccountState,
   },
 });
 
@@ -35,8 +31,9 @@ const store = configureStore({
 
 export default store;
 
-//Auto Authenticate JWT
-store.dispatch({type: "load-login", payload: {}});
+// Export action functions to use in app with dispatch
+// How to use in component: https://redux-toolkit.js.org/tutorials/quick-start#use-redux-state-and-actions-in-react-components
+export const { saveLogin, resetLogin } = slice.actions;
 
 //Typescript Redux Setup: https://react-redux.js.org/tutorials/typescript-quick-start
 // Infer the `RootState` and `AppDispatch` types from the store itself
