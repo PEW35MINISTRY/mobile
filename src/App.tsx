@@ -1,24 +1,30 @@
 import React, {useState, useEffect, useContext, useRef} from "react";
 import {View, Text, Image, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert} from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import 'react-native-gesture-handler';
 import theme from './theme';
 import { Provider } from 'react-redux';
 import store from './redux-store';
 import { useAppSelector, useAppDispatch } from './TypesAndInterfaces/hooks';
-
+import { createStackNavigator } from '@react-navigation/stack';
 import Login from "./1-Profile/Login";
+import Signup from "./1-Profile/Signup";
+
+const Stack = createStackNavigator();
 
 const App = ():JSX.Element => {
 
- 
   return (
     <Provider store = { store }>
-      <View style={theme.center}>
-        <Login />
-      </View>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{headerShown: false}}>
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Signup" component={Signup} />
+          </Stack.Navigator>
+        </NavigationContainer>
     </Provider>
   );
 }
-
 
 const styles = StyleSheet.create({
   ...theme,

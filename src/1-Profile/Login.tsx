@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useContext, useRef} from 'react';
 import {View, Text, Image, StyleSheet, GestureResponderEvent } from 'react-native';
+import { Props } from '../TypesAndInterfaces/app-types';
 import axios from 'axios';
 import theme, {COLORS} from '../theme';
 import { useAppSelector, useAppDispatch } from '../TypesAndInterfaces/hooks';
@@ -13,7 +14,7 @@ import GOOGLE from '../../assets/logo-google.png';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { saveLogin, resetLogin } from '../redux-store';
 
-const Login = ():JSX.Element => {
+const Login = ({navigation}:Props):JSX.Element => {
     const dispatch = useAppDispatch();
     //TODO Temporary will utilize dynamic flow with sign-up and edit forms with validations
     const [username, setUsername] = useState('');
@@ -45,7 +46,7 @@ const Login = ():JSX.Element => {
 
     const onForgotPassword = (event:GestureResponderEvent) => console.log(`Navigating to Password Reset Page`);
 
-    const onSignUp = (event:GestureResponderEvent) => console.log(`Navigating to Sign up Page`);
+    const onSignUp = (event:GestureResponderEvent) => navigation.navigate("Signup");
  
     return (
     <View style={theme.background_view}>
