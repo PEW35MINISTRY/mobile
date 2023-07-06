@@ -16,8 +16,8 @@ export const MAX_STUDENT_AGE = 18;
 ****************************************/
 
 export enum GenderEnum {
-    MALE = 'Male',
-    FEMALE = 'Female'
+    MALE = 'MALE',
+    FEMALE = 'FEMALE'
 }
 
 export enum RoleEnum {
