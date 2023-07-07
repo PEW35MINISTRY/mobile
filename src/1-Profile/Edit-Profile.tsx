@@ -24,13 +24,8 @@ const EditProfile = ({navigation}:Props):JSX.Element => {
 
     const jwt = useAppSelector((state: RootState) => state.account.JWT);
     const userID = useAppSelector((state: RootState) => state.account.userId);
-    var userProfile = store.getState().account.userProfile;
+    const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
 
-    useEffect(() => {
-      userProfile = store.getState().account.userProfile;
-    }, [])
-
-    console.log(userProfile, jwt, userID);
     const axiosHeaderData = {
       headers: {
         "jwt": jwt, 
@@ -64,16 +59,17 @@ const EditProfile = ({navigation}:Props):JSX.Element => {
       // filter out fields that didn't change
       const editedFields: Record<string, string> = {};
       for (const [key, value] of Object.entries(fieldData)) {
-        if (value !== userProfileValues[key]) editedFields[key] = value;
+        if (value !== userProfileValues[key]) editedFields[key] = value as unknown as string;
       }
 
       // send data to server
       axios.patch(`${DOMAIN}/api/user/profile/` + userProfile.userId, editedFields, axiosHeaderData,
         ).then(response => {
             console.log("Profile edit success.", response.data);
-            dispatch(updateProfile({
-              userProfile: response.data.userProfile,
-            }));
+            dispatch(updateProfile(
+              response.data.userProfile,
+            ));
+            console.log("status of store:", store.getState())
       }).catch(err => console.error("Failed to edit", err))
       
       navigation.pop();
@@ -153,11 +149,9 @@ const EditProfile = ({navigation}:Props):JSX.Element => {
               {renderInputFields()}
             </ScrollView>
             <Raised_Button buttonStyle={styles.sign_in_button}
-                text='Edit Profile'
+                text='Save Changes'
                 onPress={handleSubmit(onEditFields)}
             />
-            <Image source={PEW35} style={styles.pew35_logo}></Image>
-            <Image source={HANDS} style={styles.hands_image} resizeMode='contain'></Image>
         </View>
       </View>
         

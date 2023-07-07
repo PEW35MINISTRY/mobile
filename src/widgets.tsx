@@ -71,7 +71,8 @@ export const Outline_Button = (props:{text:string|JSX.Element, buttonStyle?:View
 }
 
 export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextStyle, labelStyle?:TextStyle, containerStyle?:ViewStyle,
-    value:string, onChangeText:((text: string) => void), placeholder?:string, placeholderTextColor?:ColorValue, keyboardType?:KeyboardTypeOptions, textContentType?:any}):JSX.Element => {  
+    value:string, onChangeText:((text: string) => void), placeholder?:string, placeholderTextColor?:ColorValue, keyboardType?:KeyboardTypeOptions,
+    textContentType?:any, validationLabel?:string, validationStyle?:TextStyle}):JSX.Element => {  
 
     const [labelColor, setLabelColor] = useState(COLORS.accent);
         
@@ -99,6 +100,12 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
             marginVertical: 5,
             ...props.containerStyle,
         },
+        validationStyle: {
+            ...theme.accent,
+            color: COLORS.primary,
+            textAlign: "center",
+            ...props.validationStyle,
+        }
     });
 
     return ( <View style={styles.containerStyle}>
@@ -115,6 +122,7 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
                     textContentType={props.textContentType}
                     secureTextEntry={props.textContentType === 'password'}
                 />
+                {props.validationLabel && <Text style={styles.validationStyle}>{props.validationLabel}</Text>}
             </View> );
 }
 
@@ -124,43 +132,39 @@ export const Icon_Button = (props:{source:ImageSourcePropType, imageStyle:ImageS
              </TouchableOpacity> );
 }
 
-export const DOBPicker = (props:{label?:string|JSX.Element, buttonStyle?:ViewStyle, buttonText:string, onConfirm:((date:Date) => void) }):JSX.Element => {
+export const DOBPicker = (props:{validationLabel?:string|JSX.Element, buttonStyle?:ViewStyle, buttonText:string, onConfirm:((date:Date) => void) }):JSX.Element => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
     const styles = StyleSheet.create({
         containerStyle: {
             marginVertical: 5,
         },
-        labelStyle: {
+        validationLabelStyle: {
             ...theme.accent,
             color: COLORS.primary,
-            textAlign: 'left',
+            textAlign: 'center',
         }
     });
 
     return (
-        <View>
-            <View style={styles.containerStyle}>
-                {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
-                <Outline_Button
-                    text={props.buttonText}
-                    buttonStyle={props.buttonStyle}
-                    onPress={(event:GestureResponderEvent) => setDatePickerVisible(!isDatePickerVisible)}
-                />
-            </View>
-            <View style={styles.containerStyle}>
-                <DateTimePickerModal 
-                    isVisible={isDatePickerVisible}
-                    mode="date"
-                    onConfirm={props.onConfirm}
-                    onCancel={(event:Date) => setDatePickerVisible(!isDatePickerVisible)}
-                />
-            </View>
+        <View style={styles.containerStyle}>
+            <Outline_Button
+                text={props.buttonText}
+                buttonStyle={props.buttonStyle}
+                onPress={(event:GestureResponderEvent) => setDatePickerVisible(!isDatePickerVisible)}
+            />
+            <DateTimePickerModal 
+                isVisible={isDatePickerVisible}
+                mode="date"
+                onConfirm={props.onConfirm}
+                onCancel={(event:Date) => setDatePickerVisible(!isDatePickerVisible)}
+            />
+            {props.validationLabel && <Text style={styles.validationLabelStyle}>{props.validationLabel}</Text>}
         </View>
     )
 }
 
-export const Dropdown_Select = (props:{label?:string, setSelected:((val:string) => void), data: any, placeholder?:string, boxStyle?:ViewStyle}):JSX.Element => {
+export const Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: any, placeholder?:string, boxStyle?:ViewStyle}):JSX.Element => {
     const styles = StyleSheet.create({
         dropdownText: {
             color: COLORS.white,
@@ -182,7 +186,7 @@ export const Dropdown_Select = (props:{label?:string, setSelected:((val:string) 
         errorTextStyle: {
             ...theme.accent,
             color: COLORS.primary,
-            textAlign: "left",
+            textAlign: "center",
             marginBottom: 5,
         },
           
@@ -190,7 +194,6 @@ export const Dropdown_Select = (props:{label?:string, setSelected:((val:string) 
     
     return (
         <View style={styles.containerStyle}>
-            {props.label && <Text style={styles.errorTextStyle}>{props.label}</Text>}
             <SelectList 
                 setSelected={(val: string) => props.setSelected(val)} 
                 data={props.data}
@@ -200,6 +203,8 @@ export const Dropdown_Select = (props:{label?:string, setSelected:((val:string) 
                 inputStyles={styles.dropdownSelected}
                 placeholder={props.placeholder} 
              />
+            {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
+
         </View>
         
       )

@@ -20,7 +20,7 @@ import { render } from 'react-dom';
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
-//const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
+// const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
 
 const minAge:Date = getDateYearsAgo(MIN_STUDENT_AGE);
 const maxAge:Date = getDateYearsAgo(MAX_STUDENT_AGE);
@@ -31,7 +31,7 @@ const Signup = ({navigation}:Props):JSX.Element => {
 
     const inputFieldJSON: Record<string, string> = {};
     SIGNUP_PROFILE_FIELDS_STUDENT.forEach((field) => {
-      inputFieldJSON[field.field] = field.toJSON().value;
+      inputFieldJSON[field.field] = field.toJSON().value as unknown as string;
     })
 
     const {
@@ -80,9 +80,9 @@ const Signup = ({navigation}:Props):JSX.Element => {
                     value={value}
                     onChangeText={onChange}
                     keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
-                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
+                    validationStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                     inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                    label={(errors[field.field] && field.validationMessage) || undefined}
+                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                   />
                 )}
                 name={field.field}
@@ -115,9 +115,9 @@ const Signup = ({navigation}:Props):JSX.Element => {
                     onChangeText={onChange}
                     keyboardType='default'
                     textContentType='password'
-                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
+                    validationStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                     inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                    label={(errors[field.field] && field.validationMessage) || undefined}
+                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                   />
                 )}
                 name={field.field}
@@ -160,7 +160,8 @@ const Signup = ({navigation}:Props):JSX.Element => {
                     keyboardType='email-address'
                     labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                     inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                    label={(errors[field.field] && field.validationMessage) || undefined}
+                    
+                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                   />
                 )}
                 name={field.field}
@@ -184,7 +185,7 @@ const Signup = ({navigation}:Props):JSX.Element => {
                      setSelected={(val:string) => onChange(val)}
                      data={selectListData}
                      placeholder='Select Gender'
-                     label={(errors[field.field] && field.validationMessage) || undefined}
+                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                      boxStyle={(errors[field.field] && {borderColor: COLORS.primary}) || {borderColor: COLORS.accent}}
                   />
                 )}
@@ -211,7 +212,7 @@ const Signup = ({navigation}:Props):JSX.Element => {
                     buttonText={field.title}
                     buttonStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
                     onConfirm={(date:Date) => onChange(date.toISOString().split('T')[0])}
-                    label={(errors[field.field] && field.validationMessage) || undefined}
+                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                   />
                 )}
                 name={field.field}
@@ -235,11 +236,9 @@ const Signup = ({navigation}:Props):JSX.Element => {
               { renderInputFields() }
             </ScrollView>
             <Raised_Button buttonStyle={styles.sign_in_button}
-                text='Create Account'
-                onPress={handleSubmit(onSignUp)}
+              text='Create Account'
+              onPress={handleSubmit(onSignUp)}
             />
-            <Image source={PEW35} style={styles.pew35_logo}></Image>
-            <Image source={HANDS} style={styles.hands_image} resizeMode='contain'></Image>
         </View>
       </View>
         

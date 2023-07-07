@@ -4,7 +4,11 @@ module.exports = {
   ],
   plugins: [
     ['module:react-native-dotenv',
-      {'path' : '.env'}
+      {
+        path : '.env',
+        moduleName: '@env',
+        envName: 'APP_ENV',       
+      }
     ],
   ],
 };

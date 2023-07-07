@@ -7,7 +7,10 @@
 
 const EMAIL_REGEX = new RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+([^<>()\.,;:\s@\"]{2,}|[\d\.]+))$/);
 const DATE_REGEX = new RegExp(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/); //1970-01-01T00:00:00.013Z
-    
+
+// valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
+// const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
+
 export const MIN_STUDENT_AGE = 13;
 export const MAX_STUDENT_AGE = 18;
 
