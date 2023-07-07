@@ -4,6 +4,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, TextInput, GestureResponderEvent, Image, ViewStyle, ColorValue, KeyboardTypeOptions, TextStyle, ImageSourcePropType, ImageStyle } from "react-native";
 import theme, {COLORS, FONTS, FONT_SIZES, RADIUS} from './theme';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import DateTimePickerModal, { ReactNativeModalDateTimePickerProps } from "react-native-modal-datetime-picker";
+import { SelectList } from 'react-native-dropdown-select-list'
 
 export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewStyle, textStyle?:TextStyle, onPress:((event: GestureResponderEvent) => void)}):JSX.Element => {
 
@@ -67,15 +70,16 @@ export const Outline_Button = (props:{text:string|JSX.Element, buttonStyle?:View
     return ( <Flat_Button {...props} buttonStyle={styles.buttonStyle}/> );    
 }
 
-export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextStyle, labelStyle?:TextStyle, containerStyle?:ViewStyle, 
-    value:string, onChangeText:((text: string) => void), placeholder?:string, placeholderTextColor?:ColorValue, keyboardType?:KeyboardTypeOptions, textContentType?:any}):JSX.Element => {  
+export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextStyle, labelStyle?:TextStyle, containerStyle?:ViewStyle,
+    value:string, onChangeText:((text: string) => void), placeholder?:string, placeholderTextColor?:ColorValue, keyboardType?:KeyboardTypeOptions,
+    textContentType?:any, validationLabel?:string, validationStyle?:TextStyle}):JSX.Element => {  
 
-    const [labelColor, setLabelColor] = useState<ColorValue>(COLORS.transparentWhite);
+    const [labelColor, setLabelColor] = useState(COLORS.accent);
         
     const styles = StyleSheet.create({
         labelStyle: {
             ...theme.accent,
-            color: labelColor,
+            color: COLORS.transparentWhite,
             textAlign: 'left',
             ...props.labelStyle,
         },
@@ -96,6 +100,12 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
             marginVertical: 5,
             ...props.containerStyle,
         },
+        validationStyle: {
+            ...theme.accent,
+            color: COLORS.primary,
+            textAlign: "center",
+            ...props.validationStyle,
+        }
     });
 
     return ( <View style={styles.containerStyle}>
@@ -112,6 +122,7 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
                     textContentType={props.textContentType}
                     secureTextEntry={props.textContentType === 'password'}
                 />
+                {props.validationLabel && <Text style={styles.validationStyle}>{props.validationLabel}</Text>}
             </View> );
 }
 
@@ -119,4 +130,83 @@ export const Icon_Button = (props:{source:ImageSourcePropType, imageStyle:ImageS
     return ( <TouchableOpacity onPress={props.onPress}>
                  <Image source={props.source} style={props.imageStyle} />
              </TouchableOpacity> );
+}
+
+export const DOBPicker = (props:{validationLabel?:string|JSX.Element, buttonStyle?:ViewStyle, buttonText:string, onConfirm:((date:Date) => void) }):JSX.Element => {
+    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+
+    const styles = StyleSheet.create({
+        containerStyle: {
+            marginVertical: 5,
+        },
+        validationLabelStyle: {
+            ...theme.accent,
+            color: COLORS.primary,
+            textAlign: 'center',
+        }
+    });
+
+    return (
+        <View style={styles.containerStyle}>
+            <Outline_Button
+                text={props.buttonText}
+                buttonStyle={props.buttonStyle}
+                onPress={(event:GestureResponderEvent) => setDatePickerVisible(!isDatePickerVisible)}
+            />
+            <DateTimePickerModal 
+                isVisible={isDatePickerVisible}
+                mode="date"
+                onConfirm={props.onConfirm}
+                onCancel={(event:Date) => setDatePickerVisible(!isDatePickerVisible)}
+            />
+            {props.validationLabel && <Text style={styles.validationLabelStyle}>{props.validationLabel}</Text>}
+        </View>
+    )
+}
+
+export const Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: any, placeholder?:string, boxStyle?:ViewStyle}):JSX.Element => {
+    const styles = StyleSheet.create({
+        dropdownText: {
+            color: COLORS.white,
+            textAlign: "center",
+        },
+        dropdownSelected: {
+            color: COLORS.white,
+            textAlign: "center",
+        },
+        dropdown: {
+            width: 300,
+            marginLeft: 3,
+            paddingVertical: 5,
+            paddingHorizontal: 15,
+        },
+        containerStyle: {
+            marginVertical: 5,
+        },
+        errorTextStyle: {
+            ...theme.accent,
+            color: COLORS.primary,
+            textAlign: "center",
+            marginBottom: 5,
+        },
+          
+    });
+    
+    return (
+        <View style={styles.containerStyle}>
+            <SelectList 
+                setSelected={(val: string) => props.setSelected(val)} 
+                data={props.data}
+                save="value"
+                boxStyles={props.boxStyle} 
+                dropdownTextStyles={styles.dropdownText}
+                inputStyles={styles.dropdownSelected}
+                placeholder={props.placeholder} 
+             />
+            {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
+
+        </View>
+        
+      )
+   
 }

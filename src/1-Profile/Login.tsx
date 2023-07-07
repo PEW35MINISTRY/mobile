@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useContext, useRef} from 'react';
 import {View, Text, Image, StyleSheet, GestureResponderEvent } from 'react-native';
-import { Props } from '../TypesAndInterfaces/app-types';
+import { DOMAIN } from '@env';
+import { Props } from '../TypesAndInterfaces/profile-types';
 import axios from 'axios';
 import theme, {COLORS} from '../theme';
 import { useAppSelector, useAppDispatch } from '../TypesAndInterfaces/hooks';
@@ -22,10 +23,10 @@ const Login = ({navigation}:Props):JSX.Element => {
 
     const onLogin = (event:GestureResponderEvent):void => {
         if(event) event.preventDefault();
+        console.log(`${DOMAIN}`)
 
-        axios.post(`${process.env.DOMAIN}/login`, {
+        axios.post(`${DOMAIN}/login`, {
             email: username,
-            displayName: username,
             password: password,
     
             }).then(response => {   
@@ -44,7 +45,7 @@ const Login = ({navigation}:Props):JSX.Element => {
 
     const onApple = (event:GestureResponderEvent) => console.log(`Logging in via APPLE`);
 
-    const onForgotPassword = (event:GestureResponderEvent) => console.log(`Navigating to Password Reset Page`);
+    const onForgotPassword = (event:GestureResponderEvent) => navigation.navigate("EditProfile");
 
     const onSignUp = (event:GestureResponderEvent) => navigation.navigate("Signup");
  

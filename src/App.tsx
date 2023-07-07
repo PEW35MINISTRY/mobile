@@ -9,6 +9,7 @@ import { useAppSelector, useAppDispatch } from './TypesAndInterfaces/hooks';
 import { createStackNavigator } from '@react-navigation/stack';
 import Login from "./1-Profile/Login";
 import Signup from "./1-Profile/Signup";
+import EditProfile from "./1-Profile/Edit-Profile";
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,7 @@ const App = ():JSX.Element => {
           <Stack.Navigator screenOptions={{headerShown: false}}>
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Signup" component={Signup} />
+            <Stack.Screen name="EditProfile" component={EditProfile} />
           </Stack.Navigator>
         </NavigationContainer>
     </Provider>
