@@ -30,10 +30,10 @@ const Login = ({navigation}:Props):JSX.Element => {
             password: password,
     
             }).then(response => {   
-                console.log(`Welcome user ${response.data.userId}, ${response.data.userProfile.firstName}`);
+                console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);
                 dispatch(saveLogin({
-                    JWT: response.data.JWT,
-                    userId: response.data.userId,
+                    jwt: response.data.jwt,
+                    userID: response.data.userID,
                     userProfile: response.data.userProfile,
                     }));
             }).catch(error => console.error('Failed Authentication', username, password, error));

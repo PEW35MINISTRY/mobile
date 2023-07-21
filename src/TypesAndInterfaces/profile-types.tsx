@@ -41,7 +41,7 @@ export interface ProfilePartnerItem {
 
 /* Sync between Server and Portal "profile-types" */
 export interface ProfilePublicResponse {
-    userId: number, 
+    userID: number, 
     isActive: boolean,
     userRole: string, 
     firstName: string,
