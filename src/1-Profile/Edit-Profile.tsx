@@ -23,8 +23,6 @@ const EditProfile = ({navigation}:Props):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
 
-    console.log(userProfile);
-
     const axiosHeaderData = {
       headers: {
         "jwt": jwt, 
@@ -66,8 +64,9 @@ const EditProfile = ({navigation}:Props):JSX.Element => {
         ).then(response => {
             console.log("Profile edit success.");
 
+            // IMPORTANT: The following assumes that this route will return the user's userRole, userRoleList, and walkLevel by default, and other fields that changed in addition.
+            // IF THIS CHANGES, EDIT PROFILE WILL BREAK!
             if (Object.values(response.data).length > 3) {
-              console.log("update thing");
               // something other than the password changed, and we need to save it to redux
               for (const [key, value] of Object.entries(userProfileValues)) {
                 if (response.data[key]) userProfileValues[key] = response.data[key];

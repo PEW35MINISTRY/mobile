@@ -135,7 +135,6 @@ const Signup = ({navigation}:Props):JSX.Element => {
                      if (value.match(field.validationRegex)) {
                        // check server to see if account with that email address exists
                         await axios.get(`${DOMAIN}/resources/available-account?email=` + value).then((response) => {
-                          console.log("response status", response.status)
                           responseStatus = true;
                           if (response.status == 204) return true;
                     
