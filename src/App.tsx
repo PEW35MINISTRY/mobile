@@ -7,11 +7,31 @@ import { Provider } from 'react-redux';
 import store from './redux-store';
 import { useAppSelector, useAppDispatch } from './TypesAndInterfaces/hooks';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { CircleTabNavigator } from "./widgets";
 import Login from "./1-Profile/Login";
 import Signup from "./1-Profile/Signup";
 import EditProfile from "./1-Profile/Edit-Profile";
+import Home from "./2-Circles/Home";
 
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+const CircleTabNavigatorOptions = {
+  headerShown: false,
+}
+
+const CircleTabNavigatorProp = () => {
+  return (
+      <Tab.Navigator screenOptions={CircleTabNavigatorOptions}
+                     initialRouteName="Home"
+                     tabBar={props => <CircleTabNavigator {...props} />}
+      >
+        <Tab.Screen name="Home" component={Home} />
+
+      </Tab.Navigator>
+  );
+}
 
 const App = ():JSX.Element => {
 
@@ -22,6 +42,7 @@ const App = ():JSX.Element => {
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Signup" component={Signup} />
             <Stack.Screen name="EditProfile" component={EditProfile} />
+            <Stack.Screen name="CircleNavigator" component={CircleTabNavigatorProp} />
           </Stack.Navigator>
         </NavigationContainer>
     </Provider>

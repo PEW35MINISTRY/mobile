@@ -1,6 +1,9 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
+
 import { GenderEnum } from './profile-field-config';
-export type Props = NativeStackScreenProps<any>;
+export type StackNavigationProps = NativeStackScreenProps<any>;
+export type TabNavigationProps = BottomTabScreenProps<any>;
 
 export type React$Node = JSX.Element | null;
 

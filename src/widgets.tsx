@@ -1,12 +1,106 @@
 //These are reusable widgets for app consistency
-
-
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, TextInput, GestureResponderEvent, Image, ViewStyle, ColorValue, KeyboardTypeOptions, TextStyle, ImageSourcePropType, ImageStyle } from "react-native";
 import theme, {COLORS, FONTS, FONT_SIZES, RADIUS} from './theme';
+import { Icon } from 'react-native-elements';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import DateTimePickerModal, { ReactNativeModalDateTimePickerProps } from "react-native-modal-datetime-picker";
 import { SelectList } from 'react-native-dropdown-select-list'
+import { TabNavigationProps } from './TypesAndInterfaces/profile-types';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
+
+const defaultNavigationState:Record<string, boolean> = {
+    "Home": true,
+    "Prayer": false,
+    "Learn": false,
+    "Profile": false,
+}
+
+const resetNavigationState:Record<string, boolean> = {
+    ...defaultNavigationState,
+    "Home": false,
+}
+
+console.log(resetNavigationState);
+
+export const CircleTabNavigator = (props:BottomTabBarProps):JSX.Element => {
+    const [isFocused, setIsFocused] = useState(defaultNavigationState);
+
+    const changeTab = (screenName:string) => {
+        var newState = resetNavigationState;
+        newState[screenName] = true;
+        setIsFocused(newState);
+        props.navigation.navigate(screenName);
+    }
+
+    const styes = StyleSheet.create({
+        container: {
+            justifyContent: "center",
+            backgroundColor: COLORS.black,
+            flexDirection: "row",
+        },
+        padding: {
+            justifyContent: "flex-end",
+            marginBottom: 15, 
+        },
+        navTouchable: {
+            backgroundColor: COLORS.black,
+            borderRadius: 28,
+        },
+    });
+
+    return (
+        <View style={styes.container}>
+            <View style={styes.padding}>
+                <TouchableOpacity
+                    style={styes.navTouchable}
+                    onPress={() => changeTab("Home")}
+                >
+                    <Icon
+                        name="done"
+                        color={(isFocused["Home"] && COLORS.primary) || COLORS.accent}
+                        size={55}
+                    />
+                        
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styes.navTouchable}
+                    onPress={() => changeTab("Prayer")}
+                >
+                    <Icon
+                        name="thumb_up"
+                        color={(isFocused["Prayer"] && COLORS.primary) || COLORS.accent}
+                        size={55}
+                    />
+                        
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styes.navTouchable}
+                    onPress={() => changeTab("Learn")}
+                >
+                    <Icon
+                        name="HomeOutlined"
+                        color={(isFocused["Learn"] && COLORS.primary) || COLORS.accent}
+                        size={55}
+                    />
+                        
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styes.navTouchable}
+                    onPress={() => changeTab("Profile")}
+                >
+                    <Icon
+                        name="HomeOutlined"
+                        color={(isFocused["Profile"] && COLORS.primary) || COLORS.accent}
+                        size={55}
+                    />
+                        
+                </TouchableOpacity>
+            </View>
+
+        </View>
+    )
+}
 
 export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewStyle, textStyle?:TextStyle, onPress:((event: GestureResponderEvent) => void)}):JSX.Element => {
 

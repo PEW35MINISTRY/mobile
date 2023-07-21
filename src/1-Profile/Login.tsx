@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext, useRef} from 'react';
 import {View, Text, Image, StyleSheet, GestureResponderEvent } from 'react-native';
 import { DOMAIN } from '@env';
-import { Props } from '../TypesAndInterfaces/profile-types';
+import { StackNavigationProps } from '../TypesAndInterfaces/profile-types';
 import axios from 'axios';
 import theme, {COLORS} from '../theme';
 import { useAppSelector, useAppDispatch } from '../TypesAndInterfaces/hooks';
@@ -15,7 +15,7 @@ import GOOGLE from '../../assets/logo-google.png';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { saveLogin, resetLogin } from '../redux-store';
 
-const Login = ({navigation}:Props):JSX.Element => {
+const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
     //TODO Temporary will utilize dynamic flow with sign-up and edit forms with validations
     const [username, setUsername] = useState('');
@@ -23,7 +23,6 @@ const Login = ({navigation}:Props):JSX.Element => {
 
     const onLogin = (event:GestureResponderEvent):void => {
         if(event) event.preventDefault();
-        console.log(`${DOMAIN}`)
 
         axios.post(`${DOMAIN}/login`, {
             email: username,
@@ -36,7 +35,9 @@ const Login = ({navigation}:Props):JSX.Element => {
                     userID: response.data.userID,
                     userProfile: response.data.userProfile,
                     }));
+                    navigation.navigate("CircleNavigator");
             }).catch(error => console.error('Failed Authentication', username, password, error));
+        
     }
 
     const onGoogle = (event:GestureResponderEvent) => console.log(`Logging in via Google`);
