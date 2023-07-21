@@ -8,13 +8,9 @@ import { RoleEnum, getDateYearsAgo, getDOBMinDate, getDOBMaxDate } from '../Type
 
 import theme, {COLORS} from '../theme';
 import { useAppSelector, useAppDispatch } from '../TypesAndInterfaces/hooks';
-<<<<<<< Updated upstream
-import { Props } from '../TypesAndInterfaces/profile-types';
-import { SIGNUP_PROFILE_FIELDS_STUDENT, InputType, InputField, FieldInput, getShortDate } from '../TypesAndInterfaces/profile-field-config';
-=======
+
 import { StackNavigationProps } from '../TypesAndInterfaces/profile-types';
 import { SIGNUP_PROFILE_FIELDS_STUDENT, InputType, InputField, FieldInput } from '../TypesAndInterfaces/profile-field-config';
->>>>>>> Stashed changes
 
 import PEW35 from '../../assets/pew35-logo.png';
 import HANDS from '../../assets/hands.png';

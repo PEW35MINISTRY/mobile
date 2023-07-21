@@ -21,6 +21,7 @@ export enum FONTS {
 export enum FONT_SIZES {
     S = 10,
     M = 15,
+    Ls = 18,
     L = 25,
     XL = 40
 }
@@ -35,6 +36,12 @@ export default StyleSheet.create({
         color: COLORS.primary,
         fontSize: FONT_SIZES.XL,
         fontWeight: '800',
+    },
+    sectionHeader: {
+        fontFamily: FONTS.header,
+        color: COLORS.white,
+        fontSize: FONT_SIZES.Ls,
+        fontWeight: '600',
     },
     title: {
         fontFamily: FONTS.title,

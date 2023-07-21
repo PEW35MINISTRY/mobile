@@ -41,11 +41,14 @@ export const CircleTabNavigator = (props:BottomTabBarProps):JSX.Element => {
         },
         padding: {
             justifyContent: "flex-end",
+            flexDirection: "row",
             marginBottom: 15, 
         },
         navTouchable: {
             backgroundColor: COLORS.black,
             borderRadius: 28,
+            marginRight: 35, 
+            marginLeft: 35,
         },
     });
 

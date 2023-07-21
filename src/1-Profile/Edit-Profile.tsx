@@ -16,14 +16,11 @@ import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } 
 import { updateProfile, RootState } from '../redux-store';
 import { useForm, Controller } from "react-hook-form"
 
-<<<<<<< Updated upstream
-const EditProfile = ({navigation}:Props):JSX.Element => {
-=======
+
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
 
 const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
->>>>>>> Stashed changes
     const dispatch = useAppDispatch();
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
