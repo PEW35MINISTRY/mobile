@@ -3,13 +3,13 @@ import {View, Text, Image, StyleSheet, GestureResponderEvent, ScrollView } from 
 import axios from 'axios';
 import { DOMAIN } from '@env';
 import { useSelector } from 'react-redux';
-import { RoleEnum, getDateYearsAgo, MAX_STUDENT_AGE, MIN_STUDENT_AGE } from '../TypesAndInterfaces/profile-field-config';
+import { RoleEnum, getDateYearsAgo, getDOBMinDate, getDOBMaxDate } from '../TypesAndInterfaces/profile-field-config';
 
 
 import theme, {COLORS} from '../theme';
 import { useAppSelector, useAppDispatch } from '../TypesAndInterfaces/hooks';
 import { Props } from '../TypesAndInterfaces/profile-types';
-import { SIGNUP_PROFILE_FIELDS_STUDENT, InputType, InputField, FieldInput } from '../TypesAndInterfaces/profile-field-config';
+import { SIGNUP_PROFILE_FIELDS_STUDENT, InputType, InputField, FieldInput, getShortDate } from '../TypesAndInterfaces/profile-field-config';
 
 import PEW35 from '../../assets/pew35-logo.png';
 import HANDS from '../../assets/hands.png';
@@ -19,11 +19,8 @@ import { saveLogin, resetLogin, RootState } from '../redux-store';
 import { render } from 'react-dom';
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
 
-// valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
-// const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
-
-const minAge:Date = getDateYearsAgo(MIN_STUDENT_AGE);
-const maxAge:Date = getDateYearsAgo(MAX_STUDENT_AGE);
+const minAge:Date = getDOBMaxDate(RoleEnum.STUDENT)
+const maxAge:Date = getDOBMinDate(RoleEnum.STUDENT);
 
 const Signup = ({navigation}:Props):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -45,16 +42,17 @@ const Signup = ({navigation}:Props):JSX.Element => {
 
     const onSignUp = (fieldData:any) => {
       clearErrors();
-    
+
       // send data to server
       axios.post(`${DOMAIN}/signup`, fieldData
           ).then(response => {
-            console.log("Sigup successful.")
+            console.log("Sigup successful.", response.data.JWT);
             dispatch(saveLogin({
-              JWT: response.data.JWT,
-              userId: response.data.userId,
+              jwt: response.data.jwt,
+              userID: response.data.userID,
               userProfile: response.data.userProfile,
               }));
+            navigation.pop();
       }).catch(err => console.error("Failed signup", err))
       
     }
@@ -136,9 +134,7 @@ const Signup = ({navigation}:Props):JSX.Element => {
                      var responseStatus = false;
                      if (value.match(field.validationRegex)) {
                        // check server to see if account with that email address exists
-                       
                         await axios.get(`${DOMAIN}/resources/available-account?email=` + value).then((response) => {
-                          console.log("response status", response.status)
                           responseStatus = true;
                           if (response.status == 204) return true;
                     
@@ -211,7 +207,7 @@ const Signup = ({navigation}:Props):JSX.Element => {
                   <DOBPicker 
                     buttonText={field.title}
                     buttonStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                    onConfirm={(date:Date) => onChange(date.toISOString().split('T')[0])}
+                    onConfirm={(date:Date) => onChange(date.toISOString())}
                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                   />
                 )}

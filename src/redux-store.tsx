@@ -8,8 +8,8 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 *******************************/
 
 const initialAccountState = {
-  userId: -1,
-  JWT: '',
+  userID: -1,
+  jwt: '',
   userProfile: {} as ProfileResponse
 }; 
 
@@ -21,7 +21,7 @@ const slice = createSlice({
     saveLogin: (state, action:PayloadAction<any>) => state = action.payload,
     resetLogin: (state) => state = initialAccountState,
     updateProfile: (state, action:PayloadAction<any>) => state = {...state, userProfile: action.payload},
-    updateJWT: (state, action:PayloadAction<any>) => state = {...state, JWT: action.payload}
+    updateJWT: (state, action:PayloadAction<any>) => state = {...state, jwt: action.payload}
   }
 });
 

@@ -16,14 +16,11 @@ import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } 
 import { updateProfile, RootState } from '../redux-store';
 import { useForm, Controller } from "react-hook-form"
 
-// valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
-//const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
-
 const EditProfile = ({navigation}:Props):JSX.Element => {
     const dispatch = useAppDispatch();
 
-    const jwt = useAppSelector((state: RootState) => state.account.JWT);
-    const userID = useAppSelector((state: RootState) => state.account.userId);
+    const jwt = useAppSelector((state: RootState) => state.account.jwt);
+    const userID = useAppSelector((state: RootState) => state.account.userID);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
 
     const axiosHeaderData = {
@@ -63,16 +60,25 @@ const EditProfile = ({navigation}:Props):JSX.Element => {
       }
 
       // send data to server
-      axios.patch(`${DOMAIN}/api/user/profile/` + userProfile.userId, editedFields, axiosHeaderData,
+      axios.patch(`${DOMAIN}/api/user/profile/` + userProfile.userID, editedFields, axiosHeaderData,
         ).then(response => {
-            console.log("Profile edit success.", response.data);
-            dispatch(updateProfile(
-              response.data.userProfile,
-            ));
-            console.log("status of store:", store.getState())
+            console.log("Profile edit success.");
+
+            // IMPORTANT: The following assumes that this route will return the user's userRole, userRoleList, and walkLevel by default, and other fields that changed in addition.
+            // IF THIS CHANGES, EDIT PROFILE WILL BREAK!
+            if (Object.values(response.data).length > 3) {
+              // something other than the password changed, and we need to save it to redux
+              for (const [key, value] of Object.entries(userProfileValues)) {
+                if (response.data[key]) userProfileValues[key] = response.data[key];
+              }
+              dispatch(updateProfile(
+                userProfileValues
+              ));
+            }
+
+
+            navigation.pop();
       }).catch(err => console.error("Failed to edit", err))
-      
-      navigation.pop();
     }
 
     const renderInputFields = () => {
