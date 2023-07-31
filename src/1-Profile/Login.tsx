@@ -55,7 +55,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
         <Text style={styles.header} >Encouraging Prayer</Text>
         <Image source={LOGO} style={styles.logo} resizeMode='contain'></Image>
         <Input_Field
-            label='Username/Email:'
+            label='Email:'
             value={username}
             onChangeText={setUsername}
             keyboardType='email-address'

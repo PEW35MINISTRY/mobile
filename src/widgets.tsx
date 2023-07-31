@@ -21,7 +21,29 @@ const resetNavigationState:Record<string, boolean> = {
     "Home": false,
 }
 
-console.log(resetNavigationState);
+export const EventBubble = ():JSX.Element => {
+    return (
+        <View>
+            
+        </View>
+    );
+}
+
+export const AnnouncementBubble = ():JSX.Element => {
+    return (
+        <View>
+
+        </View>
+    );
+}
+
+export const PrayerRequestBubble = ():JSX.Element => {
+    return (
+        <View>
+            
+        </View>
+    );
+}
 
 export const CircleTabNavigator = (props:BottomTabBarProps):JSX.Element => {
     const [isFocused, setIsFocused] = useState(defaultNavigationState);
@@ -47,8 +69,7 @@ export const CircleTabNavigator = (props:BottomTabBarProps):JSX.Element => {
         navTouchable: {
             backgroundColor: COLORS.black,
             borderRadius: 28,
-            marginRight: 35, 
-            marginLeft: 35,
+            marginHorizontal: 30,
         },
     });
 
