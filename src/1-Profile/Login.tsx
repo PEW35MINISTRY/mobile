@@ -30,6 +30,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     
             }).then(response => {   
                 console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);
+                console.log(response.data.userProfile);
                 dispatch(saveLogin({
                     jwt: response.data.jwt,
                     userID: response.data.userID,

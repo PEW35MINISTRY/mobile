@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, TextInput, GestureResponderEvent, Image, ViewStyle, ColorValue, KeyboardTypeOptions, TextStyle, ImageSourcePropType, ImageStyle } from "react-native";
 import theme, {COLORS, FONTS, FONT_SIZES, RADIUS} from './theme';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import DateTimePickerModal, { ReactNativeModalDateTimePickerProps } from "react-native-modal-datetime-picker";
 import { SelectList } from 'react-native-dropdown-select-list'
@@ -10,7 +10,7 @@ import { TabNavigationProps } from './TypesAndInterfaces/profile-types';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
 
 const defaultNavigationState:Record<string, boolean> = {
-    "Home": true,
+    "Circles": true,
     "Prayer": false,
     "Learn": false,
     "Profile": false,
@@ -18,7 +18,7 @@ const defaultNavigationState:Record<string, boolean> = {
 
 const resetNavigationState:Record<string, boolean> = {
     ...defaultNavigationState,
-    "Home": false,
+    "Circles": false,
 }
 
 export const EventBubble = ():JSX.Element => {
@@ -29,10 +29,25 @@ export const EventBubble = ():JSX.Element => {
     );
 }
 
-export const AnnouncementBubble = ():JSX.Element => {
+export const AnnouncementBubble = (props:{title:string, body:string}):JSX.Element => {
+    const styles = StyleSheet.create({
+        bubbleStyle: {
+            backgroundColor: COLORS.primary
+        },
+        titleText: {
+            ...theme.title,
+            color: COLORS.white,
+        },
+        bodyText: {
+            ...theme.text,
+        }
+    });
+
     return (
         <View>
-
+            <TouchableOpacity style={styles.bubbleStyle}>
+                
+            </TouchableOpacity>
         </View>
     );
 }
@@ -78,11 +93,11 @@ export const CircleTabNavigator = (props:BottomTabBarProps):JSX.Element => {
             <View style={styes.padding}>
                 <TouchableOpacity
                     style={styes.navTouchable}
-                    onPress={() => changeTab("Home")}
+                    onPress={() => changeTab("Circles")}
                 >
                     <Icon
-                        name="done"
-                        color={(isFocused["Home"] && COLORS.primary) || COLORS.accent}
+                        name="circle"
+                        color={(isFocused["Circles"] && COLORS.primary) || COLORS.accent}
                         size={55}
                     />
                         

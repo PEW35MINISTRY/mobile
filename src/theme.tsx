@@ -36,12 +36,6 @@ export default StyleSheet.create({
         fontSize: FONT_SIZES.XL,
         fontWeight: '800',
     },
-    sectionHeader: {
-        fontFamily: FONTS.header,
-        color: COLORS.white,
-        fontSize: FONT_SIZES.L-7,
-        fontWeight: '600',
-    },
     title: {
         fontFamily: FONTS.title,
         color: COLORS.primary,

@@ -12,7 +12,7 @@ import { CircleTabNavigator } from "./widgets";
 import Login from "./1-Profile/Login";
 import Signup from "./1-Profile/Signup";
 import EditProfile from "./1-Profile/Edit-Profile";
-import Home from "./2-Circles/Home";
+import Circles from "./2-Circles/Cirlces";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -27,7 +27,7 @@ const CircleTabNavigatorProp = () => {
                      initialRouteName="Home"
                      tabBar={props => <CircleTabNavigator {...props} />}
       >
-        <Tab.Screen name="Home" component={Home} />
+        <Tab.Screen name="Circles" component={Circles} />
 
       </Tab.Navigator>
   );
