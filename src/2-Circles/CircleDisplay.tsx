@@ -10,7 +10,7 @@ import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
 import { BottomTabBarHeightCallbackContext } from '@react-navigation/bottom-tabs';
 import { CircleStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, addCircle, removeCircle } from '../redux-store';
+import { RootState, addCircle, removeCircle, updateCircle } from '../redux-store';
 import { AnnouncementTouchable, CircleTouchable, EventTouchable, Input_Field, PrayerRequestTouchable, Raised_Button } from '../widgets';
 
 // TODO: Make circle lookup page AS modal
@@ -22,11 +22,11 @@ const CircleDisplay = ({navigation, route}:StackNavigationProps, status: number)
     const dispatch = useAppDispatch();
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
-    const userCircles = useAppSelector((state:RootState) => state.account.userProfile.circleList);
     
     const routeProps = route.params;
-    const circleProps = routeProps.CircleProps as unknown as CircleListItem;
+    const circlePropsParam = routeProps.CircleProps as unknown as CircleListItem;
 
+    // headers for making axios requests
     const RequestAccountHeader = {
       headers: {
         "jwt": jwt, 
@@ -34,6 +34,7 @@ const CircleDisplay = ({navigation, route}:StackNavigationProps, status: number)
       }
     }
 
+    // keep track of current circle state
     const defaultState = {
         circleData: {} as CircleResponse,
         circleDataRequest: {} as CircleListItem
@@ -111,16 +112,17 @@ const CircleDisplay = ({navigation, route}:StackNavigationProps, status: number)
         await axios.post(`${DOMAIN}/api/circle/` + currCircleState.circleData.circleID + "/request", {}, RequestAccountHeader).then(response => {
             renderState = {...currCircleState}
             renderState.circleData.requestorStatus = CircleStatusEnum.REQUEST;
-            console.log(renderState);
+            renderState.circleDataRequest.status = CircleStatusEnum.REQUEST;
+            dispatch(addCircle(renderState.circleDataRequest));
             setCurrCircleState(renderState);
         }).catch(err => console.log(err))
     }
 
     const leaveCircle = async () => {
-       
         await axios.delete(`${DOMAIN}/api/circle/` + currCircleState.circleData.circleID + "/leave", RequestAccountHeader).then(response => {
             renderState = {...currCircleState}
             renderState.circleData.requestorStatus = CircleStatusEnum.NON_MEMBER;
+            renderState.circleDataRequest.status = CircleStatusEnum.NON_MEMBER;
             dispatch(removeCircle(currCircleState.circleData.circleID))
             setLeaveCircleModalVisible(false);
             setCircleInfoModalVisible(false);
@@ -134,51 +136,36 @@ const CircleDisplay = ({navigation, route}:StackNavigationProps, status: number)
         if (circleProps.circleID == currCircleState.circleData.circleID) return;
 
         setDataFetchComplete(false);
-        //console.log(circleProps.circleID, RequestAccountHeader);
         
         await axios.get(`${DOMAIN}/api/circle/` + circleProps.circleID, RequestAccountHeader).then(response => {
 
             renderState.circleData = response.data as CircleResponse
-            renderState.circleDataRequest = circleProps;
+            renderState.circleDataRequest = {...circleProps} as CircleListItem;
+
+            if (circleProps.status == CircleStatusEnum.REQUEST && renderState.circleData.requestorStatus == CircleStatusEnum.MEMBER) {
+                // update redux
+                console.log("update redux");
+  
+                renderState.circleDataRequest.status = CircleStatusEnum.MEMBER;
+                dispatch(updateCircle(renderState.circleDataRequest));
+            }
 
             setEventsData(renderState.circleData.eventList as unknown as CircleEventListItem[]);
-            setAnnouncementsData(renderState.circleData.announcementList as unknown as CircleAnnouncementListItem[]);
-            setPrayerRequestsData(renderState.circleData.prayerRequestList as unknown as PrayerRequestListItem[]);
-            
-            // TODO: temporary, replace this monstrosity with a global hash table with circle ids to determine if public circle route has already been called; then add CircleListItem to redux
-            // this is here because when an admin approves the request to join the circle, the app has no way of telling when this occurs, and thus the circle is not added to redux
-            var found = false;
-            userCircles?.forEach((circleProp:CircleListItem) => {
-                if (circleProp.circleID == renderState.circleData.circleID) found = true;
-            })
-            if (!found) dispatch(addCircle(currCircleState.circleDataRequest));
+
+            if (renderState.circleData.requestorStatus == CircleStatusEnum.MEMBER) {
+                setAnnouncementsData(renderState.circleData.announcementList as unknown as CircleAnnouncementListItem[]);
+                setPrayerRequestsData(renderState.circleData.prayerRequestList as unknown as PrayerRequestListItem[]);
+            }
 
             setCurrCircleState(renderState);
             setDataFetchComplete(true);
-        }).catch(async (reason:AxiosError) => {
-
-            // if the failure reason was 401 'unauthorized', use public circle route instead
-            if (reason.response!.status === 401) {
-                await axios.get(`${DOMAIN}/api/circle/` + circleProps.circleID + "/public", RequestAccountHeader).then(response => {
-        
-                    renderState.circleData = response.data as CircleResponse
-                    renderState.circleDataRequest = circleProps;
-        
-                    setEventsData(renderState.circleData.eventList as unknown as CircleEventListItem[]);
-                    
-                    setCurrCircleState(renderState);
-                    setDataFetchComplete(true);
-                })
-            }
-            else console.error(reason);
-        })
-    
+        }).catch((reason:AxiosError) =>  console.log(reason))
     }
 
     useEffect(() => {
-        renderCircle(circleProps)  
+        renderCircle(circlePropsParam)  
 
-    }, [circleProps]);
+    }, [circlePropsParam]);
 
     const _circleMemberController = () => {
         switch(currCircleState.circleData.requestorStatus) {
