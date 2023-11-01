@@ -10,5 +10,6 @@ module.exports = {
         envName: 'APP_ENV',       
       }
     ],
+    'react-native-reanimated/plugin'
   ],
 };

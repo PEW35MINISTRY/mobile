@@ -14,5 +14,4 @@ export function useStateFromProp(initialValue: unknown) {
     useEffect(() => setValue(initialValue), [initialValue]);
   
     return [value, setValue];
-  }
-
+}

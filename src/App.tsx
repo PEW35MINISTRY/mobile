@@ -1,18 +1,22 @@
-import React, {useState, useEffect, useContext, useRef} from "react";
-import {View, Text, Image, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import 'react-native-gesture-handler';
-import theme from './theme';
-import { Provider } from 'react-redux';
-import store from './redux-store';
-import { useAppSelector, useAppDispatch } from './TypesAndInterfaces/hooks';
-import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { CircleTabNavigator } from "./widgets";
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { Alert, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import 'react-native-gesture-handler';
+import { Provider } from 'react-redux';
+import EditProfile from "./1-Profile/Edit-Profile";
 import Login from "./1-Profile/Login";
 import Signup from "./1-Profile/Signup";
-import EditProfile from "./1-Profile/Edit-Profile";
-import Circles from "./2-Circles/Cirlces";
+import Circles from "./2-Circles/CircleDisplay";
+import { CircleSearch } from './2-Circles/CircleSearch';
+import CircleDisplay from './2-Circles/CircleDisplay';
+import { CircleList } from './2-Circles/CircleList';
+import { useAppDispatch, useAppSelector } from './TypesAndInterfaces/hooks';
+import store, { RootState } from './redux-store';
+import theme from './theme';
+import { CircleTabNavigator } from "./widgets";
+import { CIRCLE_DISPLAY_ROUTE_NAME, CIRCLE_LIST_ROUTE_NAME, CIRCLE_SEARCH_ROUTE_NAME } from './TypesAndInterfaces/custom-types';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -21,13 +25,22 @@ const CircleTabNavigatorOptions = {
   headerShown: false,
 }
 
+const CircleSelectorNavigatorProp = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name={CIRCLE_LIST_ROUTE_NAME} component={CircleList} />
+      <Stack.Screen name={CIRCLE_DISPLAY_ROUTE_NAME} component={CircleDisplay} />
+      <Stack.Screen name={CIRCLE_SEARCH_ROUTE_NAME} component={CircleSearch} />
+    </Stack.Navigator>
+  )
+}
+
 const CircleTabNavigatorProp = () => {
   return (
       <Tab.Navigator screenOptions={CircleTabNavigatorOptions}
-                     initialRouteName="Home"
-                     tabBar={props => <CircleTabNavigator {...props} />}
+          tabBar={props => <CircleTabNavigator {...props} />}
       >
-        <Tab.Screen name="Circles" component={Circles} />
+        <Tab.Screen name="Circles" component={CircleSelectorNavigatorProp} />
 
       </Tab.Navigator>
   );

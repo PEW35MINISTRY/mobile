@@ -1,39 +1,38 @@
-import React, {useState, useEffect, useContext, useRef} from 'react';
-import {View, Text, Image, StyleSheet, GestureResponderEvent, ScrollView } from 'react-native';
-import axios from 'axios';
 import { DOMAIN } from '@env';
+import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
+import { GestureResponderEvent, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import theme, {COLORS} from '../theme';
-import { useAppSelector, useAppDispatch } from '../TypesAndInterfaces/hooks';
-import { ProfileResponse, StackNavigationProps } from '../TypesAndInterfaces/profile-types';
-import { EDIT_PROFILE_FIELDS, InputType } from '../TypesAndInterfaces/profile-field-config';
+import { ProfileResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
+import { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import { EDIT_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
+import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
+import theme, { COLORS } from '../theme';
 
-import store from '../redux-store';
-import PEW35 from '../../assets/pew35-logo.png';
 import HANDS from '../../assets/hands.png';
+import PEW35 from '../../assets/pew35-logo.png';
+import store from '../redux-store';
 
+import { Controller, useForm } from "react-hook-form";
+import { RootState, updateProfile } from '../redux-store';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
-import { updateProfile, RootState } from '../redux-store';
-import { useForm, Controller } from "react-hook-form"
-
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
 
 const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
-
+    const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
-    const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
-
-    const axiosHeaderData = {
+    
+    const RequestAccountHeader = {
       headers: {
         "jwt": jwt, 
-        "user-id": userID,
+        "userID": userID,
       }
     }
-    
     // store user profile data as an indexable object
     const userProfileValues: Record<string, string> = {};
     for (const [key, value] of Object.entries(userProfile)) {
@@ -64,7 +63,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       }
 
       // send data to server
-      axios.patch(`${DOMAIN}/api/user/profile/` + userProfile.userID, editedFields, axiosHeaderData,
+      axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader,
         ).then(response => {
             console.log("Profile edit success.");
 
@@ -76,7 +75,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
                 if (response.data[key]) userProfileValues[key] = response.data[key];
               }
               dispatch(updateProfile(
-                userProfileValues
+                userProfileValues as ProfileResponse
               ));
             }
 
