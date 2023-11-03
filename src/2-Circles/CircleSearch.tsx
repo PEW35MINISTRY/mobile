@@ -38,7 +38,7 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
     const searchQuery = async () => {
         console.log("Circle search text: ", circleSearchText);
         await axios.get(`${DOMAIN}/api/circle-list?search=` + circleSearchText + "&filter=ALL&status=NONE&ignoreCache=false", RequestAccountHeader).then(response => {
-            setCircleModals(response.data as CircleListItem[])
+            setCircleModals(response.data)
         }).catch(err => console.log(err))
     }
 
