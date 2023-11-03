@@ -26,7 +26,7 @@ export const CircleList = ({navigation, route}:StackNavigationProps):JSX.Element
 
     useEffect(() => {
         if(userCircles !== undefined) {
-            setCircleModals(userCircles as CircleListItem[])
+            setCircleModals(userCircles);
         }
         else {
             navigation.navigate(CIRCLE_SEARCH_ROUTE_NAME);
