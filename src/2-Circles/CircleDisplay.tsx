@@ -4,28 +4,21 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
 import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
-import { TabNavigationProps, CircleState, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { CircleDisplayProps } from '../TypesAndInterfaces/custom-types';
 import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
 
-import { BottomTabBarHeightCallbackContext } from '@react-navigation/bottom-tabs';
 import { CircleStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, addCircle, removeCircle, updateCircle } from '../redux-store';
 import { AnnouncementTouchable, CircleTouchable, EventTouchable, Input_Field, PrayerRequestTouchable, Raised_Button } from '../widgets';
+import { CircleList } from './CircleList';
 
-// TODO: Make circle lookup page AS modal
-// Also think about a dynamic lookup system for associating circles, users, prayer requests, etc
-
-// Look into useLayoutEffect
-
-const CircleDisplay = ({navigation, route}:StackNavigationProps, status: number):JSX.Element => {
+const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
+    const userProfile = useAppSelector((state: RootState) => state.account.userProfile.circleList);
     
-    const routeProps = route.params;
-    const circlePropsParam = routeProps.CircleProps as unknown as CircleListItem;
-
     // headers for making axios requests
     const RequestAccountHeader = {
       headers: {
@@ -34,141 +27,116 @@ const CircleDisplay = ({navigation, route}:StackNavigationProps, status: number)
       }
     }
 
-    // keep track of current circle state
-    const defaultState = {
-        circleData: {} as CircleResponse,
-        circleDataRequest: {} as CircleListItem
-    } as CircleState;
-
-    var renderState = {
-        ...defaultState
-    }
-
     const [leaveCircleModalVisible, setLeaveCircleModalVisible] = useState(false) // show circle leave warning
     const [circleInfoModalVisible, setCircleInfoModalVisible] = useState(false); // show circle leader, circle name, and circle settings
-    const [currCircleState, setCurrCircleState] = useState(defaultState); // holds all current circle data
-    const [announcementsData, setAnnouncementsData] = useState([] as CircleAnnouncementListItem[]);
-    const [prayerRequestsData, setPrayerRequestsData] = useState([] as PrayerRequestListItem[]);
-    const [eventsData, setEventsData] = useState([] as CircleEventListItem[]);
+    const [currCircleState, setCurrCircleState] = useState<CircleResponse | undefined>(undefined); // holds all current circle data
+    const [appCircleListItem, setAppCircleListItem] = useState<CircleListItem>({circleID: -1, name: '', image: ''});
+    const [announcementsData, setAnnouncementsData] = useState<CircleAnnouncementListItem[]>([]);
+    const [prayerRequestsData, setPrayerRequestsData] = useState<PrayerRequestListItem[]>([]);
+    const [eventsData, setEventsData] = useState<CircleEventListItem[]>([]);
     const [dataFetchComplete, setDataFetchComplete] = useState(false); // toggles wait screen 
 
-    const renderEvents = ():JSX.Element[] => {
-        var eventModals:JSX.Element[] = [];
-        if (eventsData !== undefined) {
-            eventsData.forEach((event:CircleEventListItem, index) => {
-                eventModals.push(
-                    <EventTouchable
-                        key={index}
-                        circleEvent={event}
-                        onPress={() => console.log("Event callback")}
-                    />
-                )
-            });
-        }
-        return eventModals;
-    }
+    const renderEvents = ():JSX.Element[] =>
+        (eventsData || []).map((event:CircleEventListItem, index:number) => 
+            <EventTouchable
+                key={index}
+                circleEvent={event}
+                onPress={() => console.log("Event callback")}
+            />
+        );
 
-    const renderAnnouncements = ():JSX.Element[] => {
-        var announcementModals:JSX.Element[] = [];
-        if (announcementsData !== undefined) {
-            announcementsData.forEach((announcement:CircleAnnouncementListItem, index) => {
-                announcementModals.push(
-                    <AnnouncementTouchable
-                        key={index}
-                        announcementProps={announcement}
-                    />
-                )
-            })
-        }
-        return announcementModals;
-    }
+    const renderAnnouncements = ():JSX.Element[] => 
+        (announcementsData || []).map((announcement:CircleAnnouncementListItem, index:number) => 
+            <AnnouncementTouchable
+                key={index}
+                announcementProps={announcement}
+            />
+        );
 
-    const renderPrayerRequests = ():JSX.Element[] => {
-        var prayerRequestModals:JSX.Element[] = [];
-        if (prayerRequestsData !== undefined) {
-            prayerRequestsData.forEach((prayerRequest:PrayerRequestListItem, index) => {
-                prayerRequestModals.push(
-                    <PrayerRequestTouchable
-                        key={index}
-                        prayerRequestProps={prayerRequest}
-                    />
-                )
-            })
-        }
-        return prayerRequestModals;
-    }
-
+    const renderPrayerRequests = ():JSX.Element[] => 
+    
+        (prayerRequestsData || []).map((prayerRequest:PrayerRequestListItem, index:number) =>
+            <PrayerRequestTouchable
+                key={index}
+                prayerRequestProps={prayerRequest}
+            />
+        );
+    
     const acceptInvite = async () => {
-        await axios.post(`${DOMAIN}/api/circle/` + currCircleState.circleData.circleID + "/accept", {}, RequestAccountHeader).then(response => {
-            renderState = {...currCircleState}
-            renderState.circleDataRequest.status = CircleStatusEnum.MEMBER;
-            dispatch(addCircle(renderState.circleDataRequest)); // update redux
-            renderCircle(renderState.circleDataRequest);
-
+        await axios.post(`${DOMAIN}/api/circle/` + currCircleState?.circleID + "/accept", {}, RequestAccountHeader).then(response => {
+            const newListItem:CircleListItem = {...appCircleListItem, status: CircleStatusEnum.MEMBER};
+            setAppCircleListItem(newListItem);  //update local state
+            dispatch(addCircle(newListItem)); // update redux
+            renderCircle(newListItem);
         }).catch(err => console.log(err));
     }
 
     const requestCircleJoin = async () => {
-        await axios.post(`${DOMAIN}/api/circle/` + currCircleState.circleData.circleID + "/request", {}, RequestAccountHeader).then(response => {
-            renderState = {...currCircleState}
-            renderState.circleData.requestorStatus = CircleStatusEnum.REQUEST;
-            renderState.circleDataRequest.status = CircleStatusEnum.REQUEST;
-            dispatch(addCircle(renderState.circleDataRequest));
-            setCurrCircleState(renderState);
+        await axios.post(`${DOMAIN}/api/circle/` + currCircleState?.circleID + "/request", {}, RequestAccountHeader).then(response => {
+            const newListItem:CircleListItem = {...appCircleListItem, status: CircleStatusEnum.REQUEST};
+            setAppCircleListItem(newListItem);  //update local state
+            dispatch(addCircle(newListItem));
+            setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.REQUEST}) : undefined);
         }).catch(err => console.log(err))
     }
 
     const leaveCircle = async () => {
-        await axios.delete(`${DOMAIN}/api/circle/` + currCircleState.circleData.circleID + "/leave", RequestAccountHeader).then(response => {
-            renderState = {...currCircleState}
-            renderState.circleData.requestorStatus = CircleStatusEnum.NON_MEMBER;
-            renderState.circleDataRequest.status = CircleStatusEnum.NON_MEMBER;
-            dispatch(removeCircle(currCircleState.circleData.circleID))
+        await axios.delete(`${DOMAIN}/api/circle/` + currCircleState?.circleID + "/leave", RequestAccountHeader).then(response => {
+            const newListItem:CircleListItem = {...appCircleListItem, status: CircleStatusEnum.NONE};
+            dispatch(removeCircle(newListItem.circleID))
             setLeaveCircleModalVisible(false);
             setCircleInfoModalVisible(false);
-            setCurrCircleState(renderState);         
+            setAppCircleListItem(newListItem);
+            setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.NONE}) : undefined);      
         }).catch(err => console.log(err))
     }
 
     const renderCircle = async (circleProps:CircleListItem) => {
         
         // don't bother wasting resources when we are already rendering that circle
-        if (circleProps.circleID == currCircleState.circleData.circleID) return;
+        if (circleProps.circleID == currCircleState?.circleID) return;
 
         setDataFetchComplete(false);
         
         await axios.get(`${DOMAIN}/api/circle/` + circleProps.circleID, RequestAccountHeader).then(response => {
 
-            renderState.circleData = response.data as CircleResponse
-            renderState.circleDataRequest = {...circleProps} as CircleListItem;
+            const circleData:CircleResponse = response.data;
+            const circleItem:CircleListItem = {
+                circleID: circleData.circleID,
+                name: circleData.name,
+                image: circleData.image || '',
+                status: circleData.requestorStatus
+            };
 
-            if (circleProps.status == CircleStatusEnum.REQUEST && renderState.circleData.requestorStatus == CircleStatusEnum.MEMBER) {
-                // update redux
-                console.log("update redux");
-  
-                renderState.circleDataRequest.status = CircleStatusEnum.MEMBER;
-                dispatch(updateCircle(renderState.circleDataRequest));
+            setCurrCircleState(circleData);
+            setAppCircleListItem(circleItem);
+
+            // locally, the app only knows that we requested membership. If the server sends a MEMBER status, update redux
+            if (circleProps.status == CircleStatusEnum.REQUEST && circleData.requestorStatus == CircleStatusEnum.MEMBER) {
+                dispatch(updateCircle(circleItem));
             }
 
-            setEventsData(renderState.circleData.eventList as unknown as CircleEventListItem[]);
+            setEventsData(circleData.eventList || []);
 
-            if (renderState.circleData.requestorStatus == CircleStatusEnum.MEMBER) {
-                setAnnouncementsData(renderState.circleData.announcementList as unknown as CircleAnnouncementListItem[]);
-                setPrayerRequestsData(renderState.circleData.prayerRequestList as unknown as PrayerRequestListItem[]);
+            if (circleData.requestorStatus == CircleStatusEnum.MEMBER) {
+                setAnnouncementsData(circleData.announcementList || []);
+                setPrayerRequestsData(circleData.prayerRequestList || []);
             }
 
-            setCurrCircleState(renderState);
             setDataFetchComplete(true);
         }).catch((reason:AxiosError) =>  console.log(reason))
     }
 
     useEffect(() => {
-        renderCircle(circlePropsParam)  
+        if(route.params.CircleProps !== undefined) { //Prevents rendering early
+            setAppCircleListItem(route.params.CircleProps);
+            renderCircle(route.params.CircleProps);
+        }
 
-    }, [circlePropsParam]);
+    }, [route.params]);
 
     const _circleMemberController = () => {
-        switch(currCircleState.circleData.requestorStatus) {
+        switch(currCircleState?.requestorStatus || CircleStatusEnum.NONE) {
             case CircleStatusEnum.REQUEST:
                 // Pending Acceptance
                 return (
@@ -236,7 +204,7 @@ const CircleDisplay = ({navigation, route}:StackNavigationProps, status: number)
     }
 
     const _renderController = ():JSX.Element => {
-        if (!dataFetchComplete) {
+        if (!dataFetchComplete || currCircleState === undefined) {
             return (
                 <View style={styles.container}>
                     <Text style={styles.circleNameText}>Please Wait</Text>
@@ -253,8 +221,8 @@ const CircleDisplay = ({navigation, route}:StackNavigationProps, status: number)
                         <TouchableOpacity 
                             onPress={() => setCircleInfoModalVisible(true)}    
                         >
-                        {currCircleState.circleData.image !== "" && 
-                            <Image source={{uri: currCircleState.circleData.image}} style={styles.circleImageMainPage}></Image> 
+                        {currCircleState.image !== "" && 
+                            <Image source={{uri: currCircleState.image}} style={styles.circleImageMainPage}></Image> 
                             }     
                         </TouchableOpacity>
                    
@@ -273,23 +241,23 @@ const CircleDisplay = ({navigation, route}:StackNavigationProps, status: number)
                     >
                         <View style={styles.infoView}>
                             <View style={styles.headerSection}>
-                                {currCircleState.circleData.image !== "" && 
-                                    <Image source={{uri: currCircleState.circleData.image}} style={styles.circleImageInfoPage}></Image> 
+                                {currCircleState.image !== "" && 
+                                    <Image source={{uri: currCircleState.image}} style={styles.circleImageInfoPage}></Image> 
                                 }   
                                 
-                                <Text style={styles.circleNameText}>{currCircleState.circleData.name}</Text>
+                                <Text style={styles.circleNameText}>{currCircleState.name}</Text>
 
                                 <Text style={styles.circleLeaderText}>Circle Leader:</Text>
-                                {currCircleState.circleData.leaderProfile.image !== "" &&
-                                    <Image source={{uri: currCircleState.circleData.leaderProfile.image}} style={styles.leaderImage} />
+                                {currCircleState.leaderProfile.image !== "" &&
+                                    <Image source={{uri: currCircleState.leaderProfile.image}} style={styles.leaderImage} />
                                 }
                                 <View>
-                                    <Text style={styles.leaderNameText}>{currCircleState.circleData.leaderProfile.displayName}</Text>
+                                    <Text style={styles.leaderNameText}>{currCircleState.leaderProfile.displayName}</Text>
                                     <Text style={styles.orgName}>Citadel, Owatonna</Text>
                                 </View>
                             </View>
                             {
-                                (currCircleState.circleData.requestorStatus == CircleStatusEnum.MEMBER || currCircleState.circleData.requestorStatus == CircleStatusEnum.CONNECTED) && 
+                                (currCircleState.requestorStatus == CircleStatusEnum.MEMBER || currCircleState.requestorStatus == CircleStatusEnum.CONNECTED) && 
                                 <Raised_Button buttonStyle={styles.statusButton}
                                     text={"Leave Circle"}
                                     onPress={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}

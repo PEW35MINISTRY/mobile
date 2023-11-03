@@ -21,23 +21,18 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
     }
 
     const [circleSearchText, setCircleSearchText] = useState("");
-    const [circleModals, setCircleModals] = useState([] as CircleListItem[])
+    const [circleModals, setCircleModals] = useState<CircleListItem[]>([])
 
-    const renderCircleModals = ():JSX.Element[] => {
-        var circles:JSX.Element[] = [];
-        circleModals.forEach((circleProps:CircleListItem, index) => {
-            circles.push(
-                <CircleTouchable
-                    key={index}
-                    circleProps={circleProps}
-                    onPress={() => navigation.navigate(CIRCLE_DISPLAY_ROUTE_NAME, {
-                        CircleProps: circleProps
-                    })}
-                />
-            )
-        })
-        return circles;
-    }
+    const renderCircleModals = ():JSX.Element[] => 
+        (circleModals || []).map((circleProps:CircleListItem, index:number) => 
+            <CircleTouchable
+                key={index}
+                circleProps={circleProps}
+                onPress={() => navigation.navigate(CIRCLE_DISPLAY_ROUTE_NAME, {
+                    CircleProps: circleProps
+                })}
+            />
+        );
 
     // TODO: add sanatization to prevent injection
     const searchQuery = async () => {

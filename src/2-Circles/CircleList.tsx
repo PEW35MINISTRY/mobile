@@ -1,5 +1,3 @@
-import { DOMAIN } from '@env';
-import axios from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
@@ -14,23 +12,18 @@ export const CircleList = ({navigation, route}:StackNavigationProps):JSX.Element
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
     const userCircles = userProfile.circleList;
 
-    const [circleModals, setCircleModals] = useState([] as CircleListItem[])
+    const [circleModals, setCircleModals] = useState<CircleListItem[]>([])
 
-    const renderCircleModals = ():JSX.Element[] => {
-        var circles:JSX.Element[] = [];
-        circleModals.forEach((circleProps:CircleListItem, index) => {
-            circles.push(
-                <CircleTouchable
-                    key={index}
-                    circleProps={circleProps}
-                    onPress={() => navigation.navigate(CIRCLE_DISPLAY_ROUTE_NAME, {
-                        CircleProps: circleProps
-                    })}
-                />
-            )
-        })
-        return circles;
-    }
+    const renderCircleModals = ():JSX.Element[] => 
+        (circleModals || []).map((circleProps:CircleListItem, index:number) => 
+            <CircleTouchable
+                key={index}
+                circleProps={circleProps}
+                onPress={() => navigation.navigate(CIRCLE_DISPLAY_ROUTE_NAME, {
+                    CircleProps: circleProps
+                })}
+            />
+        );
 
     useEffect(() => {
         if(userCircles !== undefined) {
