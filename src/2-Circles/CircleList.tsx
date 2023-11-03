@@ -9,9 +9,8 @@ import { RootState } from '../redux-store';
 import { CIRCLE_DISPLAY_ROUTE_NAME, CIRCLE_SEARCH_ROUTE_NAME } from '../TypesAndInterfaces/custom-types';
 
 export const CircleList = ({navigation, route}:StackNavigationProps):JSX.Element => {
-    const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
-    const userCircles = userProfile.circleList;
-
+    const userCircles = useAppSelector((state: RootState) => state.account.userProfile.circleList);
+    
     const [circleModals, setCircleModals] = useState<CircleListItem[]>([])
 
     const renderCircleModals = ():JSX.Element[] => 
