@@ -1,21 +1,21 @@
-import React, {useState, useEffect, useContext, useRef} from 'react';
-import {View, Text, Image, StyleSheet, GestureResponderEvent } from 'react-native';
 import { DOMAIN } from '@env';
-import { Props } from '../TypesAndInterfaces/profile-types';
 import axios from 'axios';
-import theme, {COLORS} from '../theme';
-import { useAppSelector, useAppDispatch } from '../TypesAndInterfaces/hooks';
+import React, { useEffect, useRef, useState } from 'react';
+import { GestureResponderEvent, Image, StyleSheet, Text, View } from 'react-native';
+import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
+import theme, { COLORS } from '../theme';
 
+import HANDS from '../../assets/hands.png';
+import APPLE from '../../assets/logo-apple.png';
+import FACEBOOK from '../../assets/logo-facebook.png';
+import GOOGLE from '../../assets/logo-google.png';
 import LOGO from '../../assets/logo.png';
 import PEW35 from '../../assets/pew35-logo.png';
-import HANDS from '../../assets/hands.png';
-import FACEBOOK from '../../assets/logo-facebook.png';
-import APPLE from '../../assets/logo-apple.png';
-import GOOGLE from '../../assets/logo-google.png';
+import { setAccount } from '../redux-store';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
-import { saveLogin, resetLogin } from '../redux-store';
 
-const Login = ({navigation}:Props):JSX.Element => {
+const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
     //TODO Temporary will utilize dynamic flow with sign-up and edit forms with validations
     const [username, setUsername] = useState('');
@@ -23,7 +23,6 @@ const Login = ({navigation}:Props):JSX.Element => {
 
     const onLogin = (event:GestureResponderEvent):void => {
         if(event) event.preventDefault();
-        console.log(`${DOMAIN}`)
 
         axios.post(`${DOMAIN}/login`, {
             email: username,
@@ -31,12 +30,15 @@ const Login = ({navigation}:Props):JSX.Element => {
     
             }).then(response => {   
                 console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);
-                dispatch(saveLogin({
+                //console.log(response.data.userProfile);
+                dispatch(setAccount({
                     jwt: response.data.jwt,
                     userID: response.data.userID,
                     userProfile: response.data.userProfile,
-                    }));
+                }));
+                navigation.navigate("CircleNavigator");
             }).catch(error => console.error('Failed Authentication', username, password, error));
+        
     }
 
     const onGoogle = (event:GestureResponderEvent) => console.log(`Logging in via Google`);
@@ -54,7 +56,7 @@ const Login = ({navigation}:Props):JSX.Element => {
         <Text style={styles.header} >Encouraging Prayer</Text>
         <Image source={LOGO} style={styles.logo} resizeMode='contain'></Image>
         <Input_Field
-            label='Username/Email:'
+            label='Email:'
             value={username}
             onChangeText={setUsername}
             keyboardType='email-address'

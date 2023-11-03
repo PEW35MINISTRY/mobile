@@ -1,28 +1,24 @@
-import React, {useState, useEffect, useContext, useRef} from 'react';
-import {View, Text, Image, StyleSheet, GestureResponderEvent, ScrollView } from 'react-native';
-import axios from 'axios';
 import { DOMAIN } from '@env';
+import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
+import { GestureResponderEvent, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { RoleEnum, getDateYearsAgo, getDOBMinDate, getDOBMaxDate } from '../TypesAndInterfaces/profile-field-config';
-
-
-import theme, {COLORS} from '../theme';
-import { useAppSelector, useAppDispatch } from '../TypesAndInterfaces/hooks';
-import { Props } from '../TypesAndInterfaces/profile-types';
-import { SIGNUP_PROFILE_FIELDS_STUDENT, InputType, InputField, FieldInput, getShortDate } from '../TypesAndInterfaces/profile-field-config';
-
-import PEW35 from '../../assets/pew35-logo.png';
+import { getDateYearsAgo, getDOBMaxDate, getDOBMinDate, RoleEnum, SIGNUP_PROFILE_FIELDS_STUDENT } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
+import theme, { COLORS } from '../theme';
+import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
+import { FieldInput, InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import HANDS from '../../assets/hands.png';
-
-import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button, DOBPicker, Dropdown_Select } from '../widgets';
-import { saveLogin, resetLogin, RootState } from '../redux-store';
+import PEW35 from '../../assets/pew35-logo.png';
 import { render } from 'react-dom';
-import { useForm, Controller, SubmitHandler } from "react-hook-form"
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { resetAccount, RootState, setAccount } from '../redux-store';
+import { DOBPicker, Dropdown_Select, Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 
 const minAge:Date = getDOBMaxDate(RoleEnum.STUDENT)
 const maxAge:Date = getDOBMinDate(RoleEnum.STUDENT);
 
-const Signup = ({navigation}:Props):JSX.Element => {
+const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const profileFields = SIGNUP_PROFILE_FIELDS_STUDENT;
 
@@ -47,7 +43,7 @@ const Signup = ({navigation}:Props):JSX.Element => {
       axios.post(`${DOMAIN}/signup`, fieldData
           ).then(response => {
             console.log("Sigup successful.", response.data.JWT);
-            dispatch(saveLogin({
+            dispatch(setAccount({
               jwt: response.data.jwt,
               userID: response.data.userID,
               userProfile: response.data.userProfile,
