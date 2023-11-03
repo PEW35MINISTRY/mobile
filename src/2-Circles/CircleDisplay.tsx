@@ -17,7 +17,6 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
-    const userProfile = useAppSelector((state: RootState) => state.account.userProfile.circleList);
     
     // headers for making axios requests
     const RequestAccountHeader = {
