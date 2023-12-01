@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { getDateYearsAgo, getDOBMaxDate, getDOBMinDate, RoleEnum, SIGNUP_PROFILE_FIELDS_STUDENT } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import theme, { COLORS } from '../theme';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { FieldInput, InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import InputField, { FieldInput, InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
@@ -20,12 +20,14 @@ const maxAge:Date = getDOBMinDate(RoleEnum.STUDENT);
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
-    const profileFields = SIGNUP_PROFILE_FIELDS_STUDENT;
 
-    const inputFieldJSON: Record<string, string> = {};
-    SIGNUP_PROFILE_FIELDS_STUDENT.forEach((field) => {
-      inputFieldJSON[field.field] = field.toJSON().value as unknown as string;
-    })
+    const createFormValues = ():Record<string, string> => {
+      const formValues: Record<string, string> = {};
+      SIGNUP_PROFILE_FIELDS_STUDENT.forEach((field) => {
+        formValues[field.field] = "";
+      });
+      return formValues;
+    }
 
     const {
       control,
@@ -33,16 +35,16 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
       formState: { errors },
       clearErrors,
     } = useForm({
-      defaultValues: inputFieldJSON
+      defaultValues: createFormValues()
     });
 
-    const onSignUp = (fieldData:any) => {
+    const onSignUp = (formValues:Record<string, string>) => {
       clearErrors();
 
       // send data to server
-      axios.post(`${DOMAIN}/signup`, fieldData
+      axios.post(`${DOMAIN}/signup`, formValues
           ).then(response => {
-            console.log("Sigup successful.", response.data.JWT);
+            console.log("Sigup successful.", response.data.jwt);
             dispatch(setAccount({
               jwt: response.data.jwt,
               userID: response.data.userID,
@@ -54,14 +56,11 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     }
     
     // create JSX elements based on field name
-    const renderInputFields = () => {
-      var renderFields:JSX.Element[] = [];
-      console.log("errors", errors);
-
-      SIGNUP_PROFILE_FIELDS_STUDENT.forEach((field, index) => {
+    const renderInputFields = ():JSX.Element[] => 
+      (SIGNUP_PROFILE_FIELDS_STUDENT).map((field:InputField, index:number) => {
         switch(field.type) {
           case InputType.TEXT || InputType.NUMBER:
-            renderFields.push(
+            return (
               <Controller 
                 control={control}
                 rules={{
@@ -85,7 +84,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
             );
             break;
           case InputType.PASSWORD:
-            renderFields.push(
+            return (
               <Controller 
                 control={control}
                 rules={{
@@ -120,7 +119,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
             );
             break;
           case InputType.EMAIL:
-            renderFields.push(
+            return (
               <Controller 
                 control={control}
                 rules={{
@@ -130,6 +129,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
                      var responseStatus = false;
                      if (value.match(field.validationRegex)) {
                        // check server to see if account with that email address exists
+                       
                         await axios.get(`${DOMAIN}/resources/available-account?email=` + value).then((response) => {
                           responseStatus = true;
                           if (response.status == 204) return true;
@@ -166,7 +166,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
             for (var i=0; i<field.selectOptionList.length; i++) {
               selectListData.push({key: i, value: field.selectOptionList[i]})
             }
-            renderFields.push(
+            return (
               <Controller 
                 control={control}
                 rules={{
@@ -187,7 +187,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
             );
             break;
           case InputType.DATE:
-            renderFields.push(
+            return (
               <Controller 
                 control={control}
                 rules={{
@@ -212,11 +212,13 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               />
             );
             break;
+            
+          // Default case will likely never happen, but its here to prevent undefined behavior per TS
+          default:
+            return <></>
         }
   
       });
-      return renderFields;
-    } 
 
     
     return (
