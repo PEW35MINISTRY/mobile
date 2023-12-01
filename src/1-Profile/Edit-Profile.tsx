@@ -68,7 +68,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
             var profileChange = false;
             for (const [key, value] of Object.entries(editedFields)) {
               //@ts-ignore - Only copy over InputFields that exist in ProfileResponse
-              if (updatedUserProfile[key]) {
+              if (updatedUserProfile[key] !== undefined) {
                  //@ts-ignore
                 updatedUserProfile[key] = editedFields[key]
                 profileChange = true;
