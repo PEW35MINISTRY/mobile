@@ -38,7 +38,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       const formValues: Record<string, string> = {};
       EDIT_PROFILE_FIELDS.forEach((field) => {
         //@ts-ignore
-        formValues[field.field] = userProfile[field.field];
+        formValues[field.field] = userProfile[field.field] || field.value;
       });
       return formValues;
     }
@@ -64,17 +64,18 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader,
         ).then(response => {
             console.log("Profile edit success.");
-
-            // IMPORTANT: The following assumes that this route will return basic userProfile params (the user's userRole, userRoleList, and walkLevel by default) and other fields that changed in addition.
-            // IF THIS CHANGES, EDIT PROFILE WILL BREAK!
-            if (Object.values(response.data).length > 3) {
-
-              var updatedUserProfile = {...userProfile}
-              // something other than the password changed, and we need to save it to redux
-              for (const [key, value] of Object.entries(editedFields)) {
-                //@ts-ignore
+            var updatedUserProfile = {...userProfile}
+            var profileChange = false;
+            for (const [key, value] of Object.entries(editedFields)) {
+              //@ts-ignore - Only copy over InputFields that exist in ProfileResponse
+              if (updatedUserProfile[key]) {
+                 //@ts-ignore
                 updatedUserProfile[key] = editedFields[key]
-              }
+                profileChange = true;
+              }   
+            }
+            if (profileChange) {
+              console.log("update redux");
               dispatch(updateProfile(
                 updatedUserProfile
               ));

@@ -24,7 +24,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const createFormValues = ():Record<string, string> => {
       const formValues: Record<string, string> = {};
       SIGNUP_PROFILE_FIELDS_STUDENT.forEach((field) => {
-        formValues[field.field] = "";
+        formValues[field.field] = field.value || "";
       });
       return formValues;
     }
