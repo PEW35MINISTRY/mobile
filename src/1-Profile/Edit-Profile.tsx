@@ -3,9 +3,10 @@ import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { ProfileResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
+import { ProfileEditRequestBody, ProfileResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { EDIT_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
+import type InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
@@ -30,20 +31,17 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const RequestAccountHeader = {
       headers: {
         "jwt": jwt, 
-        "userID": userID,
       }
     }
-    // store user profile data as an indexable object
-    const userProfileValues: Record<string, string> = {};
-    for (const [key, value] of Object.entries(userProfile)) {
-      userProfileValues[key] = value;
-    }
 
-    // assign user profile data as default values for fields
-    const inputFieldJSON: Record<string, string> = {};
-    EDIT_PROFILE_FIELDS.forEach((field) => {
-      if (userProfileValues[field.field]) inputFieldJSON[field.field] = userProfileValues[field.field];
-    })
+    const createFormValues = ():Record<string, string> => {
+      const formValues: Record<string, string> = {};
+      EDIT_PROFILE_FIELDS.forEach((field) => {
+        //@ts-ignore
+        formValues[field.field] = userProfile[field.field] || field.value;
+      });
+      return formValues;
+    }
 
     const {
       control,
@@ -51,45 +49,46 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       formState: { errors },
       clearErrors,
     } = useForm({
-      defaultValues: inputFieldJSON
+      defaultValues: createFormValues()
     });
 
-    const onEditFields = (fieldData:any):void => {
+    const onEditFields = (formValues:Record<string, string>):void => {
 
       // filter out fields that didn't change
-      const editedFields: Record<string, string> = {};
-      for (const [key, value] of Object.entries(fieldData)) {
-        if (value !== userProfileValues[key]) editedFields[key] = value as unknown as string;
+      const editedFields = {} as ProfileEditRequestBody;
+      for (const [key, value] of Object.entries(formValues)) {
+        //@ts-ignore
+        if (value !== userProfile[key]) editedFields[key] = value;
       }
-
       // send data to server
       axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader,
         ).then(response => {
             console.log("Profile edit success.");
-
-            // IMPORTANT: The following assumes that this route will return the user's userRole, userRoleList, and walkLevel by default, and other fields that changed in addition.
-            // IF THIS CHANGES, EDIT PROFILE WILL BREAK!
-            if (Object.values(response.data).length > 3) {
-              // something other than the password changed, and we need to save it to redux
-              for (const [key, value] of Object.entries(userProfileValues)) {
-                if (response.data[key]) userProfileValues[key] = response.data[key];
-              }
+            var updatedUserProfile = {...userProfile}
+            var profileChange = false;
+            for (const [key, value] of Object.entries(editedFields)) {
+              //@ts-ignore - Only copy over InputFields that exist in ProfileResponse
+              if (updatedUserProfile[key] !== undefined) {
+                 //@ts-ignore
+                updatedUserProfile[key] = editedFields[key]
+                profileChange = true;
+              }   
+            }
+            if (profileChange) {
+              console.log("update redux");
               dispatch(updateProfile(
-                userProfileValues as ProfileResponse
+                updatedUserProfile
               ));
             }
-
-
             navigation.pop();
       }).catch(err => console.error("Failed to edit", err))
     }
 
-    const renderInputFields = () => {
-      var renderFields:JSX.Element[] = [];
-      EDIT_PROFILE_FIELDS.forEach((field, index) => {
+    const renderInputFields = ():JSX.Element[] => 
+      (EDIT_PROFILE_FIELDS).map((field:InputField, index:number) => {
         switch(field.type) {
           case InputType.TEXT || InputType.NUMBER:
-            renderFields.push(
+            return(
               <Controller 
                 control={control}
                 rules={{
@@ -113,7 +112,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
             );
             break;
           case InputType.PASSWORD:
-            renderFields.push(
+            return (
               <Controller 
                 control={control}
                 rules={{
@@ -144,12 +143,15 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
                 name={field.field}
                 key={field.field}
               />
-          );
+            );
           break;
+
+          // Default case will likely never happen, but its here to prevent undefined behavior per TS
+          default:
+            return <></>
         }
-      })
-      return renderFields;
-    } 
+      });
+    
     return (
       <View style={styles.center}>
         <View style={theme.background_view}>
