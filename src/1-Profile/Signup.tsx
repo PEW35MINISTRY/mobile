@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { getDateYearsAgo, getDOBMaxDate, getDOBMinDate, RoleEnum, SIGNUP_PROFILE_FIELDS_STUDENT } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import theme, { COLORS } from '../theme';
@@ -12,14 +12,34 @@ import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import { render } from 'react-dom';
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { resetAccount, RootState, setAccount } from '../redux-store';
+import { resetAccount, RootState, setAccount, updateProfile } from '../redux-store';
 import { DOBPicker, Dropdown_Select, Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
+import {launchImageLibrary} from 'react-native-image-picker';
+import type { ImageLibraryOptions, ImagePickerResponse, Asset } from 'react-native-image-picker';
+import { ProfileResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAME } from '../TypesAndInterfaces/custom-types';
+import { PROFILE_IMAGE_MIME_TYPES } from '../TypesAndInterfaces/custom-types';
+import { Buffer } from 'buffer';
 
 const minAge:Date = getDOBMaxDate(RoleEnum.STUDENT)
 const maxAge:Date = getDOBMinDate(RoleEnum.STUDENT);
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
+    const jwt = useAppSelector((state: RootState) => state.account.jwt);
+    const userID = useAppSelector((state: RootState) => state.account.userID);
+    const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
+
+    const [showImageUploadModal, setShowImageUploadModal] = useState(false);
+    const [profileImage, setProfileImage] = useState("");
+    const [profileImageType, setProfileImageType] = useState("");
+    const RequestAccountHeader = {
+      headers: {
+        "jwt": jwt,
+        "Content-Type": "",
+      }
+    }
 
     const createFormValues = ():Record<string, string> => {
       const formValues: Record<string, string> = {};
@@ -38,23 +58,97 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
       defaultValues: createFormValues()
     });
 
-    const onSignUp = (formValues:Record<string, string>) => {
-      clearErrors();
+    const postProfileImage = async () => {
+      // Set content type of the request so the server can process the blob
+      RequestAccountHeader["headers"]["Content-Type"] = profileImageType;
 
+      if (profileImage !== "") {
+        // use ByteBuffer to decode the base64 string
+        await axios.post(`${DOMAIN}/api/user/` + userID + `/image/` + userID + '-user-profile.' + profileImageType.substring(6), Buffer.from(profileImage, 'base64'), RequestAccountHeader).then(response => {
+          const updatedProfile = {...userProfile}
+          
+          // TODO - wait for POST_profile_picture_upload refactor and save image url to redux
+          /*
+          updatedProfile.image = response.data
+          dispatch(updateProfile(
+
+          ))
+          */
+          setShowImageUploadModal(false);
+          navigation.pop();
+        }).catch(error => console.log(error));
+      
+      }
+      else {
+        console.warn("No profile picture selected");
+      }
+    }
+
+    const onSignUp = (formData:Record<string, string>) => {
+      // react-hook-form performs validation checks, if pass then save the form data and trigger image selection modal
       // send data to server
-      axios.post(`${DOMAIN}/signup`, formValues
-          ).then(response => {
-            console.log("Sigup successful.", response.data.jwt);
+
+      /*
+      axios.post(`${DOMAIN}/signup`, formData
+        ).then(response => {
+          console.log("Sigup successful.", response.data);
+          dispatch(setAccount({
+            jwt: response.data.jwt,
+            userID: response.data.userID,
+            userProfile: response.data.userProfile,
+          }));
+          setShowImageUploadModal(true);
+        }).catch(err => console.error("Failed signup", err)
+      );      
+      */
+      axios.post(`${DOMAIN}/login`, {
+        email: "a@z.com",
+        password: "12345",
+
+        }).then(response => {   
+            //console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);
+            //console.log(response.data.userProfile);
             dispatch(setAccount({
-              jwt: response.data.jwt,
-              userID: response.data.userID,
-              userProfile: response.data.userProfile,
-              }));
-            navigation.pop();
-      }).catch(err => console.error("Failed signup", err))
+                jwt: response.data.jwt,
+                userID: response.data.userID,
+                userProfile: response.data.userProfile,
+            }));
+            setShowImageUploadModal(true);
+        }).catch(error => console.error('Nerd'));
       
     }
     
+    const onOpenImagePicker = () => {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+      } as ImageLibraryOptions;
+
+       
+      launchImageLibrary(options, (response:ImagePickerResponse) => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.errorCode) {
+          console.log('Image picker error: ', response.errorMessage);
+        } else if (response.assets === undefined || response.assets?.[0].base64 === undefined || response.assets?.[0].type === undefined) {
+          console.log("no image selected")
+        } 
+        else {
+          const imageBase64 = response.assets[0].base64;
+          const imageMimeType = response.assets[0].type;
+
+          // allowed mime types: 'image/png', 'image/jpg', 'image/jpeg'
+          if (!PROFILE_IMAGE_MIME_TYPES.includes(imageMimeType)) {
+            console.log("Invalid image mime type. Valid choices are ", PROFILE_IMAGE_MIME_TYPES);
+          }
+          else {
+            setProfileImage(imageBase64);
+            setProfileImageType(imageMimeType)
+          }
+        }
+      });
+    }
+
     // create JSX elements based on field name
     const renderInputFields = ():JSX.Element[] => 
       (SIGNUP_PROFILE_FIELDS_STUDENT).map((field:InputField, index:number) => {
@@ -233,6 +327,27 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               text='Create Account'
               onPress={handleSubmit(onSignUp)}
             />
+            <Modal 
+              visible={showImageUploadModal}
+              animationType='slide'
+              onRequestClose={() => {
+                setShowImageUploadModal(false);
+                navigation.pop();
+              }}
+            >
+              <View style={styles.infoView}>
+                <Text style={styles.titleText}>Select a Profile Picture</Text>
+                <Outline_Button 
+                  text={"Select Image"}
+                  onPress={onOpenImagePicker}
+                />
+                <Raised_Button buttonStyle={styles.imageSubmitButton}
+                    text={"Upload Image"}
+                    onPress={postProfileImage}
+                    textStyle={styles.imageSubmitButtonText}
+                  />
+              </View>
+            </Modal>
         </View>
       </View>
         
@@ -245,6 +360,11 @@ const styles = StyleSheet.create({
     ...theme.header,
     marginVertical: 20,
   },
+  infoView: {
+    ...theme.background_view,
+    justifyContent: "center",
+    alignItems: "center"
+  },
   logo: {
     height: 175,
     marginBottom: 10,
@@ -253,6 +373,19 @@ const styles = StyleSheet.create({
     height: 75,
     width: 75,
     bottom: 0,
+  },
+  imageSubmitButton: {
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    position: "absolute",
+    bottom: 20
+  },
+  imageSubmitButtonText: {
+    textAlignVertical: "center",
+    textAlign: "center",
+    marginTop: 0
   },
   social_icon: {
     width: 35,
@@ -279,7 +412,14 @@ const styles = StyleSheet.create({
     marginLeft: 3,
     paddingVertical: 5,
     paddingHorizontal: 15,
-  }
+  },
+  titleText: {
+    ...theme.primary,
+    fontSize: 22,
+    color: COLORS.white,
+    marginBottom: 18,
+    textAlign: "center"
+},
 
 });
 
