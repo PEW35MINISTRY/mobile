@@ -360,11 +360,10 @@ export const Raised_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewS
         textStyle: {
             ...theme.title,
             color: COLORS.white,
-            ...props.buttonStyle,
+            ...props.textStyle,
         },
         buttonStyle: {
             minWidth: 300,
-            padding: 0,
             backgroundColor: COLORS.primary,
             shadowColor: 'rgba(0,0,0, .4)', // IOS
             shadowOffset: { height: 1, width: 1 }, // IOS
