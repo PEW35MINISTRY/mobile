@@ -31,6 +31,7 @@ const slice = createSlice({
     resetAccount: () => initialAccountState,
     updateJWT: (state, action:PayloadAction<string>) => state = {...state, jwt: action.payload},
     updateProfile: (state, action:PayloadAction<ProfileResponse>) => state = {...state, userProfile: action.payload},
+    updateProfileImage: (state, action:PayloadAction<string|undefined>) => state = {...state, userProfile: {...state.userProfile, image: action.payload}},
     addCircle: (state, action:PayloadAction<CircleListItem>) => state = {...state, userProfile: {...state.userProfile, circleList: [action.payload, ...(state.userProfile.circleList || []) as CircleListItem[]]}},
     updateCircle: (state, action:PayloadAction<CircleListItem>) => state = {...state, userProfile: {...state.userProfile, circleList: state.userProfile.circleList?.map((circle:CircleListItem) => circle.circleID == action.payload.circleID ? action.payload : circle)}},
     removeCircle: (state, action:PayloadAction<number>) => state = {...state, userProfile: {...state.userProfile, circleList: [...(state.userProfile.circleList || []) as CircleListItem[]].filter(circle => circle.circleID !== action.payload)}},
@@ -51,7 +52,7 @@ export default store;
 
 // Export action functions to use in app with dispatch
 // How to use in component: https://redux-toolkit.js.org/tutorials/quick-start#use-redux-state-and-actions-in-react-components
-export const { setAccount, resetAccount, updateJWT, updateProfile, addCircle, updateCircle, removeCircle, addPartner, removePartner } = slice.actions;
+export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfileImage, addCircle, updateCircle, removeCircle, addPartner, removePartner } = slice.actions;
 
 //Typescript Redux Setup: https://react-redux.js.org/tutorials/typescript-quick-start
 // Infer the `RootState` and `AppDispatch` types from the store itself

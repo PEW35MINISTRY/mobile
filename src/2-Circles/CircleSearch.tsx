@@ -69,12 +69,11 @@ const styles = StyleSheet.create({
     },
     statusButton: {
         height: 50,
-        lineHeight: 25,
         marginTop: 30,
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        //marginTop: 30,
+
     },
     modalHeaderText: {
         ...theme.title,

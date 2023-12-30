@@ -1,12 +1,12 @@
 import { DOMAIN } from '@env';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ProfileEditRequestBody, ProfileResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
+import type InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { EDIT_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
-import type InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
@@ -18,6 +18,7 @@ import store from '../redux-store';
 import { Controller, useForm } from "react-hook-form";
 import { RootState, updateProfile } from '../redux-store';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
+import ProfileImageUpload from './ProfileImageUpload';
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -28,6 +29,8 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     
+    const [profileImageUploadModalVisible, setProfileImageUploadModalVisible] = useState(false);
+
     const RequestAccountHeader = {
       headers: {
         "jwt": jwt, 
@@ -52,16 +55,25 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       defaultValues: createFormValues()
     });
 
+    const profileImageUploadCallback = () => {
+      setProfileImageUploadModalVisible(false);
+    }
+
     const onEditFields = (formValues:Record<string, string>):void => {
+      clearErrors();
+
+      // if no fields change, don't bother sending an empty update request to the server
+      var fieldsChanged = false;
 
       // filter out fields that didn't change
       const editedFields = {} as ProfileEditRequestBody;
       for (const [key, value] of Object.entries(formValues)) {
         //@ts-ignore
-        if (value !== userProfile[key]) editedFields[key] = value;
+        if (value !== userProfile[key]) { editedFields[key] = value; fieldsChanged = true; }
       }
       // send data to server
-      axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader,
+      if (fieldsChanged) {
+        axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader,
         ).then(response => {
             console.log("Profile edit success.");
             var updatedUserProfile = {...userProfile}
@@ -81,7 +93,10 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               ));
             }
             navigation.pop();
-      }).catch(err => console.error("Failed to edit", err))
+        }).catch(err => console.error("Failed to edit", err))
+      }
+      else navigation.pop();
+      
     }
 
     const renderInputFields = ():JSX.Element[] => 
@@ -158,11 +173,25 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
             <Text style={styles.header}>Edit Profile</Text>
             <ScrollView>
               {renderInputFields()}
+              <Outline_Button buttonStyle={styles.imageUploadButton}
+                text={"Change Profile Picture"}
+                textStyle={styles.imageUploadButtonText}
+                
+                onPress={() => setProfileImageUploadModalVisible(true)}
+            />
             </ScrollView>
             <Raised_Button buttonStyle={styles.sign_in_button}
                 text='Save Changes'
                 onPress={handleSubmit(onEditFields)}
             />
+            <Modal
+              visible={profileImageUploadModalVisible}
+              onRequestClose={profileImageUploadCallback}
+            >
+              <ProfileImageUpload 
+                callback={profileImageUploadCallback}
+              />
+            </Modal>
         </View>
       </View>
         
@@ -209,7 +238,17 @@ const styles = StyleSheet.create({
     marginLeft: 3,
     paddingVertical: 5,
     paddingHorizontal: 15,
-  }
+  },
+  imageUploadButton: {
+    height: 45,
+    marginTop: 30,
+    
+  },
+  imageUploadButtonText: {
+    fontSize: 20,
+    textAlign: "center",
+    alignSelf: "center"
+  },
 
 });
 

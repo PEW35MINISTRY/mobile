@@ -30,6 +30,7 @@
     "@rneui/themed": "^4.0.0-rc.8",
     "@types/react-native-vector-icons": "^6.4.14",
     "axios": "^1.3.6",
+    "buffer": "^6.0.3",
     "react": "17.0.2",
     "react-hook-form": "^7.45.1",
     "react-native": "0.68.2",
