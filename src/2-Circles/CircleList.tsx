@@ -8,7 +8,7 @@ import { useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
 import { CIRCLE_DISPLAY_ROUTE_NAME, CIRCLE_SEARCH_ROUTE_NAME } from '../TypesAndInterfaces/custom-types';
 
-export const CircleList = ({navigation, route}:StackNavigationProps):JSX.Element => {
+export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
     const userCircles = useAppSelector((state: RootState) => state.account.userProfile.circleList);
     
     const [circleModals, setCircleModals] = useState<CircleListItem[]>([])
@@ -66,7 +66,6 @@ const styles = StyleSheet.create({
     },
     statusButton: {
         height: 50,
-        lineHeight: 25,
         marginTop: 30,
         justifyContent: 'center',
         alignItems: 'center',

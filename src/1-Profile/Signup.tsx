@@ -1,25 +1,27 @@
 import { DOMAIN } from '@env';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSelector } from 'react-redux';
-import { getDateYearsAgo, getDOBMaxDate, getDOBMinDate, RoleEnum, SIGNUP_PROFILE_FIELDS_STUDENT } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
-import theme, { COLORS } from '../theme';
-import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import InputField, { FieldInput, InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
-import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
-import HANDS from '../../assets/hands.png';
-import PEW35 from '../../assets/pew35-logo.png';
 import { render } from 'react-dom';
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { resetAccount, RootState, setAccount } from '../redux-store';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import HANDS from '../../assets/hands.png';
+import PEW35 from '../../assets/pew35-logo.png';
+import InputField, { FieldInput, InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import { RoleEnum, SIGNUP_PROFILE_FIELDS_STUDENT, getDOBMaxDate, getDOBMinDate, getDateYearsAgo } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
+import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
+import { RootState, resetAccount, setAccount } from '../redux-store';
+import theme, { COLORS } from '../theme';
 import { DOBPicker, Dropdown_Select, Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
+import ProfileImageSettings from './ProfileImageSettings';
 
 const minAge:Date = getDOBMaxDate(RoleEnum.STUDENT)
 const maxAge:Date = getDOBMinDate(RoleEnum.STUDENT);
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
+
+    const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
 
     const createFormValues = ():Record<string, string> => {
       const formValues: Record<string, string> = {};
@@ -38,9 +40,14 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
       defaultValues: createFormValues()
     });
 
+    const profileImageUploadCallback = () => {
+      setProfileImageSettingsModalVisible(false);
+      navigation.pop();
+    }
+
     const onSignUp = (formValues:Record<string, string>) => {
       clearErrors();
-
+      
       // send data to server
       axios.post(`${DOMAIN}/signup`, formValues
           ).then(response => {
@@ -50,7 +57,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               userID: response.data.userID,
               userProfile: response.data.userProfile,
               }));
-            navigation.pop();
+            setProfileImageSettingsModalVisible(true);
       }).catch(err => console.error("Failed signup", err))
       
     }
@@ -233,6 +240,15 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               text='Create Account'
               onPress={handleSubmit(onSignUp)}
             />
+            <Modal 
+              visible={profileImageSettingsModalVisible}
+              onRequestClose={profileImageUploadCallback}
+            >
+              <ProfileImageSettings 
+                callback={profileImageUploadCallback}
+              />
+            </Modal>
+
         </View>
       </View>
         

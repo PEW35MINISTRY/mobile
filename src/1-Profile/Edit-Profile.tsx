@@ -1,12 +1,12 @@
 import { DOMAIN } from '@env';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 import { ProfileEditRequestBody, ProfileResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
+import type InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { EDIT_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
-import type InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
@@ -17,7 +17,9 @@ import store from '../redux-store';
 
 import { Controller, useForm } from "react-hook-form";
 import { RootState, updateProfile } from '../redux-store';
-import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
+import { Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
+import ProfileImageSettings from './ProfileImageSettings';
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -28,6 +30,8 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     
+    const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
+
     const RequestAccountHeader = {
       headers: {
         "jwt": jwt, 
@@ -52,16 +56,25 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       defaultValues: createFormValues()
     });
 
+    const profileImageUploadCallback = () => {
+      setProfileImageSettingsModalVisible(false);
+    }
+
     const onEditFields = (formValues:Record<string, string>):void => {
+      clearErrors();
+
+      // if no fields change, don't bother sending an empty update request to the server
+      var fieldsChanged = false;
 
       // filter out fields that didn't change
       const editedFields = {} as ProfileEditRequestBody;
       for (const [key, value] of Object.entries(formValues)) {
         //@ts-ignore
-        if (value !== userProfile[key]) editedFields[key] = value;
+        if (value !== userProfile[key]) { editedFields[key] = value; fieldsChanged = true; }
       }
       // send data to server
-      axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader,
+      if (fieldsChanged) {
+        axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader,
         ).then(response => {
             console.log("Profile edit success.");
             var updatedUserProfile = {...userProfile}
@@ -81,7 +94,10 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               ));
             }
             navigation.pop();
-      }).catch(err => console.error("Failed to edit", err))
+        }).catch(err => console.error("Failed to edit", err))
+      }
+      else navigation.pop();
+      
     }
 
     const renderInputFields = ():JSX.Element[] => 
@@ -155,6 +171,21 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     return (
       <View style={styles.center}>
         <View style={theme.background_view}>
+          <TouchableOpacity
+            onPress={() => setProfileImageSettingsModalVisible(true)}
+
+          >
+            <View style={styles.profileImageContainer}>
+              <ProfileImage />
+              <View style={styles.floatingEditIcon}>
+                <Ionicons 
+                  name="pencil-outline"
+                  color={COLORS.white}
+                  size={20}
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
             <Text style={styles.header}>Edit Profile</Text>
             <ScrollView>
               {renderInputFields()}
@@ -163,6 +194,14 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
                 text='Save Changes'
                 onPress={handleSubmit(onEditFields)}
             />
+            <Modal
+              visible={profileImageSettingsModalVisible}
+              onRequestClose={profileImageUploadCallback}
+            >
+              <ProfileImageSettings 
+                callback={profileImageUploadCallback}
+              />
+            </Modal>
         </View>
       </View>
         
@@ -209,7 +248,41 @@ const styles = StyleSheet.create({
     marginLeft: 3,
     paddingVertical: 5,
     paddingHorizontal: 15,
-  }
+  },
+  imageUploadButton: {
+    height: 45,
+    marginTop: 30,
+    
+  },
+  imageUploadButtonText: {
+    fontSize: 20,
+    textAlign: "center",
+    alignSelf: "center"
+  },
+  profileImageMainPage: {
+    height: 100,
+    width: 100,
+    borderRadius: 15,
+    alignSelf: "center",
+},
+profileImageContainer: {
+  justifyContent: "center",
+  alignItems: "center",
+  top: 20
+},
+floatingEditIcon: {
+  position: "absolute",
+  alignSelf: "center",
+  alignItems: "center",
+  bottom: 0,
+  right: 0,
+  justifyContent: "center",
+  backgroundColor: COLORS.grayDark+'ce',
+  borderRadius: 10,
+  width: 35,
+  height: 35
+},
+
 
 });
 

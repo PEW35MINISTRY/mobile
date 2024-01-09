@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from './TypesAndInterfaces/hooks';
 import store, { RootState } from './redux-store';
 import theme from './theme';
 import { CircleTabNavigator } from "./widgets";
-import { AppStackParamList, CIRCLE_DISPLAY_ROUTE_NAME, CIRCLE_LIST_ROUTE_NAME, CIRCLE_SEARCH_ROUTE_NAME } from './TypesAndInterfaces/custom-types';
+import { AppStackParamList, CIRCLE_DISPLAY_ROUTE_NAME, CIRCLE_LIST_ROUTE_NAME, CIRCLE_SEARCH_ROUTE_NAME, BOTTOM_TAB_NAVIGATOR_ROUTE_NAME, CIRCLE_NAVIGATOR_ROUTE_NAME } from './TypesAndInterfaces/custom-types';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -24,7 +24,8 @@ const CircleTabNavigatorOptions = {
   headerShown: false,
 }
 
-const CircleSelectorNavigatorProp = () => {
+// Handle all react navigation screens for circles
+const CircleStackNavigatorProp = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name={CIRCLE_LIST_ROUTE_NAME} component={CircleList} />
@@ -34,12 +35,13 @@ const CircleSelectorNavigatorProp = () => {
   )
 }
 
-const CircleTabNavigatorProp = () => {
+// Renders navigation buttons at bottom of screen. Each screen in the navigator should be a stack navigator 
+const BottomTabNavigator = () => {
   return (
       <Tab.Navigator screenOptions={CircleTabNavigatorOptions}
           tabBar={props => <CircleTabNavigator {...props} />}
       >
-        <Tab.Screen name="Circles" component={CircleSelectorNavigatorProp} />
+        <Tab.Screen name={CIRCLE_NAVIGATOR_ROUTE_NAME} component={CircleStackNavigatorProp} />
 
       </Tab.Navigator>
   );
@@ -54,7 +56,7 @@ const App = ():JSX.Element => {
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Signup" component={Signup} />
             <Stack.Screen name="EditProfile" component={EditProfile} />
-            <Stack.Screen name="CircleNavigator" component={CircleTabNavigatorProp} />
+            <Stack.Screen name={BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} />
           </Stack.Navigator>
         </NavigationContainer>
     </Provider>

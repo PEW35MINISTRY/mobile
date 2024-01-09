@@ -11,6 +11,8 @@ import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem } from 
 import { PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { TabNavigationProps } from './TypesAndInterfaces/custom-types';
 import theme, { COLORS, FONTS, FONT_SIZES, RADIUS } from './theme';
+import { useAppDispatch, useAppSelector } from "./TypesAndInterfaces/hooks";
+import { RootState } from './redux-store';
 
 const defaultNavigationState:Record<string, boolean> = {
     "Circles": true,
@@ -360,11 +362,10 @@ export const Raised_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewS
         textStyle: {
             ...theme.title,
             color: COLORS.white,
-            ...props.buttonStyle,
+            ...props.textStyle,
         },
         buttonStyle: {
             minWidth: 300,
-            padding: 0,
             backgroundColor: COLORS.primary,
             shadowColor: 'rgba(0,0,0, .4)', // IOS
             shadowOffset: { height: 1, width: 1 }, // IOS
@@ -531,4 +532,28 @@ export const Dropdown_Select = (props:{validationLabel?:string, setSelected:((va
         
       )
    
+}
+
+export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
+    const userProfileImage = useAppSelector((state: RootState) => state.account.userProfile.image);
+    const DEFAULT_PROFILE_ICON = require("../assets/profile-icon-blue.png");
+
+    const styles = StyleSheet.create({
+        profileImage: {
+            height: 100,
+            width: 100,
+            borderRadius: 15,
+            alignSelf: "center",
+            ...props.style
+        },
+    })
+
+    return (
+        <>
+            {userProfileImage === undefined ?
+                <Image source={DEFAULT_PROFILE_ICON} style={styles.profileImage}></Image> : <Image source={{uri: userProfileImage}} style={styles.profileImage}></Image>
+            }
+        </>
+
+    );
 }
