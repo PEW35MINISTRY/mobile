@@ -26,29 +26,41 @@ const ProfileImageSettings = ({callback}:ProfileImageSettingsParams):JSX.Element
     const RequestAccountHeader = {
         headers: {
           "jwt": jwt,
-          "Content-Type": "",
         }
+    }
+
+    const RequestImageHeader = {
+      headers: {
+        "jwt": jwt,
+        "Content-Type": "",
+      }
     }
 
     const profileImageSourceProp:ImageSourcePropType = {
       uri: userProfile.image
     }
 
-    const deleteAvatar = () => {
-      dispatch(updateProfileImage(
-        undefined
-      ));
-      setProfileImageData(undefined);
-      setProfileImageUri(DEFAULT_PROFILE_ICON);
-      setProfileImageType(undefined);
+    const deleteAvatar = async () => {
+      // Only process the delete if the user's avatar exists. Save
+      if (userProfile.image !== undefined) {
+        await axios.delete(`${DOMAIN}/api/user/` + userID + '/image', RequestAccountHeader).then(response => {
+          dispatch(updateProfileImage(
+            undefined
+          ));
+          setProfileImageData(undefined);
+          setProfileImageUri(DEFAULT_PROFILE_ICON);
+          setProfileImageType(undefined);
+        }).catch(error => console.log(error));
+      }
+
     }
 
     const postProfileImage = async () => {
         // Set content type of the request so the server can process the blob
-        RequestAccountHeader["headers"]["Content-Type"] = profileImageType || "";
+        RequestImageHeader["headers"]["Content-Type"] = profileImageType || "";
   
         if (profileImageData !== undefined && profileImageType !== undefined) {
-          await axios.post(`${DOMAIN}/api/user/` + userID + `/image/` + userID + '-user-profile.' + profileImageType.substring(6), Buffer.from(profileImageData, 'base64'), RequestAccountHeader).then(response => {
+          await axios.post(`${DOMAIN}/api/user/` + userID + `/image/` + userID + '-user-profile.' + profileImageType.substring(6), Buffer.from(profileImageData, 'base64'), RequestImageHeader).then(response => {
             dispatch(updateProfileImage(
               response.data
             ));
