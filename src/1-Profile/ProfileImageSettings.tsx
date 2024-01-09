@@ -40,8 +40,8 @@ const ProfileImageSettings = ({callback}:ProfileImageSettingsParams):JSX.Element
       uri: userProfile.image
     }
 
-    const deleteAvatar = async () => {
-      // Only process the delete if the user's avatar exists. Save
+    const deleteProfileImage = async () => {
+      // Only process the delete if the user's profile image exists. Save
       if (userProfile.image !== undefined) {
         await axios.delete(`${DOMAIN}/api/user/` + userID + '/image', RequestAccountHeader).then(response => {
           dispatch(updateProfileImage(
@@ -129,7 +129,7 @@ const ProfileImageSettings = ({callback}:ProfileImageSettingsParams):JSX.Element
                 />
                 <Raised_Button buttonStyle={styles.imageUploadButton}
                     text={"Delete Avatar"}
-                    onPress={deleteAvatar}
+                    onPress={deleteProfileImage}
                     textStyle={styles.imageUploadButtonText}
                 />
             </View>
