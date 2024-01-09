@@ -15,7 +15,7 @@ export const CIRCLE_DISPLAY_ROUTE_NAME = "CircleDisplay";
 export const CIRCLE_NAVIGATOR_ROUTE_NAME = "CircleRoutes";
 export const BOTTOM_TAB_NAVIGATOR_ROUTE_NAME = "BottomTabNavigator";
 
-export interface ProfileImageUploadParams extends ParamListBase {
+export interface ProfileImageSettingsParams extends ParamListBase {
     callback:(() => void)
 }
 

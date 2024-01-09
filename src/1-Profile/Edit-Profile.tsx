@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 import { ProfileEditRequestBody, ProfileResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import type InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
@@ -17,8 +17,9 @@ import store from '../redux-store';
 
 import { Controller, useForm } from "react-hook-form";
 import { RootState, updateProfile } from '../redux-store';
-import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
-import ProfileImageUpload from './ProfileImageUpload';
+import { Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
+import ProfileImageSettings from './ProfileImageSettings';
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -29,7 +30,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     
-    const [profileImageUploadModalVisible, setProfileImageUploadModalVisible] = useState(false);
+    const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
 
     const RequestAccountHeader = {
       headers: {
@@ -56,7 +57,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     });
 
     const profileImageUploadCallback = () => {
-      setProfileImageUploadModalVisible(false);
+      setProfileImageSettingsModalVisible(false);
     }
 
     const onEditFields = (formValues:Record<string, string>):void => {
@@ -170,25 +171,34 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     return (
       <View style={styles.center}>
         <View style={theme.background_view}>
+          <TouchableOpacity
+            onPress={() => setProfileImageSettingsModalVisible(true)}
+
+          >
+            <View style={styles.profileImageContainer}>
+              <ProfileImage />
+              <View style={styles.floatingEditIcon}>
+                <Ionicons 
+                  name="pencil-outline"
+                  color={COLORS.white}
+                  size={20}
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
             <Text style={styles.header}>Edit Profile</Text>
             <ScrollView>
               {renderInputFields()}
-              <Outline_Button buttonStyle={styles.imageUploadButton}
-                text={"Change Profile Picture"}
-                textStyle={styles.imageUploadButtonText}
-                
-                onPress={() => setProfileImageUploadModalVisible(true)}
-            />
             </ScrollView>
             <Raised_Button buttonStyle={styles.sign_in_button}
                 text='Save Changes'
                 onPress={handleSubmit(onEditFields)}
             />
             <Modal
-              visible={profileImageUploadModalVisible}
+              visible={profileImageSettingsModalVisible}
               onRequestClose={profileImageUploadCallback}
             >
-              <ProfileImageUpload 
+              <ProfileImageSettings 
                 callback={profileImageUploadCallback}
               />
             </Modal>
@@ -249,6 +259,30 @@ const styles = StyleSheet.create({
     textAlign: "center",
     alignSelf: "center"
   },
+  profileImageMainPage: {
+    height: 100,
+    width: 100,
+    borderRadius: 15,
+    alignSelf: "center",
+},
+profileImageContainer: {
+  justifyContent: "center",
+  alignItems: "center",
+  top: 20
+},
+floatingEditIcon: {
+  position: "absolute",
+  alignSelf: "center",
+  alignItems: "center",
+  bottom: 0,
+  right: 0,
+  justifyContent: "center",
+  backgroundColor: COLORS.grayDark+'ce',
+  borderRadius: 10,
+  width: 35,
+  height: 35
+},
+
 
 });
 

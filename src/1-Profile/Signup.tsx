@@ -13,7 +13,7 @@ import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, resetAccount, setAccount } from '../redux-store';
 import theme, { COLORS } from '../theme';
 import { DOBPicker, Dropdown_Select, Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
-import ProfileImageUpload from './ProfileImageUpload';
+import ProfileImageSettings from './ProfileImageSettings';
 
 const minAge:Date = getDOBMaxDate(RoleEnum.STUDENT)
 const maxAge:Date = getDOBMinDate(RoleEnum.STUDENT);
@@ -21,7 +21,7 @@ const maxAge:Date = getDOBMinDate(RoleEnum.STUDENT);
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
 
-    const [profileImageUploadModalVisible, setProfileImageUploadModalVisible] = useState(false);
+    const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
 
     const createFormValues = ():Record<string, string> => {
       const formValues: Record<string, string> = {};
@@ -41,7 +41,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     });
 
     const profileImageUploadCallback = () => {
-      setProfileImageUploadModalVisible(false);
+      setProfileImageSettingsModalVisible(false);
       navigation.pop();
     }
 
@@ -57,7 +57,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               userID: response.data.userID,
               userProfile: response.data.userProfile,
               }));
-            setProfileImageUploadModalVisible(true);
+            setProfileImageSettingsModalVisible(true);
       }).catch(err => console.error("Failed signup", err))
       
     }
@@ -241,10 +241,10 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               onPress={handleSubmit(onSignUp)}
             />
             <Modal 
-              visible={profileImageUploadModalVisible}
+              visible={profileImageSettingsModalVisible}
               onRequestClose={profileImageUploadCallback}
             >
-              <ProfileImageUpload 
+              <ProfileImageSettings 
                 callback={profileImageUploadCallback}
               />
             </Modal>
