@@ -1,21 +1,21 @@
-/***** ONLY DEPENDENCIES FROM DIRECTORY: Fields-Sync/API-Types-Sync *****/
+/*********** ONLY DEPENDENCIES FROM DIRECTORY: /field-sync/ ***********/
 
-import { CircleStatusEnum } from "../input-config-sync/circle-field-config.js"
-import { PrayerRequestListItem } from "./prayer-request-types.js"
-import { ProfileListItem } from "./profile-types.js"
+import { CircleStatusEnum } from '../input-config-sync/circle-field-config.js'
+import { PrayerRequestListItem } from './prayer-request-types.js'
+import { ProfileListItem } from './profile-types.js'
 
-/*******************************************************************
-*                   CIRCLE TYPES                                   *
-* Sync across all repositories: server, portal, mobile             *
-* Sever: Additional Types Declared in: api/circle/circle-types.mts *
-* Portal:                                                          *
-* Mobile:                                                          *
-********************************************************************/
+/***********************************************************************
+*                   CIRCLE TYPES                                       *
+* Sync across all repositories: server, portal, mobile                 *
+* Sever: Additional Types Declared in: 1-api/4-circle/circle-types.mts *
+* Portal:                                                              *
+* Mobile:                                                              *
+************************************************************************/
 
 export interface CircleListItem {
     circleID: number,
     name: string,
-    image: string,
+    image?: string,
     status?: CircleStatusEnum
 }
 

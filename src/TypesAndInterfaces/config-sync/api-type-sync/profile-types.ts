@@ -1,15 +1,16 @@
-/***** ONLY DEPENDENCIES FROM DIRECTORY: Fields-Sync/API-Types-Sync *****/
+/************* ONLY DEPENDENCIES FROM DIRECTORY: /field-sync/ *************/
 
-import { GenderEnum, RoleEnum } from "../input-config-sync/profile-field-config.js"
-import { CircleListItem } from "./circle-types.js"
+import { GenderEnum, RoleEnum } from '../input-config-sync/profile-field-config.js'
+import { CircleListItem } from './circle-types.js'
+import { PrayerRequestListItem } from './prayer-request-types.js'
 
-/**********************************************************************
-*                   PROFILE TYPES                                     *
-* Sync across all repositories: server, portal, mobile                *
-* Server: Additional Types Declared in: api/profile/profile-types.mts *
-* Portal:                                                             *
-* Mobile:                                                             *
-***********************************************************************/
+/**************************************************************************
+*                   PROFILE TYPES                                         *
+* Sync across all repositories: server, portal, mobile                    *
+* Server: Additional Types Declared in: 1-api/3-profile/profile-types.mts *
+* Portal:                                                                 *
+* Mobile:                                                                 *
+***************************************************************************/
 
 
 /* [TEMPORARY] Credentials fetched for Debugging */
@@ -51,6 +52,9 @@ export interface ProfileResponse extends ProfilePartnerResponse  {
     notes?: string,
     userRoleList: RoleEnum[],
     partnerList?: ProfileListItem[],
+    prayerRequestList?: PrayerRequestListItem[],
+    contactList?: ProfileListItem[],
+    profileAccessList?: ProfileListItem[], //Leaders
 };
 
 export interface ProfileEditRequestBody {

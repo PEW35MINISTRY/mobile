@@ -1,15 +1,15 @@
-/***** ONLY DEPENDENCIES FROM DIRECTORY: Fields-Sync/API-Types-Sync *****/
+/********* ONLY DEPENDENCIES FROM DIRECTORY: /field-sync/ *********/
 
-import { PrayerRequestTagEnum } from "../input-config-sync/prayer-request-field-config.js"
-import { ProfileListItem } from "./profile-types.js"
+import { PrayerRequestTagEnum } from '../input-config-sync/prayer-request-field-config.js'
+import { ProfileListItem } from './profile-types.js'
 
-/************************************************************************************
-*                   PRAYER REQUEST TYPES                                            *
-* Sync across all repositories: server, portal, mobile                              *
-* Server: Additional Types Declared in: api/prayer-request/prayer-request-types.mts *
-* Portal:                                                                           *
-* Mobile:                                                                           *
-*************************************************************************************/
+/****************************************************************************************
+*                   PRAYER REQUEST TYPES                                                *
+* Sync across all repositories: server, portal, mobile                                  *
+* Server: Additional Types Declared in: 1-api/5-prayer-request/prayer-request-types.mts *
+* Portal:                                                                               *
+* Mobile:                                                                               *
+*****************************************************************************************/
 
 export interface PrayerRequestListItem {
     prayerRequestID: number,
@@ -58,9 +58,7 @@ export interface PrayerRequestPostRequestBody {
 
 export interface PrayerRequestPatchRequestBody extends PrayerRequestPostRequestBody {
     isResolved?: boolean,
-    addUserRecipientIDList?: number[],
     removeUserRecipientIDList?: number[],
-    addCircleRecipientIDList?: number[],
     removeCircleRecipientIDList?: number[]
 }
 
