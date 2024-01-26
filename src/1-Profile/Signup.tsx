@@ -6,47 +6,21 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
-import InputField, { FieldInput, InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
-import { RoleEnum, SIGNUP_PROFILE_FIELDS_STUDENT, getDOBMaxDate, getDOBMinDate, getDateYearsAgo } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
-import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { SIGNUP_PROFILE_FIELDS_STUDENT } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
+import { FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, resetAccount, setAccount } from '../redux-store';
 import theme, { COLORS } from '../theme';
-import { DOBPicker, Dropdown_Select, Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
+import { Raised_Button, FormInput } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
-
-const minAge:Date = getDOBMaxDate(RoleEnum.STUDENT)
-const maxAge:Date = getDOBMinDate(RoleEnum.STUDENT);
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
+    const formInputRef = useRef<FormSubmit>(null);
 
     const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
 
-    const createFormValues = ():Record<string, string> => {
-      const formValues: Record<string, string> = {};
-      SIGNUP_PROFILE_FIELDS_STUDENT.forEach((field) => {
-        formValues[field.field] = field.value || "";
-      });
-      return formValues;
-    }
-
-    const {
-      control,
-      handleSubmit,
-      formState: { errors },
-      clearErrors,
-    } = useForm({
-      defaultValues: createFormValues()
-    });
-
-    const profileImageUploadCallback = () => {
-      setProfileImageSettingsModalVisible(false);
-      navigation.pop();
-    }
-
     const onSignUp = (formValues:Record<string, string>) => {
-      clearErrors();
       
       // send data to server
       axios.post(`${DOMAIN}/signup`, formValues
@@ -61,191 +35,27 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
       }).catch(err => console.error("Failed signup", err))
       
     }
-    
-    // create JSX elements based on field name
-    const renderInputFields = ():JSX.Element[] => 
-      (SIGNUP_PROFILE_FIELDS_STUDENT).map((field:InputField, index:number) => {
-        switch(field.type) {
-          case InputType.TEXT || InputType.NUMBER:
-            return (
-              <Controller 
-                control={control}
-                rules={{
-                  required: field.required,
-                  pattern: field.validationRegex
-                }}
-                render={({ field: {onChange, onBlur, value}}) => (
-                  <Input_Field 
-                    placeholder={field.title}
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
-                    validationStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                  />
-                )}
-                name={field.field}
-                key={field.field}
-              />
-            );
-            break;
-          case InputType.PASSWORD:
-            return (
-              <Controller 
-                control={control}
-                rules={{
-                  required: field.required,
-                  pattern: field.validationRegex,
-                  validate: (value, formValues) => {
-                     if (field.field === "passwordVerify") {
-                       if (value == formValues["password"]) return true;
-                       else return false;
-                     }
-                     else {
-                       return true;
-                     }
-                  }
-                  
-                }}
-                render={({ field: {onChange, onBlur, value}}) => (
-                  <Input_Field 
-                    placeholder={field.title}
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType='default'
-                    textContentType='password'
-                    validationStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                  />
-                )}
-                name={field.field}
-                key={field.field}
-              />
-            );
-            break;
-          case InputType.EMAIL:
-            return (
-              <Controller 
-                control={control}
-                rules={{
-                  required: field.required,
-                  pattern: field.validationRegex,
-                  validate: async (value, formValues) => {
-                     var responseStatus = false;
-                     if (value.match(field.validationRegex)) {
-                       // check server to see if account with that email address exists
-                       
-                        await axios.get(`${DOMAIN}/resources/available-account?email=` + value).then((response) => {
-                          responseStatus = true;
-                          if (response.status == 204) return true;
-                    
-                        }).catch(err => console.log("err", err));
 
-                        // if the axios request returned an error, return validation failure
-                        if (!responseStatus) return false;
-                     } 
-                     else return false;
-                     
-                  }
-                  
-                }}
-                render={({ field: {onChange, onBlur, value}}) => (
-                  <Input_Field 
-                    placeholder={field.title}
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType='email-address'
-                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                    
-                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                  />
-                )}
-                name={field.field}
-                key={field.field}
-              />
-            );
-            break;
-          case InputType.SELECT_LIST:
-            var selectListData:any[] = [];
-            for (var i=0; i<field.selectOptionList.length; i++) {
-              selectListData.push({key: i, value: field.selectOptionList[i]})
-            }
-            return (
-              <Controller 
-                control={control}
-                rules={{
-                  required: field.required,
-                }}
-                render={({ field: {onChange, onBlur, value}}) => (
-                  <Dropdown_Select
-                     setSelected={(val:string) => onChange(val)}
-                     data={selectListData}
-                     placeholder='Select Gender'
-                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                     boxStyle={(errors[field.field] && {borderColor: COLORS.primary}) || {borderColor: COLORS.accent}}
-                  />
-                )}
-                name={field.field}
-                key={field.field}
-              />
-            );
-            break;
-          case InputType.DATE:
-            return (
-              <Controller 
-                control={control}
-                rules={{
-                  required: field.required,
-                  validate: (value, formValues) => {
-                    const currAge = new Date(value);
-                    console.log(minAge, maxAge, currAge);
-                    if (currAge > minAge || currAge < maxAge) return false;
-                    else return true;
-                  }
-                }}
-                render={({ field: {onChange, onBlur, value}}) => (
-                  <DOBPicker 
-                    buttonText={field.title}
-                    buttonStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                    onConfirm={(date:Date) => onChange(date.toISOString())}
-                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                  />
-                )}
-                name={field.field}
-                key={field.field}
-              />
-            );
-            break;
-            
-          // Default case will likely never happen, but its here to prevent undefined behavior per TS
-          default:
-            return <></>
-        }
-  
-      });
-
-    
     return (
       
       <View style={styles.center}>
         <View style={theme.background_view}>
             <Text style={styles.header}>Create Profile</Text>
-            <ScrollView>
-              { renderInputFields() }
-            </ScrollView>
-            <Raised_Button buttonStyle={styles.sign_in_button}
+              <FormInput 
+                fields={SIGNUP_PROFILE_FIELDS_STUDENT}
+                onSubmit={onSignUp}
+                ref={formInputRef}
+              />
+              <Raised_Button buttonStyle={styles.sign_in_button}
               text='Create Account'
-              onPress={handleSubmit(onSignUp)}
+              onPress={() => formInputRef.current == null ? console.log("null") : formInputRef.current.onHandleSubmit()}
             />
             <Modal 
               visible={profileImageSettingsModalVisible}
-              onRequestClose={profileImageUploadCallback}
+              onRequestClose={() => {setProfileImageSettingsModalVisible(false); navigation.pop();}}
             >
               <ProfileImageSettings 
-                callback={profileImageUploadCallback}
+                callback={() => {setProfileImageSettingsModalVisible(false); navigation.pop();}}
               />
             </Modal>
 

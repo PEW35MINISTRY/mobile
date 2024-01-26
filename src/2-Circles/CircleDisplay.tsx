@@ -4,14 +4,14 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
 import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
-import { CircleDisplayProps } from '../TypesAndInterfaces/custom-types';
+import { CircleDisplayProps, PRAYER_REQUEST_DISPLAY_ROUTE_NAME, PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME } from '../TypesAndInterfaces/custom-types';
 import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
 
-import { CircleStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, addCircle, removeCircle, updateCircle } from '../redux-store';
-import { AnnouncementTouchable, CircleTouchable, EventTouchable, Input_Field, PrayerRequestTouchable, Raised_Button } from '../widgets';
+import { AnnouncementTouchable, CircleTouchable, EventTouchable, Input_Field, PrayerRequestTouchable, Raised_Button, RequestorProfileImage } from '../widgets';
 import { CircleList } from './CircleList';
+import { CircleStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
 
 const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -57,7 +57,11 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
         (prayerRequestsData || []).map((prayerRequest:PrayerRequestListItem, index:number) =>
             <PrayerRequestTouchable
                 key={index}
-                prayerRequestProps={prayerRequest}
+                prayerRequestProp={prayerRequest}
+                onPress={() => navigation.navigate(PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
+                    params: {PrayerRequestProps: prayerRequest},
+                    screen: PRAYER_REQUEST_DISPLAY_ROUTE_NAME
+                })}
             />
         );
     
@@ -248,7 +252,8 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
 
                                 <Text style={styles.circleLeaderText}>Circle Leader:</Text>
                                 {currCircleState.leaderProfile.image !== "" &&
-                                    <Image source={{uri: currCircleState.leaderProfile.image}} style={styles.leaderImage} />
+                                
+                                    <RequestorProfileImage imageUri={currCircleState.leaderProfile.image} style={styles.leaderImage} />
                                 }
                                 <View>
                                     <Text style={styles.leaderNameText}>{currCircleState.leaderProfile.displayName}</Text>
@@ -291,8 +296,8 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
 const styles = StyleSheet.create({
     container: {
         ...theme.background_view,
-        flex: 1,
-        
+        justifyContent: "center",
+        flex: 1
     },
     leaderImage: {
         height: 90,

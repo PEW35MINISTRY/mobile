@@ -2,7 +2,7 @@ import { DOMAIN } from '@env';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, StyleSheet, Text, View } from 'react-native';
-import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
 
@@ -13,26 +13,19 @@ import GOOGLE from '../../assets/logo-google.png';
 import LOGO from '../../assets/logo.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import { RootState, setAccount } from '../redux-store';
-import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
+import { Flat_Button, FormInput, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAME } from '../TypesAndInterfaces/custom-types';
+import { LOGIN_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 
 const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
-    //TODO Temporary will utilize dynamic flow with sign-up and edit forms with validations
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [userPressedSignup, setUserPressedSignup] = useState(false);
+    const formInputRef = useRef<FormSubmit>(null);
 
     const userID = useAppSelector((state: RootState) => state.account.userID);
 
-    const onLogin = (event:GestureResponderEvent):void => {
-        if(event) event.preventDefault();
+    const onLogin = (formValues:Record<string, string>) => {
 
-        axios.post(`${DOMAIN}/login`, {
-            email: username,
-            password: password,
-    
-            }).then(response => {   
+        axios.post(`${DOMAIN}/login`, formValues).then(response => {   
                 console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);
                 //console.log(response.data.userProfile);
                 dispatch(setAccount({
@@ -41,7 +34,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
                     userProfile: response.data.userProfile,
                 }));
                 navigation.navigate(BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
-            }).catch(error => console.error('Failed Authentication', username, password, error));
+            }).catch(error => console.error('Failed Authentication', error));
     }
 
     const onGoogle = (event:GestureResponderEvent) => console.log(`Logging in via Google`);
@@ -56,23 +49,16 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
 
     return (
     <View style={theme.background_view}>
-        <Text style={styles.header} >Encouraging Prayer</Text>
+        <Text style={styles.header}>Encouraging Prayer</Text>
         <Image source={LOGO} style={styles.logo} resizeMode='contain'></Image>
-        <Input_Field
-            label='Email:'
-            value={username}
-            onChangeText={setUsername}
-            keyboardType='email-address'
-        />
-        <Input_Field
-            label='Passsword:'
-            value={password}
-            onChangeText={setPassword}
-            textContentType='password'
+        <FormInput 
+          fields={LOGIN_PROFILE_FIELDS}
+          onSubmit={onLogin}
+          ref={formInputRef}
         />
         <Raised_Button buttonStyle={styles.sign_in_button}
             text='Sign In'
-            onPress={onLogin}
+            onPress={() => formInputRef.current == null ? console.log("null") : formInputRef.current.onHandleSubmit()}
         />
         <View style={theme.horizontal_row}>
             <Outline_Button text='Forgot Password' onPress={onForgotPassword} />

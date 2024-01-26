@@ -3,11 +3,8 @@ import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
-import { ProfileEditRequestBody, ProfileResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
-import type InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
-import { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { EDIT_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
-import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
 
@@ -17,15 +14,17 @@ import store from '../redux-store';
 
 import { Controller, useForm } from "react-hook-form";
 import { RootState, updateProfile } from '../redux-store';
-import { Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
+import { Flat_Button, FormInput, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { ProfileEditRequestBody } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
 
 const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
+    const formInputRef = useRef<FormSubmit>(null);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -38,30 +37,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       }
     }
 
-    const createFormValues = ():Record<string, string> => {
-      const formValues: Record<string, string> = {};
-      EDIT_PROFILE_FIELDS.forEach((field) => {
-        //@ts-ignore
-        formValues[field.field] = userProfile[field.field] || field.value;
-      });
-      return formValues;
-    }
-
-    const {
-      control,
-      handleSubmit,
-      formState: { errors },
-      clearErrors,
-    } = useForm({
-      defaultValues: createFormValues()
-    });
-
-    const profileImageUploadCallback = () => {
-      setProfileImageSettingsModalVisible(false);
-    }
-
-    const onEditFields = (formValues:Record<string, string>):void => {
-      clearErrors();
+    const onEditProfile = (formValues:Record<string, string>):void => {
 
       // if no fields change, don't bother sending an empty update request to the server
       var fieldsChanged = false;
@@ -100,74 +76,10 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       
     }
 
-    const renderInputFields = ():JSX.Element[] => 
-      (EDIT_PROFILE_FIELDS).map((field:InputField, index:number) => {
-        switch(field.type) {
-          case InputType.TEXT || InputType.NUMBER:
-            return(
-              <Controller 
-                control={control}
-                rules={{
-                  required: field.required,
-                  pattern: field.validationRegex
-                }}
-                render={({ field: {onChange, onBlur, value}}) => (
-                  <Input_Field 
-                    placeholder={field.title}
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
-                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                    label={(errors[field.field] && field.validationMessage) || undefined}
-                  />
-                )}
-                name={field.field}
-                key={field.field}
-              />
-            );
-            break;
-          case InputType.PASSWORD:
-            return (
-              <Controller 
-                control={control}
-                rules={{
-                  pattern: field.validationRegex,
-                  validate: (value, formValues) => {
-                      if (field.field === "passwordVerify") {
-                        if (value == formValues["password"]) return true;
-                        else return false;
-                      }
-                      else {
-                        return true;
-                      }
-                  }
-                  
-                }}
-                render={({ field: {onChange, onBlur, value}}) => (
-                  <Input_Field 
-                    placeholder={field.title}
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType='default'
-                    textContentType='password'
-                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                    label={(errors[field.field] && field.validationMessage) || undefined}
-                  />
-                )}
-                name={field.field}
-                key={field.field}
-              />
-            );
-          break;
+    const test = () => {
+      formInputRef.current == null ? console.log("null") : formInputRef.current.onHandleSubmit();
+    }
 
-          // Default case will likely never happen, but its here to prevent undefined behavior per TS
-          default:
-            return <></>
-        }
-      });
-    
     return (
       <View style={styles.center}>
         <View style={theme.background_view}>
@@ -187,19 +99,24 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
             </View>
           </TouchableOpacity>
             <Text style={styles.header}>Edit Profile</Text>
-            <ScrollView>
-              {renderInputFields()}
-            </ScrollView>
+              <FormInput 
+                fields={EDIT_PROFILE_FIELDS}
+                defaultValues={userProfile}
+                onSubmit={onEditProfile}
+                ref={formInputRef}
+              />
+           
             <Raised_Button buttonStyle={styles.sign_in_button}
                 text='Save Changes'
-                onPress={handleSubmit(onEditFields)}
+                onPress={() => formInputRef.current == null ? console.log("null") : formInputRef.current.onHandleSubmit()}
             />
+
             <Modal
               visible={profileImageSettingsModalVisible}
-              onRequestClose={profileImageUploadCallback}
+              onRequestClose={() => setProfileImageSettingsModalVisible(false)}
             >
               <ProfileImageSettings 
-                callback={profileImageUploadCallback}
+                callback={() => setProfileImageSettingsModalVisible(false)}
               />
             </Modal>
         </View>
