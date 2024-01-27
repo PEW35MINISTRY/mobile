@@ -4,14 +4,14 @@ import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Image, ImageSourcePropType, ImageRequireSource } from "react-native";
 import { ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } from "react-native-image-picker";
-import { PROFILE_IMAGE_MIME_TYPES, ProfileImageSettingsParams, StackNavigationProps } from "../TypesAndInterfaces/custom-types";
+import { CallbackParam, PROFILE_IMAGE_MIME_TYPES, StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState, updateProfileImage } from "../redux-store";
 import theme, { COLORS } from "../theme";
 import { Outline_Button, Raised_Button } from "../widgets";
 import { ProfileImage } from "../widgets";
 
-const ProfileImageSettings = ({callback}:ProfileImageSettingsParams):JSX.Element => {
+const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
     const dispatch = useAppDispatch();
     const DEFAULT_PROFILE_ICON = require("../../assets/profile-icon-blue.png");
 

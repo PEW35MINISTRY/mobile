@@ -5,17 +5,29 @@ import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, Touc
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
-import { PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, PRAYER_REQUEST_DISPLAY_ROUTE_NAME, StackNavigationProps, PrayerRequestViewMode, FormSubmit } from '../TypesAndInterfaces/custom-types';
+import { PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, PRAYER_REQUEST_DISPLAY_ROUTE_NAME, StackNavigationProps, PrayerRequestViewMode, FormSubmit, CallbackParam } from '../TypesAndInterfaces/custom-types';
 import { FormInput, PrayerRequestTouchable, Raised_Button } from '../widgets';
 import theme, { COLORS } from '../theme';
 import InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { CREATE_PRAYER_REQUEST_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 
-const PrayerRequestForm = ():JSX.Element => {
+const PrayerRequestForm = ({callback}:CallbackParam):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
+    const jwt = useAppSelector((state: RootState) => state.account.jwt);
+
+    const RequestAccountHeader = {
+        headers: {
+          "jwt": jwt, 
+        }
+    }
 
     const onPrayerRequestCreate = (formValues:Record<string, string>) => {
+        axios.post(`${DOMAIN}/api/prayer-request`, formValues, RequestAccountHeader).then((response) => {
+            // TODO: save something to axios?
 
+
+            callback();
+        })
     }
 
     return (
@@ -28,7 +40,7 @@ const PrayerRequestForm = ():JSX.Element => {
                     onSubmit={onPrayerRequestCreate}
                 />
                 <Raised_Button buttonStyle={styles.sign_in_button}
-                    text='Create Account'
+                    text='Create Prayer Request'
                     onPress={() => formInputRef.current == null ? console.log("null") : formInputRef.current.onHandleSubmit()}
                 />
             </View>

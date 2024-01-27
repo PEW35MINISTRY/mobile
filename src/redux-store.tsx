@@ -37,8 +37,9 @@ const slice = createSlice({
     removeCircle: (state, action:PayloadAction<number>) => state = {...state, userProfile: {...state.userProfile, circleList: [...(state.userProfile.circleList || []) as CircleListItem[]].filter(circle => circle.circleID !== action.payload)}},
     addPartner: (state, action:PayloadAction<ProfileResponse>) => state = {...state, userProfile: {...state.userProfile, partnerList: [action.payload, ...(state.userProfile.partnerList || []) as ProfileListItem[]]}},
     removePartner: (state, action:PayloadAction<number>) => state = {...state, userProfile: {...state.userProfile, partnerList: [...(state.userProfile.partnerList || []) as ProfileListItem[]].filter(partner => partner.userID !== action.payload)}},
-    //addPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = {...state, userProfile: {...state.userProfile, prayerRequestList: [action.payload, ...(state.userProfile.prayerRequestList || []) as PrayerRequestListItem[]]}},
-    //removePrayerRequest: (state, action:PayloadAction<number>) => state = {...state, userProfile: {...state.userProfile, prayerRequestList: [...(state.userProfile.prayerRequestList || []) as PrayerRequestListItem[]].filter(prayerRequest => prayerRequest.prayerRequestID !== action.payload)}},
+    addPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = {...state, userProfile: {...state.userProfile, prayerRequestList: [action.payload, ...(state.userProfile.prayerRequestList || []) as PrayerRequestListItem[]]}},
+    removePrayerRequest: (state, action:PayloadAction<number>) => state = {...state, userProfile: {...state.userProfile, prayerRequestList: [...(state.userProfile.prayerRequestList || []) as PrayerRequestListItem[]].filter(prayerRequest => prayerRequest.prayerRequestID !== action.payload)}},
+    updatePrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = {...state, userProfile: {...state.userProfile, prayerRequestList: state.userProfile.prayerRequestList?.map((prayerRequest:PrayerRequestListItem) => prayerRequest.prayerRequestID == action.payload.prayerRequestID ? action.payload : prayerRequest)}}
   },
 });
 

@@ -27,7 +27,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
 
         axios.post(`${DOMAIN}/login`, formValues).then(response => {   
                 console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);
-                //console.log(response.data.userProfile);
+                console.log(response.data.userProfile);
                 dispatch(setAccount({
                     jwt: response.data.jwt,
                     userID: response.data.userID,

@@ -7,16 +7,19 @@ import { RootState } from '../redux-store';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, PRAYER_REQUEST_DISPLAY_ROUTE_NAME, StackNavigationProps, PrayerRequestViewMode } from '../TypesAndInterfaces/custom-types';
 import { PrayerRequestTouchable } from '../widgets';
-import theme, { COLORS } from '../theme';
+import theme, { COLORS, FONT_SIZES } from '../theme';
+import PrayerRequestCreate from './PrayerRequestCreate';
 
 const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
+    const ownedPrayerRequests = useAppSelector((state: RootState) => state.account.userProfile.prayerRequestList);
 
     const [prayerRequestsData, setPrayerRequestsData] = useState<PrayerRequestListItem[]>([]);
     const [viewMode, setViewMode] = useState<PrayerRequestViewMode>(PrayerRequestViewMode.RECIPIENT);
+    const [prayerRequestCreateModalVisible, setPrayerRequestCreateModalVisible] = useState(false);
 
     const RequestAccountHeader = {
         headers: {
@@ -72,7 +75,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                 <TouchableOpacity
                     onPress={() => {
                         if (viewMode !== PrayerRequestViewMode.OWNER) {
-                            GET_UserIsOwnerPrayerRequests();
+                            setPrayerRequestsData(ownedPrayerRequests || []);
                             setViewMode(PrayerRequestViewMode.OWNER);
                         }
                     }}
@@ -80,9 +83,20 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                     <Text style={(viewMode == PrayerRequestViewMode.OWNER && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Owned</Text>
                 </TouchableOpacity>
             </View>
-            <View style={styles.prayerRequestList}>
+            <ScrollView contentContainerStyle={styles.prayerRequestList}>
                 {renderPrayerRequests()}
-            </View>
+            </ScrollView>
+            <TouchableOpacity>
+                <View style={styles.prayerRequestCreateButton}>
+                    <Text style={styles.prayerRequestCreateButtonText}>PR</Text>
+                </View>
+            </TouchableOpacity>                
+            <Modal 
+                visible={prayerRequestCreateModalVisible}
+                onRequestClose={() => setPrayerRequestCreateModalVisible(false)}
+            >
+                <PrayerRequestCreate callback={() => setPrayerRequestCreateModalVisible(false)}/>
+            </Modal>
         </View>
     )
 }
@@ -111,6 +125,21 @@ const styles = StyleSheet.create({
     },
     prayerRequestList: {
         flex: 1
+    },
+    prayerRequestCreateButton: {
+        position: "absolute",
+        bottom: 10,
+        right: 10,
+        height: 55,
+        width: 55,
+        backgroundColor: COLORS.accent,
+        alignItems: "baseline",
+        borderRadius: 15,
+    },
+    prayerRequestCreateButtonText: {
+        ...theme.text,
+        textAlign: "center",
+        fontSize: FONT_SIZES.XL
     }
 })
 

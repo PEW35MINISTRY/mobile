@@ -30,7 +30,7 @@ export enum PrayerRequestViewMode {
     OWNER = "OWNER"
 }
 
-export interface ProfileImageSettingsParams extends ParamListBase {
+export interface CallbackParam {
     callback:(() => void)
 }
 
