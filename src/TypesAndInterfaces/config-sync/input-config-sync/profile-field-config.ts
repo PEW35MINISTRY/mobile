@@ -9,6 +9,10 @@ import InputField, { InputRangeField, InputSelectionField, InputType } from './i
 export const EMAIL_REGEX = new RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+([^<>()\.,;:\s@\"]{2,}|[\d\.]+))$/);
 export const DATE_REGEX = new RegExp(/^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)$/); //1970-01-01T00:00:00.013Z
 export const PASSWORD_REGEX = new RegExp(/.{5,20}/);
+
+// Production Password Regex
+// Valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length or more
+// export const PASSWORD_REGEX = new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,}$/)
     
 /***************************************
 *    PROFILE TYPES AND DEPENDENCIES

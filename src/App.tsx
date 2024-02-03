@@ -17,8 +17,6 @@ import store, { RootState } from './redux-store';
 import theme from './theme';
 import { CircleTabNavigator } from "./widgets";
 import { AppStackParamList, CIRCLE_DISPLAY_ROUTE_NAME, CIRCLE_LIST_ROUTE_NAME, CIRCLE_SEARCH_ROUTE_NAME, BOTTOM_TAB_NAVIGATOR_ROUTE_NAME, CIRCLE_NAVIGATOR_ROUTE_NAME, PRAYER_REQUEST_LIST_ROUTE_NAME, PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, PRAYER_REQUEST_DISPLAY_ROUTE_NAME } from './TypesAndInterfaces/custom-types';
-import PrayerRequestList from './3-Prayer/PrayerRequestList';
-import PrayerRequestDisplay from './3-Prayer/PrayerRequestDisplay';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -38,16 +36,6 @@ const CircleStackNavigatorProp = () => {
   )
 }
 
-// Handle all react navigation screens for prayer requests
-const PrayerRequestNavigatorProp = () => {
-  return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name={PRAYER_REQUEST_LIST_ROUTE_NAME} component={PrayerRequestList} />
-      <Stack.Screen name={PRAYER_REQUEST_DISPLAY_ROUTE_NAME} component={PrayerRequestDisplay} />
-    </Stack.Navigator>
-  )
-}
-
 // Renders navigation buttons at bottom of screen. Each screen in the navigator should be a stack navigator 
 const BottomTabNavigator = () => {
   return (
@@ -55,7 +43,6 @@ const BottomTabNavigator = () => {
           tabBar={props => <CircleTabNavigator {...props} />}
       >
         <Tab.Screen name={CIRCLE_NAVIGATOR_ROUTE_NAME} component={CircleStackNavigatorProp} />
-        <Tab.Screen name={PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME} component={PrayerRequestNavigatorProp} />
 
       </Tab.Navigator>
   );

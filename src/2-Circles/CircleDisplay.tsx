@@ -58,10 +58,7 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
             <PrayerRequestTouchable
                 key={index}
                 prayerRequestProp={prayerRequest}
-                onPress={() => navigation.navigate(PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
-                    params: {PrayerRequestProps: prayerRequest},
-                    screen: PRAYER_REQUEST_DISPLAY_ROUTE_NAME
-                })}
+                onPress={() => console.log("PR")}
             />
         );
     
