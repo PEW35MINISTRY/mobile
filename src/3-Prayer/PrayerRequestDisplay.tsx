@@ -10,6 +10,7 @@ import theme, { COLORS, FONT_SIZES } from '../theme';
 import { Outline_Button, PrayerRequestComment, ProfileImage, RequestorCircleImage, RequestorProfileImage } from '../widgets';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
+import PrayerRequestEditForm from './PrayerRequestEdit';
 
 const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -35,6 +36,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const [prayerCount, setPrayerCount] = useState(-1);
     const [hasPrayed, setHasPrayed] = useState(false); // TODO: change based on upcoming change where this is static in the PR body
     const [sharedRecipientsModalVisible, setSharedRecipientsModalVisible] = useState(false);
+    const [prayerRequestEditModalVisible, setPrayerRequestEditModalVisible] = useState(false);
 
     const RequestAccountHeader = {
         headers: {
@@ -71,31 +73,34 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         }
     }
 
+    const setPrayerRequestState = (prayerRequestData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem) => {
+        setDataFetchComplete(false);
+        const prayerRequestItem:PrayerRequestListItem = {
+            prayerRequestID: prayerRequestData.prayerRequestID,
+            requestorProfile: prayerRequestListData.requestorProfile,
+            topic: prayerRequestData.topic,
+            prayerCount: prayerRequestData.prayerCount || prayerRequestListData.prayerCount
+        };
+
+        setCurrPrayerRequestState(prayerRequestData);
+        setAppPrayerRequestListItem(prayerRequestItem);
+        setCommentsData(prayerRequestData.commentList || [])
+        setUserRecipientData(prayerRequestData.userRecipientList || []);
+        setCircleRecipientData(prayerRequestData.circleRecipientList || []);
+        setTags(prayerRequestData.tagList || []);
+        setPrayerCount(prayerRequestData.prayerCount)
+
+        setDataFetchComplete(true);
+    }
+
     const renderPrayerRequest = async (prayerRequestProps:PrayerRequestListItem) => {
         if (prayerRequestProps.prayerRequestID == currPrayerRequestState?.prayerRequestID) return;
 
         setDataFetchComplete(false);
         await axios.get(`${DOMAIN}/api/prayer-request/` + prayerRequestProps.prayerRequestID, RequestAccountHeader).then(response => {
-            const prayerRequestData:PrayerRequestResponseBody = response.data;
-            const prayerRequestItem:PrayerRequestListItem = {
-                prayerRequestID: prayerRequestData.prayerRequestID,
-                requestorProfile: prayerRequestProps.requestorProfile,
-                topic: prayerRequestData.topic,
-                prayerCount: prayerRequestData.prayerCount || prayerRequestProps.prayerCount
-            };
-
-            console.log(prayerRequestData);
-
-            setCurrPrayerRequestState(prayerRequestData);
-            setAppPrayerRequestListItem(prayerRequestItem);
-            setCommentsData(prayerRequestData.commentList || [])
-            setUserRecipientData(prayerRequestData.userRecipientList || []);
-            setCircleRecipientData(prayerRequestData.circleRecipientList || []);
-            setTags(prayerRequestData.tagList || []);
-            setPrayerCount(prayerRequestData.prayerCount)
-
-            setDataFetchComplete(true);
-        });
+            const prayerRequestResponseData:PrayerRequestResponseBody = response.data;
+            setPrayerRequestState(prayerRequestResponseData, prayerRequestProps)
+        }).catch((error:AxiosError) => console.log(error));
     }
 
     useEffect(() => {
@@ -123,7 +128,9 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                             <Text style={styles.nameText}>{appPrayerRequestListItem.requestorProfile.displayName}</Text>
                             <Text style={styles.topicText}>{appPrayerRequestListItem.topic}</Text>
                         </View>
-                        <TouchableOpacity >
+                        <TouchableOpacity 
+                            onPress={() => setPrayerRequestEditModalVisible(true)}
+                        >
                             <Ionicons 
                                 name="pencil-outline"
                                 color={COLORS.white}
@@ -161,6 +168,19 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                                 {renderUserRecipients()}
                             </ScrollView>
                         </View>
+                    </Modal>
+                    <Modal 
+                        visible={prayerRequestEditModalVisible}
+                        onRequestClose={() => setPrayerRequestEditModalVisible(false)}
+                    >
+                        <PrayerRequestEditForm 
+                            prayerRequestListData={appPrayerRequestListItem}
+                            prayerRequestResponseData={currPrayerRequestState}
+                            callback={(prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem) => {
+                                setPrayerRequestEditModalVisible(false);
+                                if (prayerRequestData !== undefined && prayerRequestListData !== undefined) setPrayerRequestState(prayerRequestData, prayerRequestListData);
+                            }}
+                        />
                     </Modal>
                     <Text style={styles.commentsTitle}>Comments</Text>
                     <ScrollView style={styles.commentsView}>

@@ -7,7 +7,7 @@ import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View
 import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import { SIGNUP_PROFILE_FIELDS_STUDENT } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
-import { FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { FormDataType, FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, resetAccount, setAccount } from '../redux-store';
 import theme, { COLORS } from '../theme';
@@ -20,7 +20,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
 
-    const onSignUp = (formValues:Record<string, string>) => {
+    const onSignUp = (formValues:Record<string, string | string[]>) => {
       
       // send data to server
       axios.post(`${DOMAIN}/signup`, formValues

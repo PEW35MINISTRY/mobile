@@ -25,28 +25,41 @@ export const PROFILE_SETTINGS_NAVIGATOR_ROUTE_NAME = "ProfileSettingsRoutes"
 
 export const BOTTON_TAB_NAVIGATOR_ROUTE_NAMES = [CIRCLE_NAVIGATOR_ROUTE_NAME, PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, CONTENT_NAVIGATOR_ROUTE_NAME, PROFILE_SETTINGS_NAVIGATOR_ROUTE_NAME];
 
-export enum PrayerRequestViewMode {
+export enum PrayerRequestListViewMode {
     RECIPIENT = "RECIPIENT",
     OWNER = "OWNER"
+}
+
+export enum PrayerRequestRecipientViewMode {
+    CIRCLE = "CIRCLE",
+    USER = "USER"
 }
 
 export interface CallbackParam {
     callback:(() => void)
 }
 
+export interface PrayerRequestEditCallbackParam {
+    callback:((prayerRequestData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem) => void)
+}
+
 export interface SelectListItem {
     key: string | number, 
-    value:string
+    value: string | JSX.Element
 }
 
 export type FormSubmit = {
     onHandleSubmit: () => void;
 }
 
+export type FormDataType = {
+    value: string | string[]
+}
+
 export type FormInputProps = {
     fields:InputField[], 
-    defaultValues?:ProfileResponse | PrayerRequestResponseBody, 
-    onSubmit:((formValues:Record<string, string>) => void)
+    defaultValues?:ProfileResponse | PrayerRequestResponseBody | number[], 
+    onSubmit:((formValues:Record<string, string | string[]>) => void)
 }
 
 export interface AppStackParamList extends ParamListBase {

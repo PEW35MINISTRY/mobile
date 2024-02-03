@@ -3,17 +3,19 @@ import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState } from '../redux-store';
-import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
-import { PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, PRAYER_REQUEST_DISPLAY_ROUTE_NAME, StackNavigationProps, PrayerRequestViewMode, FormSubmit, CallbackParam } from '../TypesAndInterfaces/custom-types';
+import { RootState, addPrayerRequest } from '../redux-store';
+import { PrayerRequestListItem, PrayerRequestPostRequestBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
+import { PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, PRAYER_REQUEST_DISPLAY_ROUTE_NAME, StackNavigationProps, PrayerRequestListViewMode, FormSubmit, CallbackParam, FormDataType } from '../TypesAndInterfaces/custom-types';
 import { FormInput, PrayerRequestTouchable, Raised_Button } from '../widgets';
 import theme, { COLORS } from '../theme';
-import InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import InputField, { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { CREATE_PRAYER_REQUEST_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 
-const PrayerRequestForm = ({callback}:CallbackParam):JSX.Element => {
+const PrayerRequestCreateForm = (props:{callback:(() => void)}):JSX.Element => {
+    const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
+    const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
 
     const RequestAccountHeader = {
         headers: {
@@ -21,12 +23,26 @@ const PrayerRequestForm = ({callback}:CallbackParam):JSX.Element => {
         }
     }
 
-    const onPrayerRequestCreate = (formValues:Record<string, string>) => {
+    const onPrayerRequestCreate = (formValues:Record<string, string | string[]>) => {
         axios.post(`${DOMAIN}/api/prayer-request`, formValues, RequestAccountHeader).then((response) => {
-            // TODO: save something to axios?
 
+            //@ts-ignore - can't directly TS cast or copy over values
+            const prayerRequest:PrayerRequestPostRequestBody = {...formValues}
 
-            callback();
+            const newPrayerRequestListItem:PrayerRequestListItem = {
+                prayerRequestID: response.data,
+                requestorProfile: {
+                    userID: userProfile.userID,
+                    firstName: userProfile.firstName,
+                    displayName: userProfile.displayName,
+                    image: userProfile.image,
+                },
+                topic: prayerRequest.topic,
+                prayerCount: 0,
+                tagList: prayerRequest.tagList
+            }
+            dispatch(addPrayerRequest(newPrayerRequestListItem));
+            props.callback();
         })
     }
 
@@ -35,7 +51,7 @@ const PrayerRequestForm = ({callback}:CallbackParam):JSX.Element => {
             <View style={styles.background_view}>
                 <Text style={styles.header}>Create Prayer Request</Text>
                 <FormInput 
-                    fields={CREATE_PRAYER_REQUEST_FIELDS}
+                    fields={CREATE_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}
                     ref={formInputRef}
                     onSubmit={onPrayerRequestCreate}
                 />
@@ -61,4 +77,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default PrayerRequestForm;
+export default PrayerRequestCreateForm;

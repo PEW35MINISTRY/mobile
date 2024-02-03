@@ -53,7 +53,7 @@ export default store;
 
 // Export action functions to use in app with dispatch
 // How to use in component: https://redux-toolkit.js.org/tutorials/quick-start#use-redux-state-and-actions-in-react-components
-export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfileImage, addCircle, updateCircle, removeCircle, addPartner, removePartner } = slice.actions;
+export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfileImage, addCircle, updateCircle, removeCircle, addPartner, removePartner, addPrayerRequest, removePrayerRequest, updatePrayerRequest } = slice.actions;
 
 //Typescript Redux Setup: https://react-redux.js.org/tutorials/typescript-quick-start
 // Infer the `RootState` and `AppDispatch` types from the store itself

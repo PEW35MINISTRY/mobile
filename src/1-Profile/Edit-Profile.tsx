@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 import { EDIT_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
-import { FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { FormDataType, FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
 
@@ -37,7 +37,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       }
     }
 
-    const onEditProfile = (formValues:Record<string, string>):void => {
+    const onEditProfile = (formValues:Record<string, string | string[]>):void => {
 
       // if no fields change, don't bother sending an empty update request to the server
       var fieldsChanged = false;

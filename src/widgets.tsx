@@ -1,9 +1,8 @@
 //These are reusable widgets for app consistency
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
-import { symbol } from 'prop-types';
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { ColorValue, GestureResponderEvent, Image, ImageSourcePropType, ImageStyle, KeyboardTypeOptions, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle, ScrollView } from "react-native";
-import { SelectList } from 'react-native-dropdown-select-list';
+import { MultipleSelectList, SelectList } from 'react-native-dropdown-select-list';
 import DateTimePickerModal, { ReactNativeModalDateTimePickerProps } from "react-native-modal-datetime-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Colors } from 'react-native/Libraries/NewAppScreen';
@@ -11,16 +10,16 @@ import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem } from 
 import { PrayerRequestCommentListItem, PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { getDOBMinDate, getDOBMaxDate, RoleEnum } from './TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import type InputField from './TypesAndInterfaces/config-sync/input-config-sync/inputField';
-import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAME, BOTTON_TAB_NAVIGATOR_ROUTE_NAMES, CIRCLE_NAVIGATOR_ROUTE_NAME, FormInputProps, FormSubmit, PRAYER_REQUEST_LIST_ROUTE_NAME, PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, TabNavigationProps } from './TypesAndInterfaces/custom-types';
+import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAME, BOTTON_TAB_NAVIGATOR_ROUTE_NAMES, CIRCLE_NAVIGATOR_ROUTE_NAME, FormDataType, FormInputProps, FormSubmit, PRAYER_REQUEST_LIST_ROUTE_NAME, PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, PrayerRequestRecipientViewMode, PrayerRequestListViewMode, TabNavigationProps } from './TypesAndInterfaces/custom-types';
 import theme, { COLORS, FONTS, FONT_SIZES, RADIUS } from './theme';
 import { useAppDispatch, useAppSelector } from "./TypesAndInterfaces/hooks";
 import { RootState } from './redux-store';
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { InputType, InputSelectionField } from './TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import { InputType, InputSelectionField, isListType } from './TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
 import { SelectListItem } from './TypesAndInterfaces/custom-types';
-import { ProfileResponse } from './TypesAndInterfaces/config-sync/api-type-sync/profile-types';
+import { ProfileListItem, ProfileResponse } from './TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import PrayerRequestList from './3-Prayer/PrayerRequestList';
 import { PrayerRequestTagEnum } from './TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 
@@ -558,7 +557,7 @@ export const Icon_Button = (props:{source:ImageSourcePropType, imageStyle:ImageS
              </TouchableOpacity> );
 }
 
-export const DatePicker = (props:{validationLabel?:string|JSX.Element, buttonStyle?:ViewStyle, buttonText:string, onConfirm:((date:Date) => void), validationStyle?:TextStyle }):JSX.Element => {
+export const DatePicker = (props:{validationLabel?:string|JSX.Element, buttonStyle?:ViewStyle, buttonText:string, onConfirm:((date:Date) => void), validationStyle?:TextStyle, defaultDate:string }):JSX.Element => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
     const styles = StyleSheet.create({
@@ -578,20 +577,21 @@ export const DatePicker = (props:{validationLabel?:string|JSX.Element, buttonSty
             <Outline_Button
                 text={props.buttonText}
                 buttonStyle={props.buttonStyle}
-                onPress={(event:GestureResponderEvent) => setDatePickerVisible(!isDatePickerVisible)}
+                onPress={(event:GestureResponderEvent) => setDatePickerVisible(true)}
             />
             <DateTimePickerModal 
                 isVisible={isDatePickerVisible}
                 mode="date"
-                onConfirm={props.onConfirm}
-                onCancel={(event:Date) => setDatePickerVisible(!isDatePickerVisible)}
+                onConfirm={(date:Date) => {props.onConfirm(date); setDatePickerVisible(false)}}
+                onCancel={(event:Date) => setDatePickerVisible(false)}
+                date={new Date(props.defaultDate)}
             />
             {props.validationLabel && <Text style={styles.validationLabelStyle}>{props.validationLabel}</Text>}
         </View>
     )
 }
 
-export const Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: any, placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle}):JSX.Element => {
+export const Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
     const styles = StyleSheet.create({
         dropdownText: {
             color: COLORS.white,
@@ -631,7 +631,61 @@ export const Dropdown_Select = (props:{validationLabel?:string, setSelected:((va
                 boxStyles={props.boxStyle} 
                 dropdownTextStyles={styles.dropdownText}
                 inputStyles={styles.dropdownSelected}
-                placeholder={props.placeholder} 
+                placeholder={props.placeholder}
+                defaultOption={props.defaultOption} 
+             />
+            {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
+
+        </View>
+        
+      )
+   
+}
+
+export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, defaultOption?:SelectListItem[] }):JSX.Element => {
+
+    const styles = StyleSheet.create({
+        dropdownText: {
+            color: COLORS.white,
+            textAlign: "center",
+            
+        },
+        dropdownSelected: {
+            color: COLORS.white,
+            textAlign: "center",
+            flex: 1 
+        },
+        dropdown: {
+            width: 300,
+            marginLeft: 3,
+            paddingVertical: 5,
+            paddingHorizontal: 15,
+        },
+        containerStyle: {
+            marginVertical: 5,
+        },
+        errorTextStyle: {
+            ...theme.accent,
+            color: COLORS.primary,
+            textAlign: "center",
+            marginBottom: 5,
+            ...props.validationStyle
+        },
+          
+    });
+    
+    return (
+        <View style={styles.containerStyle}>
+            <MultipleSelectList 
+                setSelected={(val: string) => props.setSelected(val)} 
+                data={props.data}
+                save="value"
+                boxStyles={props.boxStyle} 
+                dropdownTextStyles={styles.dropdownText}
+                inputStyles={styles.dropdownSelected}
+                placeholder={props.placeholder}
+                // TODO - defaultOption for SelectList is not available yet. PR - https://github.com/danish1658/react-native-dropdown-select-list/pull/102
+                //defaultOption={props.defaultOption} 
              />
             {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
 
@@ -643,14 +697,32 @@ export const Dropdown_Select = (props:{validationLabel?:string, setSelected:((va
 
 export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX.Element => {
 
-    const createFormValues = ():Record<string, string> => {
-        const formValues: Record<string, string> = {};
-        props.fields.forEach((field:InputField) => {
-          //@ts-ignore
-          formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : field.value || "";
-        });
-        return formValues;
+    // Determine if the field value is a string or a list by defining a type guard
+    // documentation: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#the-in-operator-narrowing
+    const fieldValueIsString = (fieldType: InputType, value: string | string[]): value is string => {
+        return !isListType(fieldType);
     }
+
+    const createFormValues = ():Record<string, string | string[]> => {
+        const formValues: Record<string, string | string> = {};
+        props.fields.forEach((field:InputField) => {
+            if (!fieldValueIsString(field.type, field.value || "")) 
+                if (field instanceof InputSelectionField || InputType.CIRCLE_ID_LIST || InputType.USER_ID_LIST) {
+                    //@ts-ignore
+                    formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : field.selectOptionList || [];
+                }
+                else {
+                    //@ts-ignore
+                    formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : field.value || "";
+                }
+            else 
+                //@ts-ignore
+                formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : field.value || "";
+        });
+        console.log(formValues);
+        return formValues;
+   }
+
    const {
         control,
         handleSubmit,
@@ -665,6 +737,10 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
             handleSubmit(props.onSubmit)();
         }
     }))
+
+    const test = (test:number | undefined) => {
+        if (test !== undefined) return test+1;
+    }
 
     const styles = StyleSheet.create({
         ...theme
@@ -683,15 +759,21 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         pattern: field.validationRegex
                         }}
                         render={({ field: {onChange, onBlur, value}}) => (
-                        <Input_Field 
-                            placeholder={field.title}
-                            value={value}
-                            onChangeText={onChange}
-                            keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
-                            validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                            inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                            validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                        />
+                            <>
+                            {
+                                (fieldValueIsString(field.type, value)) && <Input_Field 
+                                    placeholder={field.title}
+                                    value={value}
+                                    onChangeText={onChange}
+                                    keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
+                                    validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
+                                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
+                                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                />
+                            }
+                            
+                            </>
+   
                         )}
                         name={field.field}
                         key={field.field}
@@ -717,16 +799,19 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         
                         }}
                         render={({ field: {onChange, onBlur, value}}) => (
-                        <Input_Field 
-                            placeholder={field.title}
-                            value={value}
-                            onChangeText={onChange}
-                            keyboardType='default'
-                            textContentType='password'
-                            validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                            inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                            validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                        />
+                            <>
+                                {fieldValueIsString(field.type, value) && <Input_Field 
+                                    placeholder={field.title}
+                                    value={value}
+                                    onChangeText={onChange}
+                                    keyboardType='default'
+                                    textContentType='password'
+                                    validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
+                                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
+                                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                />}
+                            </>
+                        
                         )}
                         name={field.field}
                         key={field.field}
@@ -742,36 +827,41 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         pattern: field.validationRegex,
                         validate: async (value, formValues) => {
                             var responseStatus = false;
-                            if (value.match(field.validationRegex)) {
-                            // check server to see if account with that email address exists
-                                if (field.unique) {
-                                    await axios.get(`${DOMAIN}/resources/available-account?email=` + value).then((response) => {
-                                        responseStatus = true;
-                                        if (response.status == 204) return true;
-                                    
-                                        }).catch(err => console.log("err", err));
-        
-                                        // if the axios request returned an error, return validation failure
-                                        if (!responseStatus) return false;
-                                }
-                                else return true;
-                            } 
-                            else return false;
-                            
+                            if (fieldValueIsString(field.type, value)) {
+                                if (value.match(field.validationRegex)) {
+                                    // check server to see if account with that email address exists
+                                        if (field.unique) {
+                                            await axios.get(`${DOMAIN}/resources/available-account?email=` + value).then((response) => {
+                                                responseStatus = true;
+                                                if (response.status == 204) return true;
+                                            
+                                                }).catch(err => console.log("err", err));
+                
+                                                // if the axios request returned an error, return validation failure
+                                                if (!responseStatus) return false;
+                                        }
+                                        else return true;
+                                    } 
+                                    else return false;
+                            }
                         }
                         
                         }}
                         render={({ field: {onChange, onBlur, value}}) => (
-                        <Input_Field 
-                            placeholder={field.title}
-                            value={value}
-                            onChangeText={onChange}
-                            keyboardType='email-address'
-                            labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                            inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                            validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                            validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                        />
+                        <>
+                            {fieldValueIsString(field.type, value) &&                         
+                                <Input_Field 
+                                    placeholder={field.title}
+                                    value={value}
+                                    onChangeText={onChange}
+                                    keyboardType='email-address'
+                                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
+                                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
+                                    validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
+                                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                />}
+                        </>
+
                         )}
                         name={field.field}
                         key={field.field}
@@ -784,6 +874,16 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         for (var i=0; i<field.selectOptionList.length; i++) {
                             selectListData.push({key: i, value: field.selectOptionList[i]})
                         }
+
+                        const getSelectListDefaultValue = (selectListValue:string | undefined) => {
+                            if (selectListValue !== undefined) {
+                                for (var i=0; i<selectListData.length; i++) {
+                                    if (selectListData[i].value == selectListValue) return selectListData[i];
+                                }
+                            }
+                            return undefined;
+                        }
+
                         return (
                             <Controller 
                                 control={control}
@@ -791,14 +891,19 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                 required: field.required,
                                 }}
                                 render={({ field: {onChange, onBlur, value}}) => (
-                                <Dropdown_Select
-                                    setSelected={(val:string) => onChange(val)}
-                                    data={selectListData}
-                                    placeholder='Select Gender'
-                                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                    validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                                    boxStyle={(errors[field.field] && {borderColor: COLORS.primary}) || {borderColor: COLORS.accent}}
-                                />
+                                <>
+                                    {fieldValueIsString(field.type, value) &&                                
+                                    <Dropdown_Select
+                                        setSelected={(val:string) => onChange(val)}
+                                        data={selectListData}
+                                        placeholder={field.title}
+                                        validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                        validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
+                                        boxStyle={(errors[field.field] && {borderColor: COLORS.primary}) || {borderColor: COLORS.accent}}
+                                        defaultOption={getSelectListDefaultValue(value)}
+                                    />} 
+                                </>
+ 
                                 )}
                                 name={field.field}
                                 key={field.field}
@@ -816,20 +921,27 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         rules={{
                         required: field.required,
                         validate: (value, formValues) => {
-                            const currAge = new Date(value);
-                            console.log(minAge, maxAge, currAge);
-                            if (currAge > minAge || currAge < maxAge) return false;
-                            else return true;
+                            if (fieldValueIsString(field.type, value)) {
+                                const currAge = new Date(value);
+                                console.log(minAge, maxAge, currAge);
+                                if (currAge > minAge || currAge < maxAge) return false;
+                                else return true;
+                            }
                         }
                         }}
                         render={({ field: {onChange, onBlur, value}}) => (
-                        <DatePicker 
-                            buttonText={field.title}
-                            buttonStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                            onConfirm={(date:Date) => onChange(date.toISOString())}
-                            validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                            validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                        />
+                        <>
+                            {fieldValueIsString(field.type, value) &&                         
+                                <DatePicker 
+                                buttonText={field.title}
+                                buttonStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
+                                onConfirm={(date:Date) => onChange(date.toISOString())}
+                                validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
+                                defaultDate={value}
+                            />}
+                        </>
+
                         )}
                         name={field.field}
                         key={field.field}
@@ -837,6 +949,59 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                     );
                     break;
                     
+                case InputType.MULTI_SELECTION_LIST || InputType.CUSTOM_STRING_LIST:
+                    if (field instanceof InputSelectionField) {
+                        var selectListData:SelectListItem[] = [];
+                        for (var i=0; i<field.selectOptionList.length; i++) {
+                            selectListData.push({key: i, value: field.selectOptionList[i]})
+                        }
+
+                        const getSelectListDefaultValue = (selectListValues:string[] | undefined) => {
+                            var selected:SelectListItem[] = [];
+                            if (selectListValues !== undefined) {
+                                selectListValues.forEach((value:string) => {
+                                    for (var i=0; i<selectListData.length; i++) {
+                                        if (selectListData[i].value == value) {
+                                            selected.push(selectListData[i]);
+                                            break;
+                                        }
+                                    }
+                                });
+                                return selected;
+                            }
+                            return undefined;
+                        }
+
+                        return (
+                            <Controller 
+                                control={control}
+                                rules={{
+                                required: field.required,
+                                }}
+                                render={({ field: {onChange, onBlur, value}}) => (
+                                <>
+                                    {!fieldValueIsString(field.type, value) &&                                
+                                    <Multi_Dropdown_Select
+                                        setSelected={(val:string) => onChange(val)}
+                                        data={selectListData}
+                                        placeholder={field.title}
+                                        validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                        validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
+                                        boxStyle={(errors[field.field] && {borderColor: COLORS.primary}) || {borderColor: COLORS.accent}}
+                                        defaultOption={getSelectListDefaultValue(value)}
+                                    />} 
+                                </>
+ 
+                                )}
+                                name={field.field}
+                                key={field.field}
+                            />
+                        );
+                    }
+                    else return (<></>)
+                    break;
+                case InputType.PARAGRAPH:
+                    break;
                 // Default case will likely never happen, but its here to prevent undefined behavior per TS
                 default:
                     return <></>
@@ -1049,5 +1214,137 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
             </TouchableOpacity>
         </View>
         
+    )
+}
+
+export const ProfileContact = (props:{profile:ProfileListItem}):JSX.Element => {
+
+    const styles = StyleSheet.create({
+        container: {
+            marginTop: 5,
+            marginLeft: 8
+        },
+        nameText: {
+            ...theme.header,
+            fontSize: 20,
+        },
+        bodyText: {
+            ...theme.text,
+            fontSize: FONT_SIZES.S + 2,
+            color: COLORS.white
+        },
+        prayerRequestDataTopView: {
+            marginTop: 2,
+            flexDirection: "row",
+        },
+        middleData: {
+            flexDirection: "column",
+            marginLeft: 10,
+        },
+        prayerCountText: {
+            ...theme.text,
+            color: COLORS.white,
+            textAlign: "center",
+            fontSize: 15
+        },
+        prayerCountIncreaseText: {
+            ...theme.text,
+            color: COLORS.white,
+            textAlign: "center",
+            fontSize: 12
+        },
+        socialDataView: {
+            backgroundColor: COLORS.primary,
+            borderRadius: 5,
+            //justifyContent: "center",
+            position: "absolute",
+            right: 2,
+            bottom: 2,
+            //alignSelf: "center",
+            flexDirection: "row",
+            width: 30
+        },
+    });
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.prayerRequestDataTopView}>
+                <RequestorProfileImage style={{height: 40, width: 40}} imageUri={props.profile.image} userID={props.profile.userID}/>
+                <View style={styles.middleData}>
+                    <Text style={styles.nameText}>{props.profile.displayName}</Text>
+                </View>
+            </View>
+        </View>
+    )
+
+    
+}
+
+export const CircleContact = (props:{circle:CircleListItem}):JSX.Element => {
+    const styles = StyleSheet.create({
+        container: {
+            marginTop: 5,
+            marginLeft: 8
+        },
+        nameText: {
+            ...theme.header,
+            fontSize: 20,
+        },
+        bodyText: {
+            ...theme.text,
+            fontSize: FONT_SIZES.S + 2,
+            color: COLORS.white
+        },
+        prayerRequestDataTopView: {
+            marginTop: 2,
+            flexDirection: "row",
+        },
+        middleData: {
+            flexDirection: "column",
+            marginLeft: 10,
+        },
+        prayerCountText: {
+            ...theme.text,
+            color: COLORS.white,
+            textAlign: "center",
+            fontSize: 15
+        },
+        prayerCountIncreaseText: {
+            ...theme.text,
+            color: COLORS.white,
+            textAlign: "center",
+            fontSize: 12
+        },
+        socialDataView: {
+            backgroundColor: COLORS.primary,
+            borderRadius: 5,
+            //justifyContent: "center",
+            position: "absolute",
+            right: 2,
+            bottom: 2,
+            //alignSelf: "center",
+            flexDirection: "row",
+            width: 30
+        },
+    });
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.prayerRequestDataTopView}>
+                <RequestorCircleImage style={{height: 40, width: 40}} imageUri={props.circle.image} circleID={props.circle.circleID}/>
+                <View style={styles.middleData}>
+                    <Text style={styles.nameText}>{props.circle.name}</Text>
+                </View>
+            </View>
+        </View>
+    )
+}
+
+const PrayerRequestRecipientForm = (props:{setSelected:((val:string) => void)}):JSX.Element => {
+    const [viewMode, setViewMode] = useState<PrayerRequestRecipientViewMode>(PrayerRequestRecipientViewMode.USER);
+
+
+    return (
+        <></>
     )
 }

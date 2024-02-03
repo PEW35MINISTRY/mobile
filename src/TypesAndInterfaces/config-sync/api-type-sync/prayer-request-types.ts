@@ -50,7 +50,7 @@ export interface PrayerRequestPostRequestBody {
     description: string,
     prayerCount?: number,
     isOnGoing?: boolean,
-    tagList?: string[],
+    tagList?: PrayerRequestTagEnum[],
     expirationDate: string,
     addUserRecipientIDList?: number[],
     addCircleRecipientIDList?: number[]

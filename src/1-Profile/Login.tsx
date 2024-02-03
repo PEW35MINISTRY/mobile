@@ -2,7 +2,7 @@ import { DOMAIN } from '@env';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, StyleSheet, Text, View } from 'react-native';
-import { FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { FormDataType, FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
 
@@ -23,7 +23,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const userID = useAppSelector((state: RootState) => state.account.userID);
 
-    const onLogin = (formValues:Record<string, string>) => {
+    const onLogin = (formValues:Record<string, string | string[]>) => {
 
         axios.post(`${DOMAIN}/login`, formValues).then(response => {   
                 console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);

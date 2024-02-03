@@ -5,7 +5,7 @@ import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, Touc
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
-import { PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, PRAYER_REQUEST_DISPLAY_ROUTE_NAME, StackNavigationProps, PrayerRequestViewMode } from '../TypesAndInterfaces/custom-types';
+import { PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, PRAYER_REQUEST_DISPLAY_ROUTE_NAME, StackNavigationProps, PrayerRequestListViewMode } from '../TypesAndInterfaces/custom-types';
 import { PrayerRequestTouchable } from '../widgets';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import PrayerRequestCreate from './PrayerRequestCreate';
@@ -18,7 +18,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     const ownedPrayerRequests = useAppSelector((state: RootState) => state.account.userProfile.prayerRequestList);
 
     const [prayerRequestsData, setPrayerRequestsData] = useState<PrayerRequestListItem[]>([]);
-    const [viewMode, setViewMode] = useState<PrayerRequestViewMode>(PrayerRequestViewMode.RECIPIENT);
+    const [viewMode, setViewMode] = useState<PrayerRequestListViewMode>(PrayerRequestListViewMode.RECIPIENT);
     const [prayerRequestCreateModalVisible, setPrayerRequestCreateModalVisible] = useState(false);
 
     const RequestAccountHeader = {
@@ -50,7 +50,9 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     const GET_UserIsOwnerPrayerRequests = async () => {
         await axios.get(`${DOMAIN}/api/user/` + userID + `/prayer-request-list`, RequestAccountHeader).then((response) => {
             const prayerRequestList:PrayerRequestListItem[] = response.data;
-            setPrayerRequestsData(prayerRequestList);
+            
+            //TODO: update personal prayer requests in redux through some loop
+
         }).catch((error:AxiosError) => console.log(error));
     }
 
@@ -63,30 +65,32 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
             <View style={styles.viewModeView}>
                 <TouchableOpacity
                     onPress={() => {
-                        if (viewMode !== PrayerRequestViewMode.RECIPIENT) {
+                        if (viewMode !== PrayerRequestListViewMode.RECIPIENT) {
                             GET_UserIsRecipientPrayerRequests();
-                            setViewMode(PrayerRequestViewMode.RECIPIENT);
+                            setViewMode(PrayerRequestListViewMode.RECIPIENT);
                         }
                     }}
                 >
-                    <Text style={(viewMode == PrayerRequestViewMode.RECIPIENT && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Inbox</Text>
+                    <Text style={(viewMode == PrayerRequestListViewMode.RECIPIENT && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Inbox</Text>
                 </TouchableOpacity>
                 <Text style={styles.viewModeTextSelected}>|</Text>
                 <TouchableOpacity
                     onPress={() => {
-                        if (viewMode !== PrayerRequestViewMode.OWNER) {
+                        if (viewMode !== PrayerRequestListViewMode.OWNER) {
                             setPrayerRequestsData(ownedPrayerRequests || []);
-                            setViewMode(PrayerRequestViewMode.OWNER);
+                            setViewMode(PrayerRequestListViewMode.OWNER);
                         }
                     }}
                 >
-                    <Text style={(viewMode == PrayerRequestViewMode.OWNER && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Owned</Text>
+                    <Text style={(viewMode == PrayerRequestListViewMode.OWNER && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Owned</Text>
                 </TouchableOpacity>
             </View>
             <ScrollView contentContainerStyle={styles.prayerRequestList}>
                 {renderPrayerRequests()}
             </ScrollView>
-            <TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => setPrayerRequestCreateModalVisible(true)}
+            >
                 <View style={styles.prayerRequestCreateButton}>
                     <Text style={styles.prayerRequestCreateButtonText}>PR</Text>
                 </View>
