@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 import { EDIT_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
-import { FormDataType, FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
 
@@ -14,10 +14,12 @@ import store from '../redux-store';
 
 import { Controller, useForm } from "react-hook-form";
 import { RootState, updateProfile } from '../redux-store';
-import { Flat_Button, FormInput, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
+import { Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ProfileEditRequestBody } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
+import { FormSubmit } from '../Widgets/FormInput/form-input-types';
+import { FormInput } from '../Widgets/FormInput/FormInput';
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/

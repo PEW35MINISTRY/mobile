@@ -7,12 +7,14 @@ import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View
 import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import { SIGNUP_PROFILE_FIELDS_STUDENT } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
-import { FormDataType, FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, resetAccount, setAccount } from '../redux-store';
 import theme, { COLORS } from '../theme';
-import { Raised_Button, FormInput } from '../widgets';
+import { Raised_Button } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
+import { FormSubmit } from '../Widgets/FormInput/form-input-types';
+import { FormInput } from '../Widgets/FormInput/FormInput';
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();

@@ -2,7 +2,7 @@ import { DOMAIN } from '@env';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, StyleSheet, Text, View } from 'react-native';
-import { FormDataType, FormSubmit, StackNavigationProps } from '../TypesAndInterfaces/custom-types';
+import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
 
@@ -13,9 +13,11 @@ import GOOGLE from '../../assets/logo-google.png';
 import LOGO from '../../assets/logo.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import { RootState, setAccount } from '../redux-store';
-import { Flat_Button, FormInput, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
-import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAME } from '../TypesAndInterfaces/custom-types';
+import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { LOGIN_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
+import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { FormInput } from '../Widgets/FormInput/FormInput';
+import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 
 const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -33,7 +35,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
                     userID: response.data.userID,
                     userProfile: response.data.userProfile,
                 }));
-                navigation.navigate(BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
+                navigation.navigate(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
             }).catch(error => console.error('Failed Authentication', error));
     }
 

@@ -1,12 +1,14 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
-import { CircleTouchable, Raised_Button } from '../widgets';
+import { Raised_Button } from '../widgets';
 import theme, { COLORS } from '../theme';
 import { CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
-import { CIRCLE_DISPLAY_ROUTE_NAME, CIRCLE_SEARCH_ROUTE_NAME } from '../TypesAndInterfaces/custom-types';
+import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { CircleTouchable } from './circle-widgets';
+
 
 export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
     const userCircles = useAppSelector((state: RootState) => state.account.userProfile.circleList);
@@ -18,7 +20,7 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
             <CircleTouchable
                 key={index}
                 circleProps={circleProps}
-                onPress={() => navigation.navigate(CIRCLE_DISPLAY_ROUTE_NAME, {
+                onPress={() => navigation.navigate(ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME, {
                     CircleProps: circleProps
                 })}
             />
@@ -29,7 +31,7 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
             setCircleModals(userCircles);
         }
         else {
-            navigation.navigate(CIRCLE_SEARCH_ROUTE_NAME);
+            navigation.navigate(ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME);
         }
         
     }, [userCircles])
@@ -42,7 +44,7 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
             </ScrollView>
             <Raised_Button buttonStyle={styles.statusButton}
                 text={"Browse Circles"}
-                onPress={() => navigation.navigate(CIRCLE_SEARCH_ROUTE_NAME)}
+                onPress={() => navigation.navigate(ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME)}
             />
         </View>
     )
