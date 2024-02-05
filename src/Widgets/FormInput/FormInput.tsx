@@ -9,6 +9,8 @@ import theme, { COLORS } from "../../theme";
 import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select } from "../../widgets";
 import React, { forwardRef, useImperativeHandle } from "react";
 import { FormSubmit, FormInputProps } from "./form-input-types";
+import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
+import { RootState } from "../../redux-store";
 
 export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX.Element => {
 
@@ -228,6 +230,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                     else return (<></>)
                     break;
                 case InputType.DATE:
+                    const userRole = useAppSelector((state: RootState) => state.account.userProfile.userRole);
                     return (
                     <Controller 
                         control={control}
@@ -236,8 +239,8 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         validate: (value, formValues) => {
                             if (fieldValueIsString(field.type, value)) {
                                 if (field.field == 'dateOfBirth') {
-                                    const minAge:Date = getDOBMaxDate(RoleEnum.STUDENT);
-                                    const maxAge:Date = getDOBMinDate(RoleEnum.STUDENT);
+                                    const minAge:Date = getDOBMaxDate(userRole || RoleEnum.STUDENT);
+                                    const maxAge:Date = getDOBMinDate(userRole || RoleEnum.STUDENT);
                                     const currAge = new Date(value);
                                     console.log(minAge, maxAge, currAge);
                                     if (currAge > minAge || currAge < maxAge) return false;
