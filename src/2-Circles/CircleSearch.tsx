@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { CIRCLE_DISPLAY_ROUTE_NAME, StackNavigationProps } from "../TypesAndInterfaces/custom-types";
-import { CircleTouchable, Input_Field, Raised_Button } from "../widgets";
+import { StackNavigationProps } from "../TypesAndInterfaces/custom-types";
+import { Input_Field, Raised_Button } from "../widgets";
 import theme, { COLORS } from "../theme";
 import React, { useState } from "react";
 import { CircleListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/circle-types";
@@ -8,6 +8,8 @@ import { DOMAIN } from "@env";
 import axios from "axios";
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
+import { ROUTE_NAMES } from "../TypesAndInterfaces/routes";
+import { CircleTouchable } from "./circle-widgets";
 
 export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -28,7 +30,7 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
             <CircleTouchable
                 key={index}
                 circleProps={circleProps}
-                onPress={() => navigation.navigate(CIRCLE_DISPLAY_ROUTE_NAME, {
+                onPress={() => navigation.navigate(ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME, {
                     CircleProps: circleProps
                 })}
             />

@@ -4,14 +4,24 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
 import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
-import { CircleDisplayProps } from '../TypesAndInterfaces/custom-types';
 import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
 
-import { CircleStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, addCircle, removeCircle, updateCircle } from '../redux-store';
-import { AnnouncementTouchable, CircleTouchable, EventTouchable, Input_Field, PrayerRequestTouchable, Raised_Button } from '../widgets';
 import { CircleList } from './CircleList';
+import { CircleStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { EventTouchable, RequestorCircleImage } from './circle-widgets';
+import { AnnouncementTouchable, PrayerRequestTouchable } from '../3-Prayer-Request/prayer-request-widgets';
+import { RequestorProfileImage } from '../1-Profile/profile-widgets';
+import { Raised_Button } from '../widgets';
+
+export interface CircleDisplayParamList extends AppStackParamList {
+    CircleProps: CircleListItem
+}
+
+type CircleDisplayProps = NativeStackScreenProps<CircleDisplayParamList, typeof ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME>;
 
 const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -57,7 +67,8 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
         (prayerRequestsData || []).map((prayerRequest:PrayerRequestListItem, index:number) =>
             <PrayerRequestTouchable
                 key={index}
-                prayerRequestProps={prayerRequest}
+                prayerRequestProp={prayerRequest}
+                onPress={() => console.log("PR")}
             />
         );
     
@@ -220,12 +231,12 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                         <TouchableOpacity 
                             onPress={() => setCircleInfoModalVisible(true)}    
                         >
-                        {currCircleState.image !== "" && 
-                            <Image source={{uri: currCircleState.image}} style={styles.circleImageMainPage}></Image> 
-                            }     
+                            <RequestorCircleImage 
+                                imageUri={currCircleState.image}
+                                circleID={currCircleState.circleID}
+                                style={styles.circleImageMainPage}
+                            />
                         </TouchableOpacity>
-                   
-                       
                     </View>
                     <View style={styles.eventSection}>
                         <Text style={styles.PRHeaderText}>Events</Text>
@@ -240,16 +251,18 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                     >
                         <View style={styles.infoView}>
                             <View style={styles.headerSection}>
-                                {currCircleState.image !== "" && 
-                                    <Image source={{uri: currCircleState.image}} style={styles.circleImageInfoPage}></Image> 
-                                }   
-                                
+                                <RequestorCircleImage 
+                                    imageUri={currCircleState.image}
+                                    circleID={currCircleState.circleID}
+                                    style={styles.circleImageInfoPage}
+                                />
+
                                 <Text style={styles.circleNameText}>{currCircleState.name}</Text>
 
                                 <Text style={styles.circleLeaderText}>Circle Leader:</Text>
-                                {currCircleState.leaderProfile.image !== "" &&
-                                    <Image source={{uri: currCircleState.leaderProfile.image}} style={styles.leaderImage} />
-                                }
+
+                                <RequestorProfileImage imageUri={currCircleState.leaderProfile.image} style={styles.leaderImage} />
+                                
                                 <View>
                                     <Text style={styles.leaderNameText}>{currCircleState.leaderProfile.displayName}</Text>
                                     <Text style={styles.orgName}>Citadel, Owatonna</Text>
@@ -291,8 +304,8 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
 const styles = StyleSheet.create({
     container: {
         ...theme.background_view,
-        flex: 1,
-        
+        justifyContent: "center",
+        flex: 1
     },
     leaderImage: {
         height: 90,
