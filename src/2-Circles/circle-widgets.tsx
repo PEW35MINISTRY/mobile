@@ -4,110 +4,13 @@ import { View, TouchableOpacity, StyleSheet, Image, Text, GestureResponderEvent,
 import Ionicons from "react-native-vector-icons/Ionicons";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from "../TypesAndInterfaces/routes";
-import { CircleListItem, CircleAnnouncementListItem, CircleEventListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/circle-types";
+import { CircleListItem, CircleAnnouncementListItem, CircleEventListItem, CircleLeaderResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { DOMAIN } from "@env";
 import axios, { AxiosError } from "axios";
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
-
-export const CircleTabNavigator = (props:BottomTabBarProps):JSX.Element => {
-
-    // Because I can't refer to the value of other objects in a static object declaration, generate the object dynamically
-    const generateDefaultNavigationState = () => {
-        var defaultNavigationState:Record<string, boolean> = {};
-        Object.values(BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES).forEach((route) => {
-            defaultNavigationState[route] = false;
-        })
-        return defaultNavigationState;
-    }
-
-    const defaultNavigationState:Record<string, boolean> = generateDefaultNavigationState();
-    const [isFocused, setIsFocused] = useState<Record<string, boolean>>(defaultNavigationState);
-
-    const changeTab = (screenName:string) => {
-        var newState = {...defaultNavigationState};
-        newState[screenName] = true;
-        setIsFocused(newState);
-        props.navigation.navigate(screenName);
-    }
-
-    const styes = StyleSheet.create({
-        container: {
-            justifyContent: "center",
-            backgroundColor: COLORS.black,
-            flexDirection: "row",
-        },
-        padding: {
-            justifyContent: "space-evenly",
-            flexDirection: "row",
-            marginBottom: 15, 
-        },
-        navTouchable: {
-            backgroundColor: COLORS.black,
-            borderRadius: 28,
-            marginHorizontal: 30,
-        },
-    });
-   
-    useEffect(() => {
-        var newState = {...defaultNavigationState};
-        newState[ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME] = true;
-        setIsFocused(newState);
-    }, [])
-
-    return (
-        <View style={styes.container}>
-            <View style={styes.padding}>
-                <TouchableOpacity
-                    style={styes.navTouchable}
-                    onPress={() => changeTab(ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME)}
-                >
-                    
-                    <Ionicons
-                        name="home"
-                        color={(isFocused[ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME] && COLORS.primary) || COLORS.grayDark}
-                        size={55}
-                    />
-                        
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styes.navTouchable}
-                    onPress={() => changeTab(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME)}
-                >
-                    <Ionicons
-                        name="accessibility"
-                        color={(isFocused[ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME] && COLORS.primary) || COLORS.grayDark}
-                        size={55}
-                    />
-                        
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styes.navTouchable}
-                    onPress={() => changeTab("Learn")}
-                >
-                    <Ionicons
-                        name="library"
-                        color={(isFocused["Learn"] && COLORS.primary) || COLORS.grayDark}
-                        size={55}
-                    />
-                        
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styes.navTouchable}
-                    onPress={() => changeTab("Profile")}
-                >
-                    <Ionicons
-                        name="person-circle"
-                        color={(isFocused["Profile"] && COLORS.primary) || COLORS.grayDark}
-                        size={55}
-                    />
-                        
-                </TouchableOpacity>
-            </View>
-
-        </View>
-    )
-}
+import { Outline_Button } from "../widgets";
+import { RecipientFormCircleListItem, RecipientFormViewMode, RecipientStatusEnum } from "../Widgets/RecipientIDList/recipient-types";
 
 export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string, circleID?:number}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
@@ -137,7 +40,7 @@ export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string,
     }
 
     useEffect(() => {
-        if (props.imageUri !== undefined) setRequestorImage({uri: props.imageUri})
+        if (props.imageUri !== undefined && props.imageUri !== "") setRequestorImage({uri: props.imageUri})
         else if (props.circleID !== undefined) fetchCircleImage();
     }, [])
 
@@ -293,3 +196,124 @@ export const EventTouchable = (props:{circleEvent:CircleEventListItem, onPress:(
     );
 }
 
+export const CircleContact = (props:{circleRecipientData:RecipientFormCircleListItem, addCircleRecipient:((id:number) => void), removeCircleRecipient:((id:number) => void), addRemoveCircleRecipient:((id:number) => void), removeRemoveCircleRecipient:((id:number) => void)}):JSX.Element => {
+
+    const [shareButtonText, setShareButtonText] = useState<RecipientStatusEnum>(props.circleRecipientData.status);
+    
+    const handlePress = () => {
+        switch(props.circleRecipientData.viewMode) {
+            case RecipientFormViewMode.CREATING:
+                if (shareButtonText == RecipientStatusEnum.NOT_SELECTED) {
+                    props.addCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    setShareButtonText(RecipientStatusEnum.UNCONFIRMED_ADD);
+                }
+                else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_ADD) {
+                    props.removeCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
+                }
+                break;
+            case RecipientFormViewMode.EDITING:
+                if (shareButtonText == RecipientStatusEnum.NOT_SELECTED) {
+                    props.addCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    setShareButtonText(RecipientStatusEnum.UNCONFIRMED_ADD);
+                }
+                else if (shareButtonText == RecipientStatusEnum.CONFIRMED) {
+                    props.addRemoveCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    setShareButtonText(RecipientStatusEnum.UNCONFIRMED_REMOVE);
+                }
+                else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_ADD) {
+                    props.removeCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
+                }
+                else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_REMOVE) {
+                    props.removeRemoveCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
+                }
+                break;
+        }
+    }
+
+    const styles = StyleSheet.create({
+        container: {
+            marginTop: 5,
+            marginLeft: 8,
+            marginVertical: 10
+        },
+        nameText: {
+            ...theme.header,
+            fontSize: 20,
+        },
+        bodyText: {
+            ...theme.text,
+            fontSize: FONT_SIZES.S + 2,
+            color: COLORS.white
+        },
+        prayerRequestDataTopView: {
+            marginTop: 2,
+            flexDirection: "row",
+        },
+        middleData: {
+            flexDirection: "column",
+            marginLeft: 10,
+        },
+        prayerCountText: {
+            ...theme.text,
+            color: COLORS.white,
+            textAlign: "center",
+            fontSize: 15
+        },
+        prayerCountIncreaseText: {
+            ...theme.text,
+            color: COLORS.white,
+            textAlign: "center",
+            fontSize: 12
+        },
+        socialDataView: {
+            backgroundColor: COLORS.primary,
+            borderRadius: 5,
+            //justifyContent: "center",
+            position: "absolute",
+            right: 2,
+            bottom: 2,
+            //alignSelf: "center",
+            flexDirection: "row",
+            width: 30
+        },
+        textStyle: {
+            ...theme.text,
+            fontWeight: '700',
+            textAlign: "center"
+        },
+        shareButtonView:{
+            borderWidth: 1,
+            borderColor: COLORS.accent,
+            width: 70,
+            borderRadius: 5,
+            //position: "absolute",
+        },
+        centerView: {
+            alignItems: "center"
+        }
+    });
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.prayerRequestDataTopView}>
+                <RequestorCircleImage style={{height: 40, width: 40}} imageUri={props.circleRecipientData.circleListData.image} circleID={props.circleRecipientData.circleListData.circleID}/>
+                <View style={styles.middleData}>
+                    <Text style={styles.nameText}>{props.circleRecipientData.circleListData.name}</Text>
+                </View>
+            </View>
+            <View style={styles.centerView}>
+                <TouchableOpacity 
+                    onPress={handlePress}
+                >  
+                    <View style={styles.shareButtonView}>
+                        <Text style={styles.textStyle}>{shareButtonText}</Text>
+                    </View>
+                </TouchableOpacity>
+            </View>
+
+        </View>
+    )
+}

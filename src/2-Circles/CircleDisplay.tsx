@@ -170,12 +170,16 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
             case CircleStatusEnum.MEMBER || CircleStatusEnum.CONNECTED:
                 return (
                     <>
-                        <View style={styles.announcementSection}>
-                            <Text style={styles.annoucementText}>Announcements</Text>
-                            <ScrollView horizontal={true} contentContainerStyle={styles.announcementScroll}>
-                                {renderAnnouncements()}
-                            </ScrollView>
-                        </View>
+                        {
+                            announcementsData.length !== 0 && 
+                            <View style={styles.announcementSection}>
+                                <Text style={styles.annoucementText}>Announcements</Text>
+                                    <ScrollView horizontal={true} contentContainerStyle={styles.announcementScroll}>
+                                        {renderAnnouncements()}
+                                    </ScrollView>
+                            </View>
+                        }
+
                         <View style={styles.PRSection}>
                             <Text style={styles.PRHeaderText}>Prayer Requests</Text>
                             <ScrollView style={styles.PRScroll}>
@@ -186,6 +190,7 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                         <Modal
                             visible={leaveCircleModalVisible}
                             animationType='slide'
+                            transparent={true}
                             onRequestClose={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}
                         >
                              <View style={styles.modalView}>
@@ -247,6 +252,7 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                     <Modal
                         visible={circleInfoModalVisible}
                         animationType='slide'
+                        transparent={true}
                         onRequestClose={() => setCircleInfoModalVisible(!circleInfoModalVisible)}
                     >
                         <View style={styles.infoView}>
@@ -256,8 +262,10 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                                     circleID={currCircleState.circleID}
                                     style={styles.circleImageInfoPage}
                                 />
-
-                                <Text style={styles.circleNameText}>{currCircleState.name}</Text>
+                                <View style={styles.circleNameHeader}> 
+                                    <Text style={styles.circleNameText}>{currCircleState.name}</Text>
+                                </View>
+                               
 
                                 <Text style={styles.circleLeaderText}>Circle Leader:</Text>
 
@@ -324,6 +332,9 @@ const styles = StyleSheet.create({
         ...theme.title,
         fontSize: 32,
         textAlign: "center"
+    },
+    circleNameHeader: {
+        maxWidth: '90%'
     },
     circleLeaderText: {
         ...theme.title,
