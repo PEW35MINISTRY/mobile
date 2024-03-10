@@ -3,7 +3,7 @@ import axios from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType,} from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
-import { RoleEnum } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
+import { RoleEnum, getDOBMaxDate, getDOBMinDate } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import { SelectListItem } from "../../TypesAndInterfaces/custom-types";
 import theme, { COLORS } from "../../theme";
 import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select } from "../../widgets";
@@ -25,7 +25,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
         props.fields.forEach((field:InputField) => {
             if (!fieldValueIsString(field.type, field.value || "")) 
                 if (field instanceof InputSelectionField) {
-                    formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : field.selectOptionList || [];
+                    formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : []; // default value gets passed in as "value" (see isOnGoing in prayer-request-field-config)
                 }
                 else {
                     formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : field.value || "";
@@ -55,14 +55,6 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
         ...theme
     })
 
-    function getDOBMaxDate(STUDENT: any): Date {
-        throw new Error("Function not implemented.");
-    }
-
-    function getDOBMinDate(STUDENT: any): Date {
-        throw new Error("Function not implemented.");
-    }
-
     return (
         <ScrollView>{
             (props.fields).map((field:InputField, index:number) => {
@@ -78,11 +70,13 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         render={({ field: {onChange, onBlur, value}}) => (
                             <>
                             {
-                                (fieldValueIsString(field.type, value)) && <Input_Field 
-                                    placeholder={field.title}
+                                (fieldValueIsString(field.type, value)) && 
+                                <Input_Field 
+                                    label={field.title}
                                     value={value}
                                     onChangeText={onChange}
                                     keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
+                                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                                     validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
                                     inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
                                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
@@ -117,12 +111,14 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         }}
                         render={({ field: {onChange, onBlur, value}}) => (
                             <>
-                                {fieldValueIsString(field.type, value) && <Input_Field 
-                                    placeholder={field.title}
+                                {fieldValueIsString(field.type, value) && 
+                                <Input_Field 
+                                    label={field.title}
                                     value={value}
                                     onChangeText={onChange}
                                     keyboardType='default'
                                     textContentType='password'
+                                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                                     validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
                                     inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
                                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
@@ -168,7 +164,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         <>
                             {fieldValueIsString(field.type, value) &&                         
                                 <Input_Field 
-                                    placeholder={field.title}
+                                    label={field.title}
                                     value={value}
                                     onChangeText={onChange}
                                     keyboardType='email-address'
@@ -188,14 +184,15 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                 case InputType.SELECT_LIST:
                     if (field instanceof InputSelectionField) {
                         var selectListData:SelectListItem[] = [];
-                        for (var i=0; i<field.selectOptionList.length; i++) {
+                        for (var i=0; i<field.displayOptionList.length; i++) {
                             selectListData.push({key: i, value: field.selectOptionList[i]})
                         }
 
                         const getSelectListDefaultValue = (selectListValue:string | undefined) => {
                             if (selectListValue !== undefined) {
+                                const selectListValueString = selectListValue.toString();
                                 for (var i=0; i<selectListData.length; i++) {
-                                    if (selectListData[i].value == selectListValue) return selectListData[i];
+                                    if (selectListData[i].value == selectListValueString) return selectListData[i];
                                 }
                             }
                             return undefined;
@@ -211,9 +208,11 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                 <>
                                     {fieldValueIsString(field.type, value) &&                                
                                     <Dropdown_Select
+                                        label={field.title}
                                         setSelected={(val:string) => onChange(val)}
                                         data={selectListData}
-                                        placeholder={field.title}
+                                        placeholder="Select"
+                                        labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                                         validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                                         validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
                                         boxStyle={(errors[field.field] && {borderColor: COLORS.primary}) || {borderColor: COLORS.accent}}
@@ -239,8 +238,8 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         validate: (value, formValues) => {
                             if (fieldValueIsString(field.type, value)) {
                                 if (field.field == 'dateOfBirth') {
-                                    const minAge:Date = getDOBMaxDate(userRole || RoleEnum.STUDENT);
-                                    const maxAge:Date = getDOBMinDate(userRole || RoleEnum.STUDENT);
+                                    const minAge:Date = getDOBMaxDate(userRole as RoleEnum || RoleEnum.STUDENT);
+                                    const maxAge:Date = getDOBMinDate(userRole as RoleEnum || RoleEnum.STUDENT);
                                     const currAge = new Date(value);
                                     console.log(minAge, maxAge, currAge);
                                     if (currAge > minAge || currAge < maxAge) return false;
@@ -258,11 +257,13 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                             {fieldValueIsString(field.type, value) &&                         
                                 <DatePicker 
                                     buttonText={field.title}
+                                    label={field.title}
                                     buttonStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
                                     onConfirm={(date:Date) => onChange(date.toISOString())}
+                                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                                     validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                                    defaultDate={value}
+                                    date={value}
                                 />}
                         </>
 
@@ -276,16 +277,18 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                 case InputType.MULTI_SELECTION_LIST || InputType.CUSTOM_STRING_LIST:
                     if (field instanceof InputSelectionField) {
                         var selectListData:SelectListItem[] = [];
-                        for (var i=0; i<field.selectOptionList.length; i++) {
+                        for (var i=0; i<field.displayOptionList.length; i++) {
                             selectListData.push({key: i, value: field.selectOptionList[i]})
                         }
 
                         const getSelectListDefaultValue = (selectListValues:string[] | undefined) => {
+                            console.log(selectListValues);
                             var selected:SelectListItem[] = [];
                             if (selectListValues !== undefined) {
                                 selectListValues.forEach((value:string) => {
+                                    const valueString = value.toString();
                                     for (var i=0; i<selectListData.length; i++) {
-                                        if (selectListData[i].value == value) {
+                                        if (selectListData[i].value == valueString) {
                                             selected.push(selectListData[i]);
                                             break;
                                         }
@@ -308,10 +311,11 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                     <Multi_Dropdown_Select
                                         setSelected={(val:string) => onChange(val)}
                                         data={selectListData}
-                                        placeholder={field.title}
+                                        label={field.title}
+                                        labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                                         validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                                         validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                                        boxStyle={(errors[field.field] && {borderColor: COLORS.primary}) || {borderColor: COLORS.accent}}
+                                        boxStyle={(errors[field.field] && {borderColor: COLORS.primary, maxWidth: 250}) || {borderColor: COLORS.accent}}
                                         defaultOption={getSelectListDefaultValue(value)}
                                     />} 
                                 </>
@@ -323,6 +327,40 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         );
                     }
                     else return (<></>)
+                    break;
+
+                case InputType.PARAGRAPH: 
+                return (
+                    <Controller 
+                        control={control}
+                        rules={{
+                        required: field.required,
+                        pattern: field.validationRegex
+                        }}
+                        render={({ field: {onChange, onBlur, value}}) => (
+                            <>
+                            {
+                                (fieldValueIsString(field.type, value)) && 
+                                <Input_Field 
+                                    label={field.title}
+                                    value={value}
+                                    onChangeText={onChange}
+                                    multiline={true}
+                                    keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
+                                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
+                                    validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
+                                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
+                                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                />
+                            }
+                            
+                            </>
+   
+                        )}
+                        name={field.field}
+                        key={field.field}
+                    />
+                    );
                     break;
                 // Default case will likely never happen, but its here to prevent undefined behavior per TS
                 default:

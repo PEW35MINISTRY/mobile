@@ -65,7 +65,9 @@ export default StyleSheet.create({
     center: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        height: '50%',
+        marginTop: 'auto'
     },
 
     horizontal_row: {
