@@ -49,12 +49,14 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
                 ref={formInputRef}
               />
               <Raised_Button buttonStyle={styles.sign_in_button}
-              text='Create Account'
-              onPress={() => formInputRef.current == null ? console.log("null") : formInputRef.current.onHandleSubmit()}
-            />
+                text='Create Account'
+                onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
+              />
             <Modal 
               visible={profileImageSettingsModalVisible}
               onRequestClose={() => {setProfileImageSettingsModalVisible(false); navigation.pop();}}
+              animationType='slide'
+              transparent={true}
             >
               <ProfileImageSettings 
                 callback={() => {setProfileImageSettingsModalVisible(false); navigation.pop();}}
