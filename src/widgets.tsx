@@ -8,7 +8,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem } from './TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestCommentListItem, PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
-import { getDOBMinDate, getDOBMaxDate, RoleEnum } from './TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
+import { getDOBMinDate, getDOBMaxDate, RoleEnum, getShortDate } from './TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import type InputField from './TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import theme, { COLORS, FONTS, FONT_SIZES, RADIUS } from './theme';
 import { useAppDispatch, useAppSelector } from "./TypesAndInterfaces/hooks";
@@ -83,7 +83,7 @@ export const Outline_Button = (props:{text:string|JSX.Element, buttonStyle?:View
 
 export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextStyle, labelStyle?:TextStyle, containerStyle?:ViewStyle,
     value:string, onChangeText:((text: string) => void), placeholder?:string, placeholderTextColor?:ColorValue, keyboardType?:KeyboardTypeOptions,
-    textContentType?:any, validationLabel?:string, validationStyle?:TextStyle}):JSX.Element => {  
+    textContentType?:any, validationLabel?:string, validationStyle?:TextStyle, editable?:boolean, multiline?:boolean}):JSX.Element => {  
 
     const [labelColor, setLabelColor] = useState(COLORS.accent);
         
@@ -132,6 +132,9 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
                     keyboardType={props.keyboardType}
                     textContentType={props.textContentType}
                     secureTextEntry={props.textContentType === 'password'}
+                    editable={props.editable}
+                    multiline={props.multiline}
+                    textAlignVertical='top'
                 />
                 {props.validationLabel && <Text style={styles.validationStyle}>{props.validationLabel}</Text>}
             </View> );
@@ -143,7 +146,7 @@ export const Icon_Button = (props:{source:ImageSourcePropType, imageStyle:ImageS
              </TouchableOpacity> );
 }
 
-export const DatePicker = (props:{validationLabel?:string|JSX.Element, buttonStyle?:ViewStyle, buttonText:string, onConfirm:((date:Date) => void), validationStyle?:TextStyle, defaultDate:string }):JSX.Element => {
+export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyle, buttonText:string, onConfirm:((date:Date) => void), validationStyle?:TextStyle, date:string, labelStyle?:TextStyle, label?:string }):JSX.Element => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
     const styles = StyleSheet.create({
@@ -155,39 +158,69 @@ export const DatePicker = (props:{validationLabel?:string|JSX.Element, buttonSty
             color: COLORS.primary,
             textAlign: 'center',
             ...props.validationStyle
-        }
+        },
+        buttonStyle: {
+
+        },
+        labelStyle: {
+            ...theme.accent,
+            color: COLORS.transparentWhite,
+            textAlign: 'left',
+            ...props.labelStyle,
+        },
     });
 
     return (
         <View style={styles.containerStyle}>
-            <Outline_Button
-                text={props.buttonText}
-                buttonStyle={props.buttonStyle}
+
+            <TouchableOpacity
                 onPress={(event:GestureResponderEvent) => setDatePickerVisible(true)}
-            />
+            >
+                <Input_Field 
+                    label={props.label}
+                    value={new Date(props.date).toLocaleDateString('en-us', { month: 'long' })}
+                    editable={false}
+                    onChangeText={() => console.log("change text")}
+                    validationLabel={props.validationLabel}
+                    validationStyle={props.validationStyle}
+                    labelStyle={(props.validationLabel && {color: COLORS.primary}) || undefined}
+                    inputStyle={(props.validationLabel && {borderColor: COLORS.primary}) || undefined}
+                />
+            </TouchableOpacity>
             <DateTimePickerModal 
                 isVisible={isDatePickerVisible}
                 mode="date"
                 onConfirm={(date:Date) => {props.onConfirm(date); setDatePickerVisible(false)}}
                 onCancel={(event:Date) => setDatePickerVisible(false)}
-                date={new Date(props.defaultDate)}
+                date={new Date(props.date)}
             />
-            {props.validationLabel && <Text style={styles.validationLabelStyle}>{props.validationLabel}</Text>}
         </View>
     )
 }
 
-export const Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
+export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean, label?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, labelStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
     const styles = StyleSheet.create({
         dropdownText: {
             color: COLORS.white,
             textAlign: "center",
-            
+        },
+        labelStyle: {
+            ...theme.accent,
+            color: COLORS.transparentWhite,
+            textAlign: 'left',
+            marginVertical: 5,
+            ...props.labelStyle,
+        },
+        selectBoxStyle: {
+            ...props.boxStyle,
+            justifyContent: "center"
+            //flex: 1,
         },
         dropdownSelected: {
             color: COLORS.white,
             textAlign: "center",
-            flex: 1 
+            flex: 1,
+            paddingLeft: 16
         },
         dropdown: {
             width: 300,
@@ -210,11 +243,12 @@ export const Dropdown_Select = (props:{validationLabel?:string, setSelected:((va
     
     return (
         <View style={styles.containerStyle}>
+            {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
             <SelectList 
                 setSelected={(val: string) => props.setSelected(val)} 
                 data={props.data}
-                save="value"
-                boxStyles={props.boxStyle} 
+                save={props.saveKey !== undefined && props.saveKey == true ? "key" : "value"}
+                boxStyles={styles.selectBoxStyle} 
                 dropdownTextStyles={styles.dropdownText}
                 inputStyles={styles.dropdownSelected}
                 placeholder={props.placeholder}
@@ -228,7 +262,7 @@ export const Dropdown_Select = (props:{validationLabel?:string, setSelected:((va
    
 }
 
-export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, defaultOption?:SelectListItem[] }):JSX.Element => {
+export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, defaultOption?:SelectListItem[], label?:string, labelStyle?:TextStyle }):JSX.Element => {
 
     const styles = StyleSheet.create({
         dropdownText: {
@@ -236,13 +270,21 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
             textAlign: "center",
             
         },
+        labelStyle: {
+            ...theme.accent,
+            color: COLORS.transparentWhite,
+            textAlign: 'left',
+            marginVertical: 5,
+            ...props.labelStyle,
+        },
         dropdownSelected: {
             color: COLORS.white,
             textAlign: "center",
+            paddingLeft: 16,
             flex: 1 
         },
         dropdown: {
-            width: 300,
+            maxWidth: 300,
             marginLeft: 3,
             paddingVertical: 5,
             paddingHorizontal: 15,
@@ -262,6 +304,7 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
     
     return (
         <View style={styles.containerStyle}>
+            {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
             <MultipleSelectList 
                 setSelected={(val: string) => props.setSelected(val)} 
                 data={props.data}
