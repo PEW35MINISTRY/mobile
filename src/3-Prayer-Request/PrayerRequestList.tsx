@@ -63,7 +63,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
 
     useEffect(() => {
         GET_UserIsRecipientPrayerRequests();
-        console.log("useEffect");
+        //console.log("useEffect");
     }, [])
 
     return (

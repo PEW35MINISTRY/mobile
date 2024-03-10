@@ -31,7 +31,7 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
         }
 
         axios.post(`${DOMAIN}/api/prayer-request/`+ props.prayerRequestItem.prayerRequestID + `/comment`, postComment, RequestAccountHeader).then((response:AxiosResponse) => {
-            console.log(response.data);
+            //console.log(response.data);
             const prayerRequestResponse:PrayerRequestCommentListItem = response.data;
             
             const prayerRequestCommentItem:PrayerRequestCommentListItem = {

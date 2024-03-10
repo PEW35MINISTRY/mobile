@@ -116,12 +116,9 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const renderPrayerRequest = async (prayerRequestProps:PrayerRequestListItem) => {
         if (prayerRequestProps.prayerRequestID == currPrayerRequestState?.prayerRequestID) return;
 
-        //console.log(prayerRequestProps);
-
         setDataFetchComplete(false);
         await axios.get(`${DOMAIN}/api/prayer-request/` + prayerRequestProps.prayerRequestID, RequestAccountHeader).then(response => {
             const prayerRequestResponseData:PrayerRequestResponseBody = response.data;
-            //console.log(prayerRequestResponseData);
             setPrayerRequestState(prayerRequestResponseData, prayerRequestProps)
         }).catch((error:AxiosError) => console.log(error));
     }
@@ -241,6 +238,20 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                         </TouchableOpacity>
                     }
                     </View>
+                    <View style={styles.backButtonView}>
+                        <TouchableOpacity
+                            onPress={() => navigation.pop()}
+                        >
+                            <View style={styles.backButton}>
+                            <Ionicons 
+                                name="return-up-back-outline"
+                                color={COLORS.white}
+                                size={30}
+                            />
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                    
                 </View>    
             )
         }
@@ -384,7 +395,21 @@ const styles = StyleSheet.create({
         fontSize: FONT_SIZES.XL
     },
     backButton: {
-        bottom: 15
+        //position: "absolute",
+        justifyContent: "center",
+        //alignContent: "center",
+        alignItems: "center",
+        //bottom: 1,
+        //right: 1,
+        height: 55,
+        width: 55,
+        //backgroundColor: COLORS.accent,
+        borderRadius: 15,
+    },
+    backButtonView: {
+        position: "absolute",
+        top: 1,
+        left: 1
     },
     buttonActionView: {
         position: "absolute",
