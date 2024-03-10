@@ -11,12 +11,14 @@ import Signup from "./1-Profile/Signup";
 import { CircleSearch } from './2-Circles/CircleSearch';
 import CircleDisplay from './2-Circles/CircleDisplay';
 import { CircleList } from './2-Circles/CircleList';
+import PrayerRequestDisplay from './3-Prayer-Request/PrayerRequestDisplay';
+import PrayerRequestList from './3-Prayer-Request/PrayerRequestList';
 
 import { useAppDispatch, useAppSelector } from './TypesAndInterfaces/hooks';
 import store, { RootState } from './redux-store';
 import theme from './theme';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
-import { CircleTabNavigator } from './2-Circles/circle-widgets';
+import { AppTabNavigator } from './Widgets/navigation/AppTabNavigator';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -25,7 +27,7 @@ const CircleTabNavigatorOptions = {
   headerShown: false,
 }
 
-// Handle all react navigation screens for circles
+// Handle all react navigation for Circle Screens
 const CircleStackNavigatorProp = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
@@ -36,14 +38,45 @@ const CircleStackNavigatorProp = () => {
   )
 }
 
+// Handle all react navigation for Prayer Request screens
+const PrayerRequestStackNavigatorProp = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_LIST_ROUTE_NAME} component={PrayerRequestList} />
+        <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME} component={PrayerRequestDisplay} />
+    </Stack.Navigator>
+  )
+}
+
+// Handle all react navigation for Content screens
+const ContentNavigatorProp = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name="CONTENT_DEFAULT" component={EditProfile} />
+    </Stack.Navigator>
+  )
+}
+
+// Handle all react navigation for Settings screens
+const SettingsStackNavigatorProp = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name={ROUTE_NAMES.EDIT_PROFILE_ROUTE_NAME} component={EditProfile} />
+    </Stack.Navigator>
+  )
+}
+
 // Renders navigation buttons at bottom of screen. Each screen in the navigator should be a stack navigator 
 const BottomTabNavigator = () => {
   return (
       <Tab.Navigator screenOptions={CircleTabNavigatorOptions}
-          tabBar={props => <CircleTabNavigator {...props} />}
+          tabBar={props => <AppTabNavigator {...props} />}
       >
         <Tab.Screen name={ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME} component={CircleStackNavigatorProp} />
-
+        <Tab.Screen name={ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME} component={PrayerRequestStackNavigatorProp} />
+        <Tab.Screen name={ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME} component={ContentNavigatorProp} />
+        <Tab.Screen name={ROUTE_NAMES.PROFILE_SETTINGS_NAVIGATOR_ROUTE_NAME} component={SettingsStackNavigatorProp} />
+      
       </Tab.Navigator>
   );
 }
@@ -54,9 +87,8 @@ const App = ():JSX.Element => {
     <Provider store = { store }>
         <NavigationContainer>
           <Stack.Navigator screenOptions={{headerShown: false}}>
-            <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="Signup" component={Signup} />
-            <Stack.Screen name="EditProfile" component={EditProfile} />
+            <Stack.Screen name={ROUTE_NAMES.LOGIN_ROUTE_NAME} component={Login} />
+            <Stack.Screen name={ROUTE_NAMES.SIGNUP_ROUTE_NAME} component={Signup} />
             <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} />
           </Stack.Navigator>
         </NavigationContainer>
