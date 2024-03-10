@@ -73,7 +73,6 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
                 return recipientListItem;
             })
             var startIndex = 0;
-            console.log(props.userRecipientList);
             // Place current recipients at the front of the list
             for(var i=0; i<mutContactList.length; i++) {
                 for (var j=0; j<props.userRecipientList.length; j++) {
@@ -215,7 +214,7 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
         constructUserRecipientList();
         constructCircleRecipientList();
     }, [])
-    console.log(displayMode, doneConstructingBaseCircleRecipientList, doneConstructingBaseUserRecipientList);
+    //console.log(displayMode, doneConstructingBaseCircleRecipientList, doneConstructingBaseUserRecipientList);
     return (
         <View style={styles.backgroundContainer}>
             <View style={styles.container}>
