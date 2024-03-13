@@ -1,11 +1,13 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Text, Image } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { COLORS } from "../../theme";
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from "../../TypesAndInterfaces/routes";
 
 export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
+    const PRAYER_REQUEST_NAVIGATOR_ICON_SELECTED = require('../../../assets/prayer-request-icon-red.png')
+    const PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/prayer-request-icon-gray.png');
 
     // Because I can't refer to the value of other objects in a static object declaration, generate the object dynamically
     const generateDefaultNavigationState = () => {
@@ -69,11 +71,10 @@ export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
                     style={styes.navTouchable}
                     onPress={() => changeTab(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME)}
                 >
-                    <Ionicons
-                        name="accessibility"
-                        color={(isFocused[ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME] && COLORS.primary) || COLORS.grayDark}
-                        size={55}
-                    />
+                    {
+                        isFocused[ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME] ? <Image source={PRAYER_REQUEST_NAVIGATOR_ICON_SELECTED} style={{height: 55, width: 55}}/> : <Image source={PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED} style={{height: 55, width: 55}}/>
+                    }
+                    
                         
                 </TouchableOpacity>
                 <TouchableOpacity
