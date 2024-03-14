@@ -27,6 +27,7 @@ type PrayerRequestDisplayProps = NativeStackScreenProps<PrayerRequestDisplayPara
 
 const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX.Element => {
     const dispatch = useAppDispatch();
+    const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
     
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -144,7 +145,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                 <View style={styles.container}>
                     <View style={styles.bodyContainer}>
                         <View style={styles.profileHeader}>
-                            <ProfileImage style={{height: 35, width: 35}}/>
+                            <RequestorProfileImage userID={appPrayerRequestListItem.requestorProfile.userID} imageUri={appPrayerRequestListItem.requestorProfile.image} style={{height: 35, width: 35}} />
                             <View style={styles.middleData}>
                                 <Text style={styles.requestorNameText}>{appPrayerRequestListItem.requestorProfile.displayName}</Text>
                             </View>
@@ -159,10 +160,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                             {renderTags()}
                             <TouchableOpacity onPress={onPrayPress}>
                                 <View style={styles.socialDataView}>
-                                    <Ionicons 
-                                        name="thumbs-up-outline"
-                                        color={COLORS.white}
-                                    />
+                                <Image source={PRAYER_ICON} style={{height: 15, width: 15}} />
                                     <Text style={styles.prayerCountText}>{prayerCount}</Text>
                                 </View>
                             </TouchableOpacity>
@@ -206,11 +204,18 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                             </View>
 
                         </Modal>
-                        <Text style={styles.commentsTitle}>Comments</Text>
+                        {
+                            (commentsData !== undefined && commentsData.length !== 0) && <Text style={styles.commentsTitle}>Comments</Text>
+                        }
+                        
                     </View>
-                    <ScrollView style={styles.commentsView}>
-                        {renderComments()}
-                    </ScrollView>
+                    {
+                        (commentsData !== undefined && commentsData.length !== 0) && 
+                            <ScrollView style={styles.commentsView}>
+                                {renderComments()}
+                            </ScrollView>
+                    }
+                    
                     <View style={styles.buttonActionView}>
                     {
                         // Only render the 'Add Comment' button when the person viewing the prayer request isn't the PR owner. Otherwise render the edit button
@@ -350,7 +355,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         marginHorizontal: 10,
         height: 26,
-        padding: 3,
+        paddingRight: 3,
+        paddingLeft: 1
     },
     sharedCirclesScroll: {
         height: 50

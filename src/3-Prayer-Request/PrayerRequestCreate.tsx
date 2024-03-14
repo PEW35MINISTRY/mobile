@@ -32,12 +32,9 @@ const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestLi
     const onPrayerRequestCreate = (formValues:Record<string, string | string[]>) => {
         //@ts-ignore - can't directly TS cast or copy over values
         const prayerRequest:PrayerRequestPostRequestBody = {...formValues}
-        //console.log(prayerRequest);
 
         prayerRequest.addCircleRecipientIDList = addCircleRecipientIDList;
         prayerRequest.addUserRecipientIDList = addUserRecipientIDList;
-
-        //console.log("prayer request create?", prayerRequest);
         
         axios.post(`${DOMAIN}/api/prayer-request`, prayerRequest, RequestAccountHeader).then((response) => {
             const newPrayerRequest:PrayerRequestResponseBody = response.data;
@@ -71,13 +68,17 @@ const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestLi
                     onSubmit={onPrayerRequestCreate}
                 />
                 <Outline_Button 
-                    text="Recipient Settings"
+                    text="Select Recipients"
                     onPress={() => setRecipientFormModalVisible(true)}
                 />
-                <Raised_Button buttonStyle={styles.sign_in_button}
-                    text='Create Prayer Request'
-                    onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
-                />
+                {
+                    (addCircleRecipientIDList.length !== 0 || addUserRecipientIDList.length !== 0) &&                 
+                        <Raised_Button buttonStyle={styles.sign_in_button}
+                            text='Create Prayer Request'
+                            onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
+                        />
+                }
+
                 <Modal 
                     visible={recipientFormModalVisible}
                     onRequestClose={() => setRecipientFormModalVisible(false)}

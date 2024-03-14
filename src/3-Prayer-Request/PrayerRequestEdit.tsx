@@ -105,7 +105,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                     buttonStyle={{borderColor: COLORS.primary}}
                 />
                 <Outline_Button 
-                    text="Recipient Settings"
+                    text="Select Recipients"
                     onPress={() => setRecipientFormModalVisible(true)}
                 />
 
