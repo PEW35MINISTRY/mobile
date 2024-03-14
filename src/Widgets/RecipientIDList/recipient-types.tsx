@@ -13,14 +13,12 @@ export enum RecipientFormViewMode {
     CREATING = "CREATING"
 }
 
-export interface RecipientFormCircleListItem {
-    status: RecipientStatusEnum, // flag for displaying the list item at the top of selection list
+export interface RecipientFormCircleListItem extends CircleListItem {
+    recipientStatus: RecipientStatusEnum, // flag for displaying the list item at the top of selection list
     viewMode: RecipientFormViewMode, // differentiating between editing and creating; helps determine what functions to call to add/remove user/circle to correct list
-    circleListData: CircleListItem
 }
 
-export interface RecipientFormProfileListItem {
-    status: RecipientStatusEnum, // flag for displaying the list item at the top of selection list
+export interface RecipientFormProfileListItem extends ProfileListItem {
+    recipientStatus: RecipientStatusEnum, // flag for displaying the list item at the top of selection list
     viewMode: RecipientFormViewMode, // differentiating between editing and creating; helps determine what functions to call to add/remove user/circle to correct list
-    profileListData: ProfileListItem,
 }

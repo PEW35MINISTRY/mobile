@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View, Text } from "react-native";
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { useAppSelector } from "../../TypesAndInterfaces/hooks";
 import { RootState } from "../../redux-store";
 import { ProfileListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
@@ -23,7 +23,6 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
     const userContacts = useAppSelector((state: RootState) => state.account.userProfile.contactList);
     const userCircles =  useAppSelector((state: RootState) => state.account.userProfile.circleList);
 
-    const [displayMode, setDisplayMode] = useState<RecipientFormViewType>(RecipientFormViewType.USER);
     const [searchText, setSearchText] = useState("");
     const [doneConstructingBaseUserRecipientList, setDoneConstructingBaseUserRecipientList] = useState(false);
     const [doneConstructingBaseCircleRecipientList, setDoneConstructingBaseCircleRecipientList] = useState(false);
@@ -61,7 +60,7 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
         if (userContacts == undefined) return;
         else if (props.userRecipientList == undefined || props.userRecipientList.length == 0) {
             const recipientFormListItems = userContacts.map((profileItem:ProfileListItem) => {
-                const recipientListItem:RecipientFormProfileListItem = {status: getUserRecipientStatus(profileItem.userID), viewMode: viewMode, profileListData: profileItem}
+                const recipientListItem:RecipientFormProfileListItem = {recipientStatus: getUserRecipientStatus(profileItem.userID), viewMode: viewMode, ...profileItem}
                 return recipientListItem;
             });
             setBaseUserRecipientList(recipientFormListItems);
@@ -69,23 +68,18 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
         }
         else {
             var mutContactList = userContacts.map((profileItem:ProfileListItem) => {
-                const recipientListItem:RecipientFormProfileListItem = {status: getUserRecipientStatus(profileItem.userID), viewMode: viewMode, profileListData: profileItem}
+                const recipientListItem:RecipientFormProfileListItem = {recipientStatus: getUserRecipientStatus(profileItem.userID), viewMode: viewMode, ...profileItem}
                 return recipientListItem;
-            })
-            var startIndex = 0;
-            // Place current recipients at the front of the list
-            for(var i=0; i<mutContactList.length; i++) {
-                for (var j=0; j<props.userRecipientList.length; j++) {
-                    if (mutContactList[i].profileListData.userID == props.userRecipientList[j].userID) {
-                        var tmp = mutContactList[startIndex];
-                        mutContactList[startIndex] = mutContactList[i];
-                        mutContactList[i] = tmp;
-                        mutContactList[startIndex].status = RecipientStatusEnum.CONFIRMED;
-                        startIndex++;
-                        break;
-                    }
-                }
-            }
+            }).sort((a, b) => {
+                const aIsRecipient = (props.userRecipientList || []).some((recipient) => recipient.userID === a.userID);
+                const bIsRecipient = (props.userRecipientList || []).some((recipient) => recipient.userID === b.userID);
+                
+                return (aIsRecipient && !bIsRecipient) ? -1 : ((bIsRecipient && !aIsRecipient) ? 1 : 0);
+            });
+
+            mutContactList.forEach(item => {
+                item.recipientStatus = (props.userRecipientList || []).some((recipient) => recipient.userID === item.userID) ? RecipientStatusEnum.CONFIRMED : item.recipientStatus;
+            });
             setBaseUserRecipientList(mutContactList);
             setUserRecipientList(mutContactList);
         }
@@ -96,7 +90,7 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
         if (userCircles == undefined) return;
         else if (props.circleRecipientList == undefined || props.circleRecipientList.length == 0) {
             const recipientFormListItems = userCircles.map((circleItem:CircleListItem) => {
-                const recipientListItem:RecipientFormCircleListItem = {status: getCircleRecipientStatus(circleItem.circleID), viewMode: viewMode, circleListData: circleItem}
+                const recipientListItem:RecipientFormCircleListItem = {recipientStatus: getCircleRecipientStatus(circleItem.circleID), viewMode: viewMode, ...circleItem}
                 return recipientListItem;
             });
             setBaseCircleRecipientList(recipientFormListItems);
@@ -104,23 +98,18 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
         }
         else {
             var mutCircleList = userCircles.map((circleItem:CircleListItem) => {
-                const recipientListItem:RecipientFormCircleListItem = {status: getCircleRecipientStatus(circleItem.circleID), viewMode: viewMode, circleListData: circleItem}
+                const recipientListItem:RecipientFormCircleListItem = {recipientStatus: getCircleRecipientStatus(circleItem.circleID), viewMode: viewMode, ...circleItem}
                 return recipientListItem;
-            })
-            var startIndex = 0;
+            }).sort((a, b) => {
+                const aIsRecipient = (props.circleRecipientList || []).some((recipient) => recipient.circleID === a.circleID);
+                const bIsRecipient = (props.circleRecipientList || []).some((recipient) => recipient.circleID === b.circleID);
+                
+                return (aIsRecipient && !bIsRecipient) ? -1 : ((bIsRecipient && !aIsRecipient) ? 1 : 0);
+            });
 
-             // Place current recipients at the front of the list
-            for(var i=0; i<mutCircleList.length; i++) {
-                for (var j=0; j<props.circleRecipientList.length; j++) {
-                    if (mutCircleList[i].circleListData.circleID == props.circleRecipientList[j].circleID) {
-                        var tmp = mutCircleList[startIndex];
-                        mutCircleList[startIndex] = mutCircleList[i];
-                        mutCircleList[i] = tmp;
-                        mutCircleList[startIndex].status = RecipientStatusEnum.CONFIRMED;
-                        startIndex++;
-                    }
-                }
-            }
+            mutCircleList.forEach(item => {
+                item.recipientStatus = (props.circleRecipientList || []).some((recipient) => recipient.circleID === item.circleID) ? RecipientStatusEnum.CONFIRMED : item.recipientStatus;
+            });
             setBaseCircleRecipientList(mutCircleList);
             setCircleRecipientList(mutCircleList);
         }
@@ -162,42 +151,42 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
     // The RecipientForm is not aware of this change.
     const addUserRecipient = (userID:number) => {
         props.setAddUserRecipientIDList([...props.addUserRecipientIDList, userID]);
-        setUserRecipientList(userRecipientList.map((recipientList:RecipientFormProfileListItem) => recipientList.profileListData.userID == userID ? {...recipientList, status: RecipientStatusEnum.UNCONFIRMED_ADD} : recipientList));
+        setUserRecipientList(userRecipientList.map((recipientList:RecipientFormProfileListItem) => recipientList.userID == userID ? {...recipientList, status: RecipientStatusEnum.UNCONFIRMED_ADD} : recipientList));
     }
 
     const removeUserRecipient = (userID:number) => {
         props.setAddUserRecipientIDList(props.addUserRecipientIDList.filter((listUserID:number) => userID !== listUserID));
-        setUserRecipientList(userRecipientList.map((recipientList:RecipientFormProfileListItem) => recipientList.profileListData.userID == userID ? {...recipientList, status: RecipientStatusEnum.NOT_SELECTED} : recipientList));
+        setUserRecipientList(userRecipientList.map((recipientList:RecipientFormProfileListItem) => recipientList.userID == userID ? {...recipientList, status: RecipientStatusEnum.NOT_SELECTED} : recipientList));
     }
                 
     const addCircleRecipient = (circleID:number) => {
         props.setAddCircleRecipientIDList([...props.addCircleRecipientIDList, circleID]);
-        setCircleRecipientList(circleRecipientList.map((recipientList:RecipientFormCircleListItem) => recipientList.circleListData.circleID == circleID ? {...recipientList, status: RecipientStatusEnum.UNCONFIRMED_ADD} : recipientList));
+        setCircleRecipientList(circleRecipientList.map((recipientList:RecipientFormCircleListItem) => recipientList.circleID == circleID ? {...recipientList, recipientStatus: RecipientStatusEnum.UNCONFIRMED_ADD} : recipientList));
     }
 
     const removeCircleRecipient = (circleID:number) => {
         props.setAddCircleRecipientIDList(props.addCircleRecipientIDList.filter((listCircleID:number) => circleID !== listCircleID));
-        setCircleRecipientList(circleRecipientList.map((recipientList:RecipientFormCircleListItem) => recipientList.circleListData.circleID == circleID ? {...recipientList, status: RecipientStatusEnum.NOT_SELECTED} : recipientList));
+        setCircleRecipientList(circleRecipientList.map((recipientList:RecipientFormCircleListItem) => recipientList.circleID == circleID ? {...recipientList, recipientStatus: RecipientStatusEnum.NOT_SELECTED} : recipientList));
     }
 
     const addRemoveUserRecipient = (userID:number) => {
         if (props.removeUserRecipientIDList !== undefined && props.setRemoveUserRecipientIDList !== undefined) {
             props.setRemoveUserRecipientIDList([...props.removeUserRecipientIDList, userID]);
-            setUserRecipientList(userRecipientList.map((recipientList:RecipientFormProfileListItem) => recipientList.profileListData.userID == userID ? {...recipientList, status: RecipientStatusEnum.UNCONFIRMED_REMOVE} : recipientList));
+            setUserRecipientList(userRecipientList.map((recipientList:RecipientFormProfileListItem) => recipientList.userID == userID ? {...recipientList, recipientStatus: RecipientStatusEnum.UNCONFIRMED_REMOVE} : recipientList));
         } else console.warn("Calling add on undefined property");
     }
 
     const removeRemoveUserRecipient = (userID:number) => {
         if (props.removeUserRecipientIDList !== undefined && props.setRemoveUserRecipientIDList !== undefined) {
             props.setRemoveUserRecipientIDList(props.removeUserRecipientIDList.filter((listUserID:number) => userID !== listUserID));
-            setUserRecipientList(userRecipientList.map((recipientList:RecipientFormProfileListItem) => recipientList.profileListData.userID == userID ? {...recipientList, status: RecipientStatusEnum.NOT_SELECTED} : recipientList));
+            setUserRecipientList(userRecipientList.map((recipientList:RecipientFormProfileListItem) => recipientList.userID == userID ? {...recipientList, recipientStatus: RecipientStatusEnum.NOT_SELECTED} : recipientList));
         } else console.warn("Calling remove on undefined property");
     }
                 
     const addRemoveCircleRecipient = (circleID:number) => {
         if (props.removeCircleRecipientIDList !== undefined && props.setRemoveCircleRecipientIDList !== undefined) {
             props.setRemoveCircleRecipientIDList([...props.removeCircleRecipientIDList, circleID]);
-            setCircleRecipientList(circleRecipientList.map((recipientList:RecipientFormCircleListItem) => recipientList.circleListData.circleID == circleID ? {...recipientList, status: RecipientStatusEnum.UNCONFIRMED_REMOVE} : recipientList));
+            setCircleRecipientList(circleRecipientList.map((recipientList:RecipientFormCircleListItem) => recipientList.circleID == circleID ? {...recipientList, recipientStatus: RecipientStatusEnum.UNCONFIRMED_REMOVE} : recipientList));
 
         } else console.warn("Calling add on undefined property");
     }
@@ -205,7 +194,7 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
     const removeRemoveCircleRecipient = (circleID:number) => {
         if (props.removeUserRecipientIDList !== undefined && props.setRemoveUserRecipientIDList !== undefined) {
             props.setRemoveUserRecipientIDList(props.removeUserRecipientIDList.filter((listCircleID:number) => circleID !== listCircleID));
-            setCircleRecipientList(circleRecipientList.map((recipientList:RecipientFormCircleListItem) => recipientList.circleListData.circleID == circleID ? {...recipientList, status: RecipientStatusEnum.NOT_SELECTED} : recipientList));
+            setCircleRecipientList(circleRecipientList.map((recipientList:RecipientFormCircleListItem) => recipientList.circleID == circleID ? {...recipientList, recipientStatus: RecipientStatusEnum.NOT_SELECTED} : recipientList));
 
         } else console.warn("Calling remove on undefined property");
     }
@@ -214,21 +203,36 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
         constructUserRecipientList();
         constructCircleRecipientList();
     }, [])
-    //console.log(displayMode, doneConstructingBaseCircleRecipientList, doneConstructingBaseUserRecipientList);
+
     return (
         <View style={styles.backgroundContainer}>
             <View style={styles.container}>
                 <Text style={styles.titleText}>Select Recipients</Text>
-                <Dropdown_Select 
-                    data={selectListData} 
-                    setSelected={(viewMode:string) => setDisplayMode(viewMode as RecipientFormViewType)}
-                    boxStyle={{width: 200}}
-                    defaultOption={selectListData[0]}
-                />
+                <View style={styles.viewTypeView}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            if (viewType == RecipientFormViewType.CIRCLE) { 
+                                setViewType(RecipientFormViewType.USER);
+                            }
+                        }}
+                    >
+                        <Text style={(viewType == RecipientFormViewType.USER && styles.viewTypeTextSelected) || styles.viewTypeTextNotSelected}>Profiles</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.viewTypeTextSelected}>|</Text>
+                    <TouchableOpacity
+                        onPress={() => {
+                            if (viewType == RecipientFormViewType.USER) {
+                                setViewType(RecipientFormViewType.CIRCLE);
+                            }
+                        }}
+                    >
+                        <Text style={(viewType == RecipientFormViewType.CIRCLE && styles.viewTypeTextSelected) || styles.viewTypeTextNotSelected}>Circles</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
             <ScrollView style={styles.recipientScrollView} >
                 {
-                    (doneConstructingBaseCircleRecipientList && doneConstructingBaseUserRecipientList) ? displayMode == RecipientFormViewType.CIRCLE ? renderRecipientCirclesList() : renderRecipientUsersList() : <></>
+                    (doneConstructingBaseCircleRecipientList && doneConstructingBaseUserRecipientList) ? viewType == RecipientFormViewType.CIRCLE ? renderRecipientCirclesList() : renderRecipientUsersList() : <></>
                 }
             </ScrollView>
             <View style={styles.container}>
@@ -268,6 +272,23 @@ const styles = StyleSheet.create({
         fontSize: 34,
         marginBottom: 15,
         marginTop: 15
-    }
+    },
+    viewTypeView: {
+        flexDirection: "row",
+        //top: 5,
+        marginBottom: 25
+    },
+    viewTypeTextSelected: {
+        ...theme.title,
+        color: COLORS.accent,
+        textAlign: "center",
+        marginHorizontal: 10
+    },
+    viewTypeTextNotSelected: {
+        ...theme.title,
+        textAlign: "center",
+        marginHorizontal: 10,
+        color: COLORS.grayDark
+    },
 
 })
