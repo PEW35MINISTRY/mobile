@@ -238,8 +238,8 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         validate: (value, formValues) => {
                             if (fieldValueIsString(field.type, value)) {
                                 if (field.field == 'dateOfBirth') {
-                                    const minAge:Date = getDOBMaxDate(userRole as RoleEnum || RoleEnum.STUDENT);
-                                    const maxAge:Date = getDOBMinDate(userRole as RoleEnum || RoleEnum.STUDENT);
+                                    const minAge:Date = getDOBMaxDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.STUDENT);
+                                    const maxAge:Date = getDOBMinDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.STUDENT);
                                     const currAge = new Date(value);
                                     console.log(minAge, maxAge, currAge);
                                     if (currAge > minAge || currAge < maxAge) return false;
