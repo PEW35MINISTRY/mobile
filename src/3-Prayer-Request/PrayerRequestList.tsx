@@ -23,7 +23,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const ownedPrayerRequests = useAppSelector((state: RootState) => state.account.userProfile.prayerRequestList);
 
-    const [prayerRequestsData, setPrayerRequestsData] = useState<PrayerRequestListItem[]>([]);
+    const [receivingPrayerRequests, setReceivingPrayerRequests] = useState<PrayerRequestListItem[]>([]);
     const [viewMode, setViewMode] = useState<PrayerRequestListViewMode>(PrayerRequestListViewMode.RECIPIENT);
     const [prayerRequestCreateModalVisible, setPrayerRequestCreateModalVisible] = useState(false);
 
@@ -33,13 +33,13 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
         }
     }
 
-    const renderPrayerRequests = ():JSX.Element[] => 
-        (prayerRequestsData || []).map((prayerRequest:PrayerRequestListItem, index:number) =>
+    const renderPrayerRequests = (prayerRequests:PrayerRequestListItem[] | undefined):JSX.Element[] => 
+        (prayerRequests || []).map((prayerRequest:PrayerRequestListItem, index:number) =>
             <PrayerRequestTouchable
                 key={index}
                 prayerRequestProp={prayerRequest}
                 onPress={() => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
-                    params: {PrayerRequestProps: prayerRequest, callback: () => setPrayerRequestsData(prayerRequestsData.filter((prayerRequestListItem:PrayerRequestListItem) => prayerRequestListItem.prayerRequestID !== prayerRequest.prayerRequestID))},
+                    params: {PrayerRequestProps: prayerRequest}, //callback: () => setPrayerRequestsData(prayerRequestsData.filter((prayerRequestListItem:PrayerRequestListItem) => prayerRequestListItem.prayerRequestID !== prayerRequest.prayerRequestID))},
                     screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
                 })}
             />
@@ -48,22 +48,12 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     const GET_UserIsRecipientPrayerRequests = async () => {
         await axios.get(`${DOMAIN}/api/prayer-request/user-list`, RequestAccountHeader).then((response) => {
             const prayerRequestList:PrayerRequestListItem[] = response.data;
-            setPrayerRequestsData(prayerRequestList);
-        }).catch((error:AxiosError) => console.log(error));
-    }
-
-    const GET_UserIsOwnerPrayerRequests = async () => {
-        await axios.get(`${DOMAIN}/api/user/` + userID + `/prayer-request-list`, RequestAccountHeader).then((response) => {
-            const prayerRequestList:PrayerRequestListItem[] = response.data;
-            
-            //TODO: update personal prayer requests in redux through some loop
-
+            setReceivingPrayerRequests(prayerRequestList);
         }).catch((error:AxiosError) => console.log(error));
     }
 
     useEffect(() => {
         GET_UserIsRecipientPrayerRequests();
-        //console.log("useEffect");
     }, [])
 
     return (
@@ -84,7 +74,6 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                     <TouchableOpacity
                         onPress={() => {
                             if (viewMode !== PrayerRequestListViewMode.OWNER) {
-                                setPrayerRequestsData(ownedPrayerRequests || []);
                                 setViewMode(PrayerRequestListViewMode.OWNER);
                             }
                         }}
@@ -92,8 +81,8 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                         <Text style={(viewMode == PrayerRequestListViewMode.OWNER && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Owned</Text>
                     </TouchableOpacity>
                 </View>
-                <ScrollView contentContainerStyle={styles.prayerRequestList}>
-                    {renderPrayerRequests()}
+                <ScrollView style={styles.prayerRequestList}>
+                    { viewMode == PrayerRequestListViewMode.OWNER ? renderPrayerRequests(ownedPrayerRequests) : renderPrayerRequests(receivingPrayerRequests)}
                 </ScrollView>
               
                 <Modal 
@@ -102,7 +91,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                     animationType='slide'
                     transparent={true}
                 >
-                    <PrayerRequestCreate callback={(newPrayerRequest) => { viewMode == PrayerRequestListViewMode.OWNER && setPrayerRequestsData([...prayerRequestsData, newPrayerRequest]); setPrayerRequestCreateModalVisible(false)}}/>
+                    <PrayerRequestCreate callback={() => setPrayerRequestCreateModalVisible(false)}/>
                 </Modal>
             </View>
             <TouchableOpacity
@@ -144,7 +133,6 @@ const styles = StyleSheet.create({
         color: COLORS.grayDark
     },
     prayerRequestList: {
-
         flex: 1
     },
     prayerRequestCreateButton: {
