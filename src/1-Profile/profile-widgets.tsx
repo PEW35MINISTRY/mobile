@@ -4,10 +4,9 @@ import React, { useState, useEffect } from "react";
 import { ImageStyle, ImageSourcePropType, StyleSheet, Image, Text, View, TouchableOpacity} from "react-native";
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
-import { ProfileListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
 import theme, { COLORS, FONT_SIZES } from "../theme";
-import { Outline_Button } from "../widgets";
 import { RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusEnum } from "../Widgets/RecipientIDList/recipient-types";
+import { render } from 'react-dom';
 
 export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string, userID?:number}):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -52,35 +51,35 @@ export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string
 
 export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileListItem, addUserRecipient:((id:number) => void), removeUserRecipient:((id:number) => void), addRemoveUserRecipient:((id:number) => void), removeRemoveUserRecipient:((id:number) => void)}):JSX.Element => {
 
-    const [shareButtonText, setShareButtonText] = useState<RecipientStatusEnum>(props.profileRecipientData.status);
+    const [shareButtonText, setShareButtonText] = useState<RecipientStatusEnum>(props.profileRecipientData.recipientStatus);
 
     const handlePress = () => {
         switch(props.profileRecipientData.viewMode) {
             case RecipientFormViewMode.CREATING:
                 if (shareButtonText == RecipientStatusEnum.NOT_SELECTED) {
-                    props.addUserRecipient(props.profileRecipientData.profileListData.userID);
+                    props.addUserRecipient(props.profileRecipientData.userID);
                     setShareButtonText(RecipientStatusEnum.UNCONFIRMED_ADD);
                 }
                 else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_ADD) {
-                    props.removeUserRecipient(props.profileRecipientData.profileListData.userID);
+                    props.removeUserRecipient(props.profileRecipientData.userID);
                     setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
                 }
                 break;
             case RecipientFormViewMode.EDITING:
                 if (shareButtonText == RecipientStatusEnum.NOT_SELECTED) {
-                    props.addUserRecipient(props.profileRecipientData.profileListData.userID);
+                    props.addUserRecipient(props.profileRecipientData.userID);
                     setShareButtonText(RecipientStatusEnum.UNCONFIRMED_ADD);
                 }
                 else if (shareButtonText == RecipientStatusEnum.CONFIRMED) {
-                    props.addRemoveUserRecipient(props.profileRecipientData.profileListData.userID);
+                    props.addRemoveUserRecipient(props.profileRecipientData.userID);
                     setShareButtonText(RecipientStatusEnum.UNCONFIRMED_REMOVE);
                 }
                 else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_ADD) {
-                    props.removeUserRecipient(props.profileRecipientData.profileListData.userID);
+                    props.removeUserRecipient(props.profileRecipientData.userID);
                     setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
                 }
                 else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_REMOVE) {
-                    props.removeRemoveUserRecipient(props.profileRecipientData.profileListData.userID);
+                    props.removeRemoveUserRecipient(props.profileRecipientData.userID);
                     setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
                 }
                 break;
@@ -156,9 +155,9 @@ export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileL
     return (
         <View style={styles.container}>
             <View style={styles.prayerRequestDataTopView}>
-                <RequestorProfileImage style={{height: 40, width: 40}} imageUri={props.profileRecipientData.profileListData.image} userID={props.profileRecipientData.profileListData.userID}/>
+                <RequestorProfileImage style={{height: 40, width: 40}} imageUri={props.profileRecipientData.image} userID={props.profileRecipientData.userID}/>
                 <View style={styles.middleData}>
-                    <Text style={styles.nameText}>{props.profileRecipientData.profileListData.displayName}</Text>
+                    <Text style={styles.nameText}>{props.profileRecipientData.displayName}</Text>
                 </View>
                 <View style={styles.ShareButtonTopLevelView}>
                     <TouchableOpacity 
