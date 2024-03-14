@@ -1,7 +1,7 @@
 import { DOMAIN } from "@env";
 import axios, { AxiosError } from "axios";
 import React, { useState } from "react";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
 import { PrayerRequestCommentListItem, PrayerRequestListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types";
 import { PrayerRequestTagEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config";
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
@@ -12,6 +12,7 @@ import { RequestorProfileImage } from "../1-Profile/profile-widgets";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestListItem, onPress:(() => void), callback?:(() => void)}):JSX.Element => {
+    const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     
     const [prayerCount, setPrayerCount] = useState(props.prayerRequestProp.prayerCount);
@@ -27,15 +28,15 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
         const textProps:JSX.Element[] = [];
         (props.prayerRequestProp.tagList || []).forEach((tag:PrayerRequestTagEnum, index:number) => {
             textProps.push(<Text style={styles.tagsText} key={tag}>{tag}</Text>);
-            textProps.push(<Text style={styles.tagsText} key={index}>{"|"}</Text>)
+            textProps.push(<Text style={styles.tagsText} key={index}>{"|"}</Text>);
         })
-        textProps.pop()
+        textProps.pop();
 
         return textProps;
     }
 
     
-    const onLikePress = async () => {
+    const onPrayedPress = async () => {
         if (!hasPrayed) {
             await axios.post(`${DOMAIN}/api/prayer-request/` + props.prayerRequestProp.prayerRequestID + '/like', {}, RequestAccountHeader).then((response) => {
                 setPrayerCount(prayerCount+1);
@@ -45,40 +46,51 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
     }
 
     const styles = StyleSheet.create({
-        container: {
-
-        },
-        opacity: {
+        prayerRequestListCard: {
             borderRadius: 5,
             backgroundColor: COLORS.grayDark,
             minWidth: '90%',
             height: 55,
-            marginTop: 15
+            marginTop: 15,
+            //padding: 
         },
         topicText: {
             ...theme.header,
             fontSize: 28,
         },
-        prayerRequestDataTopView: {
+        prayerRequestDataColumn: {
             flexDirection: "row",
-            marginTop: -4
+            marginLeft: 6,
         },
-        middleData: {
+        prayerRequestDataRowLeft: {
             flexDirection: "column",
-            marginLeft: 8,
+            //justifyContent: "center"
+        },
+        prayerRequestDataRowRight: {
+            flexDirection: "column",
+            //backgroundColor: COLORS.white,
+            //justifyContent: "center",
+            //alignSelf: "center",
+            //position: "absolute",
+            flex: 1,
+            justifyContent: "flex-start",
+            alignSelf: "center",
+            alignContent: "center",
+        },
+        prayerRequestFlex: {
+            flex: 1
         },
         socialDataView: {
             backgroundColor: COLORS.primary,
             borderRadius: 5,
             alignItems: "center",
-            justifyContent: "center",
-            position: "absolute",
-            right: 1,
+            //alignSelf: "center",
             flexDirection: "row",
-            flex: 1,
-            padding: 3,
-            marginRight: -1,
-            marginTop: -4
+            paddingRight: 3,
+            marginVertical: 8
+        },
+        socialDataColumn: {
+            flexDirection: "column"
         },
         prayerCountText: {
             ...theme.text,
@@ -89,48 +101,45 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
         },
         tagsView: {
             backgroundColor: COLORS.grayDark,
-            position: "absolute",
-            bottom: 4,
-            left: 8,
+            //position: "absolute",
+            bottom: 2,
+            //left: 2,
             flexDirection: "row",
-           
         },
         tagsText: {
             ...theme.text,
-            //fontStyle: "italic",
             marginHorizontal: 2,
             fontSize: 12
         },
         pfpStyle: {
             height: 22, 
             width: 22, 
-            position: 'absolute',
-            right: 3,
-            marginTop: 2
+            marginTop: 5
         }
 
     });
 
     return (
-        <View>
-            <TouchableOpacity style={styles.opacity} onPress={props.onPress}>
-                    <View style={styles.prayerRequestDataTopView}>
-                        <View style={styles.middleData}>
-                            <Text style={styles.topicText}>{props.prayerRequestProp.topic}</Text>
+        <View style={styles.prayerRequestListCard}>
+            <TouchableOpacity onPress={props.onPress}>
+                <View style={styles.prayerRequestDataColumn}>
+                    <View style={styles.prayerRequestDataRowLeft}>
+                        <Text style={styles.topicText}>{props.prayerRequestProp.topic}</Text>
+                        <View style={styles.tagsView}>
+                            {renderTags()}
                         </View>
                     </View>
-                <TouchableOpacity onPress={onLikePress}>
-                    <View style={styles.socialDataView}>
-                        <Ionicons 
-                            name="thumbs-up-outline"
-                            color={COLORS.white}
-                        />
-                        <Text style={styles.prayerCountText}>{prayerCount}</Text>
-                    </View>
-                </TouchableOpacity>
-                <RequestorProfileImage imageUri={props.prayerRequestProp.requestorProfile.image} userID={props.prayerRequestProp.requestorProfile.userID} style={styles.pfpStyle}/>
-                <View style={styles.tagsView}>
-                    {renderTags()}
+                    <View style={styles.prayerRequestFlex}></View>
+                    <TouchableOpacity onPress={onPrayedPress}>
+                        <View style={styles.prayerRequestDataRowRight}>
+                            <RequestorProfileImage imageUri={props.prayerRequestProp.requestorProfile.image} userID={props.prayerRequestProp.requestorProfile.userID} style={styles.pfpStyle}/>
+                            <View style={styles.socialDataView}>
+                                <Image source={PRAYER_ICON} style={{height: 15, width: 15}} />
+                                <Text style={styles.prayerCountText}>{prayerCount}</Text>
+                            </View>
+                        </View>
+                     
+                    </TouchableOpacity>
                 </View>
             </TouchableOpacity>
         </View>
@@ -180,7 +189,7 @@ export const AnnouncementTouchable = (props:{announcementProps: CircleAnnounceme
 }
 
 export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentListItem, callback:((commentID:number) => void)}):JSX.Element => {
-
+    const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userProfile.userID);
     const [likeCount, setLikeCount] = useState(props.commentProp.likeCount);
@@ -233,9 +242,8 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
         bodyText: {
             ...theme.text,
             fontSize: FONT_SIZES.S + 2,
-            color: COLORS.white,
             flex: 1,
-            maxWidth: "95%"
+            maxWidth: "85%"
         },
         prayerRequestDataTopView: {
             marginTop: 2,
@@ -246,28 +254,20 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
             marginLeft: 10,
             flexGrow: 1
         },
-        prayerCountText: {
+        likeCountText: {
             ...theme.text,
             color: COLORS.white,
             textAlign: "center",
             fontSize: 15,
             marginHorizontal: 2
         },
-        prayerCountIncreaseText: {
-            ...theme.text,
-            color: COLORS.white,
-            textAlign: "center",
-            fontSize: 12
-        },
         socialDataView: {
             backgroundColor: COLORS.primary,
             borderRadius: 5,
             alignItems: "center",
             justifyContent: "center",
-            //position: "absolute",
             left: 1,
             flexDirection: "row",
-            //flex: 1,
             padding: 3,
             alignSelf: "flex-start"
         },
@@ -275,24 +275,32 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
             justifyContent: "flex-start",
             marginTop: 5
         },
-        leftData: {
-            flexDirection: "column"
-        }
+        verticalData: {
+            flexDirection: "column",
+            marginRight: 26,
+            justifyContent: "center",
+            alignItems: "center",
+            marginLeft: -50
+        },
     });
 
     return (
         <View style={styles.container}>
             <View style={styles.prayerRequestDataTopView}>
-                <View style={styles.leftData}>
+
                     <RequestorProfileImage style={{height: 30, width: 30}} imageUri={props.commentProp.commenterProfile.image}/>
+
+  
+                <View style={styles.middleData}>
+                    <Text style={styles.nameText}>{props.commentProp.commenterProfile.displayName}</Text>
+                    <Text style={styles.bodyText}>{props.commentProp.message}</Text>
+                </View>
+                <View style={styles.verticalData}>
                     <View style={styles.commentDataView}>
                         <TouchableOpacity onPress={onLikePress}>
                             <View style={styles.socialDataView}>
-                                <Ionicons 
-                                    name="thumbs-up-outline"
-                                    color={COLORS.white}
-                                />
-                                <Text style={styles.prayerCountText}>{likeCount}</Text>
+                            <Image source={PRAYER_ICON} style={{height: 15, width: 15}} />
+                                <Text style={styles.likeCountText}>{likeCount}</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
@@ -309,10 +317,7 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
                         </View>
                     }
                 </View>
-                <View style={styles.middleData}>
-                    <Text style={styles.nameText}>{props.commentProp.commenterProfile.displayName}</Text>
-                    <Text style={styles.bodyText}>{props.commentProp.message}</Text>
-                </View>
+                
             </View>
             
         </View>
