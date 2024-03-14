@@ -36,10 +36,10 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     const renderPrayerRequests = (prayerRequests:PrayerRequestListItem[] | undefined):JSX.Element[] => 
         (prayerRequests || []).map((prayerRequest:PrayerRequestListItem, index:number) =>
             <PrayerRequestTouchable
-                key={index+prayerRequest.prayerRequestID+viewMode}
+                key={index+viewMode+prayerRequest.prayerRequestID}
                 prayerRequestProp={prayerRequest}
                 onPress={() => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
-                    params: {PrayerRequestProps: prayerRequest}, //callback: () => setPrayerRequestsData(prayerRequestsData.filter((prayerRequestListItem:PrayerRequestListItem) => prayerRequestListItem.prayerRequestID !== prayerRequest.prayerRequestID))},
+                    params: {PrayerRequestProps: prayerRequest}, 
                     screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
                 })}
             />
