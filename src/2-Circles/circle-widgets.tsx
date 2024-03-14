@@ -34,13 +34,13 @@ export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string,
     })
 
     const fetchCircleImage = async () => {
-        await axios.get(`${DOMAIN}/api/user/` + props.circleID + '/image', RequestAccountHeader).then(response => {
+        await axios.get(`${DOMAIN}/api/circle/` + props.circleID + '/image', RequestAccountHeader).then(response => {
             setRequestorImage({uri: response.data})
-        }).catch((error:AxiosError) => {console.log(error)})
+        }).catch((error:AxiosError) => {console.log(error); setRequestorImage(DEFAULT_CIRCLE_ICON)})
     }
 
     useEffect(() => {
-        if (props.imageUri !== undefined && props.imageUri !== "") setRequestorImage({uri: props.imageUri})
+        if (props.imageUri !== undefined && props.imageUri !== "" && props.imageUri !== null) setRequestorImage({uri: props.imageUri})
         else if (props.circleID !== undefined) fetchCircleImage();
     }, [])
 
