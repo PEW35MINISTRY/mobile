@@ -25,7 +25,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
         props.fields.forEach((field:InputField) => {
             if (!fieldValueIsString(field.type, field.value || "")) 
                 if (field instanceof InputSelectionField) {
-                    formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : []; // default value gets passed in as "value" (see isOnGoing in prayer-request-field-config)
+                    formValues[field.field] = (props.defaultValues !== undefined && props.defaultValues[field.field] !== undefined && props.defaultValues[field.field] !== null) ? props.defaultValues[field.field] : []; // default value gets passed in as "value" (see isOnGoing in prayer-request-field-config)
                 }
                 else {
                     formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : field.value || "";
