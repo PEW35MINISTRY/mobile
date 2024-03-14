@@ -198,35 +198,35 @@ export const EventTouchable = (props:{circleEvent:CircleEventListItem, onPress:(
 
 export const CircleContact = (props:{circleRecipientData:RecipientFormCircleListItem, addCircleRecipient:((id:number) => void), removeCircleRecipient:((id:number) => void), addRemoveCircleRecipient:((id:number) => void), removeRemoveCircleRecipient:((id:number) => void)}):JSX.Element => {
 
-    const [shareButtonText, setShareButtonText] = useState<RecipientStatusEnum>(props.circleRecipientData.status);
+    const [shareButtonText, setShareButtonText] = useState<RecipientStatusEnum>(props.circleRecipientData.recipientStatus);
     
     const handlePress = () => {
         switch(props.circleRecipientData.viewMode) {
             case RecipientFormViewMode.CREATING:
                 if (shareButtonText == RecipientStatusEnum.NOT_SELECTED) {
-                    props.addCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    props.addCircleRecipient(props.circleRecipientData.circleID);
                     setShareButtonText(RecipientStatusEnum.UNCONFIRMED_ADD);
                 }
                 else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_ADD) {
-                    props.removeCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    props.removeCircleRecipient(props.circleRecipientData.circleID);
                     setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
                 }
                 break;
             case RecipientFormViewMode.EDITING:
                 if (shareButtonText == RecipientStatusEnum.NOT_SELECTED) {
-                    props.addCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    props.addCircleRecipient(props.circleRecipientData.circleID);
                     setShareButtonText(RecipientStatusEnum.UNCONFIRMED_ADD);
                 }
                 else if (shareButtonText == RecipientStatusEnum.CONFIRMED) {
-                    props.addRemoveCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    props.addRemoveCircleRecipient(props.circleRecipientData.circleID);
                     setShareButtonText(RecipientStatusEnum.UNCONFIRMED_REMOVE);
                 }
                 else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_ADD) {
-                    props.removeCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    props.removeCircleRecipient(props.circleRecipientData.circleID);
                     setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
                 }
                 else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_REMOVE) {
-                    props.removeRemoveCircleRecipient(props.circleRecipientData.circleListData.circleID);
+                    props.removeRemoveCircleRecipient(props.circleRecipientData.circleID);
                     setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
                 }
                 break;
@@ -235,8 +235,8 @@ export const CircleContact = (props:{circleRecipientData:RecipientFormCircleList
 
     const styles = StyleSheet.create({
         container: {
-            marginTop: 5,
-            marginLeft: 8,
+            marginRight: 5,
+            marginLeft: 25,
             marginVertical: 10
         },
         nameText: {
@@ -292,28 +292,30 @@ export const CircleContact = (props:{circleRecipientData:RecipientFormCircleList
             //position: "absolute",
         },
         centerView: {
-            alignItems: "center"
+            position: "absolute",
+            right: 10,
+            justifyContent: "center",
+            alignSelf: "center"
         }
     });
 
     return (
         <View style={styles.container}>
             <View style={styles.prayerRequestDataTopView}>
-                <RequestorCircleImage style={{height: 40, width: 40}} imageUri={props.circleRecipientData.circleListData.image} circleID={props.circleRecipientData.circleListData.circleID}/>
+                <RequestorCircleImage style={{height: 40, width: 40}} imageUri={props.circleRecipientData.image} circleID={props.circleRecipientData.circleID}/>
                 <View style={styles.middleData}>
-                    <Text style={styles.nameText}>{props.circleRecipientData.circleListData.name}</Text>
+                    <Text style={styles.nameText}>{props.circleRecipientData.name}</Text>
+                </View>
+                <View style={styles.centerView}>
+                    <TouchableOpacity 
+                        onPress={handlePress}
+                    >  
+                        <View style={styles.shareButtonView}>
+                            <Text style={styles.textStyle}>{shareButtonText}</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
             </View>
-            <View style={styles.centerView}>
-                <TouchableOpacity 
-                    onPress={handlePress}
-                >  
-                    <View style={styles.shareButtonView}>
-                        <Text style={styles.textStyle}>{shareButtonText}</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-
         </View>
     )
 }
