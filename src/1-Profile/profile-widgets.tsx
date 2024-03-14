@@ -36,11 +36,11 @@ export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string
     const fetchProfileImage = async () => {
         await axios.get(`${DOMAIN}/api/user/` + props.userID + '/image', RequestAccountHeader).then(response => {
             setRequestorImage({uri: response.data})
-        }).catch((error:AxiosError) => {console.log(error)})
+        }).catch((error:AxiosError) => {console.log(error); setRequestorImage(DEFAULT_PROFILE_ICON)})
     }
 
     useEffect(() => {
-        if (props.imageUri !== undefined && props.imageUri !== "") setRequestorImage({uri: props.imageUri})
+        if (props.imageUri !== undefined && props.imageUri !== "" && props.imageUri !== null) setRequestorImage({uri: props.imageUri})
         else if (props.userID !== undefined) {
             if (props.userID == userID) setRequestorImage({uri: userProfileImage})
             else fetchProfileImage();
