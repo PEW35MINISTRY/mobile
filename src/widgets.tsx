@@ -2,23 +2,15 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { ColorValue, GestureResponderEvent, Image, ImageSourcePropType, ImageStyle, KeyboardTypeOptions, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle, ScrollView } from "react-native";
-import { MultipleSelectList, SelectList } from 'react-native-dropdown-select-list';
 import DateTimePickerModal, { ReactNativeModalDateTimePickerProps } from "react-native-modal-datetime-picker";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem } from './TypesAndInterfaces/config-sync/api-type-sync/circle-types';
-import { PrayerRequestCommentListItem, PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
-import { getDOBMinDate, getDOBMaxDate, RoleEnum, getShortDate } from './TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import type InputField from './TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import theme, { COLORS, FONTS, FONT_SIZES, RADIUS } from './theme';
 import { useAppDispatch, useAppSelector } from "./TypesAndInterfaces/hooks";
 import { RootState } from './redux-store';
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { InputType, InputSelectionField, isListType } from './TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
-import { SelectListItem } from './TypesAndInterfaces/custom-types';
 import { PrayerRequestTagEnum } from './TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
+import { MultipleSelectList, SelectList, SelectListItem } from 'react-native-dropdown-select-list';
 
 export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewStyle, textStyle?:TextStyle, onPress:((event: GestureResponderEvent) => void)}):JSX.Element => {
 
@@ -185,6 +177,7 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
                     validationStyle={props.validationStyle}
                     labelStyle={(props.validationLabel && {color: COLORS.primary}) || undefined}
                     inputStyle={(props.validationLabel && {borderColor: COLORS.primary}) || undefined}
+                    containerStyle={{alignSelf: "center"}}
                 />
             </TouchableOpacity>
             <DateTimePickerModal 
@@ -222,12 +215,6 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
             flex: 1,
             paddingLeft: 16
         },
-        dropdown: {
-            width: 300,
-            marginLeft: 3,
-            paddingVertical: 5,
-            paddingHorizontal: 15,
-        },
         containerStyle: {
             marginVertical: 5,
         },
@@ -262,7 +249,7 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
    
 }
 
-export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, defaultOption?:SelectListItem[], label?:string, labelStyle?:TextStyle }):JSX.Element => {
+export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, defaultOptions?:SelectListItem[], label?:string, labelStyle?:TextStyle, checkBoxStyles?: ViewStyle}):JSX.Element => {
 
     const styles = StyleSheet.create({
         dropdownText: {
@@ -282,12 +269,6 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
             textAlign: "center",
             paddingLeft: 16,
             flex: 1 
-        },
-        dropdown: {
-            maxWidth: 300,
-            marginLeft: 3,
-            paddingVertical: 5,
-            paddingHorizontal: 15,
         },
         containerStyle: {
             marginVertical: 5,
@@ -313,8 +294,8 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
                 dropdownTextStyles={styles.dropdownText}
                 inputStyles={styles.dropdownSelected}
                 placeholder={props.placeholder}
-                // TODO - defaultOption for SelectList is not available yet. PR - https://github.com/danish1658/react-native-dropdown-select-list/pull/102
-                //defaultOption={props.defaultOption} 
+                defaultOptions={props.defaultOptions}
+                checkBoxStyles={props.checkBoxStyles}
              />
             {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
 
@@ -328,6 +309,8 @@ export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
     const userProfileImage = useAppSelector((state: RootState) => state.account.userProfile.image);
     const DEFAULT_PROFILE_ICON = require("../assets/profile-icon-blue.png");
 
+    const [requestorImage, setRequestorImage] = useState<ImageSourcePropType>(userProfileImage === undefined ? DEFAULT_PROFILE_ICON : {uri: userProfileImage});
+
     const styles = StyleSheet.create({
         profileImage: {
             height: 100,
@@ -340,10 +323,7 @@ export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
 
     return (
         <>
-            { userProfileImage === undefined ?
-                <Image source={DEFAULT_PROFILE_ICON} style={styles.profileImage}></Image> : <Image source={{uri: userProfileImage}} style={styles.profileImage}></Image>
-            }
-
+            <Image source={requestorImage} style={styles.profileImage}></Image>
         </>
 
     );
