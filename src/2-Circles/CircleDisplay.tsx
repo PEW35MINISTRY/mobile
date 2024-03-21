@@ -16,6 +16,7 @@ import { EventTouchable, RequestorCircleImage } from './circle-widgets';
 import { AnnouncementTouchable, PrayerRequestTouchable } from '../3-Prayer-Request/prayer-request-widgets';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
 import { Raised_Button } from '../widgets';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export interface CircleDisplayParamList extends AppStackParamList {
     CircleProps: CircleListItem
@@ -170,12 +171,16 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
             case CircleStatusEnum.MEMBER || CircleStatusEnum.CONNECTED:
                 return (
                     <>
-                        <View style={styles.announcementSection}>
-                            <Text style={styles.annoucementText}>Announcements</Text>
-                            <ScrollView horizontal={true} contentContainerStyle={styles.announcementScroll}>
-                                {renderAnnouncements()}
-                            </ScrollView>
-                        </View>
+                        {
+                            announcementsData.length !== 0 && 
+                            <View style={styles.announcementSection}>
+                                <Text style={styles.annoucementText}>Announcements</Text>
+                                    <ScrollView horizontal={true} contentContainerStyle={styles.announcementScroll}>
+                                        {renderAnnouncements()}
+                                    </ScrollView>
+                            </View>
+                        }
+
                         <View style={styles.PRSection}>
                             <Text style={styles.PRHeaderText}>Prayer Requests</Text>
                             <ScrollView style={styles.PRScroll}>
@@ -186,14 +191,18 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                         <Modal
                             visible={leaveCircleModalVisible}
                             animationType='slide'
+                            transparent={true}
                             onRequestClose={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}
                         >
                              <View style={styles.modalView}>
                                 <Text style={styles.modalHeaderText}>Are you sure you want to leave?</Text>
-                                <Raised_Button buttonStyle={styles.statusButton}
-                                    text={"Leave Circle"}
-                                    onPress={leaveCircle}
-                                />
+                                <View style={{maxWidth: '70%', alignSelf: "center"}}>
+                                    <Raised_Button buttonStyle={styles.statusButton}
+                                        text={"Leave Circle"}
+                                        onPress={leaveCircle}
+                                    />
+                                </View>
+
                             </View>
                         </Modal>
 
@@ -247,6 +256,7 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                     <Modal
                         visible={circleInfoModalVisible}
                         animationType='slide'
+                        transparent={true}
                         onRequestClose={() => setCircleInfoModalVisible(!circleInfoModalVisible)}
                     >
                         <View style={styles.infoView}>
@@ -256,8 +266,10 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                                     circleID={currCircleState.circleID}
                                     style={styles.circleImageInfoPage}
                                 />
-
-                                <Text style={styles.circleNameText}>{currCircleState.name}</Text>
+                                <View style={styles.circleNameHeader}> 
+                                    <Text style={styles.circleNameText}>{currCircleState.name}</Text>
+                                </View>
+                               
 
                                 <Text style={styles.circleLeaderText}>Circle Leader:</Text>
 
@@ -275,6 +287,19 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                                     onPress={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}
                                 />
                             }
+                                        <View style={styles.backButtonView}>
+                            <TouchableOpacity
+                                onPress={() => setCircleInfoModalVisible(false)}
+                            >
+                                    <View style={styles.backButton}>
+                                    <Ionicons 
+                                        name="return-up-back-outline"
+                                        color={COLORS.white}
+                                        size={30}
+                                    />
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     
                     </Modal>
@@ -290,11 +315,17 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
         <View style={styles.container}>
             
             {_renderController()}
-            <View style={styles.bottomView}>
-                <TouchableOpacity style={styles.modalToggleTouchable}
+            <View style={styles.backButtonView}>
+                <TouchableOpacity
                     onPress={() => navigation.pop()}
                 >
-                    <Text style={styles.activateModalText}>Back</Text>
+                    <View style={styles.backButton}>
+                    <Ionicons 
+                        name="return-up-back-outline"
+                        color={COLORS.white}
+                        size={30}
+                    />
+                    </View>
                 </TouchableOpacity>
             </View>
         </View>
@@ -324,6 +355,9 @@ const styles = StyleSheet.create({
         ...theme.title,
         fontSize: 32,
         textAlign: "center"
+    },
+    circleNameHeader: {
+        maxWidth: '90%'
     },
     circleLeaderText: {
         ...theme.title,
@@ -374,15 +408,17 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     modalView: {
-        ...theme.background_view,
-        flex: 1,
-        justifyContent: "flex-start"
+        backgroundColor: COLORS.black,
+        justifyContent: "center",
+        height: '50%',
+        marginTop: 'auto',
     },
     modalHeaderText: {
         ...theme.title,
         color: COLORS.white,
         fontSize: 32,
-        margin: 25
+        margin: 25,
+        textAlign: "center"
 
     },
     circleImageMainPage: {
@@ -451,7 +487,24 @@ const styles = StyleSheet.create({
         bottom: 20,
         flexDirection: "row",
         justifyContent: "space-between",
-    }
+    },
+    backButton: {
+        //position: "absolute",
+        justifyContent: "center",
+        //alignContent: "center",
+        alignItems: "center",
+        //bottom: 1,
+        //right: 1,
+        height: 55,
+        width: 55,
+        //backgroundColor: COLORS.accent,
+        borderRadius: 15,
+    },
+    backButtonView: {
+        position: "absolute",
+        top: 1,
+        left: 1
+    },
 })
 
 export default CircleDisplay;

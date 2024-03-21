@@ -110,12 +110,14 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
            
             <Raised_Button buttonStyle={styles.sign_in_button}
                 text='Save Changes'
-                onPress={() => formInputRef.current == null ? console.log("null") : formInputRef.current.onHandleSubmit()}
+                onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
             />
 
             <Modal
               visible={profileImageSettingsModalVisible}
               onRequestClose={() => setProfileImageSettingsModalVisible(false)}
+              animationType='slide'
+              transparent={true}
             >
               <ProfileImageSettings 
                 callback={() => setProfileImageSettingsModalVisible(false)}

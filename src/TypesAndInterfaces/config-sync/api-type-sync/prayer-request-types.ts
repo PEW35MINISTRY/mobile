@@ -1,6 +1,7 @@
 /********* ONLY DEPENDENCIES FROM DIRECTORY: /field-sync/ *********/
 
 import { PrayerRequestTagEnum } from '../input-config-sync/prayer-request-field-config.js'
+import { CircleListItem } from './circle-types.js'
 import { ProfileListItem } from './profile-types.js'
 
 /****************************************************************************************
@@ -38,10 +39,8 @@ export interface PrayerRequestResponseBody {
     tagList?: PrayerRequestTagEnum[],
     expirationDate: string,
     commentList?: PrayerRequestCommentListItem[],
-    userRecipientList?: number[],
-    circleRecipientList?: number[],
-    addCircleRecipientIDList?: number[],
-    removeCircleRecipientIDList?: number[]
+    userRecipientList?: ProfileListItem[],
+    circleRecipientList?: CircleListItem[],
 }
 
 export interface PrayerRequestPostRequestBody {

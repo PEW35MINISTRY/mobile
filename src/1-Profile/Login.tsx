@@ -45,9 +45,9 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const onApple = (event:GestureResponderEvent) => console.log(`Logging in via APPLE`);
 
-    const onForgotPassword = (event:GestureResponderEvent) => navigation.navigate("EditProfile");
+    const onForgotPassword = (event:GestureResponderEvent) => console.log("Forgot Password");
 
-    const onSignUp = (event:GestureResponderEvent) => navigation.navigate("Signup");
+    const onSignUp = (event:GestureResponderEvent) => navigation.navigate(ROUTE_NAMES.SIGNUP_ROUTE_NAME);
 
     return (
     <View style={theme.background_view}>
@@ -60,7 +60,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
         />
         <Raised_Button buttonStyle={styles.sign_in_button}
             text='Sign In'
-            onPress={() => formInputRef.current == null ? console.log("null") : formInputRef.current.onHandleSubmit()}
+            onPress={() => formInputRef.current !== null  && formInputRef.current.onHandleSubmit()}
         />
         <View style={theme.horizontal_row}>
             <Outline_Button text='Forgot Password' onPress={onForgotPassword} />

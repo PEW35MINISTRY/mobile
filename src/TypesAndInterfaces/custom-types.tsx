@@ -15,11 +15,6 @@ export interface CallbackParam {
     callback:(() => void)
 }
 
-export interface SelectListItem {
-    key: string | number, 
-    value: string | JSX.Element
-}
-
 export interface StackNavigationProps extends NativeStackScreenProps<any> {};
 export interface TabNavigationProps extends BottomTabScreenProps<any> {};
 
