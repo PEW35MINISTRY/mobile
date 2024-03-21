@@ -44,7 +44,7 @@ export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string,
         else if (props.circleID !== undefined) fetchCircleImage();
     }, [])
 
-    return <Image source={requestorImage} style={styles.circleImage}></Image> 
+    return <Image source={requestorImage} style={styles.circleImage} resizeMode="contain"></Image> 
 }
 
 export const CircleTouchable = (props:{circleProps: CircleListItem, onPress:(() => void)}):JSX.Element => {
@@ -179,7 +179,7 @@ export const EventTouchable = (props:{circleEvent:CircleEventListItem, onPress:(
 
             >
                 <View style={styles.header}>
-                    <Image source={{uri: props.circleEvent.image}} style={styles.eventImage} />
+                    <Image source={{uri: props.circleEvent.image}} style={styles.eventImage} resizeMode="contain"/>
                     <View style={styles.floating}>
                         <Text style={styles.titleText}>{props.circleEvent.name}</Text>
                         <Text style={styles.timeText}>{new Date(props.circleEvent.startDate as unknown as string).toDateString()}</Text>
