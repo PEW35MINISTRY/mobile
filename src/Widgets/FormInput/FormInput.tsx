@@ -4,13 +4,13 @@ import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType,} from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
 import { RoleEnum, getDOBMaxDate, getDOBMinDate } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
-import { SelectListItem } from "../../TypesAndInterfaces/custom-types";
 import theme, { COLORS } from "../../theme";
 import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select } from "../../widgets";
 import React, { forwardRef, useImperativeHandle } from "react";
 import { FormSubmit, FormInputProps } from "./form-input-types";
 import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
 import { RootState } from "../../redux-store";
+import { SelectListItem } from "react-native-dropdown-select-list";
 
 export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX.Element => {
 
@@ -25,13 +25,15 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
         props.fields.forEach((field:InputField) => {
             if (!fieldValueIsString(field.type, field.value || "")) 
                 if (field instanceof InputSelectionField) {
-                    formValues[field.field] = (props.defaultValues !== undefined && props.defaultValues[field.field] !== undefined && props.defaultValues[field.field] !== null) ? props.defaultValues[field.field] : []; // default value gets passed in as "value" (see isOnGoing in prayer-request-field-config)
+                    formValues[field.field] = (props.defaultValues !== undefined && props.defaultValues[field.field] !== undefined && props.defaultValues[field.field] !== null) ? props.defaultValues[field.field] : [];
                 }
                 else {
-                    formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : field.value || "";
+                    formValues[field.field] = (props.defaultValues !== undefined && props.defaultValues[field.field] !== undefined && props.defaultValues[field.field] !== null) ? props.defaultValues[field.field] : field.value || "";
                 }
-            else 
-                formValues[field.field] = (props.defaultValues !== undefined) ? props.defaultValues[field.field] : field.value || "";
+            else {
+                formValues[field.field] = (props.defaultValues !== undefined && props.defaultValues[field.field] !== undefined && props.defaultValues[field.field] !== null) ? props.defaultValues[field.field] : field.value || "";
+            }
+               
         });
         return formValues;
    }
@@ -52,11 +54,27 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
     }))
 
     const styles = StyleSheet.create({
-        ...theme
+        ...theme,
+        centerInputStyle: {
+            alignSelf: "center"
+        },
+        validationStyle: {
+            color: COLORS.primary, 
+            borderColor: COLORS.primary,
+            maxWidth: '90%', 
+            alignSelf: "center",
+            textAlign: "center"
+        },
+        validationStyleDropdown: {
+            alignSelf: "center",
+            textAlign: "center",
+            color: COLORS.primary, 
+            borderColor: COLORS.primary,
+        }
     })
 
     return (
-        <ScrollView>{
+        <ScrollView style={{maxWidth: '90%', alignSelf: "center", alignContent: "center"}}>{
             (props.fields).map((field:InputField, index:number) => {
                 switch(field.type) {
                 case InputType.TEXT || InputType.NUMBER:
@@ -77,9 +95,10 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                     onChangeText={onChange}
                                     keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
                                     labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                    validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
+                                    validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
+                                    inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
                                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                    containerStyle={styles.centerInputStyle}
                                 />
                             }
                             
@@ -119,9 +138,10 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                     keyboardType='default'
                                     textContentType='password'
                                     labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                    validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
+                                    validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
+                                    inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
                                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                    containerStyle={styles.centerInputStyle}
                                 />}
                             </>
                         
@@ -169,9 +189,10 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                     onChangeText={onChange}
                                     keyboardType='email-address'
                                     labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                                    validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
+                                    inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
+                                    validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
                                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                    containerStyle={styles.centerInputStyle}
                                 />}
                         </>
 
@@ -214,8 +235,8 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                         placeholder="Select"
                                         labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                                         validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                        validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                                        boxStyle={(errors[field.field] && {borderColor: COLORS.primary}) || {borderColor: COLORS.accent}}
+                                        validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
+                                        boxStyle={(errors[field.field] && styles.validationStyleDropdown) || {borderColor: COLORS.accent}}
                                         defaultOption={getSelectListDefaultValue(value)}
                                     />} 
                                 </>
@@ -260,9 +281,9 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                     label={field.title}
                                     buttonStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
                                     onConfirm={(date:Date) => onChange(date.toISOString())}
-                                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
+                                    labelStyle={(errors[field.field] && styles.validationStyle) || undefined}
                                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                    validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
+                                    validationStyle={(errors[field.field] && styles.validationStyleDropdown) || undefined}
                                     date={value}
                                 />}
                         </>
@@ -281,8 +302,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                             selectListData.push({key: i, value: field.selectOptionList[i]})
                         }
 
-                        const getSelectListDefaultValue = (selectListValues:string[] | undefined) => {
-                            console.log(selectListValues);
+                        const getSelectListDefaultValues = (selectListValues:string[] | undefined) => {
                             var selected:SelectListItem[] = [];
                             if (selectListValues !== undefined) {
                                 selectListValues.forEach((value:string) => {
@@ -314,9 +334,9 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                         label={field.title}
                                         labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                                         validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                        validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                                        boxStyle={(errors[field.field] && {borderColor: COLORS.primary, maxWidth: 250}) || {borderColor: COLORS.accent}}
-                                        defaultOption={getSelectListDefaultValue(value)}
+                                        validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
+                                        boxStyle={(errors[field.field] && styles.validationStyleDropdown) || {borderColor: COLORS.accent}}
+                                        defaultOptions={getSelectListDefaultValues(value)}
                                     />} 
                                 </>
  
@@ -348,9 +368,10 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                     multiline={true}
                                     keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
                                     labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                    validationStyle={(errors[field.field] && {color: COLORS.primary, maxWidth: 250, alignSelf: "center"}) || undefined}
-                                    inputStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
+                                    validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
+                                    inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
                                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                    containerStyle={styles.centerInputStyle}
                                 />
                             }
                             

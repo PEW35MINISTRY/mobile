@@ -7,9 +7,9 @@ import { CircleListItem } from "../../TypesAndInterfaces/config-sync/api-type-sy
 import { CircleContact } from "../../2-Circles/circle-widgets";
 import { ProfileContact } from "../../1-Profile/profile-widgets";
 import { Dropdown_Select, Input_Field, Raised_Button } from "../../widgets";
-import { SelectListItem } from "../../TypesAndInterfaces/custom-types";
 import { RecipientFormCircleListItem, RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusEnum } from "./recipient-types";
 import theme, { COLORS } from "../../theme";
+import { SelectListItem } from "react-native-dropdown-select-list";
 
 enum RecipientFormViewType {
     CIRCLE = "Circles",
