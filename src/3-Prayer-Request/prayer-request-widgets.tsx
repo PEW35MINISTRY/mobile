@@ -23,12 +23,12 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
           "jwt": jwt, 
         }
       }
-
+//index+viewMode+prayerRequest.prayerRequestID
     const renderTags = ():JSX.Element[] => {
         const textProps:JSX.Element[] = [];
         (props.prayerRequestProp.tagList || []).forEach((tag:PrayerRequestTagEnum, index:number) => {
-            textProps.push(<Text style={styles.tagsText} key={tag}>{tag}</Text>);
-            textProps.push(<Text style={styles.tagsText} key={index}>{"|"}</Text>);
+            textProps.push(<Text style={styles.tagsText} key={tag + "|" + index}>{tag}</Text>);
+            textProps.push(<Text style={styles.tagsText} key={index + "|" + tag}>{"|"}</Text>);
         })
         textProps.pop();
 
@@ -68,10 +68,6 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
         },
         prayerRequestDataRowRight: {
             flexDirection: "column",
-            //backgroundColor: COLORS.white,
-            //justifyContent: "center",
-            //alignSelf: "center",
-            //position: "absolute",
             flex: 1,
             justifyContent: "flex-start",
             alignSelf: "center",
@@ -81,13 +77,13 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             flex: 1
         },
         socialDataView: {
-            backgroundColor: COLORS.primary,
+            borderWidth: 1,
+            borderColor: COLORS.accent,
             borderRadius: 5,
             alignItems: "center",
-            //alignSelf: "center",
             flexDirection: "row",
             paddingRight: 3,
-            marginVertical: 8
+            marginVertical: 6
         },
         socialDataColumn: {
             flexDirection: "column"
@@ -262,7 +258,9 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
             marginHorizontal: 2
         },
         socialDataView: {
-            backgroundColor: COLORS.primary,
+            //backgroundColor: COLORS.primary,
+            borderWidth: 1,
+            borderColor: COLORS.accent,
             borderRadius: 5,
             alignItems: "center",
             justifyContent: "center",
@@ -299,8 +297,12 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
                     <View style={styles.commentDataView}>
                         <TouchableOpacity onPress={onLikePress}>
                             <View style={styles.socialDataView}>
-                            <Image source={PRAYER_ICON} style={{height: 15, width: 15}} />
-                                <Text style={styles.likeCountText}>{likeCount}</Text>
+                                <Ionicons 
+                                    name="thumbs-up-outline"
+                                    color={COLORS.white}
+                                    size={15}
+                                />
+                                    <Text style={styles.likeCountText}>{likeCount}</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
