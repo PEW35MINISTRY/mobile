@@ -348,7 +348,8 @@ const styles = StyleSheet.create({
         marginLeft: 2
     },
     socialDataView: {
-        backgroundColor: COLORS.primary,
+        borderWidth: 1,
+        borderColor: COLORS.accent,
         borderRadius: 5,
         alignItems: "center",
         justifyContent: "center",
