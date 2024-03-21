@@ -13,11 +13,13 @@ import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 
 enum PrayerRequestListViewMode {
     RECIPIENT = "RECIPIENT",
-    OWNER = "OWNER"
+    OWNER = "OWNER",
+    ANSWERED = "ANSWERED"
 }
 
 const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
+    const PRAYER_REQUEST_RESOLVED_ICON = require('../../assets/resolved-icon.png');
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -47,9 +49,22 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const GET_UserIsRecipientPrayerRequests = async () => {
         await axios.get(`${DOMAIN}/api/prayer-request/user-list`, RequestAccountHeader).then((response) => {
-            const prayerRequestList:PrayerRequestListItem[] = response.data;
-            setReceivingPrayerRequests(prayerRequestList);
+            if (response.data !== undefined) {
+                const prayerRequestList:PrayerRequestListItem[] = response.data;
+                setReceivingPrayerRequests(prayerRequestList);
+            } 
+
         }).catch((error:AxiosError) => console.log(error));
+    }
+
+    const GET_ResolvedPrayerRequests = async () => {
+        await axios.get(`${DOMAIN}/api/user/` + userID + `/prayer-request-resolved-list`, RequestAccountHeader).then((response) => {
+            if (response.data !== undefined) {
+                const prayerRequestList:PrayerRequestListItem[] = response.data;
+                setReceivingPrayerRequests(prayerRequestList);
+                setViewMode(PrayerRequestListViewMode.ANSWERED)
+            }
+        })
     }
 
     useEffect(() => {
@@ -59,7 +74,15 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     return (
         <View style={styles.backgroundColor}>
             <View style={styles.container}>
+                { (viewMode == PrayerRequestListViewMode.OWNER || viewMode == PrayerRequestListViewMode.ANSWERED) &&
+                    <View style={styles.answeredView}>
+                        <TouchableOpacity onPress={() => GET_ResolvedPrayerRequests()}>
+                            <Image source={PRAYER_REQUEST_RESOLVED_ICON} style={{height: 30, width: 30}} />
+                        </TouchableOpacity>
+                    </View>
+                }
                 <View style={styles.viewModeView}>
+                
                     <TouchableOpacity
                         onPress={() => {
                             if (viewMode !== PrayerRequestListViewMode.RECIPIENT) {
@@ -80,6 +103,8 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                     >
                         <Text style={(viewMode == PrayerRequestListViewMode.OWNER && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Owned</Text>
                     </TouchableOpacity>
+
+                    
                 </View>
                 <ScrollView style={styles.prayerRequestList}>
                     { viewMode == PrayerRequestListViewMode.OWNER ? renderPrayerRequests(ownedPrayerRequests) : renderPrayerRequests(receivingPrayerRequests)}
@@ -94,6 +119,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                     <PrayerRequestCreate callback={() => setPrayerRequestCreateModalVisible(false)}/>
                 </Modal>
             </View>
+
             <TouchableOpacity
                     onPress={() => setPrayerRequestCreateModalVisible(true)}
                 >
@@ -149,6 +175,19 @@ const styles = StyleSheet.create({
         ...theme.text,
         textAlign: "center",
         fontSize: FONT_SIZES.XL
+    },
+    // use absolute so that the toggle buttons don't go off-center
+    answeredView: {
+        position: "absolute",
+        right: 20,
+        top: 18
+    },
+    answeredButton: {
+        height: 30,
+        width: 30,
+        borderRadius: 5,
+        backgroundColor: COLORS.accent,
+        color: COLORS.accent
     }
 })
 
