@@ -46,7 +46,7 @@ export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string
             else fetchProfileImage();
         }
     },[])
-    return <Image source={requestorImage} style={styles.profileImage}></Image> 
+    return <Image source={requestorImage} style={styles.profileImage} resizeMode="contain"></Image> 
 }
 
 export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileListItem, addUserRecipient:((id:number) => void), removeUserRecipient:((id:number) => void), addRemoveUserRecipient:((id:number) => void), removeRemoveUserRecipient:((id:number) => void)}):JSX.Element => {
