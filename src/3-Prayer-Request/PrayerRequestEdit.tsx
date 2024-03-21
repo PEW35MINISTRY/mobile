@@ -100,11 +100,6 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                     onSubmit={onPrayerRequestEdit}
                 />
                 <Outline_Button 
-                    text="Delete Prayer Request"
-                    onPress={() => setDeletePrayerRequestModalVisible(true)}
-                    buttonStyle={{borderColor: COLORS.primary}}
-                />
-                <Outline_Button 
                     text="Select Recipients"
                     onPress={() => setRecipientFormModalVisible(true)}
                 />
@@ -113,6 +108,12 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                     text='Save Changes'
                     onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
                 />
+                <Outline_Button 
+                    text="Delete Prayer Request"
+                    onPress={() => setDeletePrayerRequestModalVisible(true)}
+                    buttonStyle={{borderColor: COLORS.primary}}
+                />
+
                 <Modal
                     visible={recipientFormModalVisible}
                     onRequestClose={() => setRecipientFormModalVisible(false)}
