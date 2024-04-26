@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { Input_Field, Raised_Button } from "../widgets";
 import theme, { COLORS } from "../theme";
@@ -10,6 +10,7 @@ import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import { ROUTE_NAMES } from "../TypesAndInterfaces/routes";
 import { CircleTouchable } from "./circle-widgets";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -38,8 +39,7 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
 
     // TODO: add sanatization to prevent injection
     const searchQuery = async () => {
-        console.log("Circle search text: ", circleSearchText);
-        await axios.get(`${DOMAIN}/api/circle-list?search=` + circleSearchText + "&filter=ALL&status=NONE&ignoreCache=false", RequestAccountHeader).then(response => {
+        await axios.get(`${DOMAIN}/api/search-list/CIRCLE?search=` + circleSearchText + "&refine=ALL&ignoreCache=false", RequestAccountHeader).then(response => {
             setCircleModals(response.data)
         }).catch(err => console.log(err))
     }
@@ -58,6 +58,19 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
             <ScrollView contentContainerStyle={styles.circleSelectScroller}>
                 {renderCircleModals()}
             </ScrollView>
+            <View style={styles.backButtonView}>
+                <TouchableOpacity
+                    onPress={() => navigation.pop()}
+                >
+                    <View style={styles.backButton}>
+                    <Ionicons 
+                        name="return-up-back-outline"
+                        color={COLORS.white}
+                        size={30}
+                    />
+                    </View>
+                </TouchableOpacity>
+            </View>
             
         </View>
     )
@@ -86,5 +99,22 @@ const styles = StyleSheet.create({
     },
     circleSelectScroller: {
         height: 650
+    },
+    backButton: {
+        //position: "absolute",
+        justifyContent: "center",
+        //alignContent: "center",
+        alignItems: "center",
+        //bottom: 1,
+        //right: 1,
+        height: 55,
+        width: 55,
+        //backgroundColor: COLORS.accent,
+        borderRadius: 15,
+    },
+    backButtonView: {
+        position: "absolute",
+        top: 1,
+        left: 1
     },
 })
