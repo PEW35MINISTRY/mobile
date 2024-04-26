@@ -2,10 +2,10 @@ import { DOMAIN } from "@env";
 import axios from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet } from "react-native";
-import InputField, { InputType, InputSelectionField, isListType,} from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
+import InputField, { InputType, InputSelectionField, isListType, InputRangeField,} from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
 import { RoleEnum, getDOBMaxDate, getDOBMinDate } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import theme, { COLORS } from "../../theme";
-import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select } from "../../widgets";
+import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider } from "../../widgets";
 import React, { forwardRef, useImperativeHandle } from "react";
 import { FormSubmit, FormInputProps } from "./form-input-types";
 import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
@@ -383,6 +383,36 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                     />
                     );
                     break;
+                case InputType.RANGE_SLIDER:
+                    if (field instanceof InputRangeField) {                        
+                        return (
+                            <Controller 
+                                control={control}
+                                rules={{
+                                required: field.required,
+                                }}
+                                render={({ field: {onChange, onBlur, value}}) => (
+                                <>
+                                    {fieldValueIsString(field.type, value) &&                                
+                                    <SelectSlider
+                                        minValue={field.minValue}
+                                        maxValue={field.maxValue}
+                                        maxField={field.maxField}
+                                        label={field.title}
+                                        onValueChange={(val:string) => onChange(val)}
+                                        labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
+                                        validationLabel={(errors[field.field] && field.validationMessage) || undefined}
+                                        validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
+                                        defaultValue={parseInt(value.toString())}
+                                    />} 
+                                </>
+ 
+                                )}
+                                name={field.field}
+                                key={field.field}
+                            />
+                        );
+                    } else return <></>; 
                 // Default case will likely never happen, but its here to prevent undefined behavior per TS
                 default:
                     return <></>
