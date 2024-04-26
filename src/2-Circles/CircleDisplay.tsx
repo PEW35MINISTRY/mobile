@@ -7,7 +7,7 @@ import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-typ
 import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
 
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, addCircle, removeCircle, updateCircle } from '../redux-store';
+import { addMemberCircle, addRequestedCircle, removeInviteCircle, removeMemberCircle, removeRequestedCircle, RootState } from '../redux-store';
 import { CircleList } from './CircleList';
 import { CircleStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -24,7 +24,7 @@ export interface CircleDisplayParamList extends AppStackParamList {
 
 type CircleDisplayProps = NativeStackScreenProps<CircleDisplayParamList, typeof ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME>;
 
-const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
+export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -77,7 +77,8 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
         await axios.post(`${DOMAIN}/api/circle/` + currCircleState?.circleID + "/accept", {}, RequestAccountHeader).then(response => {
             const newListItem:CircleListItem = {...appCircleListItem, status: CircleStatusEnum.MEMBER};
             setAppCircleListItem(newListItem);  //update local state
-            dispatch(addCircle(newListItem)); // update redux
+            dispatch(removeInviteCircle(newListItem.circleID));
+            dispatch(addMemberCircle(newListItem));
             renderCircle(newListItem);
         }).catch(err => console.log(err));
     }
@@ -86,7 +87,7 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
         await axios.post(`${DOMAIN}/api/circle/` + currCircleState?.circleID + "/request", {}, RequestAccountHeader).then(response => {
             const newListItem:CircleListItem = {...appCircleListItem, status: CircleStatusEnum.REQUEST};
             setAppCircleListItem(newListItem);  //update local state
-            dispatch(addCircle(newListItem));
+            dispatch(addRequestedCircle(newListItem));
             setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.REQUEST}) : undefined);
         }).catch(err => console.log(err))
     }
@@ -94,7 +95,7 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
     const leaveCircle = async () => {
         await axios.delete(`${DOMAIN}/api/circle/` + currCircleState?.circleID + "/leave", RequestAccountHeader).then(response => {
             const newListItem:CircleListItem = {...appCircleListItem, status: CircleStatusEnum.NONE};
-            dispatch(removeCircle(newListItem.circleID))
+            dispatch(removeMemberCircle(newListItem.circleID));
             setLeaveCircleModalVisible(false);
             setCircleInfoModalVisible(false);
             setAppCircleListItem(newListItem);
@@ -124,7 +125,8 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
 
             // locally, the app only knows that we requested membership. If the server sends a MEMBER status, update redux
             if (circleProps.status == CircleStatusEnum.REQUEST && circleData.requestorStatus == CircleStatusEnum.MEMBER) {
-                dispatch(updateCircle(circleItem));
+                dispatch(removeRequestedCircle(circleItem.circleID));
+                dispatch(addMemberCircle(circleItem));
             }
 
             setEventsData(circleData.eventList || []);
@@ -235,17 +237,12 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
             // return circle page
             return (
                 <View style={styles.container}>
-                    <View style={styles.headerSection}>
-                    
-                        <TouchableOpacity 
-                            onPress={() => setCircleInfoModalVisible(true)}    
-                        >
-                            <RequestorCircleImage 
-                                imageUri={currCircleState.image}
-                                circleID={currCircleState.circleID}
-                                style={styles.circleImageMainPage}
-                            />
-                        </TouchableOpacity>
+                    <View style={styles.headerSection}>        
+                        <RequestorCircleImage 
+                            imageUri={currCircleState.image}
+                            circleID={currCircleState.circleID}
+                            style={styles.circleImageMainPage}
+                        />
                     </View>
                     <View style={styles.eventSection}>
                         <Text style={styles.PRHeaderText}>Events</Text>
@@ -304,11 +301,9 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                     
                     </Modal>
                     {_circleMemberController()}
-
                 </View>
             )
         }
-
     }
 
     return (
@@ -322,6 +317,19 @@ const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
                     <View style={styles.backButton}>
                     <Ionicons 
                         name="return-up-back-outline"
+                        color={COLORS.white}
+                        size={30}
+                    />
+                    </View>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.circleSettingsView}>
+                <TouchableOpacity
+                    onPress={() => setCircleInfoModalVisible(true)}    
+                >
+                    <View style={styles.circleSettingsButton}>
+                    <Ionicons 
+                        name="ellipsis-horizontal-outline"
                         color={COLORS.white}
                         size={30}
                     />
@@ -505,6 +513,23 @@ const styles = StyleSheet.create({
         top: 1,
         left: 1
     },
+    circleSettingsButton: {
+        //position: "absolute",
+        justifyContent: "center",
+        //alignContent: "center",
+        alignItems: "center",
+        //bottom: 1,
+        //right: 1,
+        height: 55,
+        width: 55,
+        //backgroundColor: COLORS.accent,
+        borderRadius: 15,
+    },
+    circleSettingsView: {
+        position: "absolute",
+        top: 1,
+        right: 1
+    },
+    
 })
 
-export default CircleDisplay;

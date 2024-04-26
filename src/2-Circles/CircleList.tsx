@@ -11,9 +11,12 @@ import { CircleTouchable } from './circle-widgets';
 
 
 export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
+
     const userCircles = useAppSelector((state: RootState) => state.account.userProfile.circleList);
-    
-    const [circleModals, setCircleModals] = useState<CircleListItem[]>([])
+    const userInviteCircles = useAppSelector((state: RootState) => state.account.userProfile.circleInviteList);
+    const userRequestCircles = useAppSelector((state: RootState) => state.account.userProfile.circleRequestList);
+
+    const [circleModals, setCircleModals] = useState<CircleListItem[]>([...userCircles || [], ...userInviteCircles || [], ...userRequestCircles || []])
 
     const renderCircleModals = ():JSX.Element[] => 
         (circleModals || []).map((circleProps:CircleListItem, index:number) => 
@@ -27,14 +30,10 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
         );
 
     useEffect(() => {
-        if(userCircles !== undefined) {
-            setCircleModals(userCircles);
-        }
-        else {
+        if(circleModals.length == 0) {
             navigation.navigate(ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME);
-        }
-        
-    }, [userCircles])
+        }        
+    }, [circleModals])
 
     return (
         <View style={styles.modalView}>
