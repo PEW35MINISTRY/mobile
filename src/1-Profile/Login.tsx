@@ -18,6 +18,12 @@ import { LOGIN_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-co
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+export const signupCallback = (navigation:NativeStackNavigationProp<any, string, undefined>) => {
+  navigation.pop(); 
+  navigation.navigate(ROUTE_NAMES.FIRST_SIGN_IN_ROUTE_NAME)
+}
 
 const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -26,7 +32,6 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
 
     const onLogin = (formValues:Record<string, string | string[]>) => {
-
         axios.post(`${DOMAIN}/login`, formValues).then(response => {   
                 console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);
                 console.log(response.data.userProfile);

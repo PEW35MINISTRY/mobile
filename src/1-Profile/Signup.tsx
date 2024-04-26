@@ -3,7 +3,7 @@ import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { render } from 'react-dom';
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import { SIGNUP_PROFILE_FIELDS_STUDENT } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
@@ -15,15 +15,23 @@ import { Raised_Button } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
+import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { signupCallback } from './Login';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
+export interface SignupParamList extends AppStackParamList {
+  callback:(() => void);
+}
+
+type SignupProps = NativeStackScreenProps<SignupParamList, typeof ROUTE_NAMES.SIGNUP_ROUTE_NAME>;
+
+const Signup = ({navigation, route}:SignupProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
 
-    const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
-
+    
     const onSignUp = (formValues:Record<string, string | string[]>) => {
-      
       // send data to server
       axios.post(`${DOMAIN}/signup`, formValues
           ).then(response => {
@@ -33,13 +41,13 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               userID: response.data.userID,
               userProfile: response.data.userProfile,
               }));
-            setProfileImageSettingsModalVisible(true);
+          // call callback via route
+          signupCallback(navigation);
       }).catch(err => console.error("Failed signup", err))
       
     }
 
     return (
-      
       <View style={styles.center}>
         <View style={theme.background_view}>
             <Text style={styles.header}>Create Profile</Text>
@@ -52,18 +60,20 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
                 text='Create Account'
                 onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
               />
-            <Modal 
-              visible={profileImageSettingsModalVisible}
-              onRequestClose={() => {setProfileImageSettingsModalVisible(false); navigation.pop();}}
-              animationType='slide'
-              transparent={true}
-            >
-              <ProfileImageSettings 
-                callback={() => {setProfileImageSettingsModalVisible(false); navigation.pop();}}
-              />
-            </Modal>
-
         </View>
+        <View style={styles.backButtonView}>
+              <TouchableOpacity
+                  onPress={() => navigation.pop()}
+              >
+                  <View style={styles.backButton}>
+                  <Ionicons 
+                      name="return-up-back-outline"
+                      color={COLORS.white}
+                      size={30}
+                  />
+                  </View>
+              </TouchableOpacity>
+            </View>
       </View>
         
     );
@@ -109,8 +119,24 @@ const styles = StyleSheet.create({
     marginLeft: 3,
     paddingVertical: 5,
     paddingHorizontal: 15,
-  }
-
+  },
+  backButton: {
+    //position: "absolute",
+    justifyContent: "center",
+    //alignContent: "center",
+    alignItems: "center",
+    //bottom: 1,
+    //right: 1,
+    height: 55,
+    width: 55,
+    //backgroundColor: COLORS.accent,
+    borderRadius: 15,
+  },
+  backButtonView: {
+    position: "absolute",
+    top: 1,
+    left: 1
+  },
 });
 
 export default Signup;
