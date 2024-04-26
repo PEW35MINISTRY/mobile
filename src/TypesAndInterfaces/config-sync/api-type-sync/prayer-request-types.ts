@@ -49,7 +49,7 @@ export interface PrayerRequestPostRequestBody {
     description: string,
     prayerCount?: number,
     isOnGoing?: boolean,
-    tagList?: PrayerRequestTagEnum[],
+    tagList?: string[],
     expirationDate: string,
     addUserRecipientIDList?: number[],
     addCircleRecipientIDList?: number[]

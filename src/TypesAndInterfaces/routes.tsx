@@ -3,6 +3,7 @@ import { CircleListItem } from "./config-sync/api-type-sync/circle-types"
 import { PrayerRequestListItem } from "./config-sync/api-type-sync/prayer-request-types"
 import { CircleDisplayParamList } from "../2-Circles/CircleDisplay"
 import { PrayerRequestDisplayParamList } from "../3-Prayer-Request/PrayerRequestDisplay"
+import { SignupParamList } from "../1-Profile/Signup"
 
 export enum ROUTE_NAMES {
     LOGIN_ROUTE_NAME = "LOGIN",
@@ -17,7 +18,8 @@ export enum ROUTE_NAMES {
     PROFILE_SETTINGS_NAVIGATOR_ROUTE_NAME = "ProfileSettingsRoutes",
     PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME = "PrayerRequestRoutes",
     PRAYER_REQUEST_DISPLAY_ROUTE_NAME = "PrayerRequestDisplay",
-    PRAYER_REQUEST_LIST_ROUTE_NAME = "PrayerRequestList"
+    PRAYER_REQUEST_LIST_ROUTE_NAME = "PrayerRequestList",
+    FIRST_SIGN_IN_ROUTE_NAME = "FirstSignIn"
 }
 
 export enum BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES {
@@ -32,4 +34,5 @@ export interface AppStackParamList extends ParamListBase {
     [ROUTE_NAMES.CIRCLE_LIST_ROUTE_NAME]:undefined,
     [ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME]:CircleDisplayParamList,
     [ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME]:PrayerRequestDisplayParamList,
+    [ROUTE_NAMES.SIGNUP_ROUTE_NAME]:SignupParamList
 }
