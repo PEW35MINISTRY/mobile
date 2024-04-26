@@ -9,7 +9,7 @@ import EditProfile from "./1-Profile/Edit-Profile";
 import Login from "./1-Profile/Login";
 import Signup from "./1-Profile/Signup";
 import { CircleSearch } from './2-Circles/CircleSearch';
-import CircleDisplay from './2-Circles/CircleDisplay';
+import { CircleDisplay } from './2-Circles/CircleDisplay';
 import { CircleList } from './2-Circles/CircleList';
 import PrayerRequestDisplay from './3-Prayer-Request/PrayerRequestDisplay';
 import PrayerRequestList from './3-Prayer-Request/PrayerRequestList';
@@ -19,6 +19,7 @@ import store, { RootState } from './redux-store';
 import theme from './theme';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import { AppTabNavigator } from './Widgets/navigation/AppTabNavigator';
+import FirstSignIn from './1-Profile/FirstSignIn';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -89,6 +90,7 @@ const App = ():JSX.Element => {
           <Stack.Navigator screenOptions={{headerShown: false}}>
             <Stack.Screen name={ROUTE_NAMES.LOGIN_ROUTE_NAME} component={Login} />
             <Stack.Screen name={ROUTE_NAMES.SIGNUP_ROUTE_NAME} component={Signup} />
+            <Stack.Screen name={ROUTE_NAMES.FIRST_SIGN_IN_ROUTE_NAME} component={FirstSignIn} />
             <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} />
           </Stack.Navigator>
         </NavigationContainer>
