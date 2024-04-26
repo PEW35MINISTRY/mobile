@@ -20,6 +20,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { ProfileEditRequestBody } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
+import PartnerSettings from '../4-Partners/PartnerSettings';
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -32,6 +33,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
     
     const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
+    const [partnerSettingsModalVisible, setPartnerSettingsModalVisible] = useState(false);
 
     const RequestAccountHeader = {
       headers: {
@@ -107,7 +109,11 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
                 onSubmit={onEditProfile}
                 ref={formInputRef}
               />
-           
+            <Outline_Button 
+              text={"Partner Settings"}
+              onPress={()=> setPartnerSettingsModalVisible(true)}
+              buttonStyle={{borderRadius: 5, width: 250}}
+            />
             <Raised_Button buttonStyle={styles.sign_in_button}
                 text='Save Changes'
                 onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
@@ -123,7 +129,30 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
                 callback={() => setProfileImageSettingsModalVisible(false)}
               />
             </Modal>
+            <Modal
+              visible={partnerSettingsModalVisible}
+              onRequestClose={() => setPartnerSettingsModalVisible(false)}
+              animationType='slide'
+              transparent={true}
+            >
+              <PartnerSettings
+                callback={() => setPartnerSettingsModalVisible(false)}
+              />
+            </Modal>
         </View>
+            <View style={styles.backButtonView}>
+              <TouchableOpacity
+                  onPress={() => navigation.pop()}
+              >
+                  <View style={styles.backButton}>
+                  <Ionicons 
+                      name="return-up-back-outline"
+                      color={COLORS.white}
+                      size={30}
+                  />
+                  </View>
+              </TouchableOpacity>
+            </View>
       </View>
         
     );
@@ -203,7 +232,23 @@ floatingEditIcon: {
   width: 35,
   height: 35
 },
-
+backButton: {
+  //position: "absolute",
+  justifyContent: "center",
+  //alignContent: "center",
+  alignItems: "center",
+  //bottom: 1,
+  //right: 1,
+  height: 55,
+  width: 55,
+  //backgroundColor: COLORS.accent,
+  borderRadius: 15,
+},
+backButtonView: {
+  position: "absolute",
+  top: 1,
+  left: 1
+},
 
 });
 
