@@ -284,7 +284,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                                     onPress={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}
                                 />
                             }
-                            <BackButton callback={() => setCircleInfoModalVisible(false)} />
+                            <BackButton callback={() => setCircleInfoModalVisible(false)} navigation={navigation}/>
                         </View>
                     
                     </Modal>
@@ -298,7 +298,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
         <View style={styles.container}>
             
             {_renderController()} 
-            <BackButton callback={() => navigation.pop()} />
+            <BackButton navigation={navigation} />
             <View style={styles.circleSettingsView}>
                 <TouchableOpacity
                     onPress={() => setCircleInfoModalVisible(true)}    

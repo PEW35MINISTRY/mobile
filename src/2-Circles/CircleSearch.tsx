@@ -58,7 +58,7 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
             <ScrollView contentContainerStyle={styles.circleSelectScroller}>
                 {renderCircleModals()}
             </ScrollView>
-            <BackButton callback={() => navigation.pop()} />
+            <BackButton navigation={navigation} />
             
         </View>
     )

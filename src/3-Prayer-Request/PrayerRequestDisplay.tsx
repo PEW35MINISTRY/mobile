@@ -243,7 +243,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                         </TouchableOpacity>
                     }
                     </View>
-                    <BackButton callback={() => navigation.pop()} />
+                    <BackButton navigation={navigation} />
                     
                 </View>    
             )

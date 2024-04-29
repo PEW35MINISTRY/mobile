@@ -12,7 +12,7 @@ import { PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partnersh
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
 import { SelectListItem } from "react-native-dropdown-select-list";
 import { PARTNERSHIP_CONTRACT, PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 // pending partner acceptance, full partner, pending user
 const enum PartnerViewMode {
@@ -20,7 +20,7 @@ const enum PartnerViewMode {
   PENDING_PARTNERS = "PENDING_BOTH",
 }
 
-const Partnerships = ({callback}:CallbackParam):JSX.Element => {
+const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavigationProp<any, string, undefined>}):JSX.Element => {
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -207,7 +207,7 @@ const Partnerships = ({callback}:CallbackParam):JSX.Element => {
                     </View>
                 </View>
             </Modal>
-            <BackButton callback={callback} />
+            <BackButton navigation={props.navigation} callback={props.callback}/>
       </View>
      
   )

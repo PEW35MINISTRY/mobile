@@ -20,7 +20,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { ProfileEditRequestBody } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
-import PartnerSettings from '../4-Partners/Partnerships';
+import Partnerships from '../4-Partners/Partnerships';
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -133,12 +133,12 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               animationType='slide'
               transparent={true}
             >
-              <PartnerSettings
-                callback={() => setPartnersModalVisible(false)}
+              <Partnerships
+                callback={() => setPartnersModalVisible(false)} navigation={navigation}
               />
             </Modal>
         </View>
-            <BackButton callback={() => navigation.pop()} />
+            <BackButton navigation={navigation}/>
       </View>
         
     );
