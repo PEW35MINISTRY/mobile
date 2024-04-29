@@ -8,9 +8,10 @@ import theme, { COLORS, FONTS, FONT_SIZES, RADIUS } from './theme';
 import { useAppDispatch, useAppSelector } from "./TypesAndInterfaces/hooks";
 import { RootState } from './redux-store';
 import { DOMAIN } from '@env';
-import axios, { AxiosError } from 'axios';
-import { PrayerRequestTagEnum } from './TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import { MultipleSelectList, SelectList, SelectListItem } from 'react-native-dropdown-select-list';
+import { Slider } from '@react-native-assets/slider'
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewStyle, textStyle?:TextStyle, onPress:((event: GestureResponderEvent) => void)}):JSX.Element => {
 
@@ -305,6 +306,67 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
    
 }
 
+export const SelectSlider = (props:{minValue:number, maxValue:number, defaultValue: number, maxField?:string, onValueChange:((val:string) => void), label?:string, validationLabel?:string, labelStyle?:TextStyle, validationStyle?:TextStyle}):JSX.Element => {
+
+    const [sliderValue, setSliderValue] = useState<number>(props.defaultValue);
+
+    const onSliderValueChange = (value:number) => {
+        setSliderValue(value);
+        props.onValueChange(value.toString())
+    }
+
+    const styles = StyleSheet.create({
+        dropdownText: {
+            color: COLORS.white,
+            textAlign: "center",
+            
+        },
+        labelStyle: {
+            ...theme.accent,
+            color: COLORS.transparentWhite,
+            textAlign: 'left',
+            marginVertical: 5,
+            ...props.labelStyle,
+        },
+        containerStyle: {
+            marginVertical: 5,
+        },
+        errorTextStyle: {
+            ...theme.accent,
+            color: COLORS.primary,
+            textAlign: "center",
+            marginBottom: 5,
+            ...props.validationStyle
+        },
+        sliderValueText: {
+            ...theme.text,
+            fontSize: FONT_SIZES.L,
+            textAlign: "center"
+        }
+          
+    });
+
+    return (
+        <View style={styles.containerStyle}>
+            {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
+            <Text style={styles.sliderValueText}>{sliderValue}</Text>
+            <Slider 
+                minimumValue={props.minValue}
+                maximumValue={props.maxValue}
+                value={props.defaultValue}
+                onValueChange={onSliderValueChange}
+                step={1}
+                slideOnTap={true}
+                thumbTintColor={COLORS.accent}
+                minimumTrackTintColor={COLORS.accent}
+                maximumTrackTintColor={COLORS.accent}
+                trackStyle={{width: 200}}
+            />
+            {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
+        </View>
+    )
+}
+
 export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
     const userProfileImage = useAppSelector((state: RootState) => state.account.userProfile.image);
     const DEFAULT_PROFILE_ICON = require("../assets/profile-icon-blue.png");
@@ -327,4 +389,37 @@ export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
         </>
 
     );
+}
+
+export const BackButton = (props:{callback?:(() => void), navigation:NativeStackNavigationProp<any, string, undefined>}):JSX.Element => {
+    const styles = StyleSheet.create({
+        backButton: {
+            justifyContent: "center",
+            alignItems: "center",
+            height: 55,
+            width: 55,
+            borderRadius: 15,
+          },
+          backButtonView: {
+            position: "absolute",
+            top: 1,
+            left: 1
+          },
+    })
+
+    return (
+        <View style={styles.backButtonView}>
+            <TouchableOpacity
+                onPress={() => props.callback === undefined ? props.navigation.pop() : props.callback()}
+            >
+                <View style={styles.backButton}>
+                <Ionicons 
+                    name="return-up-back-outline"
+                    color={COLORS.white}
+                    size={30}
+                />
+                </View>
+            </TouchableOpacity>
+        </View>
+    )
 }

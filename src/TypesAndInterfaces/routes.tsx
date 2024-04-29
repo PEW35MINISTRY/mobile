@@ -17,7 +17,8 @@ export enum ROUTE_NAMES {
     PROFILE_SETTINGS_NAVIGATOR_ROUTE_NAME = "ProfileSettingsRoutes",
     PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME = "PrayerRequestRoutes",
     PRAYER_REQUEST_DISPLAY_ROUTE_NAME = "PrayerRequestDisplay",
-    PRAYER_REQUEST_LIST_ROUTE_NAME = "PrayerRequestList"
+    PRAYER_REQUEST_LIST_ROUTE_NAME = "PrayerRequestList",
+    INITIAL_ACCOUNT_FLOW_ROUTE_NAME = "InitialAccountFlow"
 }
 
 export enum BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES {

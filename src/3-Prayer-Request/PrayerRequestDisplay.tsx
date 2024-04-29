@@ -11,7 +11,7 @@ import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-co
 import PrayerRequestEditForm from './PrayerRequestEdit';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
-import { ProfileImage, Outline_Button, Raised_Button } from '../widgets';
+import { ProfileImage, Outline_Button, Raised_Button, BackButton } from '../widgets';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { PrayerRequestComment } from './prayer-request-widgets';
 import { RequestorCircleImage } from '../2-Circles/circle-widgets';
@@ -243,19 +243,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                         </TouchableOpacity>
                     }
                     </View>
-                    <View style={styles.backButtonView}>
-                        <TouchableOpacity
-                            onPress={() => navigation.pop()}
-                        >
-                            <View style={styles.backButton}>
-                            <Ionicons 
-                                name="return-up-back-outline"
-                                color={COLORS.white}
-                                size={30}
-                            />
-                            </View>
-                        </TouchableOpacity>
-                    </View>
+                    <BackButton navigation={navigation} />
                     
                 </View>    
             )
@@ -385,12 +373,8 @@ const styles = StyleSheet.create({
         marginTop: 15
     },
     commentButton: {
-        //position: "absolute",
         justifyContent: "center",
-        //alignContent: "center",
         alignItems: "center",
-        //bottom: 1,
-        //right: 1,
         height: 55,
         width: 55,
         backgroundColor: COLORS.accent,
@@ -400,23 +384,6 @@ const styles = StyleSheet.create({
         ...theme.text,
         textAlign: "center",
         fontSize: FONT_SIZES.XL
-    },
-    backButton: {
-        //position: "absolute",
-        justifyContent: "center",
-        //alignContent: "center",
-        alignItems: "center",
-        //bottom: 1,
-        //right: 1,
-        height: 55,
-        width: 55,
-        //backgroundColor: COLORS.accent,
-        borderRadius: 15,
-    },
-    backButtonView: {
-        position: "absolute",
-        top: 1,
-        left: 1
     },
     buttonActionView: {
         position: "absolute",
