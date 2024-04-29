@@ -395,8 +395,8 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                 <>
                                     {fieldValueIsString(field.type, value) &&                                
                                     <SelectSlider
-                                        minValue={field.minValue}
-                                        maxValue={field.maxValue}
+                                        minValue={parseInt(field.minValue.toString())}
+                                        maxValue={parseInt(field.maxValue.toString())}
                                         maxField={field.maxField}
                                         label={field.title}
                                         onValueChange={(val:string) => onChange(val)}
