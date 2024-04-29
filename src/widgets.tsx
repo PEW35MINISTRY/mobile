@@ -11,6 +11,7 @@ import { DOMAIN } from '@env';
 import { MultipleSelectList, SelectList, SelectListItem } from 'react-native-dropdown-select-list';
 import { Slider } from '@react-native-assets/slider'
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewStyle, textStyle?:TextStyle, onPress:((event: GestureResponderEvent) => void)}):JSX.Element => {
 
@@ -390,7 +391,7 @@ export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
     );
 }
 
-export const BackButton = (props:{callback:(() => void)}):JSX.Element => {
+export const BackButton = (props:{callback?:(() => void), navigation:NativeStackNavigationProp<any, string, undefined>}):JSX.Element => {
     const styles = StyleSheet.create({
         backButton: {
             justifyContent: "center",
@@ -409,7 +410,7 @@ export const BackButton = (props:{callback:(() => void)}):JSX.Element => {
     return (
         <View style={styles.backButtonView}>
             <TouchableOpacity
-                onPress={() => props.callback()}
+                onPress={() => props.callback === undefined ? props.navigation.pop() : props.callback()}
             >
                 <View style={styles.backButton}>
                 <Ionicons 
