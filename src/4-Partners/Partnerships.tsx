@@ -7,30 +7,20 @@ import { CallbackParam, PROFILE_IMAGE_MIME_TYPES, StackNavigationProps } from ".
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState, updateProfileImage } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
-import { Dropdown_Select, Outline_Button, Raised_Button } from "../widgets";
-import { ProfileImage } from "../widgets";
-import { PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partner-widgets";
+import { BackButton, Dropdown_Select, Outline_Button, Raised_Button } from "../widgets";
+import { PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partnership-widgets";
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
 import { SelectListItem } from "react-native-dropdown-select-list";
-import { ParamListBase } from '@react-navigation/native';
 import { PARTNERSHIP_CONTRACT, PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
-import { LabelListItem } from '../TypesAndInterfaces/config-sync/input-config-sync/search-config';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { RecipientFormViewMode } from '../Widgets/RecipientIDList/recipient-types';
 
 // pending partner acceptance, full partner, pending user
-const enum PartnerSettingsViewMode {
+const enum PartnerViewMode {
   PARTNER_LIST = "PARTNER_LIST",
   PENDING_PARTNERS = "PENDING_BOTH",
 }
 
-const enum PartnerStatusViewMode {
-    PENDING_ACCEPTANCE = "Pending Acceptance",
-    PENDING_PARTNERS = "Pending Partners"
-}
-
-const PartnerSettings = ({callback}:CallbackParam):JSX.Element => {
-    const dispatch = useAppDispatch();
+const Partnerships = ({callback}:CallbackParam):JSX.Element => {
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -47,21 +37,13 @@ const PartnerSettings = ({callback}:CallbackParam):JSX.Element => {
         displayName: ""
     } as PartnerListItem);
 
-    const [partnerSettingsViewMode, setPartnerSettingsViewMode] = useState<PartnerSettingsViewMode>(PartnerSettingsViewMode.PARTNER_LIST);
-    const [partnerStatusViewMode, setPartnerStatusViewMode] = useState<PartnerStatusViewMode>(PartnerStatusViewMode.PENDING_ACCEPTANCE);
+    const [partnerSettingsViewMode, setPartnerSettingsViewMode] = useState<PartnerViewMode>(PartnerViewMode.PARTNER_LIST);
     const [newPartnerModalVisible, setNewPartnerModalVisible] = useState(false);
 
     const RequestAccountHeader = {
         headers: {
           "jwt": jwt,
         }
-    }
-
-    const generateDropdownSelectData = () => {
-        const dropdownSelectData:SelectListItem[] = [];
-        if (pendingPrayerPartnerUsers !== undefined && pendingPrayerPartnerUsers.length > 0) dropdownSelectData.push({key: PartnerStatusViewMode.PENDING_PARTNERS, value: PartnerStatusViewMode.PENDING_PARTNERS});
-        if (pendingPrayerPartners !== undefined && pendingPrayerPartners.length > 0) dropdownSelectData.push({key: PartnerStatusViewMode.PENDING_ACCEPTANCE, value: PartnerStatusViewMode.PENDING_ACCEPTANCE});
-        return dropdownSelectData;
     }
 
     const renderPartners = ():JSX.Element[] => 
@@ -130,7 +112,6 @@ const PartnerSettings = ({callback}:CallbackParam):JSX.Element => {
     }
 
     const renderPendingPage = ():JSX.Element => {
-        const dropdownSelectData:SelectListItem[] = generateDropdownSelectData();
         return (
             <View style={{flex: 1}}>
                 {
@@ -159,8 +140,11 @@ const PartnerSettings = ({callback}:CallbackParam):JSX.Element => {
     }
 
     useEffect(() => {
-        // TODO - pull calls to GET partners to run once on component load
         GET_PrayerPartners();
+        
+    }, [])
+
+    useEffect(() => {
         GET_PendingPartners();
     }, [])
 
@@ -170,28 +154,28 @@ const PartnerSettings = ({callback}:CallbackParam):JSX.Element => {
                 <View style={styles.viewModeView}>
                         <TouchableOpacity
                             onPress={() => {
-                                if (partnerSettingsViewMode !== PartnerSettingsViewMode.PARTNER_LIST) {
-                                    setPartnerSettingsViewMode(PartnerSettingsViewMode.PARTNER_LIST);
+                                if (partnerSettingsViewMode !== PartnerViewMode.PARTNER_LIST) {
+                                    setPartnerSettingsViewMode(PartnerViewMode.PARTNER_LIST);
                                 }
                             }}
                         >
-                            <Text style={(partnerSettingsViewMode == PartnerSettingsViewMode.PARTNER_LIST && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Partners</Text>
+                            <Text style={(partnerSettingsViewMode == PartnerViewMode.PARTNER_LIST && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Partners</Text>
                         </TouchableOpacity>
                         <Text style={styles.viewModeTextSelected}>|</Text>
                         <TouchableOpacity
                             onPress={() => {
-                                if (partnerSettingsViewMode !== PartnerSettingsViewMode.PENDING_PARTNERS) {
-                                    setPartnerSettingsViewMode(PartnerSettingsViewMode.PENDING_PARTNERS);
+                                if (partnerSettingsViewMode !== PartnerViewMode.PENDING_PARTNERS) {
+                                    setPartnerSettingsViewMode(PartnerViewMode.PENDING_PARTNERS);
                                 }
                             }}
                         >
-                            <Text style={(partnerSettingsViewMode == PartnerSettingsViewMode.PENDING_PARTNERS && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Pending</Text>
+                            <Text style={(partnerSettingsViewMode == PartnerViewMode.PENDING_PARTNERS && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Pending</Text>
                         </TouchableOpacity>
 
                     
                 </View>
             </View>
-            { partnerSettingsViewMode == PartnerSettingsViewMode.PARTNER_LIST ? renderPartners() : renderPendingPage()}
+            { partnerSettingsViewMode == PartnerViewMode.PARTNER_LIST ? renderPartners() : renderPendingPage()}
             {
                 (maxPartners > (prayerPartnersList.length + pendingPrayerPartnerUsers.length + pendingPrayerPartners.length)) &&
                 <View style={styles.bottomView}>             
@@ -223,19 +207,7 @@ const PartnerSettings = ({callback}:CallbackParam):JSX.Element => {
                     </View>
                 </View>
             </Modal>
-            <View style={styles.backButtonView}>
-                <TouchableOpacity
-                    onPress={() => callback()}
-                >
-                    <View style={styles.backButton}>
-                    <Ionicons 
-                        name="return-up-back-outline"
-                        color={COLORS.white}
-                        size={30}
-                    />
-                    </View>
-                </TouchableOpacity>
-            </View>
+            <BackButton callback={callback} />
       </View>
      
   )
@@ -306,23 +278,6 @@ const styles = StyleSheet.create({
     maxWidth: '95%',
     fontSize: FONT_SIZES.M+4
   },
-  backButton: {
-    //position: "absolute",
-    justifyContent: "center",
-    //alignContent: "center",
-    alignItems: "center",
-    //bottom: 1,
-    //right: 1,
-    height: 55,
-    width: 55,
-    //backgroundColor: COLORS.accent,
-    borderRadius: 15,
-},
-backButtonView: {
-    position: "absolute",
-    top: 1,
-    left: 1
-},
 })
 
-export default PartnerSettings;
+export default Partnerships;

@@ -12,7 +12,6 @@ import { Outline_Button } from "../widgets";
 
 export const PrayerPartnerListItem = (props:{partner:PartnerListItem, leavePartnership:((partner:PartnerListItem) => void)}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
-    const dispatch = useAppDispatch();
 
     const RequestAccountHeader = {
         headers: {
@@ -81,7 +80,6 @@ export const PrayerPartnerListItem = (props:{partner:PartnerListItem, leavePartn
 
 export const PendingPrayerPartnerListItem = (props:{partner:PartnerListItem, declinePartnershipRequest:((partner:PartnerListItem) => void), pendingContract:boolean, acceptPartnershipRequest:((partner:PartnerListItem) => void), setNewPartner: React.Dispatch<React.SetStateAction<PartnerListItem>>, setNewPartnerModalVisible: React.Dispatch<React.SetStateAction<boolean>>}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
-    const dispatch = useAppDispatch();
 
     const RequestAccountHeader = {
         headers: {
