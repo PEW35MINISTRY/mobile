@@ -15,7 +15,7 @@ import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { EventTouchable, RequestorCircleImage } from './circle-widgets';
 import { AnnouncementTouchable, PrayerRequestTouchable } from '../3-Prayer-Request/prayer-request-widgets';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
-import { Raised_Button } from '../widgets';
+import { BackButton, Raised_Button } from '../widgets';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export interface CircleDisplayParamList extends AppStackParamList {
@@ -284,19 +284,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                                     onPress={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}
                                 />
                             }
-                                        <View style={styles.backButtonView}>
-                            <TouchableOpacity
-                                onPress={() => setCircleInfoModalVisible(false)}
-                            >
-                                    <View style={styles.backButton}>
-                                    <Ionicons 
-                                        name="return-up-back-outline"
-                                        color={COLORS.white}
-                                        size={30}
-                                    />
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
+                            <BackButton callback={() => setCircleInfoModalVisible(false)} />
                         </View>
                     
                     </Modal>
@@ -309,20 +297,8 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
     return (
         <View style={styles.container}>
             
-            {_renderController()}
-            <View style={styles.backButtonView}>
-                <TouchableOpacity
-                    onPress={() => navigation.pop()}
-                >
-                    <View style={styles.backButton}>
-                    <Ionicons 
-                        name="return-up-back-outline"
-                        color={COLORS.white}
-                        size={30}
-                    />
-                    </View>
-                </TouchableOpacity>
-            </View>
+            {_renderController()} 
+            <BackButton callback={() => navigation.pop()} />
             <View style={styles.circleSettingsView}>
                 <TouchableOpacity
                     onPress={() => setCircleInfoModalVisible(true)}    
@@ -495,23 +471,6 @@ const styles = StyleSheet.create({
         bottom: 20,
         flexDirection: "row",
         justifyContent: "space-between",
-    },
-    backButton: {
-        //position: "absolute",
-        justifyContent: "center",
-        //alignContent: "center",
-        alignItems: "center",
-        //bottom: 1,
-        //right: 1,
-        height: 55,
-        width: 55,
-        //backgroundColor: COLORS.accent,
-        borderRadius: 15,
-    },
-    backButtonView: {
-        position: "absolute",
-        top: 1,
-        left: 1
     },
     circleSettingsButton: {
         //position: "absolute",

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { StackNavigationProps } from "../TypesAndInterfaces/custom-types";
-import { Input_Field, Raised_Button } from "../widgets";
+import { BackButton, Input_Field, Raised_Button } from "../widgets";
 import theme, { COLORS } from "../theme";
 import React, { useState } from "react";
 import { CircleListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/circle-types";
@@ -58,19 +58,7 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
             <ScrollView contentContainerStyle={styles.circleSelectScroller}>
                 {renderCircleModals()}
             </ScrollView>
-            <View style={styles.backButtonView}>
-                <TouchableOpacity
-                    onPress={() => navigation.pop()}
-                >
-                    <View style={styles.backButton}>
-                    <Ionicons 
-                        name="return-up-back-outline"
-                        color={COLORS.white}
-                        size={30}
-                    />
-                    </View>
-                </TouchableOpacity>
-            </View>
+            <BackButton callback={() => navigation.pop()} />
             
         </View>
     )
@@ -99,22 +87,5 @@ const styles = StyleSheet.create({
     },
     circleSelectScroller: {
         height: 650
-    },
-    backButton: {
-        //position: "absolute",
-        justifyContent: "center",
-        //alignContent: "center",
-        alignItems: "center",
-        //bottom: 1,
-        //right: 1,
-        height: 55,
-        width: 55,
-        //backgroundColor: COLORS.accent,
-        borderRadius: 15,
-    },
-    backButtonView: {
-        position: "absolute",
-        top: 1,
-        left: 1
     },
 })
