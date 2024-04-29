@@ -10,6 +10,7 @@ import { RootState } from './redux-store';
 import { DOMAIN } from '@env';
 import { MultipleSelectList, SelectList, SelectListItem } from 'react-native-dropdown-select-list';
 import { Slider } from '@react-native-assets/slider'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewStyle, textStyle?:TextStyle, onPress:((event: GestureResponderEvent) => void)}):JSX.Element => {
 
@@ -304,11 +305,11 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
    
 }
 
-export const SelectSlider = (props:{minValue:number | Date, maxValue:number | Date, defaultValue: number | Date, maxField?:string, onValueChange:((val:string) => void), label?:string, validationLabel?:string, labelStyle?:TextStyle, validationStyle?:TextStyle}):JSX.Element => {
+export const SelectSlider = (props:{minValue:number, maxValue:number, defaultValue: number, maxField?:string, onValueChange:((val:string) => void), label?:string, validationLabel?:string, labelStyle?:TextStyle, validationStyle?:TextStyle}):JSX.Element => {
 
-    const [sliderValue, setSliderValue] = useState<number | Date>(props.defaultValue);
+    const [sliderValue, setSliderValue] = useState<number>(props.defaultValue);
 
-    const onSliderValueChange = (value:number | Date) => {
+    const onSliderValueChange = (value:number) => {
         setSliderValue(value);
         props.onValueChange(value.toString())
     }
@@ -349,9 +350,9 @@ export const SelectSlider = (props:{minValue:number | Date, maxValue:number | Da
             {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
             <Text style={styles.sliderValueText}>{sliderValue}</Text>
             <Slider 
-                minimumValue={parseInt(props.minValue.toString())}
-                maximumValue={parseInt(props.maxValue.toString())}
-                value={parseInt(props.defaultValue.toString())}
+                minimumValue={props.minValue}
+                maximumValue={props.maxValue}
+                value={props.defaultValue}
                 onValueChange={onSliderValueChange}
                 step={1}
                 slideOnTap={true}
@@ -387,4 +388,37 @@ export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
         </>
 
     );
+}
+
+export const BackButton = (props:{callback:(() => void)}):JSX.Element => {
+    const styles = StyleSheet.create({
+        backButton: {
+            justifyContent: "center",
+            alignItems: "center",
+            height: 55,
+            width: 55,
+            borderRadius: 15,
+          },
+          backButtonView: {
+            position: "absolute",
+            top: 1,
+            left: 1
+          },
+    })
+
+    return (
+        <View style={styles.backButtonView}>
+            <TouchableOpacity
+                onPress={() => props.callback()}
+            >
+                <View style={styles.backButton}>
+                <Ionicons 
+                    name="return-up-back-outline"
+                    color={COLORS.white}
+                    size={30}
+                />
+                </View>
+            </TouchableOpacity>
+        </View>
+    )
 }
