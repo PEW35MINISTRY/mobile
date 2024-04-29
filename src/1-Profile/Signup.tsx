@@ -11,7 +11,7 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, resetAccount, setAccount } from '../redux-store';
 import theme, { COLORS } from '../theme';
-import { Raised_Button } from '../widgets';
+import { Raised_Button, BackButton } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
@@ -20,16 +20,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { signupCallback } from './Login';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export interface SignupParamList extends AppStackParamList {
-  callback:(() => void);
-}
-
-type SignupProps = NativeStackScreenProps<SignupParamList, typeof ROUTE_NAMES.SIGNUP_ROUTE_NAME>;
-
-const Signup = ({navigation, route}:SignupProps):JSX.Element => {
+const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
-
     
     const onSignUp = (formValues:Record<string, string | string[]>) => {
       // send data to server
@@ -61,19 +54,6 @@ const Signup = ({navigation, route}:SignupProps):JSX.Element => {
                 onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
               />
         </View>
-        <View style={styles.backButtonView}>
-              <TouchableOpacity
-                  onPress={() => navigation.pop()}
-              >
-                  <View style={styles.backButton}>
-                  <Ionicons 
-                      name="return-up-back-outline"
-                      color={COLORS.white}
-                      size={30}
-                  />
-                  </View>
-              </TouchableOpacity>
-            </View>
       </View>
         
     );
@@ -119,23 +99,6 @@ const styles = StyleSheet.create({
     marginLeft: 3,
     paddingVertical: 5,
     paddingHorizontal: 15,
-  },
-  backButton: {
-    //position: "absolute",
-    justifyContent: "center",
-    //alignContent: "center",
-    alignItems: "center",
-    //bottom: 1,
-    //right: 1,
-    height: 55,
-    width: 55,
-    //backgroundColor: COLORS.accent,
-    borderRadius: 15,
-  },
-  backButtonView: {
-    position: "absolute",
-    top: 1,
-    left: 1
   },
 });
 
