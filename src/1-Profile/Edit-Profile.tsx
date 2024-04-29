@@ -14,13 +14,13 @@ import store from '../redux-store';
 
 import { Controller, useForm } from "react-hook-form";
 import { RootState, updateProfile } from '../redux-store';
-import { Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
+import { BackButton, Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ProfileEditRequestBody } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
-import PartnerSettings from '../4-Partners/PartnerSettings';
+import PartnerSettings from '../4-Partners/Partnerships';
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -33,7 +33,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
     
     const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
-    const [partnerSettingsModalVisible, setPartnerSettingsModalVisible] = useState(false);
+    const [partnersModalVisible, setPartnersModalVisible] = useState(false);
 
     const RequestAccountHeader = {
       headers: {
@@ -56,7 +56,6 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       if (fieldsChanged) {
         axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader,
         ).then(response => {
-            console.log("Profile edit success.");
             var updatedUserProfile = {...userProfile}
             var profileChange = false;
             for (const [key, value] of Object.entries(editedFields)) {
@@ -68,7 +67,6 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               }   
             }
             if (profileChange) {
-              console.log("update redux");
               dispatch(updateProfile(
                 updatedUserProfile
               ));
@@ -110,8 +108,8 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
                 ref={formInputRef}
               />
             <Outline_Button 
-              text={"Partner Settings"}
-              onPress={()=> setPartnerSettingsModalVisible(true)}
+              text={"Partnerships"}
+              onPress={()=> setPartnersModalVisible(true)}
               buttonStyle={{borderRadius: 5, width: 250}}
             />
             <Raised_Button buttonStyle={styles.sign_in_button}
@@ -130,29 +128,17 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               />
             </Modal>
             <Modal
-              visible={partnerSettingsModalVisible}
-              onRequestClose={() => setPartnerSettingsModalVisible(false)}
+              visible={partnersModalVisible}
+              onRequestClose={() => setPartnersModalVisible(false)}
               animationType='slide'
               transparent={true}
             >
               <PartnerSettings
-                callback={() => setPartnerSettingsModalVisible(false)}
+                callback={() => setPartnersModalVisible(false)}
               />
             </Modal>
         </View>
-            <View style={styles.backButtonView}>
-              <TouchableOpacity
-                  onPress={() => navigation.pop()}
-              >
-                  <View style={styles.backButton}>
-                  <Ionicons 
-                      name="return-up-back-outline"
-                      color={COLORS.white}
-                      size={30}
-                  />
-                  </View>
-              </TouchableOpacity>
-            </View>
+            <BackButton callback={() => navigation.pop()} />
       </View>
         
     );
@@ -231,24 +217,7 @@ floatingEditIcon: {
   borderRadius: 10,
   width: 35,
   height: 35
-},
-backButton: {
-  //position: "absolute",
-  justifyContent: "center",
-  //alignContent: "center",
-  alignItems: "center",
-  //bottom: 1,
-  //right: 1,
-  height: 55,
-  width: 55,
-  //backgroundColor: COLORS.accent,
-  borderRadius: 15,
-},
-backButtonView: {
-  position: "absolute",
-  top: 1,
-  left: 1
-},
+}
 
 });
 

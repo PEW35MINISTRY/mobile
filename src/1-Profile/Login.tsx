@@ -22,7 +22,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 export const signupCallback = (navigation:NativeStackNavigationProp<any, string, undefined>) => {
   navigation.pop(); 
-  navigation.navigate(ROUTE_NAMES.FIRST_SIGN_IN_ROUTE_NAME)
+  navigation.navigate(ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME)
 }
 
 const Login = ({navigation}:StackNavigationProps):JSX.Element => {
@@ -33,8 +33,9 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const onLogin = (formValues:Record<string, string | string[]>) => {
         axios.post(`${DOMAIN}/login`, formValues).then(response => {   
-                console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);
-                console.log(response.data.userProfile);
+                // Save for debugging
+                //console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);
+                //console.log(response.data.userProfile);
                 dispatch(setAccount({
                     jwt: response.data.jwt,
                     userID: response.data.userID,
