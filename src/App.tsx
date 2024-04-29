@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import React from "react";
-import { Alert, FlatList, Image, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 import EditProfile from "./1-Profile/Edit-Profile";
@@ -14,12 +14,11 @@ import { CircleList } from './2-Circles/CircleList';
 import PrayerRequestDisplay from './3-Prayer-Request/PrayerRequestDisplay';
 import PrayerRequestList from './3-Prayer-Request/PrayerRequestList';
 
-import { useAppDispatch, useAppSelector } from './TypesAndInterfaces/hooks';
 import store, { RootState } from './redux-store';
 import theme from './theme';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import { AppTabNavigator } from './Widgets/navigation/AppTabNavigator';
-import FirstSignIn from './1-Profile/InitianAccountFlow';
+import InitialAccountFlow from './1-Profile/InitialAccountFlow';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -90,7 +89,7 @@ const App = ():JSX.Element => {
           <Stack.Navigator screenOptions={{headerShown: false}}>
             <Stack.Screen name={ROUTE_NAMES.LOGIN_ROUTE_NAME} component={Login} />
             <Stack.Screen name={ROUTE_NAMES.SIGNUP_ROUTE_NAME} component={Signup} />
-            <Stack.Screen name={ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME} component={FirstSignIn} />
+            <Stack.Screen name={ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME} component={InitialAccountFlow} />
             <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} />
           </Stack.Navigator>
         </NavigationContainer>
