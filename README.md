@@ -1,14 +1,14 @@
 # Encouraging Prayer
 Learn more at: [encouragingprayer.org](https://encouragingprayer.org/)
 
-The **Encouraging Prayer Mobile Application** primary platform for students to interact with the Encouraging Prayer system.
+The **Encouraging Prayer Mobile Application** primary platform for USERs to interact with the Encouraging Prayer system.
 
 [See Mobile Figma Demo](https://www.figma.com/proto/8EUrLeOWsSvU8XZc9bbJMh/Mobile-Design?node-id=1%3A2&scaling=scale-down&page-id=0%3A1&starting-point-node-id=1%3A2)
 
 ![alt text](https://encouragingprayer.org/static/media/1-page-left-partner.9c27f7350fdc8e51e090.png)
 
 ## Encouraging Prayer System: 
-Will be a software social platform to connect students, enable communication, and promote biblical content.  The primary focus will be establishing prayer partners and promoting daily prayer among users, and sending content based on the user's unique identifiers.  Secondarily will be hosting Circles organized by local leaders via providing group organization within the scope of the app, and also the ability to curate, manage, and send content based on user registration data. The platform will consist of a Mobile App directed at students, Web portal for circle leaders, and Server and Data management.
+Will be a software social platform to connect USERs, enable communication, and promote biblical content.  The primary focus will be establishing prayer partners and promoting daily prayer among users, and sending content based on the user's unique identifiers.  Secondarily will be hosting Circles organized by local leaders via providing group organization within the scope of the app, and also the ability to curate, manage, and send content based on user registration data. The platform will consist of a Mobile App directed at USERs, Web portal for circle leaders, and Server and Data management.
 
 ![alt text](http://encouragingprayer.org/encouraging-prayer.png)
 

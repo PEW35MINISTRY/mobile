@@ -6,7 +6,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
-import { SIGNUP_PROFILE_FIELDS_STUDENT } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
+import { SIGNUP_PROFILE_FIELDS_USER } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, resetAccount, setAccount } from '../redux-store';
@@ -45,7 +45,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
         <View style={theme.background_view}>
             <Text style={styles.header}>Create Profile</Text>
               <FormInput 
-                fields={SIGNUP_PROFILE_FIELDS_STUDENT}
+                fields={SIGNUP_PROFILE_FIELDS_USER}
                 onSubmit={onSignUp}
                 ref={formInputRef}
               />
