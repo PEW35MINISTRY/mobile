@@ -1,5 +1,5 @@
 import { DOMAIN } from '@env';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, StyleSheet, Text, View } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
@@ -19,6 +19,9 @@ import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import Toast from 'react-native-root-toast';
+import NativeToast from '../utilities/NativeToast';
 
 export const signupCallback = (navigation:NativeStackNavigationProp<any, string, undefined>) => {
   navigation.pop(); 
@@ -42,7 +45,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
                     userProfile: response.data.userProfile,
                 }));
                 navigation.navigate(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
-            }).catch(error => console.error('Failed Authentication', error));
+            }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error)); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
     }
 
     const onGoogle = (event:GestureResponderEvent) => console.log(`Logging in via Google`);

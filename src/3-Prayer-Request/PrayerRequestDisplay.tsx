@@ -11,13 +11,15 @@ import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-co
 import PrayerRequestEditForm from './PrayerRequestEdit';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
-import { ProfileImage, Outline_Button, Raised_Button, BackButton } from '../widgets';
+import { BackButton } from '../widgets';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { PrayerRequestComment } from './prayer-request-widgets';
 import { RequestorCircleImage } from '../2-Circles/circle-widgets';
 import { PrayerRequestCommentCreate } from './PrayerRequestCommentCreate';
 import { ProfileListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import NativeToast from '../utilities/NativeToast';
 
 export interface PrayerRequestDisplayParamList extends AppStackParamList {
     PrayerRequestProps: PrayerRequestListItem,
@@ -26,7 +28,6 @@ export interface PrayerRequestDisplayParamList extends AppStackParamList {
 type PrayerRequestDisplayProps = NativeStackScreenProps<PrayerRequestDisplayParamList, typeof ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME>;
 
 const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX.Element => {
-    const dispatch = useAppDispatch();
     const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
     
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
@@ -90,7 +91,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
             await axios.post(`${DOMAIN}/api/prayer-request/` + currPrayerRequestState?.prayerRequestID + '/like', {}, RequestAccountHeader).then((response) => {
                 setPrayerCount(prayerCount+1);
                 setHasPrayed(true);
-            }).catch((error:AxiosError) => console.log(error));
+            }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
         }
     }
 
@@ -121,7 +122,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         await axios.get(`${DOMAIN}/api/prayer-request/` + prayerRequestProps.prayerRequestID, RequestAccountHeader).then(response => {
             const prayerRequestResponseData:PrayerRequestResponseBody = response.data;
             setPrayerRequestState(prayerRequestResponseData, prayerRequestProps)
-        }).catch((error:AxiosError) => console.log(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
     }
 
     useEffect(() => {
@@ -260,7 +261,6 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
 const styles = StyleSheet.create({
     container: {
         backgroundColor: COLORS.black,
-        //alignItems: "center",
         flex: 1
     },
     bodyContainer: {
@@ -283,7 +283,6 @@ const styles = StyleSheet.create({
     profileHeader: {
         flexDirection: "row",
         justifyContent: "flex-start",
-        //position: "absolute",
         top: 20,
     },
     prayerRequestMetricsView: {

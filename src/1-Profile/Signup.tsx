@@ -1,5 +1,5 @@
 import { DOMAIN } from '@env';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { render } from 'react-dom';
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -19,16 +19,17 @@ import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { signupCallback } from './Login';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import NativeToast from '../utilities/NativeToast';
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
+
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
     
     const onSignUp = (formValues:Record<string, string | string[]>) => {
       // send data to server
-      axios.post(`${DOMAIN}/signup`, formValues
-          ).then(response => {
-            console.log("Sigup successful.", response.data.jwt);
+      axios.post(`${DOMAIN}/signup`, formValues).then(response => {
             dispatch(setAccount({
               jwt: response.data.jwt,
               userID: response.data.userID,
@@ -36,7 +37,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               }));
           // call callback via route
           signupCallback(navigation);
-      }).catch(err => console.error("Failed signup", err))
+      }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
       
     }
 

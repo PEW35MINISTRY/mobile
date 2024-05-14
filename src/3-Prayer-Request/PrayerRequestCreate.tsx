@@ -12,6 +12,8 @@ import { FormInput } from '../Widgets/FormInput/FormInput';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { Outline_Button, Raised_Button } from '../widgets';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import NativeToast from '../utilities/NativeToast';
 
 const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestListItem) => void)}):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -48,11 +50,11 @@ const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestLi
                 },
                 topic: prayerRequest.topic,
                 prayerCount: 0,
-                tagList: prayerRequest.tagList
+                tagList: newPrayerRequest.tagList
             }
             dispatch(addPrayerRequest(newPrayerRequestListItem));
             props.callback(newPrayerRequestListItem);
-        })
+        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
         
     }
 

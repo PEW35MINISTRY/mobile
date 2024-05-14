@@ -17,6 +17,8 @@ import { AnnouncementTouchable, PrayerRequestTouchable } from '../3-Prayer-Reque
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
 import { BackButton, Raised_Button } from '../widgets';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import NativeToast from '../utilities/NativeToast';
 
 export interface CircleDisplayParamList extends AppStackParamList {
     CircleProps: CircleListItem
@@ -80,7 +82,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             dispatch(removeInviteCircle(newListItem.circleID));
             dispatch(addMemberCircle(newListItem));
             renderCircle(newListItem);
-        }).catch(err => console.log(err));
+        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
     }
 
     const requestCircleJoin = async () => {
@@ -89,7 +91,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             setAppCircleListItem(newListItem);  //update local state
             dispatch(addRequestedCircle(newListItem));
             setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.REQUEST}) : undefined);
-        }).catch(err => console.log(err))
+        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
     }
 
     const leaveCircle = async () => {
@@ -111,7 +113,6 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
         setDataFetchComplete(false);
         
         await axios.get(`${DOMAIN}/api/circle/` + circleProps.circleID, RequestAccountHeader).then(response => {
-
             const circleData:CircleResponse = response.data;
             const circleItem:CircleListItem = {
                 circleID: circleData.circleID,
@@ -137,7 +138,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             }
 
             setDataFetchComplete(true);
-        }).catch((reason:AxiosError) =>  console.log(reason))
+        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
     }
 
     useEffect(() => {
@@ -473,15 +474,10 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
     },
     circleSettingsButton: {
-        //position: "absolute",
         justifyContent: "center",
-        //alignContent: "center",
         alignItems: "center",
-        //bottom: 1,
-        //right: 1,
         height: 55,
         width: 55,
-        //backgroundColor: COLORS.accent,
         borderRadius: 15,
     },
     circleSettingsView: {

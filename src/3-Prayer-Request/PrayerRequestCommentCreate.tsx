@@ -12,6 +12,8 @@ import { DOMAIN } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { RootState } from '../redux-store';
 import { useAppSelector } from '../TypesAndInterfaces/hooks';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import NativeToast from '../utilities/NativeToast';
 
 export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerRequestListItem, callback:((prayerRequestComment:PrayerRequestCommentListItem) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -31,7 +33,6 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
         }
 
         axios.post(`${DOMAIN}/api/prayer-request/`+ props.prayerRequestItem.prayerRequestID + `/comment`, postComment, RequestAccountHeader).then((response:AxiosResponse) => {
-            //console.log(response.data);
             const prayerRequestResponse:PrayerRequestCommentListItem = response.data;
             
             const prayerRequestCommentItem:PrayerRequestCommentListItem = {
@@ -48,7 +49,7 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
             }
             props.callback(prayerRequestCommentItem);
 
-        }).catch((error:AxiosError) => console.error(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
     }
 
     return (

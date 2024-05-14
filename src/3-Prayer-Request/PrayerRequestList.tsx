@@ -10,6 +10,8 @@ import PrayerRequestCreate from './PrayerRequestCreate';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { PrayerRequestTouchable } from './prayer-request-widgets';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import NativeToast from '../utilities/NativeToast';
 
 enum PrayerRequestListViewMode {
     RECIPIENT = "RECIPIENT",
@@ -54,7 +56,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                 setReceivingPrayerRequests(prayerRequestList);
             } 
 
-        }).catch((error:AxiosError) => console.log(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
     }
 
     const GET_ResolvedPrayerRequests = async () => {
@@ -64,7 +66,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                 setReceivingPrayerRequests(prayerRequestList);
                 setViewMode(PrayerRequestListViewMode.ANSWERED)
             }
-        })
+        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
     }
 
     useEffect(() => {
@@ -163,7 +165,6 @@ const styles = StyleSheet.create({
     },
     prayerRequestCreateButton: {
         position: "absolute",
-        //flex: 1,
         bottom: 20,
         right: 20,
         height: 55,
