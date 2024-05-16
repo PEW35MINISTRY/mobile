@@ -14,7 +14,7 @@ import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { Outline_Button, Raised_Button } from '../widgets';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
-import NativeToast from '../utilities/NativeToast';
+import ToastQueueManager from '../utilities/ToastQueueManager';
 
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -39,12 +39,8 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
         dispatch(removePrayerRequest(props.prayerRequestListData.prayerRequestID));
 
         axios.delete(`${DOMAIN}/api/prayer-request-edit/` + props.prayerRequestListData.prayerRequestID, RequestAccountHeader).then((response) => {
-            /* 
-                Response codes for Toast
-                500 = Failed to Delete prayer request ?
-            */
             props.callback(undefined, undefined, true);
-        }).catch((error:AxiosError) => console.log(error))
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const onPrayerRequestEdit = (formValues:Record<string, string | string[]>) => {
@@ -86,7 +82,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                 dispatch(updatePrayerRequest(newPrayerRequestListItem));
 
                 props.callback(newPrayerRequest, newPrayerRequestListItem);
-            }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
         }
         else {
             props.callback();

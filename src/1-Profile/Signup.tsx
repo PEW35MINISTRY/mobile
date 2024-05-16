@@ -20,7 +20,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { signupCallback } from './Login';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
-import NativeToast from '../utilities/NativeToast';
+import ToastQueueManager from '../utilities/ToastQueueManager';
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -37,7 +37,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               }));
           // call callback via route
           signupCallback(navigation);
-      }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+      }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
       
     }
 

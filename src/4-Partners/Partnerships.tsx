@@ -15,7 +15,7 @@ import { PARTNERSHIP_CONTRACT, PartnerStatusEnum } from "../TypesAndInterfaces/c
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ServerContainerRef } from "@react-navigation/native";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
-import NativeToast from "../utilities/NativeToast";
+import ToastQueueManager from "../utilities/ToastQueueManager";
 
 // pending partner acceptance, full partner, pending user
 const enum PartnerViewMode {
@@ -73,19 +73,19 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
             if (newPartner.status == PartnerStatusEnum.PENDING_CONTRACT_PARTNER) setPendingPrayerPartners([...pendingPrayerPartners, partner]);
             else if (newPartner.status == PartnerStatusEnum.PARTNER) setPrayerPartnersList([...prayerPartnersList, partner]);
             else console.warn("unexpected new partner state")
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const declinePartnershipRequest = (partner:PartnerListItem) => {
         axios.delete(`${DOMAIN}/api/partner-pending/`+ partner.userID + '/decline', RequestAccountHeader).then((response:AxiosResponse) => {
             (partner.status == PartnerStatusEnum.PENDING_CONTRACT_PARTNER) ? setPendingPrayerPartners([...pendingPrayerPartners].filter((partner:PartnerListItem) => partner.userID !== partner.userID)) : setPendingPrayerPartnerUsers([...pendingPrayerPartnerUsers].filter((partner:PartnerListItem) => partner.userID !== partner.userID));
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const leavePartnership = (partner:PartnerListItem) => {
         axios.delete(`${DOMAIN}/api/partner/` + partner.userID + '/leave', RequestAccountHeader).then((response:AxiosResponse) => {
             setPrayerPartnersList([...prayerPartnersList].filter((partner:PartnerListItem) => partner.userID !== partner.userID));
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const GET_PendingPartners = () => {
@@ -96,14 +96,14 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
             newPendingPartners.forEach((partner:PartnerListItem) => (partner.status == PartnerStatusEnum.PENDING_CONTRACT_BOTH || partner.status == PartnerStatusEnum.PENDING_CONTRACT_USER) ? pendingUsers.push(partner) : pendingPartners.push(partner));
             setPendingPrayerPartnerUsers(pendingUsers);
             setPendingPrayerPartners(pendingPartners);
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const GET_PrayerPartners = () => {
         axios.get(`${DOMAIN}/api/user/`+ userID + '/partner-list?status=PARTNER', RequestAccountHeader).then((response:AxiosResponse) => {
             const prayerPartners:PartnerListItem[] = response.data;
             setPrayerPartnersList(prayerPartners);
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const POST_NewPartner = async () => {
@@ -111,7 +111,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
             setNewPartner(response.data as PartnerListItem);
             setPendingPrayerPartnerUsers([...pendingPrayerPartnerUsers, response.data as PartnerListItem]);
             setNewPartnerModalVisible(true);
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const renderPendingPage = ():JSX.Element => {

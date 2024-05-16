@@ -18,7 +18,7 @@ import { RequestorProfileImage } from '../1-Profile/profile-widgets';
 import { BackButton, Raised_Button } from '../widgets';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
-import NativeToast from '../utilities/NativeToast';
+import ToastQueueManager from '../utilities/ToastQueueManager';
 
 export interface CircleDisplayParamList extends AppStackParamList {
     CircleProps: CircleListItem
@@ -82,7 +82,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             dispatch(removeInviteCircle(newListItem.circleID));
             dispatch(addMemberCircle(newListItem));
             renderCircle(newListItem);
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const requestCircleJoin = async () => {
@@ -91,7 +91,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             setAppCircleListItem(newListItem);  //update local state
             dispatch(addRequestedCircle(newListItem));
             setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.REQUEST}) : undefined);
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const leaveCircle = async () => {
@@ -138,7 +138,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             }
 
             setDataFetchComplete(true);
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     useEffect(() => {

@@ -11,7 +11,7 @@ import { CircleAnnouncementListItem } from "../TypesAndInterfaces/config-sync/ap
 import { RequestorProfileImage } from "../1-Profile/profile-widgets";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
-import NativeToast from "../utilities/NativeToast";
+import ToastQueueManager from "../utilities/ToastQueueManager";
 
 export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestListItem, onPress:(() => void), callback?:(() => void)}):JSX.Element => {
     const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
@@ -43,7 +43,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             await axios.post(`${DOMAIN}/api/prayer-request/` + props.prayerRequestProp.prayerRequestID + '/like', {}, RequestAccountHeader).then((response) => {
                 setPrayerCount(prayerCount+1);
                 setHasPrayed(true);
-            }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
         }
     }
 
@@ -205,14 +205,10 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
             // like
             if (!hasBeenLiked) {
                 await axios.post(`${DOMAIN}/api/prayer-request/` + props.commentProp.prayerRequestID + '/comment/' + props.commentProp.commentID + '/like', {}, RequestAccountHeader).then((response) => {
-                    /* 
-                        400 = Failed to parse commentID :: missing comment-id parameter :: Missing Prayer Request
-                        500 = Failed to Incremented Like Count for prayer request ? in comment ?
-                    */
                     setLikeCount(likeCount+1);
                     setIsLiked(true);
                     setHasBeenLiked(true);
-                }).catch((error:AxiosError) => console.log(error));
+                }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
             }
             else {
                 setLikeCount(likeCount+1);
@@ -225,7 +221,7 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
     const onDeletePress = async () => {
         await axios.delete(`${DOMAIN}/api/prayer-request/` + props.commentProp.prayerRequestID + '/comment/' + props.commentProp.commentID, RequestAccountHeader).then((response) => {
             props.callback(props.commentProp.commentID);
-        }).catch((error:AxiosError) => console.log(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const styles = StyleSheet.create({

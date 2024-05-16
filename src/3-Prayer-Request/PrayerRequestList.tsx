@@ -11,7 +11,7 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { PrayerRequestTouchable } from './prayer-request-widgets';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
-import NativeToast from '../utilities/NativeToast';
+import ToastQueueManager from '../utilities/ToastQueueManager';
 
 enum PrayerRequestListViewMode {
     RECIPIENT = "RECIPIENT",
@@ -56,7 +56,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                 setReceivingPrayerRequests(prayerRequestList);
             } 
 
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const GET_ResolvedPrayerRequests = async () => {
@@ -66,7 +66,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                 setReceivingPrayerRequests(prayerRequestList);
                 setViewMode(PrayerRequestListViewMode.ANSWERED)
             }
-        }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     useEffect(() => {

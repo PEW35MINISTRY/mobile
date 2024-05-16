@@ -21,7 +21,7 @@ import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import Toast from 'react-native-root-toast';
-import NativeToast from '../utilities/NativeToast';
+import ToastQueueManager from '../utilities/ToastQueueManager';
 
 export const signupCallback = (navigation:NativeStackNavigationProp<any, string, undefined>) => {
   navigation.pop(); 
@@ -45,7 +45,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
                     userProfile: response.data.userProfile,
                 }));
                 navigation.navigate(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
-            }).catch((error:AxiosError<ServerErrorResponse>) => NativeToast.show(error)); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error)); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
     }
 
     const onGoogle = (event:GestureResponderEvent) => console.log(`Logging in via Google`);
