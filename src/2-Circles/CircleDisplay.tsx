@@ -102,7 +102,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             setCircleInfoModalVisible(false);
             setAppCircleListItem(newListItem);
             setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.NONE}) : undefined);      
-        }).catch(err => console.log(err))
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
     }
 
     const renderCircle = async (circleProps:CircleListItem) => {

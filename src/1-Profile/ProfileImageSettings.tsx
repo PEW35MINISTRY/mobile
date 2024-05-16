@@ -1,5 +1,5 @@
 import { DOMAIN } from "@env";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Image, ImageSourcePropType, ImageRequireSource } from "react-native";
@@ -10,6 +10,8 @@ import { RootState, updateProfileImage } from "../redux-store";
 import theme, { COLORS } from "../theme";
 import { Outline_Button, Raised_Button } from "../widgets";
 import { ProfileImage } from "../widgets";
+import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import ToastQueueManager from "../utilities/ToastQueueManager";
 
 const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -50,7 +52,7 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
           setProfileImageData(undefined);
           setProfileImageUri(DEFAULT_PROFILE_ICON);
           setProfileImageType(undefined);
-        }).catch(error => console.log(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
       }
 
     }
@@ -65,9 +67,8 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
               response.data
             ));
 
-            // TODO: add toast message to indicate success
             console.log(response.status);
-          }).catch(error => console.log(error));
+          }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error, {}, "Profile Image Saved"));
         
         }
         else {

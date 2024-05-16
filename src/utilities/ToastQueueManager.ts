@@ -21,7 +21,7 @@ class ToastQueueManager {
         this.isToastVisible = false;
     }
 
-    show(error: AxiosError<ServerErrorResponse>, options?:ToastOptions): any {
+    show(error: AxiosError<ServerErrorResponse>, options?:ToastOptions, message?:string): any {
         const ToastConfig = {...DefaultToastConfig, options}
 
          // Handle server connection issues
@@ -30,6 +30,8 @@ class ToastQueueManager {
          // Display notification from server
          else if (error.response !== undefined) this.queue.push({message: error.response.request.notification, options: ToastConfig})
          
+         else if (message !== undefined) this.queue.push({message: message, options: ToastConfig});
+        
          // Should never get here, but covering for all cases
          else this.queue.push({message: "Server Error", options: ToastConfig});
 

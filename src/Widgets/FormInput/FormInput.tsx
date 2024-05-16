@@ -1,5 +1,5 @@
 import { DOMAIN } from "@env";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType, InputRangeField,} from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
@@ -11,6 +11,8 @@ import { FormSubmit, FormInputProps } from "./form-input-types";
 import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
 import { RootState } from "../../redux-store";
 import { SelectListItem } from "react-native-dropdown-select-list";
+import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import ToastQueueManager from "../../utilities/ToastQueueManager";
 
 export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX.Element => {
 
@@ -168,7 +170,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                                 responseStatus = true;
                                                 if (response.status == 204) return true;
                                             
-                                                }).catch(err => console.log("err", err));
+                                                }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
                 
                                                 // if the axios request returned an error, return validation failure
                                                 if (!responseStatus) return false;
