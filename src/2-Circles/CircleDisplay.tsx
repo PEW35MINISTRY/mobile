@@ -53,7 +53,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             <EventTouchable
                 key={index}
                 circleEvent={event}
-                onPress={() => console.log("Event callback")}
+                onPress={() => null}
             />
         );
 
@@ -71,7 +71,10 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             <PrayerRequestTouchable
                 key={index}
                 prayerRequestProp={prayerRequest}
-                onPress={() => console.log("PR")}
+                onPress={() => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
+                    params: {PrayerRequestProps: prayerRequest}, 
+                    screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
+                })}
             />
         );
     
