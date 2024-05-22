@@ -21,20 +21,24 @@ class ToastQueueManager {
         this.isToastVisible = false;
     }
 
-    show(error: AxiosError<ServerErrorResponse>, options?:ToastOptions, message?:string): any {
+    show(error?: AxiosError<ServerErrorResponse>, options?:ToastOptions, message?:string): any {
         const ToastConfig = {...DefaultToastConfig, options}
 
-         // Handle server connection issues
-         if (error.code === "ERR_NETWORK") this.queue.push({message: "Unable to connect to the server. Try again later", options: ToastConfig});
+        if (error !== undefined) {
+            // Handle server connection issues
+            if (error.code === "ERR_NETWORK") this.queue.push({message: "Unable to connect to the server. Try again later", options: ToastConfig});
 
-         // Display notification from server
-         else if (error.response !== undefined) this.queue.push({message: error.response.request.notification, options: ToastConfig})
-         
-         else if (message !== undefined) this.queue.push({message: message, options: ToastConfig});
-        
-         // Should never get here, but covering for all cases
-         else this.queue.push({message: "Server Error", options: ToastConfig});
-
+            // Display notification from server
+            else if (error.response !== undefined) this.queue.push({message: error.response.data.notification, options: ToastConfig});
+            
+            // Should never get here, but covering for all cases
+            else this.queue.push({message: "Server Error", options: ToastConfig});
+        }
+        else {
+            // Display custom message
+            if (message !== undefined) this.queue.push({message: message, options: ToastConfig});
+            else this.queue.push({message: "Problem displaying message", options: ToastConfig});
+        }
 
          if (!this.isToastVisible) this.showNextToast();
     }
