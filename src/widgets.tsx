@@ -173,7 +173,7 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
                     label={props.label}
                     value={new Date(props.date).toLocaleDateString('en-us', { month: 'long' })}
                     editable={false}
-                    onChangeText={() => console.log("change text")}
+                    onChangeText={() => null}
                     validationLabel={props.validationLabel}
                     validationStyle={props.validationStyle}
                     labelStyle={(props.validationLabel && {color: COLORS.primary}) || undefined}
@@ -208,7 +208,6 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
         selectBoxStyle: {
             ...props.boxStyle,
             justifyContent: "center"
-            //flex: 1,
         },
         dropdownSelected: {
             color: COLORS.white,
@@ -233,9 +232,9 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
         <View style={styles.containerStyle}>
             {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
             <SelectList 
-                setSelected={(val: string) => props.setSelected(val)} 
+                setSelected={(val: string) => props.setSelected(val)}
                 data={props.data}
-                save={props.saveKey !== undefined && props.saveKey == true ? "key" : "value"}
+                save={(props.saveKey !== undefined && props.saveKey == true) ? "key" : "value"}
                 boxStyles={styles.selectBoxStyle} 
                 dropdownTextStyles={styles.dropdownText}
                 inputStyles={styles.dropdownSelected}
@@ -250,7 +249,7 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
    
 }
 
-export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, defaultOptions?:SelectListItem[], label?:string, labelStyle?:TextStyle, checkBoxStyles?: ViewStyle}):JSX.Element => {
+export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string[]) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, defaultOptions?:SelectListItem[], label?:string, labelStyle?:TextStyle, checkBoxStyles?: ViewStyle}):JSX.Element => {
 
     const styles = StyleSheet.create({
         dropdownText: {
@@ -288,7 +287,7 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
         <View style={styles.containerStyle}>
             {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
             <MultipleSelectList 
-                setSelected={(val: string) => props.setSelected(val)} 
+                setSelected={(val: string[]) => props.setSelected(val)}
                 data={props.data}
                 save="value"
                 boxStyles={props.boxStyle} 
