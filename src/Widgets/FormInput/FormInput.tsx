@@ -38,9 +38,23 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                
         });
         return formValues;
-   }
+    }
 
-   const {
+    const validateUserAttribute = async (fieldName:string, fieldValue:any, ):Promise<boolean> => {
+        const fieldQuery = `${fieldName}=${fieldValue}`;
+        try {
+            const response = await axios.get(`${DOMAIN}/resources/available-account?${fieldQuery}`);
+            if (response.status == 204) return true;
+            else return false;
+        } catch (error) {
+            ToastQueueManager.show(error as unknown as AxiosError<ServerErrorResponse>);
+            return false;
+        }
+    }
+        //}).catch((error:AxiosError<ServerErrorResponse>) => {ToastQueueManager.show(error); return false});
+    
+
+    const {
         control,
         handleSubmit,
         formState: { errors },
@@ -87,21 +101,9 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                         required: field.required,
                         pattern: field.validationRegex,
                         validate: async (value, formValues) => {
-                            var responseStatus = false;
-                            // displayName field does not have its own InputType. Because of this, we have to perform validation for that field specifically
-                            if (fieldValueIsString(field.type, value) && field.field == "displayName" && field.unique) {
-                                if (value.match(field.validationRegex)) {
-                                    // check server to see if account with that displayname address exists
-                                    await axios.get(`${DOMAIN}/resources/available-account?displayName=` + value).then((response) => {
-                                        responseStatus = true;
-                                        if (response.status == 204) return true;
-                                    
-                                        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
-    
-                                    // if the axios request returned an error, return validation failure
-                                    if (!responseStatus) return false;
-                                } 
-                                else return false;
+                            if (fieldValueIsString(field.type, value) && validateUniqueFields && field.unique && value.match(field.validationRegex)) {
+                                const result = await validateUserAttribute(field.field, value);
+                                return result;
                             }
                             return true;
                         }
@@ -181,25 +183,11 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                         required: field.required,
                         pattern: field.validationRegex,
                         validate: async (value, formValues) => {
-                            var responseStatus = false;
-                            if (fieldValueIsString(field.type, value) && validateUniqueFields == true) {
-                                if (value.match(field.validationRegex)) {
-                                    
-                                    // check server to see if account with that email address exists
-                                    await axios.get(`${DOMAIN}/resources/available-account?email=` + value).then((response) => {
-                                        responseStatus = true;
-                                        if (response.status == 204) return true;
-                                    
-                                    }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
-        
-                                    // if the axios request returned an error, return validation failure
-                                    if (!responseStatus) return false;
-                            
-                                } 
-                                else return false;
+                            if (fieldValueIsString(field.type, value) && validateUniqueFields && field.unique && value.match(field.validationRegex)) {
+                                const result = await validateUserAttribute(field.field, value);
+                                return result;
                             }
-                            // Return true when validateUniqueFields is false.
-                            else return true;
+                            return true;
                         }
                         
                         }}
