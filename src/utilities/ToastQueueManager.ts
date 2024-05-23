@@ -20,8 +20,8 @@ class ToastQueueManager {
         this.queue = [];
         this.isToastVisible = false;
     }
+    show({error, options, message}: {error?: AxiosError<ServerErrorResponse>; options?:ToastOptions; message?:string}): void {
 
-    show(error?: AxiosError<ServerErrorResponse>, options?:ToastOptions, message?:string): any {
         const ToastConfig = {...DefaultToastConfig, options}
 
         if (error !== undefined) {
