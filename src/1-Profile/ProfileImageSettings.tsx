@@ -67,7 +67,7 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
               response.data
             ));
 
-          }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error, {}, "Profile Image Saved"));
+          }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error: error, message: "Profile Image Saved"}));
         
         }
         else {
@@ -85,14 +85,14 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
         launchImageLibrary(options, (response:ImagePickerResponse) => {
 
           if (response.errorCode) {
-            ToastQueueManager.show(undefined, undefined, "An unknown error occurred")
+            ToastQueueManager.show({message: "An unknown error occurred"})
           } else if (response.assets === undefined || response.assets[0].base64 === undefined || response.assets[0].type === undefined || response.assets[0].uri === undefined) {
-            ToastQueueManager.show(undefined, undefined, "No image selected for upload")
+            ToastQueueManager.show({message: "No image selected for upload"})
           } 
           else {
             // allowed mime types: 'image/png', 'image/jpg', 'image/jpeg'. Configurable in inputfield.ts
             if (!PROFILE_IMAGE_MIME_TYPES.includes(response.assets[0].type)) {
-                ToastQueueManager.show(undefined, undefined, "Invalid image mime type. Valid choices are " + PROFILE_IMAGE_MIME_TYPES);
+                ToastQueueManager.show({message: "Invalid image mime type. Valid choices are " + PROFILE_IMAGE_MIME_TYPES});
             }
             else {
               setProfileImageData(response.assets[0].base64);
