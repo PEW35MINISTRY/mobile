@@ -47,12 +47,10 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
             if (response.status == 204) return true;
             else return false;
         } catch (error) {
-            ToastQueueManager.show(error as unknown as AxiosError<ServerErrorResponse>);
+            ToastQueueManager.show({error: error as unknown as AxiosError<ServerErrorResponse>});
             return false;
         }
-    }
-        //}).catch((error:AxiosError<ServerErrorResponse>) => {ToastQueueManager.show(error); return false});
-    
+    }    
 
     const {
         control,
