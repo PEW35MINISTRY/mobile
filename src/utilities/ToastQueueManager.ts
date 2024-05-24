@@ -40,7 +40,7 @@ class ToastQueueManager {
             else this.queue.push({message: "Problem displaying message", options: ToastConfig});
         }
 
-         if (!this.isToastVisible) this.showNextToast();
+        if (!this.isToastVisible) this.showNextToast();
     }
 
 

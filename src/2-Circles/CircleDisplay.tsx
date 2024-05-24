@@ -85,7 +85,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             dispatch(removeInviteCircle(newListItem.circleID));
             dispatch(addMemberCircle(newListItem));
             renderCircle(newListItem);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const requestCircleJoin = async () => {
@@ -94,7 +94,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             setAppCircleListItem(newListItem);  //update local state
             dispatch(addRequestedCircle(newListItem));
             setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.REQUEST}) : undefined);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const leaveCircle = async () => {
@@ -105,7 +105,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             setCircleInfoModalVisible(false);
             setAppCircleListItem(newListItem);
             setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.NONE}) : undefined);      
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const renderCircle = async (circleProps:CircleListItem) => {
@@ -141,7 +141,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             }
 
             setDataFetchComplete(true);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     useEffect(() => {

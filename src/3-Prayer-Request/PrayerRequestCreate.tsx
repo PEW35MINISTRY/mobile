@@ -14,6 +14,7 @@ import { Outline_Button, Raised_Button } from '../widgets';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestListItem) => void)}):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -54,51 +55,54 @@ const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestLi
             }
             dispatch(addPrayerRequest(newPrayerRequestListItem));
             props.callback(newPrayerRequestListItem);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         
     }
 
     return (
-        <View style={styles.center}>
-            <View style={styles.background_view}>
-                <View style={styles.headerThing}>
-                    <Text style={styles.headerText}>Create Prayer Request</Text>
-                </View>
-                <FormInput 
-                    fields={CREATE_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}
-                    ref={formInputRef}
-                    onSubmit={onPrayerRequestCreate}
-                />
-                <Outline_Button 
-                    text="Select Recipients"
-                    onPress={() => setRecipientFormModalVisible(true)}
-                />
-                {
-                    (addCircleRecipientIDList.length !== 0 || addUserRecipientIDList.length !== 0) &&                 
-                        <Raised_Button buttonStyle={styles.sign_in_button}
-                            text='Create Prayer Request'
-                            onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
-                        />
-                }
-
-                <Modal 
-                    visible={recipientFormModalVisible}
-                    onRequestClose={() => setRecipientFormModalVisible(false)}
-                    animationType='slide'
-                    transparent={true}
-                > 
-                    <RecipientForm
-                        addCircleRecipientIDList={addCircleRecipientIDList}
-                        addUserRecipientIDList={addUserRecipientIDList}
-                        setAddCircleRecipientIDList={setAddCircleRecipientIDList}
-                        setAddUserRecipientIDList={setAddUserRecipientIDList}
-
-                        callback={() => setRecipientFormModalVisible(false)}
+        <RootSiblingParent>
+            <View style={styles.center}>
+                <View style={styles.background_view}>
+                    <View style={styles.headerThing}>
+                        <Text style={styles.headerText}>Create Prayer Request</Text>
+                    </View>
+                    <FormInput 
+                        fields={CREATE_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}
+                        ref={formInputRef}
+                        onSubmit={onPrayerRequestCreate}
                     />
-                </Modal>
+                    <Outline_Button 
+                        text="Select Recipients"
+                        onPress={() => setRecipientFormModalVisible(true)}
+                    />
+                    {
+                        (addCircleRecipientIDList.length !== 0 || addUserRecipientIDList.length !== 0) &&                 
+                            <Raised_Button buttonStyle={styles.sign_in_button}
+                                text='Create Prayer Request'
+                                onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
+                            />
+                    }
+
+                    <Modal 
+                        visible={recipientFormModalVisible}
+                        onRequestClose={() => setRecipientFormModalVisible(false)}
+                        animationType='slide'
+                        transparent={true}
+                    > 
+                        <RecipientForm
+                            addCircleRecipientIDList={addCircleRecipientIDList}
+                            addUserRecipientIDList={addUserRecipientIDList}
+                            setAddCircleRecipientIDList={setAddCircleRecipientIDList}
+                            setAddUserRecipientIDList={setAddUserRecipientIDList}
+
+                            callback={() => setRecipientFormModalVisible(false)}
+                        />
+                    </Modal>
+                </View>
+                
             </View>
-            
-        </View>
+        </RootSiblingParent>
+        
     )
 }
 

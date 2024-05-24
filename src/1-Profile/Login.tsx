@@ -45,7 +45,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
                     userProfile: response.data.userProfile,
                 }));
                 navigation.navigate(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error)); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
     }
 
     

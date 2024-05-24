@@ -12,6 +12,7 @@ import { Outline_Button, Raised_Button } from "../widgets";
 import { ProfileImage } from "../widgets";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -52,9 +53,10 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
           setProfileImageData(undefined);
           setProfileImageUri(DEFAULT_PROFILE_ICON);
           setProfileImageType(undefined);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+          ToastQueueManager.show({message: "Profile Image Deleted"});
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       }
-
+      else ToastQueueManager.show({message: "No Profile Image to Delete"});
     }
 
     const postProfileImage = async () => {
@@ -66,12 +68,13 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
             dispatch(updateProfileImage(
               response.data
             ));
+            ToastQueueManager.show({message: "Profile Image Saved"});
 
-          }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error: error, message: "Profile Image Saved"}));
+          }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         
         }
         else {
-          console.warn("No profile picture selected");
+          ToastQueueManager.show({message: "No Profile Image Selected"});
         }
       }
 
@@ -111,6 +114,7 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
       }, [userProfile.image]);
 
     return (
+      <RootSiblingParent>
         <View style={styles.infoView}>
             <View style={styles.titleView}>
               <Image source={profileImageUri} style={styles.profileImage} />
@@ -138,6 +142,8 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
                 onPress={callback}
             />
         </View>
+      </RootSiblingParent>
+        
     )
 }
 

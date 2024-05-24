@@ -43,7 +43,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             await axios.post(`${DOMAIN}/api/prayer-request/` + props.prayerRequestProp.prayerRequestID + '/like', {}, RequestAccountHeader).then((response) => {
                 setPrayerCount(prayerCount+1);
                 setHasPrayed(true);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         }
     }
 
@@ -208,7 +208,7 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
                     setLikeCount(likeCount+1);
                     setIsLiked(true);
                     setHasBeenLiked(true);
-                }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+                }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
             }
             else {
                 setLikeCount(likeCount+1);
@@ -221,7 +221,7 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
     const onDeletePress = async () => {
         await axios.delete(`${DOMAIN}/api/prayer-request/` + props.commentProp.prayerRequestID + '/comment/' + props.commentProp.commentID, RequestAccountHeader).then((response) => {
             props.callback(props.commentProp.commentID);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const styles = StyleSheet.create({

@@ -44,7 +44,7 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
 
         await axios.get(`${DOMAIN}/api/search-list/CIRCLE?search=` + circleSearchText + "&refine=ALL&ignoreCache=false", RequestAccountHeader).then(response => {
             setCircleModals(response.data)
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     return (

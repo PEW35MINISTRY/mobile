@@ -91,7 +91,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
             await axios.post(`${DOMAIN}/api/prayer-request/` + currPrayerRequestState?.prayerRequestID + '/like', {}, RequestAccountHeader).then((response) => {
                 setPrayerCount(prayerCount+1);
                 setHasPrayed(true);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         }
     }
 
@@ -122,7 +122,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         await axios.get(`${DOMAIN}/api/prayer-request/` + prayerRequestProps.prayerRequestID, RequestAccountHeader).then(response => {
             const prayerRequestResponseData:PrayerRequestResponseBody = response.data;
             setPrayerRequestState(prayerRequestResponseData, prayerRequestProps)
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     useEffect(() => {

@@ -37,7 +37,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               }));
           // call callback via route
           signupCallback(navigation);
-      }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+      }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       
     }
 

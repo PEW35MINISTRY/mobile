@@ -15,6 +15,7 @@ import { Outline_Button, Raised_Button } from '../widgets';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -40,7 +41,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
 
         axios.delete(`${DOMAIN}/api/prayer-request-edit/` + props.prayerRequestListData.prayerRequestID, RequestAccountHeader).then((response) => {
             props.callback(undefined, undefined, true);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const onPrayerRequestEdit = (formValues:Record<string, string | string[]>) => {
@@ -56,7 +57,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
             //@ts-ignore
             if (value !== editedFields[key]) { editedFields[key] = value; fieldsChanged = true; }
         }
-
+        
         // Copy over recipient fields manually for each field
         if (addCircleRecipientIDList.length > 0) {
             editedFields.addCircleRecipientIDList = addCircleRecipientIDList; fieldsChanged = true;
@@ -82,7 +83,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                 dispatch(updatePrayerRequest(newPrayerRequestListItem));
 
                 props.callback(newPrayerRequest, newPrayerRequestListItem);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         }
         else {
             props.callback();
@@ -91,76 +92,79 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
     }
 
     return (
-        <View style={styles.center}>
-            <View style={styles.background_view}>
-                <Text style={styles.header}>Edit Prayer Request</Text>
-                <FormInput 
-                    fields={EDIT_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}
-                    ref={formInputRef}
-                    defaultValues={props.prayerRequestResponseData}
-                    onSubmit={onPrayerRequestEdit}
-                />
-                <Outline_Button 
-                    text="Select Recipients"
-                    onPress={() => setRecipientFormModalVisible(true)}
-                />
-
-                <Raised_Button buttonStyle={styles.sign_in_button}
-                    text='Save Changes'
-                    onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
-                />
-                <Outline_Button 
-                    text="Delete Prayer Request"
-                    onPress={() => setDeletePrayerRequestModalVisible(true)}
-                    buttonStyle={{borderColor: COLORS.primary}}
-                />
-
-                <Modal
-                    visible={recipientFormModalVisible}
-                    onRequestClose={() => setRecipientFormModalVisible(false)}
-                    animationType='slide'
-                    transparent={true}
-                >
-                    <RecipientForm 
-                        addCircleRecipientIDList={addCircleRecipientIDList}
-                        addUserRecipientIDList={addUserRecipientIDList}
-                        removeCircleRecipientIDList={removeCircleRecipientIDList}
-                        removeUserRecipientIDList={removeUserRecipientIDList}
-
-                        setAddCircleRecipientIDList={setAddCircleRecipientIDList}
-                        setAddUserRecipientIDList={setAddUserRecipientIDList}
-                        setRemoveCircleRecipientIDList={setRemoveCircleRecipientIDList}
-                        setRemoveUserRecipientIDList={setRemoveAddUserRecipientIDList}
-
-                        circleRecipientList={props.prayerRequestResponseData.circleRecipientList}
-                        userRecipientList={props.prayerRequestResponseData.userRecipientList}
-                        callback={() => setRecipientFormModalVisible(false)}
+        <RootSiblingParent>
+            <View style={styles.center}>
+                <View style={styles.background_view}>
+                    <Text style={styles.header}>Edit Prayer Request</Text>
+                    <FormInput 
+                        fields={EDIT_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}
+                        ref={formInputRef}
+                        defaultValues={props.prayerRequestResponseData}
+                        onSubmit={onPrayerRequestEdit}
                     />
-                </Modal>
-                <Modal
-                    visible={deletePrayerRequestModalVisible}
-                    onRequestClose={() => setDeletePrayerRequestModalVisible(false)}
-                    animationType='slide'
-                    transparent={true}
-                >
-                    <View style={styles.deleteView}>
-                        <Text style={styles.confirmDeleteText}>Are you sure you want to delete this prayer request?</Text>
-                        <View style={styles.buttons}>
-                            <Raised_Button buttonStyle={styles.sign_in_button}
-                                text='Delete'
-                                onPress={handlePrayerRequestDelete}
-                            />
-                            <Outline_Button 
-                                text="Cancel"
-                                onPress={() => setDeletePrayerRequestModalVisible(false)}
-                            />
+                    <Outline_Button 
+                        text="Select Recipients"
+                        onPress={() => setRecipientFormModalVisible(true)}
+                    />
+
+                    <Raised_Button buttonStyle={styles.sign_in_button}
+                        text='Save Changes'
+                        onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
+                    />
+                    <Outline_Button 
+                        text="Delete Prayer Request"
+                        onPress={() => setDeletePrayerRequestModalVisible(true)}
+                        buttonStyle={{borderColor: COLORS.primary}}
+                    />
+
+                    <Modal
+                        visible={recipientFormModalVisible}
+                        onRequestClose={() => setRecipientFormModalVisible(false)}
+                        animationType='slide'
+                        transparent={true}
+                    >
+                        <RecipientForm 
+                            addCircleRecipientIDList={addCircleRecipientIDList}
+                            addUserRecipientIDList={addUserRecipientIDList}
+                            removeCircleRecipientIDList={removeCircleRecipientIDList}
+                            removeUserRecipientIDList={removeUserRecipientIDList}
+
+                            setAddCircleRecipientIDList={setAddCircleRecipientIDList}
+                            setAddUserRecipientIDList={setAddUserRecipientIDList}
+                            setRemoveCircleRecipientIDList={setRemoveCircleRecipientIDList}
+                            setRemoveUserRecipientIDList={setRemoveAddUserRecipientIDList}
+
+                            circleRecipientList={props.prayerRequestResponseData.circleRecipientList}
+                            userRecipientList={props.prayerRequestResponseData.userRecipientList}
+                            callback={() => setRecipientFormModalVisible(false)}
+                        />
+                    </Modal>
+                    <Modal
+                        visible={deletePrayerRequestModalVisible}
+                        onRequestClose={() => setDeletePrayerRequestModalVisible(false)}
+                        animationType='slide'
+                        transparent={true}
+                    >
+                        <View style={styles.deleteView}>
+                            <Text style={styles.confirmDeleteText}>Are you sure you want to delete this prayer request?</Text>
+                            <View style={styles.buttons}>
+                                <Raised_Button buttonStyle={styles.sign_in_button}
+                                    text='Delete'
+                                    onPress={handlePrayerRequestDelete}
+                                />
+                                <Outline_Button 
+                                    text="Cancel"
+                                    onPress={() => setDeletePrayerRequestModalVisible(false)}
+                                />
+                            </View>
                         </View>
-                    </View>
-                </Modal>
+                    </Modal>
+                    
+                </View>
                 
             </View>
-            
-        </View>
+        </RootSiblingParent>
+        
     )
 }
 

@@ -56,7 +56,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                 setReceivingPrayerRequests(prayerRequestList);
             } 
 
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const GET_ResolvedPrayerRequests = async () => {
@@ -66,7 +66,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                 setReceivingPrayerRequests(prayerRequestList);
                 setViewMode(PrayerRequestListViewMode.ANSWERED)
             }
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     useEffect(() => {

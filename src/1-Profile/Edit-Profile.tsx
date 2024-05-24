@@ -73,7 +73,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               ));
             }
             navigation.pop();
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       }
       else navigation.pop();
       
