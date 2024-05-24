@@ -12,6 +12,9 @@ import { DOMAIN } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { RootState } from '../redux-store';
 import { useAppSelector } from '../TypesAndInterfaces/hooks';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import ToastQueueManager from '../utilities/ToastQueueManager';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerRequestListItem, callback:((prayerRequestComment:PrayerRequestCommentListItem) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -31,7 +34,6 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
         }
 
         axios.post(`${DOMAIN}/api/prayer-request/`+ props.prayerRequestItem.prayerRequestID + `/comment`, postComment, RequestAccountHeader).then((response:AxiosResponse) => {
-            //console.log(response.data);
             const prayerRequestResponse:PrayerRequestCommentListItem = response.data;
             
             const prayerRequestCommentItem:PrayerRequestCommentListItem = {
@@ -48,25 +50,28 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
             }
             props.callback(prayerRequestCommentItem);
 
-        }).catch((error:AxiosError) => console.error(error));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     return (
+      <RootSiblingParent>
         <View style={styles.center}>
-        <View style={theme.background_view}>
-            <Text style={styles.header}>Create Comment</Text>
-              <FormInput 
-                fields={PRAYER_REQUEST_COMMENT_FIELDS}
-                onSubmit={onCommentCreate}
-                ref={formInputRef}
-              />
-              <Raised_Button buttonStyle={styles.sign_in_button}
-                text='Post Comment'
-                onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
-              />
+          <View style={theme.background_view}>
+              <Text style={styles.header}>Create Comment</Text>
+                <FormInput 
+                  fields={PRAYER_REQUEST_COMMENT_FIELDS}
+                  onSubmit={onCommentCreate}
+                  ref={formInputRef}
+                />
+                <Raised_Button buttonStyle={styles.sign_in_button}
+                  text='Post Comment'
+                  onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
+                />
 
-        </View>
-      </View>
+          </View>
+        </View> 
+      </RootSiblingParent>
+        
         
     )
 }

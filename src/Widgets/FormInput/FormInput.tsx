@@ -1,5 +1,5 @@
 import { DOMAIN } from "@env";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType, InputRangeField,} from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
@@ -11,8 +11,10 @@ import { FormSubmit, FormInputProps } from "./form-input-types";
 import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
 import { RootState } from "../../redux-store";
 import { SelectListItem } from "react-native-dropdown-select-list";
+import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import ToastQueueManager from "../../utilities/ToastQueueManager";
 
-export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX.Element => {
+export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUniqueFields = true, ...props}, ref):JSX.Element => {
 
     // Determine if the field value is a string or a list by defining a type guard
     // documentation: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#the-in-operator-narrowing
@@ -36,9 +38,21 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                
         });
         return formValues;
-   }
+    }
 
-   const {
+    const validateUserAttribute = async (fieldName:string, fieldValue:any, ):Promise<boolean> => {
+        const fieldQuery = `${fieldName}=${fieldValue}`;
+        try {
+            const response = await axios.get(`${DOMAIN}/resources/available-account?${fieldQuery}`);
+            if (response.status == 204) return true;
+            else return false;
+        } catch (error) {
+            ToastQueueManager.show({error: error as unknown as AxiosError<ServerErrorResponse>});
+            return false;
+        }
+    }    
+
+    const {
         control,
         handleSubmit,
         formState: { errors },
@@ -83,7 +97,15 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         control={control}
                         rules={{
                         required: field.required,
-                        pattern: field.validationRegex
+                        pattern: field.validationRegex,
+                        validate: async (value, formValues) => {
+                            if (fieldValueIsString(field.type, value) && validateUniqueFields && field.unique && value.match(field.validationRegex)) {
+                                const result = await validateUserAttribute(field.field, value);
+                                return result;
+                            }
+                            return true;
+                        }
+
                         }}
                         render={({ field: {onChange, onBlur, value}}) => (
                             <>
@@ -159,24 +181,11 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                         required: field.required,
                         pattern: field.validationRegex,
                         validate: async (value, formValues) => {
-                            var responseStatus = false;
-                            if (fieldValueIsString(field.type, value)) {
-                                if (value.match(field.validationRegex)) {
-                                    // check server to see if account with that email address exists
-                                        if (field.unique) {
-                                            await axios.get(`${DOMAIN}/resources/available-account?email=` + value).then((response) => {
-                                                responseStatus = true;
-                                                if (response.status == 204) return true;
-                                            
-                                                }).catch(err => console.log("err", err));
-                
-                                                // if the axios request returned an error, return validation failure
-                                                if (!responseStatus) return false;
-                                        }
-                                        else return true;
-                                    } 
-                                    else return false;
+                            if (fieldValueIsString(field.type, value) && validateUniqueFields && field.unique && value.match(field.validationRegex)) {
+                                const result = await validateUserAttribute(field.field, value);
+                                return result;
                             }
+                            return true;
                         }
                         
                         }}
@@ -262,7 +271,6 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                     const minAge:Date = getDOBMaxDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER);
                                     const maxAge:Date = getDOBMinDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER);
                                     const currAge = new Date(value);
-                                    console.log(minAge, maxAge, currAge);
                                     if (currAge > minAge || currAge < maxAge) return false;
                                     else return true;
                                 }
@@ -329,7 +337,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>((props, ref):JSX
                                 <>
                                     {!fieldValueIsString(field.type, value) &&                                
                                     <Multi_Dropdown_Select
-                                        setSelected={(val:string) => onChange(val)}
+                                        setSelected={(val:string[]) => onChange(val)}
                                         data={selectListData}
                                         label={field.title}
                                         labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}

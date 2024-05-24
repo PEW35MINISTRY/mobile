@@ -35,8 +35,9 @@ export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string
 
     const fetchProfileImage = async () => {
         await axios.get(`${DOMAIN}/api/user/` + props.userID + '/image', RequestAccountHeader).then(response => {
+            // Toast override: no action on 404, display default image instead
             setRequestorImage({uri: response.data})
-        }).catch((error:AxiosError) => {console.log(error); setRequestorImage(DEFAULT_PROFILE_ICON)})
+        }).catch((error:AxiosError) => setRequestorImage(DEFAULT_PROFILE_ICON))
     }
 
     useEffect(() => {
@@ -124,11 +125,9 @@ export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileL
         socialDataView: {
             backgroundColor: COLORS.primary,
             borderRadius: 5,
-            //justifyContent: "center",
             position: "absolute",
             right: 2,
             bottom: 2,
-            //alignSelf: "center",
             flexDirection: "row",
             width: 30
         },
@@ -142,7 +141,6 @@ export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileL
             borderColor: COLORS.accent,
             width: 70,
             borderRadius: 5,
-            //position: "absolute",
         },
         ShareButtonTopLevelView: {
             position: "absolute",

@@ -1,5 +1,5 @@
 import { DOMAIN } from '@env';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, StyleSheet, Text, View } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
@@ -12,6 +12,7 @@ import FACEBOOK from '../../assets/logo-facebook.png';
 import GOOGLE from '../../assets/logo-google.png';
 import LOGO from '../../assets/logo.png';
 import PEW35 from '../../assets/pew35-logo.png';
+import TRANSPARENT from '../../assets/transparent.png';
 import { RootState, setAccount } from '../redux-store';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { LOGIN_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
@@ -19,6 +20,8 @@ import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import ToastQueueManager from '../utilities/ToastQueueManager';
 
 export const signupCallback = (navigation:NativeStackNavigationProp<any, string, undefined>) => {
   navigation.pop(); 
@@ -42,9 +45,10 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
                     userProfile: response.data.userProfile,
                 }));
                 navigation.navigate(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
-            }).catch(error => console.error('Failed Authentication', error));
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
     }
 
+    
     const onGoogle = (event:GestureResponderEvent) => console.log(`Logging in via Google`);
 
     const onFacebook = (event:GestureResponderEvent) => console.log(`Logging in via Facebook`);
@@ -52,6 +56,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     const onApple = (event:GestureResponderEvent) => console.log(`Logging in via APPLE`);
 
     const onForgotPassword = (event:GestureResponderEvent) => console.log("Forgot Password");
+    
 
     const onSignUp = (event:GestureResponderEvent) => navigation.navigate(ROUTE_NAMES.SIGNUP_ROUTE_NAME);
 
@@ -62,6 +67,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
         <FormInput 
           fields={LOGIN_PROFILE_FIELDS}
           onSubmit={onLogin}
+          validateUniqueFields={false}
           ref={formInputRef}
         />
         <Raised_Button buttonStyle={styles.sign_in_button}
@@ -73,10 +79,11 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
             <View style={theme.vertical_divider} ></View>
             <Flat_Button text='Create Account' onPress={onSignUp} />
         </View>
+        
         <View style={theme.horizontal_row}>
-            <Icon_Button source={GOOGLE} imageStyle={styles.social_icon} onPress={onGoogle}/>
-            <Icon_Button source={FACEBOOK} imageStyle={styles.social_icon} onPress={onFacebook}/>
-            <Icon_Button source={APPLE} imageStyle={styles.social_icon} onPress={onApple}/>
+            <Icon_Button source={TRANSPARENT} imageStyle={styles.social_icon} onPress={onGoogle}/>
+            <Icon_Button source={TRANSPARENT} imageStyle={styles.social_icon} onPress={onFacebook}/>
+            <Icon_Button source={TRANSPARENT} imageStyle={styles.social_icon} onPress={onApple}/>
         </View>
         <Image source={PEW35} style={styles.pew35_logo}></Image>
         <Image source={HANDS} style={styles.hands_image} resizeMode='contain'></Image>

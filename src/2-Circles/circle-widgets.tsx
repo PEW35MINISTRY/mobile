@@ -35,8 +35,9 @@ export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string,
 
     const fetchCircleImage = async () => {
         await axios.get(`${DOMAIN}/api/circle/` + props.circleID + '/image', RequestAccountHeader).then(response => {
+            // Toast override: show default image on 404 instead of toast
             setRequestorImage({uri: response.data})
-        }).catch((error:AxiosError) => {console.log(error); setRequestorImage(DEFAULT_CIRCLE_ICON)})
+        }).catch((error:AxiosError) => setRequestorImage(DEFAULT_CIRCLE_ICON))
     }
 
     useEffect(() => {

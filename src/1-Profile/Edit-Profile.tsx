@@ -1,5 +1,5 @@
 import { DOMAIN } from '@env';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
@@ -21,6 +21,8 @@ import { ProfileEditRequestBody } from '../TypesAndInterfaces/config-sync/api-ty
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import Partnerships from '../4-Partners/Partnerships';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import ToastQueueManager from '../utilities/ToastQueueManager';
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -54,8 +56,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       }
       // send data to server
       if (fieldsChanged) {
-        axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader,
-        ).then(response => {
+        axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader).then(response => {
             var updatedUserProfile = {...userProfile}
             var profileChange = false;
             for (const [key, value] of Object.entries(editedFields)) {
@@ -72,14 +73,10 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               ));
             }
             navigation.pop();
-        }).catch(err => console.error("Failed to edit", err))
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       }
       else navigation.pop();
       
-    }
-
-    const test = () => {
-      formInputRef.current == null ? console.log("null") : formInputRef.current.onHandleSubmit();
     }
 
     return (

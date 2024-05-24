@@ -5,12 +5,14 @@ import theme, { COLORS } from "../theme";
 import React, { useState } from "react";
 import { CircleListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/circle-types";
 import { DOMAIN } from "@env";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import { ROUTE_NAMES } from "../TypesAndInterfaces/routes";
 import { CircleTouchable } from "./circle-widgets";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import ToastQueueManager from "../utilities/ToastQueueManager";
 
 export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -39,9 +41,10 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
 
     // TODO: add sanatization to prevent injection
     const searchQuery = async () => {
+
         await axios.get(`${DOMAIN}/api/search-list/CIRCLE?search=` + circleSearchText + "&refine=ALL&ignoreCache=false", RequestAccountHeader).then(response => {
             setCircleModals(response.data)
-        }).catch(err => console.log(err))
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     return (

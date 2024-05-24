@@ -5,6 +5,8 @@ import React from "react";
 import { StyleSheet } from 'react-native';
 import 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
+import { RootSiblingParent } from 'react-native-root-siblings';
+
 import EditProfile from "./1-Profile/Edit-Profile";
 import Login from "./1-Profile/Login";
 import Signup from "./1-Profile/Signup";
@@ -13,7 +15,6 @@ import { CircleDisplay } from './2-Circles/CircleDisplay';
 import { CircleList } from './2-Circles/CircleList';
 import PrayerRequestDisplay from './3-Prayer-Request/PrayerRequestDisplay';
 import PrayerRequestList from './3-Prayer-Request/PrayerRequestList';
-
 import store, { RootState } from './redux-store';
 import theme from './theme';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
@@ -85,6 +86,7 @@ const App = ():JSX.Element => {
 
   return (
     <Provider store = { store }>
+      <RootSiblingParent>
         <NavigationContainer>
           <Stack.Navigator screenOptions={{headerShown: false}}>
             <Stack.Screen name={ROUTE_NAMES.LOGIN_ROUTE_NAME} component={Login} />
@@ -93,6 +95,8 @@ const App = ():JSX.Element => {
             <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} />
           </Stack.Navigator>
         </NavigationContainer>
+      </RootSiblingParent>
+
     </Provider>
   );
 }

@@ -1,5 +1,5 @@
 import { DOMAIN } from "@env";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Image, ImageSourcePropType, ImageRequireSource } from "react-native";
@@ -10,6 +10,9 @@ import { RootState, updateProfileImage } from "../redux-store";
 import theme, { COLORS } from "../theme";
 import { Outline_Button, Raised_Button } from "../widgets";
 import { ProfileImage } from "../widgets";
+import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import ToastQueueManager from "../utilities/ToastQueueManager";
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -50,9 +53,10 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
           setProfileImageData(undefined);
           setProfileImageUri(DEFAULT_PROFILE_ICON);
           setProfileImageType(undefined);
-        }).catch(error => console.log(error));
+          ToastQueueManager.show({message: "Profile Image Deleted"});
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       }
-
+      else ToastQueueManager.show({message: "No Profile Image to Delete"});
     }
 
     const postProfileImage = async () => {
@@ -64,14 +68,13 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
             dispatch(updateProfileImage(
               response.data
             ));
+            ToastQueueManager.show({message: "Profile Image Saved"});
 
-            // TODO: add toast message to indicate success
-            console.log(response.status);
-          }).catch(error => console.log(error));
+          }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         
         }
         else {
-          console.warn("No profile picture selected");
+          ToastQueueManager.show({message: "No Profile Image Selected"});
         }
       }
 
@@ -83,17 +86,16 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
   
          
         launchImageLibrary(options, (response:ImagePickerResponse) => {
-          if (response.didCancel) {
-            console.log('User cancelled image picker');
-          } else if (response.errorCode) {
-            console.log('Image picker error: ', response.errorMessage);
+
+          if (response.errorCode) {
+            ToastQueueManager.show({message: "An unknown error occurred"})
           } else if (response.assets === undefined || response.assets[0].base64 === undefined || response.assets[0].type === undefined || response.assets[0].uri === undefined) {
-            console.log("no image selected");
+            ToastQueueManager.show({message: "No image selected for upload"})
           } 
           else {
-            // allowed mime types: 'image/png', 'image/jpg', 'image/jpeg'
+            // allowed mime types: 'image/png', 'image/jpg', 'image/jpeg'. Configurable in inputfield.ts
             if (!PROFILE_IMAGE_MIME_TYPES.includes(response.assets[0].type)) {
-              console.log("Invalid image mime type. Valid choices are ", PROFILE_IMAGE_MIME_TYPES);
+                ToastQueueManager.show({message: "Invalid image mime type. Valid choices are " + PROFILE_IMAGE_MIME_TYPES});
             }
             else {
               setProfileImageData(response.assets[0].base64);
@@ -112,6 +114,7 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
       }, [userProfile.image]);
 
     return (
+      <RootSiblingParent>
         <View style={styles.infoView}>
             <View style={styles.titleView}>
               <Image source={profileImageUri} style={styles.profileImage} />
@@ -139,6 +142,8 @@ const ProfileImageSettings = ({callback}:CallbackParam):JSX.Element => {
                 onPress={callback}
             />
         </View>
+      </RootSiblingParent>
+        
     )
 }
 
