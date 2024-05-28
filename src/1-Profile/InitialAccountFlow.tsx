@@ -15,40 +15,47 @@ const InitialAccountFlow = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
 
-    const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(true);
-    const [prayerPartnerSettingsModalVisible, setPrayerPartnerSettingsModalVisible] = useState(false);
+    const [componentIndex, setComponentIndex] = useState<number>(0);
+    
+    const [accountInitComponents, setAccountInitComponents] = useState<JSX.Element[]>([
+      <ProfileImageSettings 
+        callback={() => incrementAccountComponentIndex()}
+      />,
+      <Partnerships 
+        callback={() => incrementAccountComponentIndex()} navigation={navigation} continueNavigation={true}
+      />
+    ]);
 
-    const [profileImageSettingsVisited, setProfileImageSettingsVisited] = useState(false);
-    const [profilePartnerSetingsVisited, setProfilePartnerSettingsVisited] = useState(false);
+    const [componentsLength, setComponentsLength] = useState<number>(accountInitComponents.length);
 
     useEffect(() => {
-      if (profileImageSettingsVisited && profilePartnerSetingsVisited) navigation.navigate(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
+      if (componentIndex >= componentsLength) {
+        navigation.navigate(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
+      }
 
-    }, [profileImageSettingsVisited, profilePartnerSetingsVisited])
+    }, [componentIndex])
+
+    const incrementAccountComponentIndex = () => {
+      setComponentIndex((val) => val+1);
+    }
+
+    const renderSetupProp = () => {
+      return (
+        <Modal 
+          visible={componentIndex < componentsLength}
+          onRequestClose={() => setComponentIndex((val) => val+1)}
+          animationType='slide'
+          transparent={true}
+        >
+          {componentIndex < componentsLength && accountInitComponents[componentIndex]}
+        </Modal>
+      )
+    }
 
     return (
         <View style={styles.center}>
             <View style={styles.background_view}>
-            <Modal 
-              visible={profileImageSettingsModalVisible}
-              onRequestClose={() => {setProfileImageSettingsModalVisible(false); setProfileImageSettingsVisited(true); setPrayerPartnerSettingsModalVisible(true)}}
-              animationType='slide'
-              transparent={true}
-            >
-              <ProfileImageSettings 
-                callback={() => {setProfileImageSettingsModalVisible(false); setProfileImageSettingsVisited(true); setPrayerPartnerSettingsModalVisible(true)}}
-              />
-            </Modal>
-            <Modal 
-              visible={prayerPartnerSettingsModalVisible}
-              onRequestClose={() => {setPrayerPartnerSettingsModalVisible(false); setProfilePartnerSettingsVisited(true)}}
-              animationType='slide'
-              transparent={true}
-            >
-              <Partnerships 
-                callback={() => {setPrayerPartnerSettingsModalVisible(false); setProfilePartnerSettingsVisited(true)}} navigation={navigation}
-              />
-            </Modal>
+                {renderSetupProp()}
              </View>
         </View>
     )
