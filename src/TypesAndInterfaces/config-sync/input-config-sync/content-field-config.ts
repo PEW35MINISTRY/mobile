@@ -20,6 +20,11 @@ export enum ContentTypeEnum {
     CUSTOM = 'CUSTOM'
 }
 
+export const MOBILE_SUPPORTED_CONTENT_TYPES:ContentTypeEnum[] = [
+    ContentTypeEnum.ARTICLE, 
+    ContentTypeEnum.VIDEO
+];
+
 export enum ContentSourceEnum {
     YOUTUBE = 'YOUTUBE',
     FACEBOOK = 'FACEBOOK',
@@ -31,6 +36,20 @@ export enum ContentSourceEnum {
     BIBLE_PROJECT = 'BIBLE_PROJECT',
     THROUGH_THE_WORLD = 'THROUGH_THE_WORLD',
     CUSTOM = 'CUSTOM'
+}
+
+export const MOBILE_SUPPORTED_CONTENT_SOURCES:ContentSourceEnum[] = [
+    ContentSourceEnum.YOUTUBE, 
+    ContentSourceEnum.GOT_QUESTIONS, 
+    ContentSourceEnum.BIBLE_PROJECT,
+    ContentSourceEnum.THROUGH_THE_WORLD
+];
+
+//TS can't extend enum, but object operates similar
+export const ContentSearchFilterEnum = {
+    ...ContentSourceEnum,
+    NONE: 'NONE',
+    MOBILE: 'MOBILE',
 }
 
 export enum GenderSelectionEnum {
@@ -56,6 +75,7 @@ export enum ContentSearchRefineEnum {
 
 export const EDIT_CONTENT_FIELDS:InputField[] = [
     new InputField({title: 'Embed URL', field: 'url', type: InputType.TEXT, required: true, unique: true, validationRegex: new RegExp(/^.{1,2000}$/), validationMessage: 'Required, max 2000 characters.' }),
+    new InputField({title: 'Title', field: 'title',  type: InputType.TEXT, validationRegex: new RegExp(/^.{0,50}$/), validationMessage: 'Max 50 characters.'}),
     new InputSelectionField({title: 'Type', field: 'type', customField: 'customType', type: InputType.SELECT_LIST, required: true, selectOptionList: Object.values(ContentTypeEnum), validationRegex: new RegExp(/^[a-zA-Z0-9_ ]{3,50}$/), validationMessage: 'Custom Field has invalid format.'}),
     new InputSelectionField({title: 'Source', field: 'source', customField: 'customSource', type: InputType.SELECT_LIST, required: true, selectOptionList: Object.values(ContentSourceEnum), validationRegex: new RegExp(/^[a-zA-Z0-9_ ]{3,50}$/), validationMessage: 'Custom Field has invalid format.'}),
     new InputField({title: 'Topic / Keywords', field: 'keywordList', type: InputType.CUSTOM_STRING_LIST, validationRegex: new RegExp(/^.{1,3}$/), validationMessage: 'Invalid, Min 3 characters.'}),

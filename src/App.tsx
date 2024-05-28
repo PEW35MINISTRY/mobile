@@ -15,6 +15,7 @@ import { CircleDisplay } from './2-Circles/CircleDisplay';
 import { CircleList } from './2-Circles/CircleList';
 import PrayerRequestDisplay from './3-Prayer-Request/PrayerRequestDisplay';
 import PrayerRequestList from './3-Prayer-Request/PrayerRequestList';
+import ContentDisplay from './5-Content/ContentDisplay';
 import store, { RootState } from './redux-store';
 import theme from './theme';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
@@ -53,7 +54,7 @@ const PrayerRequestStackNavigatorProp = () => {
 const ContentNavigatorProp = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-        <Stack.Screen name="CONTENT_DEFAULT" component={EditProfile} />
+        <Stack.Screen name={ROUTE_NAMES.CONTENT_ROUTE_NAME} component={ContentDisplay} />
     </Stack.Navigator>
   )
 }

@@ -18,7 +18,8 @@ export enum ROUTE_NAMES {
     PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME = "PrayerRequestRoutes",
     PRAYER_REQUEST_DISPLAY_ROUTE_NAME = "PrayerRequestDisplay",
     PRAYER_REQUEST_LIST_ROUTE_NAME = "PrayerRequestList",
-    INITIAL_ACCOUNT_FLOW_ROUTE_NAME = "InitialAccountFlow"
+    INITIAL_ACCOUNT_FLOW_ROUTE_NAME = "InitialAccountFlow",
+    CONTENT_ROUTE_NAME = 'ContentRouteName',
 }
 
 export enum BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES {
