@@ -24,7 +24,7 @@ const enum PartnerViewMode {
   PENDING_PARTNERS = "PENDING_BOTH",
 }
 
-const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavigationProp<any, string, undefined>}):JSX.Element => {
+const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavigationProp<any, string, undefined>, continueNavigation?:boolean}):JSX.Element => {
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -183,10 +183,14 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                 { partnerSettingsViewMode == PartnerViewMode.PARTNER_LIST ? renderPartners() : renderPendingPage()}
                 {
                     (maxPartners > (prayerPartnersList.length + pendingPrayerPartnerUsers.length + pendingPrayerPartners.length)) &&
-                    <View style={styles.bottomView}>             
-                        <Raised_Button buttonStyle={{marginVertical: 15}}
+                    <View style={styles.bottomView}>          
+                        <Outline_Button 
                             text='New Partner'
                             onPress={() => POST_NewPartner()} 
+                        />   
+                        <Raised_Button buttonStyle={{marginVertical: 15}}
+                            text='Done'
+                            onPress={() => props.callback !== undefined && props.callback()} 
                         />
                     </View>   
                 }
