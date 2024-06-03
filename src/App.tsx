@@ -20,6 +20,7 @@ import theme from './theme';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import { AppTabNavigator } from './Widgets/navigation/AppTabNavigator';
 import InitialAccountFlow from './1-Profile/InitialAccountFlow';
+import { AnimatedLogo } from './Widgets/AnimatedLogo/AnimatedLogo';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -73,6 +74,7 @@ const BottomTabNavigator = () => {
       <Tab.Navigator screenOptions={CircleTabNavigatorOptions}
           tabBar={props => <AppTabNavigator {...props} />}
       >
+  
         <Tab.Screen name={ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME} component={CircleStackNavigatorProp} />
         <Tab.Screen name={ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME} component={PrayerRequestStackNavigatorProp} />
         <Tab.Screen name={ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME} component={ContentNavigatorProp} />
@@ -92,6 +94,7 @@ const App = ():JSX.Element => {
             <Stack.Screen name={ROUTE_NAMES.LOGIN_ROUTE_NAME} component={Login} />
             <Stack.Screen name={ROUTE_NAMES.SIGNUP_ROUTE_NAME} component={Signup} />
             <Stack.Screen name={ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME} component={InitialAccountFlow} />
+            <Stack.Screen name={ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME} component={AnimatedLogo} />
             <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} />
           </Stack.Navigator>
         </NavigationContainer>
