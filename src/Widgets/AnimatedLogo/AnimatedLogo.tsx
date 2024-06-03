@@ -7,7 +7,7 @@ import { ROUTE_NAMES } from "../../TypesAndInterfaces/routes";
 import { StackNavigationProps } from "../../TypesAndInterfaces/custom-types";
 import { StackActions } from '@react-navigation/native';
 
-export const AnimatedLogo = (props:StackNavigationProps):JSX.Element => {
+const AnimatedLogo = (props:StackNavigationProps):JSX.Element => {
 
     const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout>(setTimeout(() => props.navigation.dispatch(StackActions.replace(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME)), 9000));
 
@@ -22,3 +22,5 @@ export const AnimatedLogo = (props:StackNavigationProps):JSX.Element => {
         </View>
     )
 }
+
+export default AnimatedLogo;
