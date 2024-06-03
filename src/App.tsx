@@ -20,7 +20,7 @@ import theme from './theme';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import { AppTabNavigator } from './Widgets/navigation/AppTabNavigator';
 import InitialAccountFlow from './1-Profile/InitialAccountFlow';
-import { AnimatedLogo } from './Widgets/AnimatedLogo/AnimatedLogo';
+import AnimatedLogo from './Widgets/AnimatedLogo/AnimatedLogo';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
