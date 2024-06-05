@@ -9,7 +9,7 @@ import { StackActions } from '@react-navigation/native';
 
 const AnimatedLogo = (props:StackNavigationProps):JSX.Element => {
 
-    const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout>(setTimeout(() => props.navigation.dispatch(StackActions.replace(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME)), 9000));
+    const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout>(setTimeout(() => props.navigation.dispatch(StackActions.replace(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME)), 7000));
 
     return (
         <View style={{flex: 1, backgroundColor: "black"}}>
