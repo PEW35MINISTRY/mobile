@@ -4,29 +4,29 @@ import theme, { FONT_SIZES } from '../theme';
 import { Outline_Button, Raised_Button } from '../widgets';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
-import { PARTNERSHIP_CONTRACT } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import Partnerships from '../4-Partners/Partnerships';
-import { DOMAIN } from '@env';
-import axios, { AxiosError } from 'axios';
-import { useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState } from '../redux-store';
-import ToastQueueManager from '../utilities/ToastQueueManager';
-import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
+import { RootState, setAccount } from '../redux-store';
 
 const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
-    const jwt = useAppSelector((state: RootState) => state.account.jwt);
+    const dispatch = useAppDispatch();
+
+    const account = useAppSelector((state: RootState) => state.account);
     const [partnerModalVisible, setPartnerModalVisible] = useState(false);
     const RequestAccountHeader = {
         headers: {
-          "jwt": jwt, 
+          "jwt": account.jwt, 
         }
       }
 
     const onLogout = () => {
-        axios.post(`${DOMAIN}/api/logout`, {}, RequestAccountHeader).then((response) => {
-            navigation.popToTop();
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error: error}))
+        dispatch(setAccount({
+            userProfile: account.userProfile,
+            jwt: '',
+            userID: account.userID
+        }));
+        navigation.popToTop();
     }
 
     return (
