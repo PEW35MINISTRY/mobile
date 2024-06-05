@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackCardInterpolationProps } from '@react-navigation/stack';
 import React from "react";
 import { StyleSheet } from 'react-native';
 import 'react-native-gesture-handler';
@@ -28,6 +28,12 @@ const Tab = createBottomTabNavigator();
 const CircleTabNavigatorOptions = {
   headerShown: false,
 }
+
+const forFade = (props:StackCardInterpolationProps) => ({
+  cardStyle: {
+    opacity: props.current.progress
+  }
+})
 
 // Handle all react navigation for Circle Screens
 const CircleStackNavigatorProp = () => {
@@ -95,7 +101,7 @@ const App = ():JSX.Element => {
             <Stack.Screen name={ROUTE_NAMES.SIGNUP_ROUTE_NAME} component={Signup} />
             <Stack.Screen name={ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME} component={InitialAccountFlow} />
             <Stack.Screen name={ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME} component={AnimatedLogo} />
-            <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} />
+            <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} options={{cardStyleInterpolator: forFade}}/>
           </Stack.Navigator>
         </NavigationContainer>
       </RootSiblingParent>
