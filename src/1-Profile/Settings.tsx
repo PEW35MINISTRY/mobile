@@ -6,7 +6,7 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Partnerships from '../4-Partners/Partnerships';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, setAccount } from '../redux-store';
+import { resetAccount, RootState, setAccount } from '../redux-store';
 
 const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -21,12 +21,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
       }
 
     const onLogout = () => {
-        dispatch(setAccount({
-            userProfile: account.userProfile,
-            jwt: '',
-            userID: account.userID
-        }));
-        navigation.popToTop();
+        dispatch(resetAccount());
     }
 
     return (
