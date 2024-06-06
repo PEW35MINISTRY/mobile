@@ -1,6 +1,6 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { GestureResponderEvent, Image, StyleSheet, Text, View } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
@@ -44,7 +44,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
                     userID: response.data.userID,
                     userProfile: response.data.userProfile,
                 }));
-                navigation.navigate(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
+                navigation.navigate(ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
             }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
     }
 
@@ -56,12 +56,11 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     const onApple = (event:GestureResponderEvent) => console.log(`Logging in via APPLE`);
 
     const onForgotPassword = (event:GestureResponderEvent) => console.log("Forgot Password");
-    
 
     const onSignUp = (event:GestureResponderEvent) => navigation.navigate(ROUTE_NAMES.SIGNUP_ROUTE_NAME);
 
     return (
-    <View style={theme.background_view}>
+      <View style={theme.background_view}>
         <Text style={styles.header}>Encouraging Prayer</Text>
         <Image source={LOGO} style={styles.logo} resizeMode='contain'></Image>
         <FormInput 
@@ -88,7 +87,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
         <Image source={PEW35} style={styles.pew35_logo}></Image>
         <Image source={HANDS} style={styles.hands_image} resizeMode='contain'></Image>
     </View>
-    );
+  );
 }
 
 const styles = StyleSheet.create({
