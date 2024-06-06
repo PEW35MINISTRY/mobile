@@ -135,7 +135,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               />
             </Modal>
         </View>
-            <BackButton navigation={navigation}/>
+            <BackButton navigation={navigation} callback={() => navigation.pop()}/>
       </View>
         
     );

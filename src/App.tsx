@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, StackCardInterpolationProps } from '@react-navigation/stack';
 import React from "react";
-import { StyleSheet } from 'react-native';
+import { Settings, StyleSheet } from 'react-native';
 import 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 import { RootSiblingParent } from 'react-native-root-siblings';
@@ -20,6 +20,7 @@ import theme from './theme';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import { AppTabNavigator } from './Widgets/navigation/AppTabNavigator';
 import InitialAccountFlow from './1-Profile/InitialAccountFlow';
+import ProfileSettings from './1-Profile/Settings';
 import AnimatedLogo from './Widgets/AnimatedLogo/AnimatedLogo';
 
 const Stack = createStackNavigator<AppStackParamList>();
@@ -69,6 +70,7 @@ const ContentNavigatorProp = () => {
 const SettingsStackNavigatorProp = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name={ROUTE_NAMES.PROFILE_SETTINGS_ROUTE_NAME} component={ProfileSettings} />
       <Stack.Screen name={ROUTE_NAMES.EDIT_PROFILE_ROUTE_NAME} component={EditProfile} />
     </Stack.Navigator>
   )
