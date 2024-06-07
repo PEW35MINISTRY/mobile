@@ -11,17 +11,17 @@ const THROUGH_THE_WORD = require('../../assets/through-the-word.png');
 
 export const ContentThumbnail = (props:{imageUri:string|undefined, contentSource:ContentSourceEnum, onPress?:()=>void, style?:ImageStyle}):JSX.Element => {
  
-    const getDefaultThumbnail = (itemSource:ContentSourceEnum) =>
-        itemSource === 'GOT_QUESTIONS' ? GOT_QUESTIONS
-        : itemSource === 'BIBLE_PROJECT' ? BIBLE_PROJECT
-        : itemSource === 'THROUGH_THE_WORD' ? THROUGH_THE_WORD
+    const getDefaultThumbnail = () =>
+        props.contentSource === ContentSourceEnum.GOT_QUESTIONS ? GOT_QUESTIONS
+        : props.contentSource === ContentSourceEnum.BIBLE_PROJECT ? BIBLE_PROJECT
+        : props.contentSource === ContentSourceEnum.THROUGH_THE_WORD ? THROUGH_THE_WORD
         : MEDIA_DEFAULT;
 
-    const [image, setImage] = useState<ImageSourcePropType>(getDefaultThumbnail(props.contentSource));
+    const [image, setImage] = useState<ImageSourcePropType>(getDefaultThumbnail());
     const [aspectRatio, setAspectRatio] = useState<number>(1);
 
     const setDefaultThumbnail = () => {
-        const defaultThumbnail = getDefaultThumbnail(props.contentSource);
+        const defaultThumbnail = getDefaultThumbnail();
         const { width, height } = Image.resolveAssetSource(defaultThumbnail);
         setImage(defaultThumbnail);
         setAspectRatio(width / height);

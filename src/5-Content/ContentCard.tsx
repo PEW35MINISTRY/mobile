@@ -15,21 +15,20 @@ import { ContentThumbnail } from './content-widgets';
 
 
 interface ContentCardProps {
-  key:string,
   item:ContentListItem;
   onPress?:(item:ContentListItem) => void;
   style?:StyleProp<ViewStyle>;
   onKeywordPress?:(keyword:string) => void;
 }
 
-const ContentCard: React.FC<ContentCardProps> = ({ key, item, onPress, style, onKeywordPress }) => {
+const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywordPress }) => {
 
   const userID = useAppSelector((state: RootState) => state.account.userID);  
   const [showDescription, setShowDescription] = useState(false);
   const [showYouTube, setShowYouTube] = useState(false);
 
   return (
-    <View key={`content-${key}`} style={StyleSheet.flatten([styles.card, style])} >
+    <View style={StyleSheet.flatten([styles.card, style])} >
         <ContentThumbnail imageUri={item.image} contentSource={item.source} onPress={() => {
           if(onPress) onPress(item);
           if(item.url && item.url.length > 5) { //Already filtered by MOBILE_CONTENT_SUPPORTED_SOURCES
