@@ -22,6 +22,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const onLogout = () => {
         dispatch(resetAccount());
+        navigation.popToTop();
     }
 
     return (
@@ -60,7 +61,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 />
                 <Raised_Button 
                     text="Logout"
-                    onPress={onLogout}
+                    onPress={() => onLogout()}
                     buttonStyle={styles.settingsButton}
                 />
             </View>
