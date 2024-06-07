@@ -1,108 +1,146 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, StyleProp, ViewStyle } from 'react-native';
-import { ContentListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/content-types';
-import theme, { COLORS, RADIUS } from '../theme';
-import { makeDisplayText } from '../utilities/utilities';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { View, Text, TouchableOpacity, StyleSheet, StyleProp, ViewStyle, Linking, Dimensions, Modal } from 'react-native';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import { DOMAIN } from '@env';
-import axios, { AxiosError } from 'axios';
-import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
-import ToastQueueManager from '../utilities/ToastQueueManager';
+import theme, { COLORS, RADIUS } from '../theme';
+import { ContentListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/content-types';
+import { makeDisplayText } from '../utilities/utilities';
 import { useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
+import { ContentSourceEnum, extractYouTubeVideoId } from '../TypesAndInterfaces/config-sync/input-config-sync/content-field-config';
+import { BackButton, IconCounter } from '../widgets';
+import { ContentThumbnail } from './content-widgets';
 
-/* Asset Imports */
-const MEDIA_DEFAULT = require('../../assets/media-blue.png');
-const GOT_QUESTIONS = require('../../assets/got-questions.png');
-const BIBLE_PROJECT = require('../../assets/bible-project.png');
-const THROUGH_THE_WORD = require('../../assets/through-the-word.png');
-
-
-const getSourceImage = (itemSource: string) =>
-  itemSource === 'YOUTUBE' ? MEDIA_DEFAULT
-  : itemSource === 'GOT_QUESTIONS' ? GOT_QUESTIONS
-  : itemSource === 'BIBLE_PROJECT' ? BIBLE_PROJECT
-  : itemSource === 'THROUGH_THE_WORD' ? THROUGH_THE_WORD
-  : MEDIA_DEFAULT;
 
 
 interface ContentCardProps {
+  key:string,
   item:ContentListItem;
   onPress?:(item:ContentListItem) => void;
   style?:StyleProp<ViewStyle>;
   onKeywordPress?:(keyword:string) => void;
 }
 
-const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywordPress }) => {
+const ContentCard: React.FC<ContentCardProps> = ({ key, item, onPress, style, onKeywordPress }) => {
 
-  const jwt = useAppSelector((state: RootState) => state.account.jwt);
-  const userID = useAppSelector((state: RootState) => state.account.userID);
-  const [likeCount, setLikeCount] = useState<number>(item.contentID);
-  
-  const onLikeContent = (contentID:number) => {
-    axios.post(`${DOMAIN}/api/user/`+ userID + '/content/' + contentID + '/like', {}, { headers: { jwt: jwt }})
-      .then((response:{data:ContentListItem[]}) => setLikeCount(current => current + 1))
-      .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));   
-  }
+  const userID = useAppSelector((state: RootState) => state.account.userID);  
+  const [showDescription, setShowDescription] = useState(false);
+  const [showYouTube, setShowYouTube] = useState(false);
 
   return (
-    <TouchableOpacity onPress={() => onPress && onPress(item)} style={StyleSheet.flatten([styles.card, style])}>
-      <View style={styles.imageContainer}>
-        <Image source={getSourceImage(item.source)} style={styles.image} />
-      </View>
-      <View style={styles.footerVertical}>
-        <View style={styles.footerTitleRow}>
-          <Text style={styles.title}>{makeDisplayText(item.title || item.type)}</Text>
-          <TouchableOpacity onPress={() => onLikeContent(item.contentID)}>
-            <View style={styles.likeContainer}>
-                <Ionicons 
-                    name="thumbs-up-outline"
-                    color={COLORS.white}
-                    size={15}
-                />
-                <Text style={styles.likeCountText}>{likeCount}</Text>
+    <View key={`content-${key}`} style={StyleSheet.flatten([styles.card, style])} >
+        <ContentThumbnail imageUri={item.image} contentSource={item.source} onPress={() => {
+          if(onPress) onPress(item);
+          if(item.url && item.url.length > 5) { //Already filtered by MOBILE_CONTENT_SUPPORTED_SOURCES
+            if(item.source === ContentSourceEnum.YOUTUBE) setShowYouTube(true);
+            else openInAppBrowser(item.url);
+          }
+        }} />
+
+        <TouchableOpacity onPress={() => setShowDescription(current => !current)} >
+          <View style={styles.footerVertical}>
+            <View style={styles.footerTitleRow}>
+              <Text style={styles.title}>{item.title}</Text>
+              <IconCounter 
+                initialCount={item.likeCount}
+                ionsIconsName='thumbs-up-outline'
+                postURL={`${DOMAIN}/api/user/`+ userID + '/content/' + item.contentID + '/like'}
+              />
             </View>
-          </TouchableOpacity>
+            <View style={styles.footerDetailRow}>
+              <Text style={styles.detailText} numberOfLines={1} ellipsizeMode='tail' >{makeDisplayText(item.source)}</Text>
+              <Text style={styles.verticalDivider}>|</Text>
+              <View style={styles.tagContainer}>
+                {item.keywordList.map((keyword, index) => (
+                  <TouchableOpacity key={`${keyword}-${index}`} onPress={() => onKeywordPress && onKeywordPress(keyword)}>
+                    <Text style={styles.tag}>#{makeDisplayText(keyword)}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {(showDescription && item.description && item.description.length > 0) &&
+              <View style={styles.descriptionContainer}>
+                <Text style={styles.text} >{item.description}</Text>
+              </View>
+            }
+
+          <Modal
+            visible={showYouTube}
+            animationType="slide"
+            onRequestClose={() => setShowYouTube(false)}
+          >
+            <View style={styles.youTubePlayerPage}>
+              <BackButton callback={() => setShowYouTube(false)}
+              />
+              <View style={styles.youTubePlayer}>
+                <YoutubePlayer
+                  height={Dimensions.get('window').height * 0.5}
+                  width={Dimensions.get('window').width}
+                  videoId={extractYouTubeVideoId(item.url) || ''}
+                  play={true}
+                />
+              </View>
+            </View>
+          </Modal>
         </View>
-        <View style={styles.footerDetailRow}>
-          <Text style={styles.detailText}>{makeDisplayText(item.source)}</Text>
-          <Text style={styles.verticalDivider}>|</Text>
-          <View style={styles.tagContainer}>
-            {item.keywordList.map((keyword, index) => (
-              <TouchableOpacity key={`${keyword}-${index}`} onPress={() => onKeywordPress && onKeywordPress(keyword)}>
-                <Text style={styles.tag}>{makeDisplayText(keyword)}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 }
+
+
+
+/*********************
+ * CONTENT UTILITIES *
+ *********************/
+
+const openInAppBrowser = async (url: string): Promise<void> => {
+  try {
+    const isAvailable = await InAppBrowser.isAvailable();
+    if (!isAvailable) throw new Error('InAppBrowser Unavailable');
+
+    await InAppBrowser.open(url, {
+       // IOS Options
+       dismissButtonStyle: 'done',
+       preferredBarTintColor: COLORS.primary,
+       preferredControlTintColor: COLORS.accent,
+       readerMode: false,
+       animated: true,
+       modalPresentationStyle: 'fullScreen',
+       modalTransitionStyle: 'coverVertical',
+       modalEnabled: true,
+
+       // Android Options
+       showTitle: false,
+       toolbarColor: COLORS.primary,
+       secondaryToolbarColor: COLORS.accent,
+       enableUrlBarHiding: true,
+       enableDefaultShare: true,
+       forceCloseOnRedirection: false,
+    });
+  } catch (error) {
+    console.error('ERROR - ContentCard - Failed to open browser - ', url, error);
+    Linking.openURL(url); // Fallback to system browser
+  }
+};
+
+
+/******************
+ * CONTENT STYLES *
+ ******************/
 
 const styles = StyleSheet.create({
   ...theme,
   card: {
     width: '100%',
-    height: 200,
-    marginVertical: 5,
+    margin: 0,
+    marginBottom: 10,
     borderRadius: RADIUS,
     overflow: 'hidden',
     elevation: 2,
-    padding: 10,
-    margin: 2,
     backgroundColor: COLORS.grayDark,
-  },
-  imageContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
   },
   footerVertical: {
     flexDirection: 'column',
@@ -110,7 +148,10 @@ const styles = StyleSheet.create({
 
     borderTopWidth: 0.5,
     borderTopColor: COLORS.grayLight,
+
+    margin: 0,
     paddingHorizontal: 5,
+    paddingBottom: 5,
   },
   footerTitleRow: {
     flexDirection: 'row',
@@ -140,34 +181,22 @@ const styles = StyleSheet.create({
   tag: {
     ...theme.detailText,
 
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-    marginRight: 5,
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-
     color: COLORS.accent,
-    borderColor: COLORS.accent,
-    borderWidth: 0.5,
-    borderRadius: RADIUS,
+    marginRight: 5,
+    overflow: 'hidden',
   },
-  likeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-
-    borderColor: COLORS.accent,
-    borderWidth: 1,
-    borderRadius: RADIUS,
+  descriptionContainer: {
+    padding: 5,
   },
-  likeCountText: {
-    ...theme.text,
-    color: COLORS.white,
-    paddingHorizontal: 3,
+  youTubePlayerPage: {
+    flex: 1,
+    backgroundColor: 'black',
+    justifyContent: 'center',
+  },
+  youTubePlayer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
