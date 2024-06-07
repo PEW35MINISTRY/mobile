@@ -1,8 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackCardInterpolationProps } from '@react-navigation/stack';
 import React from "react";
-import { StyleSheet } from 'react-native';
+import { Settings, StyleSheet } from 'react-native';
 import 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 import { RootSiblingParent } from 'react-native-root-siblings';
@@ -21,6 +21,8 @@ import theme from './theme';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import { AppTabNavigator } from './Widgets/navigation/AppTabNavigator';
 import InitialAccountFlow from './1-Profile/InitialAccountFlow';
+import ProfileSettings from './1-Profile/Settings';
+import AnimatedLogo from './Widgets/AnimatedLogo/AnimatedLogo';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -28,6 +30,12 @@ const Tab = createBottomTabNavigator();
 const CircleTabNavigatorOptions = {
   headerShown: false,
 }
+
+const forFade = (props:StackCardInterpolationProps) => ({
+  cardStyle: {
+    opacity: props.current.progress
+  }
+})
 
 // Handle all react navigation for Circle Screens
 const CircleStackNavigatorProp = () => {
@@ -63,6 +71,7 @@ const ContentNavigatorProp = () => {
 const SettingsStackNavigatorProp = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name={ROUTE_NAMES.PROFILE_SETTINGS_ROUTE_NAME} component={ProfileSettings} />
       <Stack.Screen name={ROUTE_NAMES.EDIT_PROFILE_ROUTE_NAME} component={EditProfile} />
     </Stack.Navigator>
   )
@@ -74,6 +83,7 @@ const BottomTabNavigator = () => {
       <Tab.Navigator screenOptions={CircleTabNavigatorOptions}
           tabBar={props => <AppTabNavigator {...props} />}
       >
+  
         <Tab.Screen name={ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME} component={CircleStackNavigatorProp} />
         <Tab.Screen name={ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME} component={PrayerRequestStackNavigatorProp} />
         <Tab.Screen name={ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME} component={ContentNavigatorProp} />
@@ -93,7 +103,8 @@ const App = ():JSX.Element => {
             <Stack.Screen name={ROUTE_NAMES.LOGIN_ROUTE_NAME} component={Login} />
             <Stack.Screen name={ROUTE_NAMES.SIGNUP_ROUTE_NAME} component={Signup} />
             <Stack.Screen name={ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME} component={InitialAccountFlow} />
-            <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} />
+            <Stack.Screen name={ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME} component={AnimatedLogo} />
+            <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} options={{cardStyleInterpolator: forFade}}/>
           </Stack.Navigator>
         </NavigationContainer>
       </RootSiblingParent>

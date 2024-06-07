@@ -19,6 +19,8 @@ export enum ROUTE_NAMES {
     PRAYER_REQUEST_DISPLAY_ROUTE_NAME = "PrayerRequestDisplay",
     PRAYER_REQUEST_LIST_ROUTE_NAME = "PrayerRequestList",
     INITIAL_ACCOUNT_FLOW_ROUTE_NAME = "InitialAccountFlow",
+    PROFILE_SETTINGS_ROUTE_NAME = "ProfileSettings",
+    LOGO_ANIMATION_ROUTE_NAME = "LogoAnimation",
     CONTENT_ROUTE_NAME = 'ContentRouteName',
 }
 
