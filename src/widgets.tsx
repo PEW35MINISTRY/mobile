@@ -503,7 +503,7 @@ export const IconCounter = (props:{initialCount:number, iconImage?:ImageSourcePr
             justifyContent: 'center',
 
             paddingHorizontal: 5,
-            paddingVertical: 2,
+            height: theme.text.fontSize + 10,
 
             borderColor: COLORS.accent,
             borderWidth: 1,
@@ -527,7 +527,7 @@ export const IconCounter = (props:{initialCount:number, iconImage?:ImageSourcePr
                     size={theme.text.fontSize}
                 />
             }
-            <Text style={styles.likeCountText}>{count}</Text>
+            {(count > 0) && <Text style={styles.likeCountText}>{count}</Text>}
         </View>
       </TouchableOpacity>
     )
