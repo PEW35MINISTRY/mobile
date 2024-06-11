@@ -1,17 +1,22 @@
-//These are reusable widgets for app consistency
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
+import axios, { AxiosError } from 'axios';
 import { ColorValue, GestureResponderEvent, Image, ImageSourcePropType, ImageStyle, KeyboardTypeOptions, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle, ScrollView } from "react-native";
-import DateTimePickerModal, { ReactNativeModalDateTimePickerProps } from "react-native-modal-datetime-picker";
-import type InputField from './TypesAndInterfaces/config-sync/input-config-sync/inputField';
-import theme, { COLORS, FONTS, FONT_SIZES, RADIUS } from './theme';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import theme, { COLORS, FONT_SIZES, RADIUS } from './theme';
 import { useAppDispatch, useAppSelector } from "./TypesAndInterfaces/hooks";
 import { RootState } from './redux-store';
-import { DOMAIN } from '@env';
 import { MultipleSelectList, SelectList, SelectListItem } from 'react-native-dropdown-select-list';
 import { Slider } from '@react-native-assets/slider'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ToastQueueManager from './utilities/ToastQueueManager';
+import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { makeDisplayText } from './utilities/utilities';
+
+
+/**************************************************
+ * These are reusable widgets for app consistency *
+ **************************************************/
 
 export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewStyle, textStyle?:TextStyle, onPress:((event: GestureResponderEvent) => void)}):JSX.Element => {
 
@@ -73,6 +78,62 @@ export const Outline_Button = (props:{text:string|JSX.Element, buttonStyle?:View
 
     return ( <Flat_Button {...props} buttonStyle={styles.buttonStyle}/> );    
 }
+
+
+/* Horizontal Multi Tab Selector */
+export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|undefined, onSelect:(name:string, index:number) => void, onDeselect?:() => void, style?:ViewStyle, isHeader?:boolean }) => {
+
+    const [selectedIndex, setSelectedIndex] = useState<number|undefined>(props.defaultIndex);
+
+    const styles = StyleSheet.create({
+        filterContainer: {
+            flexDirection: 'row',
+            padding: 0,
+            borderTopWidth: 1,
+            borderBottomWidth: 1,
+            borderColor: (props.isHeader) ? COLORS.primary : COLORS.accent,
+            ...props.style,
+          },
+          filterSelected: {
+            paddingVertical: 1,
+            paddingHorizontal: 10,
+            backgroundColor: (props.isHeader) ? COLORS.primary : COLORS.accent,
+          },
+          filterNotSelected: {
+            paddingVertical: 1,
+            paddingHorizontal: 10,
+            color: COLORS.grayDark
+          },
+          divider: {
+            width: 1,
+            backgroundColor: COLORS.grayDark,
+            marginVertical: 5,
+          }
+        });
+
+    return (
+        <View style={styles.filterContainer}>
+            {[...props.optionList].map((item:string, index:number) => (
+                <React.Fragment key={`${item}-${index}`}>
+                    <TouchableOpacity onPress={() => {
+                        if(selectedIndex !== index) {
+                            setSelectedIndex(index);
+                            props.onSelect(item, index);
+                        } else if(props.onDeselect) {
+                            setSelectedIndex(undefined);
+                            props.onDeselect();
+                        }
+                        }} >
+                        <Text style={(index === selectedIndex) ? [(props.isHeader) ? theme.title : theme.text, styles.filterSelected] 
+                            : [(props.isHeader) ? theme.title : theme.text, styles.filterNotSelected] }>{makeDisplayText(item)}</Text>
+                    </TouchableOpacity>
+                    {index < props.optionList.length - 1 && <View style={styles.divider} />}
+                </React.Fragment>                        
+            ))}
+        </View>
+    );
+}
+
 
 export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextStyle, labelStyle?:TextStyle, containerStyle?:ViewStyle,
     value:string, onChangeText:((text: string) => void), placeholder?:string, placeholderTextColor?:ColorValue, keyboardType?:KeyboardTypeOptions,
@@ -390,7 +451,7 @@ export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
     );
 }
 
-export const BackButton = (props:{callback?:(() => void), navigation:NativeStackNavigationProp<any, string, undefined>}):JSX.Element => {
+export const BackButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>}):JSX.Element => {
     const styles = StyleSheet.create({
         backButton: {
             justifyContent: "center",
@@ -409,7 +470,10 @@ export const BackButton = (props:{callback?:(() => void), navigation:NativeStack
     return (
         <View style={styles.backButtonView}>
             <TouchableOpacity
-                onPress={() => props.callback === undefined ? props.navigation.pop() : props.callback()}
+                onPress={() => {
+                    if(props.navigation) props.navigation.pop();
+                    if(props.callback) props.callback();
+                }}
             >
                 <View style={styles.backButton}>
                 <Ionicons 
@@ -420,5 +484,51 @@ export const BackButton = (props:{callback?:(() => void), navigation:NativeStack
                 </View>
             </TouchableOpacity>
         </View>
+    )
+}
+
+export const IconCounter = (props:{initialCount:number, iconImage?:ImageSourcePropType, ionsIconsName?:string, postURL?:string, style?:ImageStyle}):JSX.Element => {
+    const jwt = useAppSelector((state: RootState) => state.account.jwt);
+    const [count, setCount] = useState<number>(props.initialCount || 0);
+
+    const onPress = async() => ((count === props.initialCount) && props.postURL) && //Limit to single increment
+        await axios.post(props.postURL, {}, { headers: {jwt}})
+            .then((response) => {ToastQueueManager.show({message: 'Saved'}); setCount(current => current + 1)})
+            .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+
+    const styles = StyleSheet.create({
+          likeContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+
+            paddingHorizontal: 5,
+            height: theme.text.fontSize + 10,
+
+            borderColor: COLORS.accent,
+            borderWidth: 1,
+            borderRadius: RADIUS,
+        },
+        likeCountText: {
+            ...theme.text,
+            color: COLORS.white,
+            paddingHorizontal: 3,
+        },
+    })
+
+    return (
+        <TouchableOpacity onPress={onPress}>
+        <View style={styles.likeContainer}>
+            {props.iconImage ?
+                <Image source={props.iconImage} style={{height: theme.text.fontSize, width: theme.text.fontSize}} />
+                : <Ionicons 
+                    name={props.ionsIconsName || 'thumbs-up-outline'}
+                    color={COLORS.white}
+                    size={theme.text.fontSize}
+                />
+            }
+            {(count > 0) && <Text style={styles.likeCountText}>{count}</Text>}
+        </View>
+      </TouchableOpacity>
     )
 }
