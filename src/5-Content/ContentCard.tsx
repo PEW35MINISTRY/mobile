@@ -40,7 +40,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
         <TouchableOpacity onPress={() => setShowDescription(current => !current)} >
           <View style={styles.footerVertical}>
             <View style={styles.footerTitleRow}>
-              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.contentCardTitle}>{item.title}</Text>
               <IconCounter 
                 initialCount={item.likeCount}
                 ionsIconsName='thumbs-up-outline'
@@ -132,6 +132,11 @@ const openInAppBrowser = async (url: string): Promise<void> => {
 
 const styles = StyleSheet.create({
   ...theme,
+  contentCardTitle: {
+    ...theme.title,
+    fontSize: 20,
+    color: COLORS.white
+  },
   card: {
     width: '100%',
     margin: 0,

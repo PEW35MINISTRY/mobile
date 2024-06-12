@@ -119,6 +119,8 @@ const ContentDisplay = (props:{callback?:(() => void), navigation:NativeStackNav
         paddingBottom: 2,
 
         ...theme.title,
+        color: COLORS.white,
+        fontSize: 20,
         borderBottomWidth: 1,
         borderColor: COLORS.accent
       },
