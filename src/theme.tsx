@@ -8,7 +8,6 @@ export enum COLORS {
     grayLight = '#DCDCDC',
     black = '#000000',
     white = '#FFFFFF',
-    transparent = 'rgba(0, 0, 0, 1.0)',
     transparentBlack = 'rgba(0, 0, 0, 0.6)',
     transparentWhite = 'rgba(255, 255, 255, 0.2)',
 };
@@ -21,8 +20,8 @@ export enum FONTS {
 
 export enum FONT_SIZES {
     S = 10,
-    M = 13,
-    L = 20,
+    M = 15,
+    L = 25,
     XL = 40
 }
 
@@ -39,13 +38,13 @@ export default StyleSheet.create({
     },
     title: {
         fontFamily: FONTS.title,
-        color: COLORS.white,
+        color: COLORS.primary,
         fontSize: FONT_SIZES.L,
         fontWeight: '700',
     },
     primary: {
         fontFamily: FONTS.title,
-        color: COLORS.accent,
+        color: COLORS.primary,
         fontSize: FONT_SIZES.M,
         fontWeight: '600',
     },
@@ -60,12 +59,6 @@ export default StyleSheet.create({
         color: COLORS.white,
         fontSize: FONT_SIZES.M,
         fontWeight: '500',
-    },
-    detailText: {
-        fontFamily: FONTS.text,
-        color: COLORS.grayLight,
-        fontSize: FONT_SIZES.S,
-        fontWeight: '300',
     },
     
     //Containers

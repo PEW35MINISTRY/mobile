@@ -1,6 +1,6 @@
 /*********** ONLY DEPENDENCIES FROM DIRECTORY: /field-sync/ ***********/
 
-import { ContentSourceEnum, ContentTypeEnum, GenderSelectionEnum } from '../input-config-sync/content-field-config';
+import { GenderSelectionEnum } from '../input-config-sync/content-field-config';
 import { ProfileListItem } from './profile-types';
 
 
@@ -14,14 +14,11 @@ import { ProfileListItem } from './profile-types';
 
 export interface ContentListItem {
     contentID: number,
-    type: ContentTypeEnum,
-    source: ContentSourceEnum,
+    type: string,
+    source: string,
     url: string,
     keywordList: string[],
-    title?: string,
     description?: string, 
-    image?: string,
-    likeCount: number,
 }
 
 
@@ -29,14 +26,11 @@ export interface ContentResponseBody {
     contentID: number,
     recorderID: number,
     recorderProfile: ProfileListItem, 
-    type: ContentTypeEnum,
-    source: ContentSourceEnum,
+    type: string,
+    source: string,
     url: string,
     keywordList: string,
-    title?: string,
-    description?: string,
-    image?: string,
-    likeCount: number,
+    description?: string, 
     gender: GenderSelectionEnum,
     minimumAge: number,
     maximumAge: number,
@@ -45,14 +39,3 @@ export interface ContentResponseBody {
     notes?: string
 }
 
-export interface ContentMetaDataRequestBody {
-    url:string,
-    type: ContentTypeEnum
-    source: ContentSourceEnum
-}
-
-export type ContentMetaDataResponseBody = {
-    title:string|undefined,
-    description:string|undefined,
-    imageURL:string|undefined,
-}
