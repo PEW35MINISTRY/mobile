@@ -108,6 +108,11 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
             width: 1,
             backgroundColor: COLORS.grayDark,
             marginVertical: 5,
+          },
+          isHeaderTitle: {
+            ...theme.title,
+            color: COLORS.white,
+            fontSize: 20
           }
         });
 
@@ -124,8 +129,8 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
                             props.onDeselect();
                         }
                         }} >
-                        <Text style={(index === selectedIndex) ? [(props.isHeader) ? theme.title : theme.text, styles.filterSelected] 
-                            : [(props.isHeader) ? theme.title : theme.text, styles.filterNotSelected] }>{makeDisplayText(item)}</Text>
+                        <Text style={(index === selectedIndex) ? [(props.isHeader) ? styles.isHeaderTitle : theme.text, styles.filterSelected] 
+                            : [(props.isHeader) ? styles.isHeaderTitle : theme.text, styles.filterNotSelected] }>{makeDisplayText(item)}</Text>
                     </TouchableOpacity>
                     {index < props.optionList.length - 1 && <View style={styles.divider} />}
                 </React.Fragment>                        
