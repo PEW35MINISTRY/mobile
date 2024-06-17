@@ -281,7 +281,7 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
 export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean, label?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, labelStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
     const styles = StyleSheet.create({
         dropdownText: {
-            color: COLORS.white,
+            ...theme.text,
             textAlign: "center",
         },
         labelStyle: {
@@ -296,7 +296,7 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
             justifyContent: "center"
         },
         dropdownSelected: {
-            color: COLORS.white,
+            ...theme.text,
             textAlign: "center",
             flex: 1,
             paddingLeft: 16
@@ -311,11 +311,13 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
             marginBottom: 5,
             ...props.validationStyle
         },
-          
+        dropdownIcon: {
+            paddingTop: theme.text.fontSize / 2,
+        }
     });
     
     return (
-        <View style={styles.containerStyle}>
+        <View style={styles.containerStyle} >
             {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
             <SelectList 
                 setSelected={(val: string) => props.setSelected(val)}
@@ -324,9 +326,18 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
                 boxStyles={styles.selectBoxStyle} 
                 dropdownTextStyles={styles.dropdownText}
                 inputStyles={styles.dropdownSelected}
-                placeholder={props.placeholder}
+                placeholder={props.placeholder ?? props.defaultOption?.value}
                 defaultOption={props.defaultOption} 
-             />
+                search={false}
+                arrowicon={
+                    <Ionicons
+                        name={'chevron-down'}
+                        color={COLORS.accent}
+                        size={theme.text.fontSize} 
+                        style={styles.dropdownIcon}
+                    />
+                }
+            />
             {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
 
         </View>
@@ -339,7 +350,7 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
 
     const styles = StyleSheet.create({
         dropdownText: {
-            color: COLORS.white,
+            ...theme.text,
             textAlign: "center",
             
         },
@@ -351,7 +362,7 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
             ...props.labelStyle,
         },
         dropdownSelected: {
-            color: COLORS.white,
+            ...theme.text,
             textAlign: "center",
             paddingLeft: 16,
             flex: 1 
@@ -366,7 +377,9 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
             marginBottom: 5,
             ...props.validationStyle
         },
-          
+        dropdownIcon: {
+            paddingTop: theme.text.fontSize / 2,
+        }
     });
     
     return (
@@ -382,6 +395,15 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
                 placeholder={props.placeholder}
                 defaultOptions={props.defaultOptions}
                 checkBoxStyles={props.checkBoxStyles}
+                search={false}
+                arrowicon={
+                    <Ionicons
+                        name={'chevron-down'}
+                        color={COLORS.accent}
+                        size={theme.text.fontSize} 
+                        style={styles.dropdownIcon}
+                    />
+                }
              />
             {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
 
