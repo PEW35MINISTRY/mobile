@@ -79,9 +79,29 @@ export const Outline_Button = (props:{text:string|JSX.Element, buttonStyle?:View
     return ( <Flat_Button {...props} buttonStyle={styles.buttonStyle}/> );    
 }
 
+//Not Header, Included in page scroll
+export const Page_Title = (props:{title:string, containerStyle?:ViewStyle, textStyle?:TextStyle}):JSX.Element => {
+    const styles = StyleSheet.create({
+        containerStyle: {
+            width: '100%',
+            padding: theme.header.fontSize / 2,
+            ...props.containerStyle
+        },
+        textStyle: {
+            ...theme.header,
+            textAlign: 'center',
+            ...props.textStyle
+        }
+    });
+
+    return ( <View style={styles.containerStyle}>
+                <Text style={styles.textStyle}>{props.title}</Text>
+            </View> );
+}
+
 
 /* Horizontal Multi Tab Selector */
-export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|undefined, onSelect:(name:string, index:number) => void, onDeselect?:() => void, style?:ViewStyle, isHeader?:boolean }) => {
+export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|undefined, onSelect:(name:string, index:number) => void, onDeselect?:() => void, containerStyle?:ViewStyle, textStyle?:TextStyle }) => {
 
     const [selectedIndex, setSelectedIndex] = useState<number|undefined>(props.defaultIndex);
 
@@ -91,13 +111,13 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
             padding: 0,
             borderTopWidth: 1,
             borderBottomWidth: 1,
-            borderColor: (props.isHeader) ? COLORS.primary : COLORS.accent,
-            ...props.style,
+            borderColor: (props.textStyle?.color) ? props.textStyle.color : COLORS.accent,
+            ...props.containerStyle,
           },
           filterSelected: {
             paddingVertical: 1,
             paddingHorizontal: 10,
-            backgroundColor: (props.isHeader) ? COLORS.primary : COLORS.accent,
+            backgroundColor: (props.textStyle?.color) ? props.textStyle.color : COLORS.accent,
           },
           filterNotSelected: {
             paddingVertical: 1,
@@ -109,10 +129,10 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
             backgroundColor: COLORS.grayDark,
             marginVertical: 5,
           },
-          isHeaderTitle: {
-            ...theme.title,
-            color: COLORS.white,
-            fontSize: 20
+          text: {
+            ...theme.text,
+            ...props.textStyle,
+            color: (props.textStyle?.color === COLORS.white) ? COLORS.accent : COLORS.white
           }
         });
 
@@ -129,8 +149,8 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
                             props.onDeselect();
                         }
                         }} >
-                        <Text style={(index === selectedIndex) ? [(props.isHeader) ? styles.isHeaderTitle : theme.text, styles.filterSelected] 
-                            : [(props.isHeader) ? styles.isHeaderTitle : theme.text, styles.filterNotSelected] }>{makeDisplayText(item)}</Text>
+                        <Text style={(index === selectedIndex) ? [styles.text, styles.filterSelected] 
+                            : [styles.text, styles.filterNotSelected] }>{makeDisplayText(item)}</Text>
                     </TouchableOpacity>
                     {index < props.optionList.length - 1 && <View style={styles.divider} />}
                 </React.Fragment>                        
