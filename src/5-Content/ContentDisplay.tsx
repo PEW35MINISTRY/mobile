@@ -21,8 +21,8 @@ const MOBILE_SUPPORTED_CONTENT_TYPES = [ContentTypeEnum.ARTICLE, ContentTypeEnum
 
 const ContentDisplay = (props:{callback?:(() => void), navigation:NativeStackNavigationProp<any, string, undefined>}):JSX.Element => {
 
-    const jwt = useAppSelector((state:RootState) => state.account.jwt);
-    const userID = useAppSelector((state:RootState) => state.account.userID);
+    const jwt:string = useAppSelector((state:RootState) => state.account.jwt);
+    const userID:number = useAppSelector((state:RootState) => state.account.userID);
 
     const [contentList, setContentList] = useState<ContentListItem[]>([]); //Apply filtering locally
 
@@ -31,7 +31,7 @@ const ContentDisplay = (props:{callback?:(() => void), navigation:NativeStackNav
         .then((response:{data:ContentListItem[]}) => {
           const list:ContentListItem[] = [...response.data]
             .filter((content:ContentListItem) => MOBILE_CONTENT_SUPPORTED_SOURCES.includes(content.source as ContentSourceEnum));
-          setContentList(list) ;
+          setContentList(list);
         }) //Custom strings won't match
         .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));        
     }, []);
