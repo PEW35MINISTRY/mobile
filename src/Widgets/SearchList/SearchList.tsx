@@ -22,7 +22,7 @@ import debounce from '../../utilities/debounceHook';
  *  Handles Relevant Searching, Filtering, toggling multi List Display           *
  *  Callbacks available of onPress, action buttons, and filter by sub properties *
  *********************************************************************************/
-const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean}) => {
+const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
     const jwt:string = useAppSelector((state) => state.account.jwt);
 
     /* Properties for Auto-hiding Sticky Header Handling */
@@ -220,52 +220,63 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
         }
     );
 
+    const showHeader = ():boolean =>
+        (searchTerm !== undefined)
+        || (props.pageTitle !== undefined)
+        || (props.showMultiListFilter && getListTitles().length > 1)
+        || (props.filterOptions !== undefined)
+        || (selectedKey.searchType !== SearchType.NONE);
+
     return (
         <View style={styles.container}>
-            <Animated.View ref={headerRef} 
-                style={[ styles.headerContainer, { transform: [{ translateY: isScrollingDown ? headerTranslate : 0 }] } ]}
-                onLayout={(event) => setHeaderHeight(event.nativeEvent.layout.height)}
-            >
+            {showHeader() &&
+                <Animated.View ref={headerRef} 
+                    style={[ styles.headerContainer, { transform: [{ translateY: isScrollingDown ? headerTranslate : 0 }] } ]}
+                    onLayout={(event) => setHeaderHeight(event.nativeEvent.layout.height)}
+                >
 
-                {(searchTerm !== undefined) ?
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder={'Search...'}
-                        placeholderTextColor={COLORS.accent}
-                        value={searchTerm}
-                        onChangeText={onSearchInput}
-                        onSubmitEditing={() => executeSearch()}
-                    />
-                : (props.pageTitle !== undefined) &&
-                    <Page_Title title={props.pageTitle} containerStyle={styles.titleContainer} />
-                }
-                { (getListTitles().length > 1) &&
-                    <Tab_Selector
-                        optionList={getListTitles()}
-                        defaultIndex={getKeyIndex()}
-                        onSelect={(title:string, index:number) => onListSelection(title)}
-                        containerStyle={styles.tabHeaderContainer}
-                        textStyle={styles.title}
-                    />
-                }
-                { (props.filterOptions) &&
-                    <Tab_Selector
-                        optionList={props.filterOptions}
-                        defaultIndex={getFilterIndex()}
-                        onSelect={(item:string, index:number) => onApplyFilter(item)}
-                        onDeselect={() => setDisplayList(getList())}
-                        containerStyle={styles.tabHeaderContainer}
-                        textStyle={styles.title}
-                    />
-                }
-                <Ionicons 
-                    name='search-outline'
-                    color={COLORS.accent}
-                    size={theme.title.fontSize}
-                    style={styles.searchIcon}
-                    onPress={() => setSearchTerm((searchTerm === undefined) ? '' : undefined)}
-                />
-            </Animated.View>
+                    {(searchTerm !== undefined) ?
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder={'Search...'}
+                            placeholderTextColor={COLORS.accent}
+                            value={searchTerm}
+                            onChangeText={onSearchInput}
+                            onSubmitEditing={() => executeSearch()}
+                        />
+                    : (props.pageTitle !== undefined) &&
+                        <Page_Title title={props.pageTitle} containerStyle={styles.titleContainer} />
+                    }
+                    {(props.showMultiListFilter && getListTitles().length > 1) &&
+                        <Tab_Selector
+                            optionList={getListTitles()}
+                            defaultIndex={getKeyIndex()}
+                            onSelect={(title:string, index:number) => onListSelection(title)}
+                            containerStyle={styles.tabHeaderContainer}
+                            textStyle={styles.title}
+                        />
+                    }
+                    { (props.filterOptions !== undefined) &&
+                        <Tab_Selector
+                            optionList={props.filterOptions}
+                            defaultIndex={getFilterIndex()}
+                            onSelect={(item:string, index:number) => onApplyFilter(item)}
+                            onDeselect={() => setDisplayList(getList())}
+                            containerStyle={styles.tabHeaderContainer}
+                            textStyle={styles.title}
+                        />
+                    }
+                    {(selectedKey.searchType !== SearchType.NONE) &&
+                        <Ionicons 
+                            name='search-outline'
+                            color={COLORS.accent}
+                            size={theme.title.fontSize}
+                            style={styles.searchIcon}
+                            onPress={() => setSearchTerm((searchTerm === undefined) ? '' : undefined)}
+                        />
+                    }
+                </Animated.View>
+            }
 
             {(displayList.length === 0) ?
                 <View style={styles.resetWrapper} >
@@ -276,8 +287,15 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                 </View>
 
             : <Animated.ScrollView style={[styles.displayScrollList, { paddingTop: headerHeight }]} onScroll={onScroll} scrollEventThrottle={16} >
+                {(props.headerItems !== undefined) && (searchTerm === undefined) &&
+                    props.headerItems.map((item:JSX.Element, index) => (
+                        <React.Fragment key={`${props.key}-header-${index}`}>
+                            {item}
+                        </React.Fragment>
+                ))}
+
                 {displayList.map((item: SearchListValue, index) => (
-                    <React.Fragment key={`${props.key}+${index}`}>
+                    <React.Fragment key={`${props.key}-${index}`}>
                         { item.displayType === ListItemTypesEnum.CONTENT_ARCHIVE ? (
                             <ContentCard {...item} item={item.displayItem as ContentListItem} onPress={item.onClick} />
                         ) : (
@@ -285,7 +303,14 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                         )}
                     </React.Fragment>
                 ))}
-            </Animated.ScrollView>
+
+                {(props.footerItems !== undefined) && (searchTerm === undefined) &&
+                    props.footerItems.map((item:JSX.Element, index) => (
+                        <React.Fragment key={`${props.key}-footer-${index}`}>
+                            {item}
+                        </React.Fragment>
+                ))}
+              </Animated.ScrollView>
             }
         </View>
     );
