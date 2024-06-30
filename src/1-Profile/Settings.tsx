@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TextStyle, Text, Modal, Linking } from 'react-native';
 import theme, { FONT_SIZES } from '../theme';
-import { Outline_Button, Raised_Button } from '../widgets';
+import { BackButton, Outline_Button, Raised_Button } from '../widgets';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Partnerships from '../4-Partners/Partnerships';
@@ -40,6 +40,11 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                     buttonStyle={styles.settingsButton}
                 />
                 <Outline_Button 
+                    text={"Circles"}
+                    onPress={() => navigation.navigate(ROUTE_NAMES.CIRCLE_LIST_ROUTE_NAME)}
+                    buttonStyle={styles.settingsButton}
+                />
+                <Outline_Button 
                     text={"Portal Login"}
                     onPress={() => Linking.openURL("https://encouragingprayer.org/login")}
                     buttonStyle={styles.settingsButton}
@@ -75,6 +80,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                     navigation={navigation} callback={() => setPartnerModalVisible(false)}
                 />
             </Modal>
+            <BackButton navigation={navigation} />
        </View>
     )
 }

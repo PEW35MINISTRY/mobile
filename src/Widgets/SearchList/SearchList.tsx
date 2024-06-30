@@ -1,19 +1,22 @@
-import axios, { AxiosError } from 'axios';
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { SearchFilterIdentifiable, SearchListKey, SearchListValue} from './searchList-types';
 import { ContentListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/content-types';
-import SearchDetail, { SearchTypeInfo, DisplayItemType, SearchType, ListItemTypesEnum, SEARCH_MIN_CHARS } from '../../TypesAndInterfaces/config-sync/input-config-sync/search-config';
+import SearchDetail, { SearchTypeInfo, DisplayItemType, SearchType, ListItemTypesEnum, SEARCH_MIN_CHARS, LabelListItem } from '../../TypesAndInterfaces/config-sync/input-config-sync/search-config';
 import { useAppSelector } from '../../TypesAndInterfaces/hooks';
 import { ServerErrorResponse } from '../../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../../utilities/ToastQueueManager';
-import { Page_Title, Raised_Button, Tab_Selector } from '../../widgets';
+import { BackButton, Page_Title, Raised_Button, Tab_Selector } from '../../widgets';
 import ContentCard from '../../5-Content/ContentCard';
 import theme, { COLORS } from '../../theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { DOMAIN } from '@env';
 import { ContentSearchFilterEnum } from '../../TypesAndInterfaces/config-sync/input-config-sync/content-field-config';
 import debounce from '../../utilities/debounceHook';
+import { PrayerRequestListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
+import { PrayerRequestTouchable } from '../../3-Prayer-Request/prayer-request-widgets';
+import { StackNavigationProps } from '../../TypesAndInterfaces/custom-types';
 
 
 /*********************************************************************************
@@ -22,7 +25,7 @@ import debounce from '../../utilities/debounceHook';
  *  Handles Relevant Searching, Filtering, toggling multi List Display           *
  *  Callbacks available of onPress, action buttons, and filter by sub properties *
  *********************************************************************************/
-const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
+const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, backButtonNavigation?:StackNavigationProps, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, additionalHeaderRows?:JSX.Element[], headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
     const jwt:string = useAppSelector((state) => state.account.jwt);
 
     /* Properties for Auto-hiding Sticky Header Handling */
@@ -62,19 +65,28 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
     };
 
     /* Setup Default List */
-    //Note: Currently not supporting multiple list types like portal
-    const getDefaultDisplayList = ():SearchListValue[] => {
+    const resetDefaultDisplayList = ():SearchListValue[] => {
         const defaultList:SearchListValue[] = [];
-        const firstEntry:[SearchListKey, SearchListValue[]] | undefined = Array.from(props.displayMap.entries()).find(([key, itemList]) => itemList.length > 0);
-        if(firstEntry !== undefined) {
-            defaultList.push(...firstEntry[1]);
-            setSelectedKey(firstEntry[0] || new SearchListKey({displayTitle: 'Default'}));
-        }
+        Array.from(props.displayMap.entries())
+            .forEach(([key, itemList]) => {
+                if(itemList.length > 0) {
+                    if(props.displayMap.size > 1) defaultList.push(new SearchListValue({displayType: ListItemTypesEnum.LABEL, displayItem: key.displayTitle}))
+                    defaultList.push(...itemList);
+                }
+            });
+        setDisplayList(defaultList);
+
+        /* Identify Search Key */
+        if(props.displayMap.size === 1)
+            setSelectedKey(Array.from(props.displayMap.keys())[0]);
+        else
+            setSelectedKey(new SearchListKey({displayTitle: 'Default'}));
+
         return defaultList;
     }
 
     useLayoutEffect(() => {        
-        setDisplayList(getDefaultDisplayList());
+        resetDefaultDisplayList();
     },[props.displayMap]);
 
 
@@ -190,7 +202,8 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
 
     const resetPage = (keyTitle?: string):void => {
         setSelectedKey(getKey(keyTitle));
-        setDisplayList((!keyTitle || (keyTitle.length === 0)) ? getDefaultDisplayList() : getList(keyTitle));
+        if(!keyTitle || (keyTitle.length === 0)) resetDefaultDisplayList();
+        else setDisplayList(getList(keyTitle));
         setAppliedFilter(undefined);
         setSearchTerm(undefined);
         setSearchCacheMap(undefined);
@@ -225,7 +238,9 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
         || (props.pageTitle !== undefined)
         || (props.showMultiListFilter && getListTitles().length > 1)
         || (props.filterOptions !== undefined)
-        || (selectedKey.searchType !== SearchType.NONE);
+        || (selectedKey.searchType !== SearchType.NONE)
+        || (props.additionalHeaderRows !== undefined)
+        || (props.backButtonNavigation !== undefined);
 
     return (
         <View style={styles.container}>
@@ -266,7 +281,7 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                             textStyle={styles.title}
                         />
                     }
-                    {(selectedKey.searchType !== SearchType.NONE) &&
+                    {(selectedKey.searchType !== SearchType.NONE) ?
                         <Ionicons 
                             name='search-outline'
                             color={COLORS.accent}
@@ -274,7 +289,15 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                             style={styles.searchIcon}
                             onPress={() => setSearchTerm((searchTerm === undefined) ? '' : undefined)}
                         />
+                        : (props.backButtonNavigation) && 
+                            <BackButton navigation={props.backButtonNavigation.navigation} />
                     }
+                    {(props.additionalHeaderRows !== undefined) &&
+                        props.additionalHeaderRows.map((item:JSX.Element, index) => (
+                            <React.Fragment key={`${props.key}-header-row-${index}`}>
+                                {item}
+                            </React.Fragment>
+                    ))}
                 </Animated.View>
             }
 
@@ -296,11 +319,17 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
 
                 {displayList.map((item: SearchListValue, index) => (
                     <React.Fragment key={`${props.key}-${index}`}>
-                        { item.displayType === ListItemTypesEnum.CONTENT_ARCHIVE ? (
-                            <ContentCard {...item} item={item.displayItem as ContentListItem} onPress={item.onClick} />
-                        ) : (
-                            <Text>ERROR</Text>
-                        )}
+                        { item.displayType === ListItemTypesEnum.LABEL ? 
+                            <LabelItem {...item} key={`label-${props.key}-${index}`} label={item.displayItem as LabelListItem} onPress={item.onClick} />
+
+                        : item.displayType === ListItemTypesEnum.CONTENT_ARCHIVE ? 
+                            <ContentCard {...item} key={`content-${props.key}-${index}`} item={item.displayItem as ContentListItem} onPress={item.onClick} />
+
+                        : item.displayType === ListItemTypesEnum.PRAYER_REQUEST ? 
+                            <PrayerRequestTouchable {...item} key={`prayer-request-${props.key}-${index}`}
+                                prayerRequestProp={item.displayItem as PrayerRequestListItem} onPress={item.onClick} />
+                            
+                        : <Text>ERROR</Text> }
                     </React.Fragment>
                 ))}
 
@@ -317,6 +346,11 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
 }
 
 export default SearchList;
+
+export const LabelItem = ({...props}:{key:any, label:LabelListItem, onPress?:(id:number, item:LabelListItem)=>void}) => 
+    <View key={props.key} style={styles.labelCard}>
+        <Text style={styles.labelCardText} numberOfLines={1} ellipsizeMode='tail' >{props.label}</Text>
+    </View>;
 
 
 const styles = StyleSheet.create({
@@ -339,7 +373,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
 
         paddingHorizontal: 5,
-        paddingVertical: 15,
+        paddingVertical: 10,
     },  
     searchHeaderField: {
         flex: 1,
@@ -381,5 +415,17 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    labelCard: {
+        flex: 1,
+        alignItems: 'flex-start',
+        justifyContent: 'flex-end',
+        padding: 0,
+        marginTop: 10,
+    },
+    labelCardText: {
+        ...theme.title,
+        color: COLORS.accent,
+        textDecorationLine: 'underline'
     }
 });

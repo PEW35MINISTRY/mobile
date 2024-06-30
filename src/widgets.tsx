@@ -474,7 +474,7 @@ export const SelectSlider = (props:{minValue:number, maxValue:number, defaultVal
     )
 }
 
-export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
+export const ProfileImage = (props:{style?:ImageStyle, onPress?:() => void}):JSX.Element => {
     const userProfileImage = useAppSelector((state: RootState) => state.account.userProfile.image);
     const DEFAULT_PROFILE_ICON = require("../assets/profile-icon-blue.png");
 
@@ -491,10 +491,9 @@ export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
     })
 
     return (
-        <>
+        <TouchableOpacity onPress={() => props.onPress && props.onPress()}>
             <Image source={requestorImage} style={styles.profileImage}></Image>
-        </>
-
+        </TouchableOpacity>
     );
 }
 
