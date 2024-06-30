@@ -20,6 +20,8 @@ import { Flat_Button, Icon_Button, ProfileImage } from '../widgets';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import DEFAULT_CIRCLE_ICON from '../../assets/circle-icon-blue.png';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { PartnerStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
+import { PartnershipContractModal } from '../4-Partners/partnership-widgets';
 
 
 /**************************
@@ -30,6 +32,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
     const jwt:string = useAppSelector((state:RootState) => state.account.jwt);
     const userID:number = useAppSelector((state:RootState) => state.account.userID);
     const partnerPendingUserList:PartnerListItem[] = useAppSelector((state:RootState) => state.account.userProfile.partnerPendingUserList) || [];
+    const [newPartner, setNewPartner] = useState<PartnerListItem|undefined>(undefined);
     const circleInviteList:CircleListItem[] = useAppSelector((state:RootState) => state.account.userProfile.circleInviteList) || [];
 
     const [newPrayerRequestList, setNewPrayerRequestList] = useState<PrayerRequestListItem[]>([]);
@@ -90,10 +93,11 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                 ]}
                 showMultiListFilter={false}
                 displayMap={new Map([
-                        // [
-                        //     new SearchListKey({displayTitle:'Partner Requests'}),
-                        //     [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partner }))
-                        // ],
+                        [
+                            new SearchListKey({displayTitle:'Partner Requests'}),
+                            [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partner,
+                                primaryButtonText:'View Contract', onPrimaryButtonCallback:(id:number, item) => setNewPartner(item as PartnerListItem)}))
+                        ],
                         // [
                         //     new SearchListKey({displayTitle:'Circle Invites'}),
                         //     [...circleInviteList].map((circle) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE, displayItem: circle }))
@@ -122,6 +126,23 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                     />
                 ]}
             />
+
+            {newPartner &&
+                <PartnershipContractModal
+                    visible={newPartner !== undefined}
+                    partner={newPartner}
+                    acceptPartnershipRequest={(id, partnerItem) => 
+                        axios.post(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/accept', {}, {headers: {jwt}})
+                            .then((response:AxiosResponse) => setNewPartner(undefined))
+                            .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))
+                    }
+                    declinePartnershipRequest={(id, partnerItem) => 
+                        axios.post(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/accept', {}, {headers: {jwt}})
+                            .then((response:AxiosResponse) => setNewPartner(undefined))
+                            .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))}
+                    onClose={() => setNewPartner(undefined)}
+                />
+        }
         </View>
     );
 };
