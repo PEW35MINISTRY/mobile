@@ -48,45 +48,45 @@ export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string,
     return <Image source={requestorImage} style={styles.circleImage} resizeMode="contain"></Image> 
 }
 
-export const CircleTouchable = (props:{circleProps: CircleListItem, onPress:(() => void)}):JSX.Element => {
+export const CircleTouchable = (props:{circleProps: CircleListItem, buttonText?:string, onButtonPress?:(id:number, item:CircleListItem) => void, onPress?:((id:number, item:CircleListItem) => void)}):JSX.Element => {
     const styles = StyleSheet.create({
+        ...theme,
         opacity: {
-            width: 250,
             height: 100,
+            width: '100%',
+            minWidth: 250,
             borderRadius: 10,
-
         },
         header: {
-            flexDirection: "row",
-            alignContent: "center",
-            justifyContent: "center",
+            flexDirection: 'row',
+            alignItems: 'center',
             backgroundColor: COLORS.white,
-            width: 250,
-            height: 65,
             borderRadius: 15,
-
-        },
-        column: {
-            flexDirection: "column",
-            width: 200,
-            height: 55,
-        },
-        circleNameText: {
-            ...theme.title,
-            fontSize: 20,
-            textAlign: "center"
+            padding: 10,
         },
         circleImage: {
             height: 50,
             width: 50,
-            borderRadius: 40,
-            alignSelf: "center"
+            borderRadius: 25,
+            marginRight: 10,
+        },
+        circleNameText: {
+            ...theme.title,
+            flex: 1,
+            fontSize: 20,
+            textAlign: 'left',
+        },
+        actionButton: {
+            backgroundColor: COLORS.white,
+            padding: 5,
+            height: FONT_SIZES.L + 10,
         },
     });
+
     return (
         <View>
             <TouchableOpacity
-                onPress={props.onPress}
+                onPress={() => props.onPress && props.onPress(props.circleProps.circleID, props.circleProps)}
                 style={styles.opacity}
             >
                 <View style={styles.header}>
@@ -95,10 +95,16 @@ export const CircleTouchable = (props:{circleProps: CircleListItem, onPress:(() 
                         circleID={props.circleProps.circleID}
                         style={styles.circleImage}
                     />
-                    <View style={styles.column}>
-                        <Text style={styles.circleNameText}>{props.circleProps.name}</Text>
-                    </View>
-                </View>
+                    <Text style={styles.circleNameText}>{props.circleProps.name}</Text>
+                    {(props.onButtonPress) &&
+                        <Outline_Button
+                            text={props.buttonText || ''}
+                            textStyle={styles.accent}
+                            buttonStyle={styles.actionButton}
+                            onPress={() => props.onButtonPress && props.onButtonPress(props.circleProps.circleID, props.circleProps)}
+                        />
+                    }
+                </View>                
             </TouchableOpacity>
         </View>
     );
@@ -170,7 +176,6 @@ export const EventTouchable = (props:{circleEvent:CircleEventListItem, onPress:(
             flex: 1,
             width: 185
         }
-
     })
     return (
         <View style={styles.container}>

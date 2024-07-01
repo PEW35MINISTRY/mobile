@@ -94,10 +94,17 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                         //     new SearchListKey({displayTitle:'Partner Requests'}),
                         //     [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partner }))
                         // ],
-                        // [
-                        //     new SearchListKey({displayTitle:'Circle Invites'}),
-                        //     [...circleInviteList].map((circle) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE, displayItem: circle }))
-                        // ],
+                        [
+                            new SearchListKey({displayTitle:'Circle Invites'}),
+                            [...circleInviteList].map((circle) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE, displayItem: circle,
+                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME, { CircleProps: item }),
+                                primaryButtonText: 'Accept Invite', onPrimaryButtonCallback:(id, item) => 
+                                    axios.post(`${DOMAIN}/api/circle/` + id + '/accept', {}, {headers: { jwt }})
+                                        .then(response => {
+                                        //TODO Remove from List
+                                        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})),
+                            }))
+                        ],
                         // [
                         //     new SearchListKey({displayTitle:'Announcements'}),
                         //     [...circleAnnouncements].map((announcements) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcements }))
@@ -105,7 +112,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                         [
                             new SearchListKey({displayTitle:'Prayer Requests'}),
                             [...newPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,
-                                onClick: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
+                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
                                     params: { PrayerRequestProps: item },
                                     screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
                                 })}))
