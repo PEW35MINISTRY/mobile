@@ -9,7 +9,7 @@ import { ServerErrorResponse } from '../../TypesAndInterfaces/config-sync/api-ty
 import ToastQueueManager from '../../utilities/ToastQueueManager';
 import { BackButton, Page_Title, Raised_Button, Tab_Selector } from '../../widgets';
 import ContentCard from '../../5-Content/ContentCard';
-import theme, { COLORS } from '../../theme';
+import theme, { COLORS, FONT_SIZES } from '../../theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { DOMAIN } from '@env';
 import { ContentSearchFilterEnum } from '../../TypesAndInterfaces/config-sync/input-config-sync/content-field-config';
@@ -17,6 +17,8 @@ import debounce from '../../utilities/debounceHook';
 import { PrayerRequestListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { PrayerRequestTouchable } from '../../3-Prayer-Request/prayer-request-widgets';
 import { StackNavigationProps } from '../../TypesAndInterfaces/custom-types';
+import { AnnouncementTouchable, CircleTouchable } from '../../2-Circles/circle-widgets';
+import { CircleAnnouncementListItem, CircleListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PendingPrayerPartnerListItem } from '../../4-Partners/partnership-widgets';
 import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { PartnerStatusEnum } from '../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
@@ -129,7 +131,7 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
 
                     if(listValueItem === undefined) {
                         listValueItem = new SearchListValue({displayType, displayItem: displayItem, 
-                            onClick: selectedKey.onSearchClick,
+                            onPress: selectedKey.onSearchPress,
                             primaryButtonText: selectedKey.searchPrimaryButtonText,
                             onPrimaryButtonCallback: selectedKey.onSearchPrimaryButtonCallback,
                             alternativeButtonText: selectedKey.searchAlternativeButtonText,
@@ -323,19 +325,30 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                 {displayList.map((item: SearchListValue, index) => (
                     <React.Fragment key={`${props.key}-${index}`}>
                         { item.displayType === ListItemTypesEnum.LABEL ? 
-                            <LabelItem {...item} key={`label-${props.key}-${index}`} label={item.displayItem as LabelListItem} onPress={item.onClick} />
+                            <LabelItem {...item} key={`label-${props.key}-${index}`} label={item.displayItem as LabelListItem} onPress={item.onPress} />
 
                         : item.displayType === ListItemTypesEnum.CONTENT_ARCHIVE ? 
-                            <ContentCard {...item} key={`content-${props.key}-${index}`} item={item.displayItem as ContentListItem} onPress={item.onClick} />
+                            <ContentCard {...item} key={`content-${props.key}-${index}`} item={item.displayItem as ContentListItem} onPress={item.onPress} />
 
                         : item.displayType === ListItemTypesEnum.PRAYER_REQUEST ? 
                             <PrayerRequestTouchable {...item} key={`prayer-request-${props.key}-${index}`}
-                                prayerRequestProp={item.displayItem as PrayerRequestListItem} onPress={item.onClick} />
+                                prayerRequestProp={item.displayItem as PrayerRequestListItem} onPress={item.onPress} />
 
                         : item.displayType === ListItemTypesEnum.PARTNER ? 
-                            <PendingPrayerPartnerListItem {...item} key={`pending-partner-${props.key}-${index}`}
-                                partner={item.displayItem as PartnerListItem} onPress={item.onClick}
+                            <PendingPrayerPartnerListItem {...item} key={`partner-${props.key}-${index}`}
+                                partner={item.displayItem as PartnerListItem} onPress={item.onPress}
                                 buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
+                            />
+
+                        : item.displayType === ListItemTypesEnum.CIRCLE ? 
+                            <CircleTouchable {...item} key={`circle-${props.key}-${index}`}
+                                circleProps={item.displayItem as CircleListItem} onPress={item.onPress} 
+                                buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
+                            />
+
+                        : item.displayType === ListItemTypesEnum.CIRCLE_ANNOUNCEMENT ? 
+                            <AnnouncementTouchable {...item} key={`circle-announcement-${props.key}-${index}`}
+                                announcement={item.displayItem as CircleAnnouncementListItem} onPress={item.onPress} showCircleImage={true}
                             />
                             
                         : <Text>ERROR</Text> }
@@ -430,11 +443,13 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'flex-end',
         padding: 0,
+        paddingLeft: 5,
         marginTop: 10,
     },
     labelCardText: {
-        ...theme.title,
-        color: COLORS.accent,
+        ...theme.accent,
+        color: COLORS.white,
+        fontSize: FONT_SIZES.L,
         textDecorationLine: 'underline'
     }
 });

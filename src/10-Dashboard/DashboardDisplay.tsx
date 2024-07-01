@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, GestureResponderEvent, Modal } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { RootState } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import { DOMAIN } from '@env';
@@ -20,7 +20,6 @@ import { Flat_Button, Icon_Button, ProfileImage } from '../widgets';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import DEFAULT_CIRCLE_ICON from '../../assets/circle-icon-blue.png';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { PartnerStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { PartnershipContractModal } from '../4-Partners/partnership-widgets';
 
 
@@ -98,18 +97,25 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                             [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partner,
                                 primaryButtonText:'View Contract', onPrimaryButtonCallback:(id:number, item) => setNewPartner(item as PartnerListItem)}))
                         ],
-                        // [
-                        //     new SearchListKey({displayTitle:'Circle Invites'}),
-                        //     [...circleInviteList].map((circle) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE, displayItem: circle }))
-                        // ],
-                        // [
-                        //     new SearchListKey({displayTitle:'Announcements'}),
-                        //     [...circleAnnouncements].map((announcements) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcements }))
-                        // ],
+                        [
+                            new SearchListKey({displayTitle:'Circle Invites'}),
+                            [...circleInviteList].map((circle) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE, displayItem: circle,
+                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME, { CircleProps: item }),
+                                primaryButtonText: 'Accept Invite', onPrimaryButtonCallback:(id, item) => 
+                                    axios.post(`${DOMAIN}/api/circle/` + id + '/accept', {}, {headers: { jwt }})
+                                        .then(response => {
+                                        //TODO Remove from List
+                                        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})),
+                            }))
+                        ],
+                        [
+                            new SearchListKey({displayTitle:'Announcements'}),
+                            [...circleAnnouncements].map((announcements) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcements }))
+                        ],
                         [
                             new SearchListKey({displayTitle:'Prayer Requests'}),
                             [...newPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,
-                                onClick: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
+                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
                                     params: { PrayerRequestProps: item },
                                     screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
                                 })}))

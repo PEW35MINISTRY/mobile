@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { Image, StyleSheet, ImageStyle, ImageSourcePropType, Dimensions, TouchableOpacity } from 'react-native';
 import { ContentSourceEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/content-field-config';
 
@@ -27,7 +27,7 @@ export const ContentThumbnail = (props:{imageUri:string|undefined, contentSource
         setAspectRatio(width / height);
     };
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (props.imageUri) {
             setImage({ uri: props.imageUri });
             Image.getSize(props.imageUri, (width, height) => {
