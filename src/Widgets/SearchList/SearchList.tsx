@@ -17,8 +17,8 @@ import debounce from '../../utilities/debounceHook';
 import { PrayerRequestListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { PrayerRequestTouchable } from '../../3-Prayer-Request/prayer-request-widgets';
 import { StackNavigationProps } from '../../TypesAndInterfaces/custom-types';
-import { CircleTouchable } from '../../2-Circles/circle-widgets';
-import { CircleListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
+import { AnnouncementTouchable, CircleTouchable } from '../../2-Circles/circle-widgets';
+import { CircleAnnouncementListItem, CircleListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 
 
 /*********************************************************************************
@@ -335,6 +335,11 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                             <CircleTouchable {...item} key={`circle-${props.key}-${index}`}
                                 circleProps={item.displayItem as CircleListItem} onPress={item.onPress} 
                                 buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
+                            />
+
+                        : item.displayType === ListItemTypesEnum.CIRCLE_ANNOUNCEMENT ? 
+                            <AnnouncementTouchable {...item} key={`circle-announcement-${props.key}-${index}`}
+                                announcement={item.displayItem as CircleAnnouncementListItem} onPress={item.onPress} showCircleImage={true}
                             />
                             
                         : <Text>ERROR</Text> }

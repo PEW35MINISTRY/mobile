@@ -105,10 +105,10 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                                         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})),
                             }))
                         ],
-                        // [
-                        //     new SearchListKey({displayTitle:'Announcements'}),
-                        //     [...circleAnnouncements].map((announcements) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcements }))
-                        // ],
+                        [
+                            new SearchListKey({displayTitle:'Announcements'}),
+                            [...circleAnnouncements].map((announcements) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcements }))
+                        ],
                         [
                             new SearchListKey({displayTitle:'Prayer Requests'}),
                             [...newPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,

@@ -141,47 +141,6 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
     );
 }
 
-export const AnnouncementTouchable = (props:{announcementProps: CircleAnnouncementListItem}):JSX.Element => {
-    const styles = StyleSheet.create({
-        container: {
-            width: 140,
-            height: 60,
-            justifyContent: "center",
-            alignContent: "center",
-            alignSelf: "center",
-        },
-        bubbleStyle: {
-            backgroundColor: COLORS.primary,
-            width: 175,
-            height: 80,
-            borderRadius: 15,
-            justifyContent: "center",
-            alignContent: "center",
-            marginHorizontal: 5
-        },
-        titleText: {
-            ...theme.primary,
-            color: COLORS.white,
-            fontWeight: "700"
-        },
-        bodyText: {
-            ...theme.text,
-            fontSize: FONT_SIZES.S,
-            
-        }
-    });
-
-    return (
-        <View>
-            <TouchableOpacity style={styles.bubbleStyle}>
-                <View style={styles.container}>
-                    <Text style={styles.titleText}>{new Date(props.announcementProps.startDate as unknown as string).toDateString()}</Text>
-                    <Text style={styles.bodyText}>{props.announcementProps.message}</Text>
-                </View>
-            </TouchableOpacity>
-        </View>
-    );
-}
 
 export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentListItem, callback:((commentID:number) => void)}):JSX.Element => {
     const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
