@@ -109,9 +109,12 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
         filterContainer: {
             flexDirection: 'row',
             padding: 0,
-            borderTopWidth: 1,
-            borderBottomWidth: 1,
-            borderColor: (props.textStyle?.color) ? props.textStyle.color : COLORS.accent,
+
+            borderWidth: 1,
+            borderColor: COLORS.grayDark,
+            borderRadius: (props.textStyle?.fontSize ?? theme.text.fontSize) / 2,
+            overflow: 'hidden',
+
             ...props.containerStyle,
           },
           filterSelected: {

@@ -28,13 +28,20 @@ export const ContentThumbnail = (props:{imageUri:string|undefined, contentSource
     };
 
     useLayoutEffect(() => {
+        let isMounted = true;
+
+        const setImageAspect = (width:number, height:number) => {
+            if (isMounted)
+                setAspectRatio(width / height);
+        };
+
         if (props.imageUri) {
             setImage({ uri: props.imageUri });
-            Image.getSize(props.imageUri, (width, height) => {
-                setAspectRatio(width / height);
-            }, setDefaultThumbnail);
+            Image.getSize(props.imageUri, setImageAspect, setDefaultThumbnail);
         } else
             setDefaultThumbnail();
+
+        return () => { isMounted = false; }
     }, [props.imageUri, props.contentSource]);
 
     const styles = StyleSheet.create({

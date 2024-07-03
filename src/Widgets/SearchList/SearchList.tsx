@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { SearchFilterIdentifiable, SearchListKey, SearchListValue} from './searchList-types';
@@ -16,7 +16,7 @@ import { ContentSearchFilterEnum } from '../../TypesAndInterfaces/config-sync/in
 import debounce from '../../utilities/debounceHook';
 import { PrayerRequestListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { PrayerRequestTouchable } from '../../3-Prayer-Request/prayer-request-widgets';
-import { StackNavigationProps } from '../../TypesAndInterfaces/custom-types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
 import { AnnouncementTouchable, CircleTouchable } from '../../2-Circles/circle-widgets';
 import { CircleAnnouncementListItem, CircleListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PendingPrayerPartnerListItem } from '../../4-Partners/partnership-widgets';
@@ -30,7 +30,7 @@ import { PartnerStatusEnum } from '../../TypesAndInterfaces/config-sync/input-co
  *  Handles Relevant Searching, Filtering, toggling multi List Display           *
  *  Callbacks available of onPress, action buttons, and filter by sub properties *
  *********************************************************************************/
-const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, backButtonNavigation?:StackNavigationProps, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, additionalHeaderRows?:JSX.Element[], headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
+const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, backButtonNavigation?:NativeStackNavigationProp<any, string, undefined>, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, additionalHeaderRows?:JSX.Element[], headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
     const jwt:string = useAppSelector((state) => state.account.jwt);
 
     /* Properties for Auto-hiding Sticky Header Handling */
@@ -180,9 +180,10 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
             ToastQueueManager.show({message: 'Filter Unavailable'});
             return;
         }
+        const newFilter:SearchFilterIdentifiable = {filterOption, listKeyTitle: selectedKey.displayTitle};
         const currentList:SearchListValue[] = appliedFilter ? getList() : displayList;
-        setDisplayList(currentList.filter((item:SearchListValue) => !props.onFilter || props.onFilter(item, appliedFilter)));
-        setAppliedFilter({filterOption, listKeyTitle: selectedKey.displayTitle});
+        setDisplayList(currentList.filter((item:SearchListValue) => !props.onFilter || props.onFilter(item, newFilter)));
+        setAppliedFilter(newFilter);
     }
 
 
@@ -281,9 +282,9 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                             optionList={props.filterOptions}
                             defaultIndex={getFilterIndex()}
                             onSelect={(item:string, index:number) => onApplyFilter(item)}
-                            onDeselect={() => setDisplayList(getList())}
+                            onDeselect={() => { setDisplayList(getList()); setSearchTerm(undefined); }}
                             containerStyle={styles.tabHeaderContainer}
-                            textStyle={styles.title}
+                            textStyle={styles.filterText}
                         />
                     }
                     {(selectedKey.searchType !== SearchType.NONE) ?
@@ -291,11 +292,14 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                             name='search-outline'
                             color={COLORS.accent}
                             size={theme.title.fontSize}
-                            style={styles.searchIcon}
+                            style={(props.backButtonNavigation) ? styles.headerIconRight : styles.headerIconLeft}
                             onPress={() => setSearchTerm((searchTerm === undefined) ? '' : undefined)}
                         />
-                        : (props.backButtonNavigation) && 
-                            <BackButton navigation={props.backButtonNavigation.navigation} />
+                     : (props.backButtonNavigation) && 
+                        <BackButton navigation={props.backButtonNavigation} />
+                    }
+                    {(props.backButtonNavigation) && 
+                        <BackButton navigation={props.backButtonNavigation} />
                     }
                     {(props.additionalHeaderRows !== undefined) &&
                         props.additionalHeaderRows.map((item:JSX.Element, index) => (
@@ -308,59 +312,64 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
 
             {(displayList.length === 0) ?
                 <View style={styles.resetWrapper} >
-                    <Raised_Button 
-                        text={`Reset Page`}
-                        onPress={() => resetPage()}
-                    />
+                    { appliedFilter ? 
+                        <Raised_Button 
+                            text={`Reset Page`}
+                            onPress={() => resetPage()}
+                        />
+                      : <Text style={styles.accent} >Loading . . . </Text>
+                    }
                 </View>
 
-            : <Animated.ScrollView style={[styles.displayScrollList, { paddingTop: headerHeight }]} onScroll={onScroll} scrollEventThrottle={16} >
-                {(props.headerItems !== undefined) && (searchTerm === undefined) &&
-                    props.headerItems.map((item:JSX.Element, index) => (
-                        <React.Fragment key={`${props.key}-header-${index}`}>
-                            {item}
+            : <Animated.ScrollView  onScroll={onScroll} scrollEventThrottle={16} >
+                <View style={{ paddingTop: headerHeight }} >
+                    {(props.headerItems !== undefined) && (searchTerm === undefined) &&
+                        props.headerItems.map((item:JSX.Element, index) => (
+                            <React.Fragment key={`${props.key}-header-${index}`}>
+                                {item}
+                            </React.Fragment>
+                    ))}
+
+                    {displayList.map((item: SearchListValue, index) => (
+                        <React.Fragment key={`${props.key}-${index}`}>
+                            { item.displayType === ListItemTypesEnum.LABEL ? 
+                                <LabelItem {...item} key={`label-${props.key}-${index}`} label={item.displayItem as LabelListItem} onPress={item.onPress} />
+
+                            : item.displayType === ListItemTypesEnum.CONTENT_ARCHIVE ? 
+                                <ContentCard {...item} key={`content-${props.key}-${index}`} item={item.displayItem as ContentListItem} onPress={item.onPress} />
+
+                            : item.displayType === ListItemTypesEnum.PRAYER_REQUEST ? 
+                                <PrayerRequestTouchable {...item} key={`prayer-request-${props.key}-${index}`}
+                                    prayerRequestProp={item.displayItem as PrayerRequestListItem} onPress={item.onPress} />
+
+                            : item.displayType === ListItemTypesEnum.PARTNER ? 
+                                <PendingPrayerPartnerListItem {...item} key={`partner-${props.key}-${index}`}
+                                    partner={item.displayItem as PartnerListItem} onPress={item.onPress}
+                                    buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
+                                />
+
+                            : item.displayType === ListItemTypesEnum.CIRCLE ? 
+                                <CircleTouchable {...item} key={`circle-${props.key}-${index}`}
+                                    circleProps={item.displayItem as CircleListItem} onPress={item.onPress} 
+                                    buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
+                                />
+
+                            : item.displayType === ListItemTypesEnum.CIRCLE_ANNOUNCEMENT ? 
+                                <AnnouncementTouchable {...item} key={`circle-announcement-${props.key}-${index}`}
+                                    announcement={item.displayItem as CircleAnnouncementListItem} onPress={item.onPress} showCircleImage={true}
+                                />
+                                
+                            : <Text>ERROR</Text> }
                         </React.Fragment>
-                ))}
+                    ))}
 
-                {displayList.map((item: SearchListValue, index) => (
-                    <React.Fragment key={`${props.key}-${index}`}>
-                        { item.displayType === ListItemTypesEnum.LABEL ? 
-                            <LabelItem {...item} key={`label-${props.key}-${index}`} label={item.displayItem as LabelListItem} onPress={item.onPress} />
-
-                        : item.displayType === ListItemTypesEnum.CONTENT_ARCHIVE ? 
-                            <ContentCard {...item} key={`content-${props.key}-${index}`} item={item.displayItem as ContentListItem} onPress={item.onPress} />
-
-                        : item.displayType === ListItemTypesEnum.PRAYER_REQUEST ? 
-                            <PrayerRequestTouchable {...item} key={`prayer-request-${props.key}-${index}`}
-                                prayerRequestProp={item.displayItem as PrayerRequestListItem} onPress={item.onPress} />
-
-                        : item.displayType === ListItemTypesEnum.PARTNER ? 
-                            <PendingPrayerPartnerListItem {...item} key={`partner-${props.key}-${index}`}
-                                partner={item.displayItem as PartnerListItem} onPress={item.onPress}
-                                buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
-                            />
-
-                        : item.displayType === ListItemTypesEnum.CIRCLE ? 
-                            <CircleTouchable {...item} key={`circle-${props.key}-${index}`}
-                                circleProps={item.displayItem as CircleListItem} onPress={item.onPress} 
-                                buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
-                            />
-
-                        : item.displayType === ListItemTypesEnum.CIRCLE_ANNOUNCEMENT ? 
-                            <AnnouncementTouchable {...item} key={`circle-announcement-${props.key}-${index}`}
-                                announcement={item.displayItem as CircleAnnouncementListItem} onPress={item.onPress} showCircleImage={true}
-                            />
-                            
-                        : <Text>ERROR</Text> }
-                    </React.Fragment>
-                ))}
-
-                {(props.footerItems !== undefined) && (searchTerm === undefined) &&
-                    props.footerItems.map((item:JSX.Element, index) => (
-                        <React.Fragment key={`${props.key}-footer-${index}`}>
-                            {item}
-                        </React.Fragment>
-                ))}
+                    {(props.footerItems !== undefined) && (searchTerm === undefined) &&
+                        props.footerItems.map((item:JSX.Element, index) => (
+                            <React.Fragment key={`${props.key}-footer-${index}`}>
+                                {item}
+                            </React.Fragment>
+                    ))}
+                    </View>
               </Animated.ScrollView>
             }
         </View>
@@ -396,6 +405,7 @@ const styles = StyleSheet.create({
 
         paddingHorizontal: 5,
         paddingVertical: 10,
+        paddingTop: 15,
     },  
     searchHeaderField: {
         flex: 1,
@@ -403,14 +413,17 @@ const styles = StyleSheet.create({
         marginBottom: theme.header.fontSize / 4,
     },
     searchInput: {
-        width: '100%',
-        paddingLeft: theme.header.fontSize + 10,
+        alignSelf: 'stretch',
+        marginHorizontal: 75,
         marginBottom: theme.header.fontSize / 4,
+
+        backgroundColor: COLORS.grayDark,
+        paddingVertical: 2,
+        paddingHorizontal: theme.header.fontSize / 2,
+        borderRadius: 25,
 
         ...theme.text,
         color: COLORS.white,
-        borderBottomWidth: 1,
-        borderColor: COLORS.accent
     },  
     titleContainer: {
         padding: 0,
@@ -424,14 +437,21 @@ const styles = StyleSheet.create({
     tabHeaderContainer: {
         marginBottom: theme.title.fontSize / 4,
     },
-    searchIcon: {
+    filterText: {
+        ...theme.title,
+        color: COLORS.primary,
+    },
+    headerIconLeft: {
         position: 'absolute',
         zIndex: 2,
-        left: 5,
-        top: 10,
+        left: 10,
+        top: 15,
     },
-    displayScrollList: {
-        flex: 1,
+    headerIconRight: {
+        position: 'absolute',
+        zIndex: 2,
+        right: 10,
+        top: 15,
     },
     resetWrapper: {
         flex: 1,
