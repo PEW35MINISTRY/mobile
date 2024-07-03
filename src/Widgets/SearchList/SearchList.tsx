@@ -16,10 +16,11 @@ import { ContentSearchFilterEnum } from '../../TypesAndInterfaces/config-sync/in
 import debounce from '../../utilities/debounceHook';
 import { PrayerRequestListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { PrayerRequestTouchable } from '../../3-Prayer-Request/prayer-request-widgets';
-import { StackNavigationProps } from '../../TypesAndInterfaces/custom-types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
 import { AnnouncementTouchable, CircleTouchable } from '../../2-Circles/circle-widgets';
 import { CircleAnnouncementListItem, CircleListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
+import { PendingPrayerPartnerListItem } from '../../4-Partners/partnership-widgets';
+import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 
 
 
@@ -336,6 +337,27 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
 
                             : item.displayType === ListItemTypesEnum.CONTENT_ARCHIVE ? 
                                 <ContentCard {...item} key={`content-${props.key}-${index}`} item={item.displayItem as ContentListItem} onPress={item.onPress} />
+
+                            : item.displayType === ListItemTypesEnum.PRAYER_REQUEST ? 
+                                <PrayerRequestTouchable {...item} key={`prayer-request-${props.key}-${index}`}
+                                    prayerRequestProp={item.displayItem as PrayerRequestListItem} onPress={item.onPress} />
+
+                            : item.displayType === ListItemTypesEnum.PARTNER ? 
+                                <PendingPrayerPartnerListItem {...item} key={`partner-${props.key}-${index}`}
+                                    partner={item.displayItem as PartnerListItem} onPress={item.onPress}
+                                    buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
+                                />
+
+                            : item.displayType === ListItemTypesEnum.CIRCLE ? 
+                                <CircleTouchable {...item} key={`circle-${props.key}-${index}`}
+                                    circleProps={item.displayItem as CircleListItem} onPress={item.onPress} 
+                                    buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
+                                />
+
+                            : item.displayType === ListItemTypesEnum.CIRCLE_ANNOUNCEMENT ? 
+                                <AnnouncementTouchable {...item} key={`circle-announcement-${props.key}-${index}`}
+                                    announcement={item.displayItem as CircleAnnouncementListItem} onPress={item.onPress} showCircleImage={true}
+                                />
                                 
                             : <Text>ERROR</Text> }
                         </React.Fragment>
