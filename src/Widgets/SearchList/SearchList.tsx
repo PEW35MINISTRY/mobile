@@ -21,7 +21,7 @@ import { AnnouncementTouchable, CircleTouchable } from '../../2-Circles/circle-w
 import { CircleAnnouncementListItem, CircleListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PendingPrayerPartnerListItem } from '../../4-Partners/partnership-widgets';
 import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
-import { PartnerStatusEnum } from '../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
+
 
 
 /*********************************************************************************
@@ -341,6 +341,12 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                             : item.displayType === ListItemTypesEnum.PRAYER_REQUEST ? 
                                 <PrayerRequestTouchable {...item} key={`prayer-request-${props.key}-${index}`}
                                     prayerRequestProp={item.displayItem as PrayerRequestListItem} onPress={item.onPress} />
+
+                            : item.displayType === ListItemTypesEnum.PARTNER ? 
+                                <PendingPrayerPartnerListItem {...item} key={`partner-${props.key}-${index}`}
+                                    partner={item.displayItem as PartnerListItem} onPress={item.onPress}
+                                    buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
+                                />
 
                             : item.displayType === ListItemTypesEnum.CIRCLE ? 
                                 <CircleTouchable {...item} key={`circle-${props.key}-${index}`}
