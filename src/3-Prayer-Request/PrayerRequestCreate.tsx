@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, addPrayerRequest } from '../redux-store';
+import { RootState } from '../redux-store';
 import { PrayerRequestListItem, PrayerRequestPostRequestBody, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS } from '../theme';
 import InputField, { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
@@ -53,7 +53,6 @@ const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestLi
                 prayerCount: 0,
                 tagList: newPrayerRequest.tagList
             }
-            dispatch(addPrayerRequest(newPrayerRequestListItem));
             props.callback(newPrayerRequestListItem);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         
