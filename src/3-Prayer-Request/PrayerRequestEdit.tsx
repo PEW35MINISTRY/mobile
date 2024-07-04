@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, removePrayerRequest, updatePrayerRequest } from '../redux-store';
+import { RootState } from '../redux-store';
 import { PrayerRequestListItem, PrayerRequestPatchRequestBody, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS } from '../theme';
 import { EDIT_PRAYER_REQUEST_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
@@ -20,8 +20,6 @@ import { RootSiblingParent } from 'react-native-root-siblings';
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
-    const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
-    const dispatch = useAppDispatch();
 
     const [addUserRecipientIDList, setAddUserRecipientIDList] = useState<number[]>([]);
     const [removeUserRecipientIDList, setRemoveAddUserRecipientIDList] = useState<number[]>([]);
@@ -36,13 +34,12 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
         }
     }
 
-    const handlePrayerRequestDelete = () => {
-        dispatch(removePrayerRequest(props.prayerRequestListData.prayerRequestID));
+    const handlePrayerRequestDelete = () =>
+        axios.delete(`${DOMAIN}/api/prayer-request-edit/` + props.prayerRequestListData.prayerRequestID, RequestAccountHeader)
+            .then((response) => {
+                props.callback(undefined, undefined, true);
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
 
-        axios.delete(`${DOMAIN}/api/prayer-request-edit/` + props.prayerRequestListData.prayerRequestID, RequestAccountHeader).then((response) => {
-            props.callback(undefined, undefined, true);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
-    }
 
     const onPrayerRequestEdit = (formValues:Record<string, string | string[]>) => {
         var fieldsChanged = false;
@@ -79,8 +76,6 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                 const newPrayerRequestListItem:PrayerRequestListItem = {...props.prayerRequestListData};
                 newPrayerRequestListItem.topic = newPrayerRequest.topic;
                 newPrayerRequestListItem.tagList = newPrayerRequest.tagList
-
-                dispatch(updatePrayerRequest(newPrayerRequestListItem));
 
                 props.callback(newPrayerRequest, newPrayerRequestListItem);
             }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));

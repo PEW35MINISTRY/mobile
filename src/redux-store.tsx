@@ -47,13 +47,6 @@ const slice = createSlice({
     addPartnerPendingPartner: (state, action: PayloadAction<PartnerListItem>) => state = addListItem(state, action, 'partnerPendingPartnerList'),
     removePartnerPendingPartner: (state, action: PayloadAction<number>) => state = removeListItem(state, action, 'partnerPendingPartnerList', 'userID'),
 
-    addPrayerRequest: (state, action: PayloadAction<PrayerRequestListItem>) => state = addListItem(state, action, 'prayerRequestList'),
-    removePrayerRequest: (state, action: PayloadAction<number>) => state = removeListItem(state, action, 'prayerRequestList', 'requestID'),
-    updatePrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => {
-        state = removeListItem(state, { payload: action.payload.prayerRequestID, type: 'slice/removePrayerRequest' }, 'prayerRequestList', 'requestID');
-        return addListItem(state, action, 'prayerRequestList');
-      },
-
     addContact: (state, action: PayloadAction<ProfileListItem>) => state = addListItem(state, action, 'contactList'),
     removeContact: (state, action: PayloadAction<number>) => state = removeListItem(state, action, 'contactList', 'userID'),
   },
@@ -65,7 +58,7 @@ const slice = createSlice({
 export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfileImage, 
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
-      addPrayerRequest, removePrayerRequest, updatePrayerRequest, addContact, removeContact
+      addContact, removeContact
     } = slice.actions;
 
 
