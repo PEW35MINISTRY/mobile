@@ -39,7 +39,6 @@ export default StyleSheet.create({
     },
     title: {
         fontFamily: FONTS.title,
-        //color: COLORS.white,
         color: COLORS.primary,
         fontSize: FONT_SIZES.L,
         fontWeight: '700',

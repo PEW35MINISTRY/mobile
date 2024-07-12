@@ -13,10 +13,9 @@ import { BackButton, IconCounter } from '../widgets';
 import { ContentThumbnail } from './content-widgets';
 
 
-
 interface ContentCardProps {
   item:ContentListItem;
-  onPress?:(item:ContentListItem) => void;
+  onPress?:(id:number, item:ContentListItem) => void;
   style?:StyleProp<ViewStyle>;
   onKeywordPress?:(keyword:string) => void;
 }
@@ -30,7 +29,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
   return (
     <View style={StyleSheet.flatten([styles.card, style])} >
         <ContentThumbnail imageUri={item.image} contentSource={item.source} onPress={() => {
-          if(onPress) onPress(item);
+          if(onPress) onPress(item.contentID, item);
           if(item.url && item.url.length > 5) { //Already filtered by MOBILE_CONTENT_SUPPORTED_SOURCES
             if(item.source === ContentSourceEnum.YOUTUBE) setShowYouTube(true);
             else openInAppBrowser(item.url);
@@ -51,7 +50,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
               <Text style={styles.detailText} numberOfLines={1} ellipsizeMode='tail' >{makeDisplayText(item.source)}</Text>
               <Text style={styles.verticalDivider}>|</Text>
               <View style={styles.tagContainer}>
-                {item.keywordList.map((keyword, index) => (
+                {[...(item.keywordList || [])].map((keyword, index) => (
                   <TouchableOpacity key={`${keyword}-${index}`} onPress={() => onKeywordPress && onKeywordPress(keyword)}>
                     <Text style={styles.tag}>#{makeDisplayText(keyword)}</Text>
                   </TouchableOpacity>
@@ -134,7 +133,6 @@ const styles = StyleSheet.create({
   ...theme,
   contentCardTitle: {
     ...theme.title,
-    fontSize: 20,
     color: COLORS.white
   },
   card: {

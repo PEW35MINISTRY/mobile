@@ -79,9 +79,29 @@ export const Outline_Button = (props:{text:string|JSX.Element, buttonStyle?:View
     return ( <Flat_Button {...props} buttonStyle={styles.buttonStyle}/> );    
 }
 
+//Not Header, Included in page scroll
+export const Page_Title = (props:{title:string, containerStyle?:ViewStyle, textStyle?:TextStyle}):JSX.Element => {
+    const styles = StyleSheet.create({
+        containerStyle: {
+            width: '100%',
+            padding: theme.header.fontSize / 2,
+            ...props.containerStyle
+        },
+        textStyle: {
+            ...theme.header,
+            textAlign: 'center',
+            ...props.textStyle
+        }
+    });
+
+    return ( <View style={styles.containerStyle}>
+                <Text style={styles.textStyle}>{props.title}</Text>
+            </View> );
+}
+
 
 /* Horizontal Multi Tab Selector */
-export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|undefined, onSelect:(name:string, index:number) => void, onDeselect?:() => void, style?:ViewStyle, isHeader?:boolean }) => {
+export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|undefined, onSelect:(name:string, index:number) => void, onDeselect?:() => void, containerStyle?:ViewStyle, textStyle?:TextStyle }) => {
 
     const [selectedIndex, setSelectedIndex] = useState<number|undefined>(props.defaultIndex);
 
@@ -89,15 +109,18 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
         filterContainer: {
             flexDirection: 'row',
             padding: 0,
-            borderTopWidth: 1,
-            borderBottomWidth: 1,
-            borderColor: (props.isHeader) ? COLORS.primary : COLORS.accent,
-            ...props.style,
+
+            borderWidth: 1,
+            borderColor: COLORS.grayDark,
+            borderRadius: (props.textStyle?.fontSize ?? theme.text.fontSize) / 2,
+            overflow: 'hidden',
+
+            ...props.containerStyle,
           },
           filterSelected: {
             paddingVertical: 1,
             paddingHorizontal: 10,
-            backgroundColor: (props.isHeader) ? COLORS.primary : COLORS.accent,
+            backgroundColor: (props.textStyle?.color) ? props.textStyle.color : COLORS.accent,
           },
           filterNotSelected: {
             paddingVertical: 1,
@@ -109,10 +132,10 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
             backgroundColor: COLORS.grayDark,
             marginVertical: 5,
           },
-          isHeaderTitle: {
-            ...theme.title,
-            color: COLORS.white,
-            fontSize: 20
+          text: {
+            ...theme.text,
+            ...props.textStyle,
+            color: (props.textStyle?.color === COLORS.white) ? COLORS.accent : COLORS.white
           }
         });
 
@@ -129,8 +152,8 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
                             props.onDeselect();
                         }
                         }} >
-                        <Text style={(index === selectedIndex) ? [(props.isHeader) ? styles.isHeaderTitle : theme.text, styles.filterSelected] 
-                            : [(props.isHeader) ? styles.isHeaderTitle : theme.text, styles.filterNotSelected] }>{makeDisplayText(item)}</Text>
+                        <Text style={(index === selectedIndex) ? [styles.text, styles.filterSelected] 
+                            : [styles.text, styles.filterNotSelected] }>{makeDisplayText(item)}</Text>
                     </TouchableOpacity>
                     {index < props.optionList.length - 1 && <View style={styles.divider} />}
                 </React.Fragment>                        
@@ -261,7 +284,7 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
 export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean, label?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, labelStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
     const styles = StyleSheet.create({
         dropdownText: {
-            color: COLORS.white,
+            ...theme.text,
             textAlign: "center",
         },
         labelStyle: {
@@ -276,7 +299,7 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
             justifyContent: "center"
         },
         dropdownSelected: {
-            color: COLORS.white,
+            ...theme.text,
             textAlign: "center",
             flex: 1,
             paddingLeft: 16
@@ -291,11 +314,13 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
             marginBottom: 5,
             ...props.validationStyle
         },
-          
+        dropdownIcon: {
+            paddingTop: theme.text.fontSize / 2,
+        }
     });
     
     return (
-        <View style={styles.containerStyle}>
+        <View style={styles.containerStyle} >
             {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
             <SelectList 
                 setSelected={(val: string) => props.setSelected(val)}
@@ -304,9 +329,18 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
                 boxStyles={styles.selectBoxStyle} 
                 dropdownTextStyles={styles.dropdownText}
                 inputStyles={styles.dropdownSelected}
-                placeholder={props.placeholder}
+                placeholder={props.placeholder ?? props.defaultOption?.value}
                 defaultOption={props.defaultOption} 
-             />
+                search={false}
+                arrowicon={
+                    <Ionicons
+                        name={'chevron-down'}
+                        color={COLORS.accent}
+                        size={theme.text.fontSize} 
+                        style={styles.dropdownIcon}
+                    />
+                }
+            />
             {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
 
         </View>
@@ -319,7 +353,7 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
 
     const styles = StyleSheet.create({
         dropdownText: {
-            color: COLORS.white,
+            ...theme.text,
             textAlign: "center",
             
         },
@@ -331,7 +365,7 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
             ...props.labelStyle,
         },
         dropdownSelected: {
-            color: COLORS.white,
+            ...theme.text,
             textAlign: "center",
             paddingLeft: 16,
             flex: 1 
@@ -346,7 +380,9 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
             marginBottom: 5,
             ...props.validationStyle
         },
-          
+        dropdownIcon: {
+            paddingTop: theme.text.fontSize / 2,
+        }
     });
     
     return (
@@ -362,6 +398,15 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
                 placeholder={props.placeholder}
                 defaultOptions={props.defaultOptions}
                 checkBoxStyles={props.checkBoxStyles}
+                search={false}
+                arrowicon={
+                    <Ionicons
+                        name={'chevron-down'}
+                        color={COLORS.accent}
+                        size={theme.text.fontSize} 
+                        style={styles.dropdownIcon}
+                    />
+                }
              />
             {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
 
@@ -432,7 +477,7 @@ export const SelectSlider = (props:{minValue:number, maxValue:number, defaultVal
     )
 }
 
-export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
+export const ProfileImage = (props:{style?:ImageStyle, onPress?:() => void}):JSX.Element => {
     const userProfileImage = useAppSelector((state: RootState) => state.account.userProfile.image);
     const DEFAULT_PROFILE_ICON = require("../assets/profile-icon-blue.png");
 
@@ -449,10 +494,9 @@ export const ProfileImage = (props:{style?:ImageStyle}):JSX.Element => {
     })
 
     return (
-        <>
+        <TouchableOpacity onPress={() => props.onPress && props.onPress()}>
             <Image source={requestorImage} style={styles.profileImage}></Image>
-        </>
-
+        </TouchableOpacity>
     );
 }
 
