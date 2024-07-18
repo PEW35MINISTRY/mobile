@@ -50,7 +50,7 @@ export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
    
     useEffect(() => {
         var newState = {...defaultNavigationState};
-        newState[ROUTE_NAMES.DASHBOARD_ROUTE_NAME] = true;
+        newState[ROUTE_NAMES.DASHBOARD_NAVIGATOR_ROUTE_NAME] = true;
         setIsFocused(newState);
     }, [])
 
