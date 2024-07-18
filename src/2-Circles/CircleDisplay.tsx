@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, {AxiosResponse, AxiosError} from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, AppState } from 'react-native';
 import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
@@ -74,7 +74,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                 key={index}
                 prayerRequestProp={prayerRequest}
                 onPress={() => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
-                    params: {PrayerRequestProps: prayerRequest}, 
+                    params: {PrayerRequestProps: prayerRequest},
                     screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
                 })}
             />
@@ -290,7 +290,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                                     onPress={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}
                                 />
                             }
-                            <BackButton callback={() => setCircleInfoModalVisible(false)} navigation={navigation}/>
+                            <BackButton callback={() => setCircleInfoModalVisible(false)} />
                         </View>
                     
                     </Modal>
