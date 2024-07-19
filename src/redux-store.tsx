@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { PartnerListItem, ProfileListItem, ProfileResponse } from './TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { CircleListItem } from './TypesAndInterfaces/config-sync/api-type-sync/circle-types';
+import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from './TypesAndInterfaces/routes';
 
 
 /******************************
@@ -22,9 +23,8 @@ const initialAccountState = {
   userProfile: {} as ProfileResponse
 }; 
 
-// createSlice creates a reducer and actions automatically
-const slice = createSlice({
-  name: 'slice',
+const accountSlice = createSlice({
+  name: 'accountSlice',
   initialState: initialAccountState,
   reducers: {
     setAccount: (state, action:PayloadAction<AccountState>) => state = action.payload,
@@ -52,15 +52,36 @@ const slice = createSlice({
   },
 });
 
-
 // Export action functions to use in app with dispatch
 // How to use in component: https://redux-toolkit.js.org/tutorials/quick-start#use-redux-state-and-actions-in-react-components
 export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfileImage, 
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
       addContact, removeContact
-    } = slice.actions;
+    } = accountSlice.actions;
 
+
+/******************************
+   App Tab Navigation | Tab Redux Reducer
+*******************************/
+
+export type tabState = {
+  focustedTab: BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES
+}
+
+const initialTabState = {
+  focusedTab: BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.DASHBOARD_NAVIGATOR_ROUTE_NAME
+}
+
+const tabSlice = createSlice({
+  name: "tabSlice",
+  initialState: initialTabState,
+  reducers: {
+    setTabFocus: (state, action:PayloadAction<BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES>) => state = {focusedTab: action.payload}
+  }
+});
+
+export const { setTabFocus } = tabSlice.actions;
 
 //List Utilities
 const addListItem = <T, K extends keyof ProfileResponse>(state:AccountState, action:PayloadAction<T>, listKey:K):AccountState => ({
@@ -74,9 +95,11 @@ const removeListItem = <T, K extends keyof ProfileResponse>(state:AccountState, 
   }});
 
 
+  
 const store = configureStore({
     reducer: {
-      account: slice.reducer
+      account: accountSlice.reducer,
+      navigationTab: tabSlice.reducer
     }
 });
 
