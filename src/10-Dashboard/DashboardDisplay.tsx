@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { addMemberCircle, addPartner, addPartnerPendingPartner, removeInviteCircle, removePartnerPendingUser, RootState } from '../redux-store';
+import { addMemberCircle, addPartner, addPartnerPendingPartner, removeInviteCircle, removePartnerPendingUser, RootState, setTabFocus } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import { DOMAIN } from '@env';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
@@ -16,7 +16,7 @@ import { PartnerListItem } from '../TypesAndInterfaces/config-sync/api-type-sync
 import { CircleAnnouncementListItem, CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { Flat_Button, ProfileImage } from '../widgets';
-import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
@@ -93,7 +93,10 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                 footerItems={[
                     <Flat_Button
                         text='View More'
-                        onPress={() => navigation.navigate(ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME)}
+                        onPress={() => {
+                            dispatch(setTabFocus(BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME));
+                            navigation.navigate(ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME);
+                        }}
                     />
                 ]}
             />
