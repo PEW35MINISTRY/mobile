@@ -29,36 +29,13 @@ import { PartnerStatusEnum } from '../TypesAndInterfaces/config-sync/input-confi
 const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const jwt:string = useAppSelector((state:RootState) => state.account.jwt);
-    const userID:number = useAppSelector((state:RootState) => state.account.userID);
     const partnerPendingUserList:PartnerListItem[] = useAppSelector((state:RootState) => state.account.userProfile.partnerPendingUserList) || [];
     const [newPartner, setNewPartner] = useState<PartnerListItem|undefined>(undefined);
     const circleInviteList:CircleListItem[] = useAppSelector((state:RootState) => state.account.userProfile.circleInviteList) || [];
+    const circleAnnouncementList:CircleAnnouncementListItem[] = useAppSelector((state:RootState) => state.account.userProfile.circleAnnouncementList) || [];
+    const newPrayerRequestList:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.newPrayerRequestList) || [];
+    const recommendedContentList:ContentListItem[] = useAppSelector((state:RootState) => state.account.userProfile.recommendedContentList) || [];
 
-    const [newPrayerRequestList, setNewPrayerRequestList] = useState<PrayerRequestListItem[]>([]);
-    const [circleAnnouncementList, setCircleAnnouncementList] = useState<CircleAnnouncementListItem[]>([]);
-    const [recommendedContentList, setRecommendedContentList] = useState<ContentListItem[]>([]);
-
-    useEffect(() => {
-        /* New Prayer Request */ //TODO: Build Filter for 'New'
-        axios.get(`${DOMAIN}/api/prayer-request/user-list`, {headers: { jwt }})
-            .then((response:{data:PrayerRequestListItem[]}) => {
-                setNewPrayerRequestList([...response.data]);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
-            
-        /* Active Circle Announcements */
-        axios.get(`${DOMAIN}/api/circle/3`, {headers: { jwt }})
-            .then((response:{data:CircleResponse}) => {
-                setCircleAnnouncementList([...(response.data.announcementList || [])]);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
-
-        /* Recommended Content */
-        axios.get(`${DOMAIN}/api/user/`+ userID + '/content-list', { headers: { jwt }})
-            .then((response:{data:ContentListItem[]}) => {
-            const list:ContentListItem[] = [...response.data]
-                .filter((content:ContentListItem) => MOBILE_CONTENT_SUPPORTED_SOURCES.includes(content.source as ContentSourceEnum)); //Verify Filtering
-                setRecommendedContentList(list) ;
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); 
-    }, []);
   
     return (
         <View style={styles.pageContainer} >

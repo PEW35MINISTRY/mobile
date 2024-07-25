@@ -4,10 +4,9 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Modal } from 'react-native';
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types"
 import { RequestorProfileImage } from "../1-Profile/profile-widgets";
-import axios, { AxiosError, AxiosResponse } from "axios";
 import { RootState } from "../redux-store";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { PARTNERSHIP_CONTRACT, PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
+import { PARTNERSHIP_CONTRACT } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import { Outline_Button, Raised_Button } from "../widgets";
 
 export const PrayerPartnerListItem = (props:{partner:PartnerListItem, leavePartnership:((partner:PartnerListItem) => void)}):JSX.Element => {

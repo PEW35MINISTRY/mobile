@@ -3,17 +3,14 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity } from "react-native";
-import { CallbackParam, PROFILE_IMAGE_MIME_TYPES, StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { RootState, updateProfileImage } from "../redux-store";
+import { RootState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { BackButton, Dropdown_Select, Outline_Button, Raised_Button } from "../widgets";
 import { PartnershipContractModal, PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partnership-widgets";
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
-import { SelectListItem } from "react-native-dropdown-select-list";
-import { PARTNERSHIP_CONTRACT, PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
+import { PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { ServerContainerRef } from "@react-navigation/native";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import { RootSiblingParent } from 'react-native-root-siblings';
@@ -57,8 +54,9 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
 
     const renderPendingPartners = (partnerList:PartnerListItem[] | undefined, pendingContract:boolean):JSX.Element[] => 
         (partnerList || []).map((partner:PartnerListItem, index:number) => 
-            <PendingPrayerPartnerListItem partner={partner} key={index} buttonText='View Contract'
-                onButtonPress={(id, partnerItem) => setNewPartnerModalVisible(true)} />
+            <PendingPrayerPartnerListItem partner={partner} key={index} buttonText={pendingContract ? 'View Contract' : 'Decline'}
+                onButtonPress={(id, partnerItem) => { pendingContract ? acceptPartnershipRequest(partnerItem) : declinePartnershipRequest(partnerItem);
+                    setNewPartnerModalVisible(true); }} />
     );
 
     const acceptPartnershipRequest = (partner:PartnerListItem) => {
