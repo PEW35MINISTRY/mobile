@@ -21,11 +21,11 @@ import { CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 
-export interface PrayerRequestDisplayParamList extends AppStackParamList {
+export interface PrayerRequestDisplayParamList{
     PrayerRequestProps: PrayerRequestListItem,
     callback?:(() => void)
 }
-type PrayerRequestDisplayProps = NativeStackScreenProps<PrayerRequestDisplayParamList, typeof ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME>;
+type PrayerRequestDisplayProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME>;
 
 const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX.Element => {
     const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
