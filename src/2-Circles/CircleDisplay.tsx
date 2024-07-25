@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, {AxiosResponse, AxiosError} from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, AppState } from 'react-native';
 import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
@@ -20,11 +20,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 
-export interface CircleDisplayParamList extends AppStackParamList {
+export interface CircleDisplayParamList {
     CircleProps: CircleListItem
 }
 
-type CircleDisplayProps = NativeStackScreenProps<CircleDisplayParamList, typeof ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME>;
+type CircleDisplayProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME>;
 
 export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -68,7 +68,6 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
         );
 
     const renderPrayerRequests = ():JSX.Element[] => 
-    
         (prayerRequestsData || []).map((prayerRequest:PrayerRequestListItem, index:number) =>
             <PrayerRequestTouchable
                 key={index}
@@ -290,7 +289,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                                     onPress={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}
                                 />
                             }
-                            <BackButton callback={() => setCircleInfoModalVisible(false)} navigation={navigation}/>
+                            <BackButton callback={() => setCircleInfoModalVisible(false)} />
                         </View>
                     
                     </Modal>

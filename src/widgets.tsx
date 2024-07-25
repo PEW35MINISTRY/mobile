@@ -520,8 +520,8 @@ export const BackButton = (props:{callback?:(() => void), navigation?:NativeStac
         <View style={styles.backButtonView}>
             <TouchableOpacity
                 onPress={() => {
-                    if(props.navigation) props.navigation.pop();
-                    if(props.callback) props.callback();
+                    if(props.navigation) props.navigation.goBack();
+                    else if(props.callback) props.callback();
                 }}
             >
                 <View style={styles.backButton}>

@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { addMemberCircle, addPartner, addPartnerPendingPartner, removeInviteCircle, removePartnerPendingUser, RootState } from '../redux-store';
+import { addMemberCircle, addPartner, addPartnerPendingPartner, removeInviteCircle, removePartnerPendingUser, RootState, setTabFocus } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import { DOMAIN } from '@env';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
@@ -17,7 +17,7 @@ import { PartnerListItem } from '../TypesAndInterfaces/config-sync/api-type-sync
 import { CircleAnnouncementListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { Flat_Button, ProfileImage } from '../widgets';
-import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PartnershipContractModal } from '../4-Partners/partnership-widgets';
 import { PartnerStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
@@ -103,14 +103,17 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                             new SearchListKey({displayTitle:'Prayer Requests'}),
                             [...newPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,
                                 onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
-                                    params: { PrayerRequestProps: item },
+                                    params: {PrayerRequestProps: item}, 
                                     screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
                                 })}))
                         ],
                         [
                             new SearchListKey({displayTitle:'Announcements'}),
                             [...circleAnnouncementList].map((announcement) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcement,
-                                onPress: (id, announcementItem) => navigation.navigate(ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME, { CircleProps: {circleID: announcement.circleID, name: '', image: ''}})
+                                onPress: (id, announcementItem) => navigation.navigate(ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME, { 
+                                    params: {CircleProps: {circleID: announcement.circleID, name: '', image: ''}},
+                                    screen: ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME
+                                })
                              }))
                         ],
                         [
@@ -121,7 +124,10 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                 footerItems={[
                     <Flat_Button
                         text='View More'
-                        onPress={() => navigation.navigate(ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME)}
+                        onPress={() => {
+                            dispatch(setTabFocus(BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME));
+                            navigation.navigate(ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME);
+                        }}
                     />
                 ]}
             />
