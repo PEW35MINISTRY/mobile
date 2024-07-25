@@ -75,14 +75,18 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                         [
                             new SearchListKey({displayTitle:'Prayer Requests'}),
                             [...newPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,
-                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, {
-                                    PrayerRequestProps: item 
+                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
+                                    params: {PrayerRequestProps: item}, 
+                                    screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
                                 })}))
                         ],
                         [
                             new SearchListKey({displayTitle:'Announcements'}),
                             [...circleAnnouncementList].map((announcement) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcement,
-                                onPress: (id, announcementItem) => navigation.navigate(ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME, { CircleProps: {circleID: announcement.circleID, name: '', image: ''}})
+                                onPress: (id, announcementItem) => navigation.navigate(ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME, { 
+                                    params: {CircleProps: {circleID: announcement.circleID, name: '', image: ''}},
+                                    screen: ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME
+                                })
                              }))
                         ],
                         [
