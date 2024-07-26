@@ -202,7 +202,6 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                     onClose={() => setNewPartnerModalVisible(false)}
                 />
 
-                <BackButton navigation={props.navigation} callback={props.callback}/>
             </View>
         </RootSiblingParent>       
      
