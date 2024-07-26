@@ -342,6 +342,12 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                                 <PrayerRequestTouchable {...item} key={`prayer-request-${props.key}-${index}`}
                                     prayerRequestProp={item.displayItem as PrayerRequestListItem} onPress={item.onPress} />
 
+                            : item.displayType === ListItemTypesEnum.PARTNER ? 
+                                <PendingPrayerPartnerListItem {...item} key={`partner-${props.key}-${index}`}
+                                    partner={item.displayItem as PartnerListItem} onPress={item.onPress}
+                                    buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
+                                />
+
                             : item.displayType === ListItemTypesEnum.CIRCLE ? 
                                 <CircleTouchable {...item} key={`circle-${props.key}-${index}`}
                                     circleProps={item.displayItem as CircleListItem} onPress={item.onPress} 

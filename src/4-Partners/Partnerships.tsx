@@ -3,17 +3,14 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity } from "react-native";
-import { CallbackParam, PROFILE_IMAGE_MIME_TYPES, StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { RootState, updateProfileImage } from "../redux-store";
+import { RootState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { BackButton, Dropdown_Select, Outline_Button, Raised_Button } from "../widgets";
-import { PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partnership-widgets";
+import { PartnershipContractModal, PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partnership-widgets";
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
-import { SelectListItem } from "react-native-dropdown-select-list";
-import { PARTNERSHIP_CONTRACT, PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
+import { PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { ServerContainerRef } from "@react-navigation/native";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import { RootSiblingParent } from 'react-native-root-siblings';
@@ -57,7 +54,9 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
 
     const renderPendingPartners = (partnerList:PartnerListItem[] | undefined, pendingContract:boolean):JSX.Element[] => 
         (partnerList || []).map((partner:PartnerListItem, index:number) => 
-            <PendingPrayerPartnerListItem partner={partner} key={index} pendingContract={pendingContract} declinePartnershipRequest={declinePartnershipRequest} acceptPartnershipRequest={acceptPartnershipRequest} setNewPartner={setNewPartner} setNewPartnerModalVisible={setNewPartnerModalVisible}/>
+            <PendingPrayerPartnerListItem partner={partner} key={index} buttonText={pendingContract ? 'View Contract' : 'Decline'}
+                onButtonPress={(id, partnerItem) => { pendingContract ? acceptPartnershipRequest(partnerItem) : declinePartnershipRequest(partnerItem);
+                    setNewPartnerModalVisible(true); }} />
     );
 
     const acceptPartnershipRequest = (partner:PartnerListItem) => {
@@ -195,33 +194,18 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                     </View>   
                 }
 
-                <Modal 
+                <PartnershipContractModal
                     visible={newPartnerModalVisible}
-                    onRequestClose={() => setNewPartnerModalVisible(false)}
-                    animationType='slide'
-                    transparent={true}
-                >
-                    <View style={styles.modalView}>
-                        <View style={styles.newPartnerView}>
-                            <Text style={styles.newPartnerTitle}>New Prayer Partner</Text>
-                            <Text style={styles.newPartnerText}>{PARTNERSHIP_CONTRACT(userProfile.displayName, newPartner?.displayName || "")}</Text>
-                            <Raised_Button 
-                                text={"Accept Partnership"}
-                                onPress={() => {acceptPartnershipRequest(newPartner); setNewPartnerModalVisible(false)}}
-                            />
-                            <Outline_Button 
-                                text={"Decline"}
-                                onPress={() => {declinePartnershipRequest(newPartner); setNewPartnerModalVisible(false)}}
-                            />
-                        </View>
-                    </View>
-                </Modal>
-                <BackButton navigation={props.navigation} callback={props.callback}/>
+                    partner={newPartner}
+                    acceptPartnershipRequest={() => {acceptPartnershipRequest(newPartner); setNewPartnerModalVisible(false)}}
+                    declinePartnershipRequest={() => {declinePartnershipRequest(newPartner); setNewPartnerModalVisible(false)}}
+                    onClose={() => setNewPartnerModalVisible(false)}
+                />
+
             </View>
-        </RootSiblingParent>
-        
+        </RootSiblingParent>       
      
-  )
+  );
 
 }
 
@@ -272,23 +256,7 @@ const styles = StyleSheet.create({
     height: '40%',
     marginTop: 'auto',
   },
-  modalView: {
-    height: '50%',
-    marginTop: 'auto',
-  },
-  newPartnerView: {
-    ...theme.background_view
-  },
-  newPartnerTitle: {
-    ...theme.title,
-    textAlign: "center"
-  },
-  newPartnerText: {
-    ...theme.text,
-    textAlign: "center",
-    maxWidth: '95%',
-    fontSize: FONT_SIZES.M+4
-  },
+
 })
 
 export default Partnerships;

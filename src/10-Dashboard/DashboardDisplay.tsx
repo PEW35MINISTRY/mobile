@@ -9,15 +9,18 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { ContentListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/content-types';
+import { ContentSourceEnum,  MOBILE_CONTENT_SUPPORTED_SOURCES } from '../TypesAndInterfaces/config-sync/input-config-sync/content-field-config';
 import SearchList from '../Widgets/SearchList/SearchList';
 import { SearchListKey, SearchListValue } from '../Widgets/SearchList/searchList-types';
 import { ListItemTypesEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/search-config';
 import { PartnerListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
-import { CircleAnnouncementListItem, CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
+import { CircleAnnouncementListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { Flat_Button, ProfileImage } from '../widgets';
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { PartnershipContractModal } from '../4-Partners/partnership-widgets';
+import { PartnerStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 
 
 /**************************
@@ -55,10 +58,11 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                 ]}
                 showMultiListFilter={false}
                 displayMap={new Map([
-                        // [
-                        //     new SearchListKey({displayTitle:'Partner Requests'}),
-                        //     [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partner }))
-                        // ],
+                        [
+                            new SearchListKey({displayTitle:'Partner Requests'}),
+                            [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partner,
+                                primaryButtonText:'View Contract', onPrimaryButtonCallback:(id:number, item) => setNewPartner(item as PartnerListItem)}))
+                        ],
                         [
                             new SearchListKey({displayTitle:'Circle Invites'}),
                             [...circleInviteList].map((circle) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE, displayItem: circle,
@@ -104,6 +108,31 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                     />
                 ]}
             />
+
+            {newPartner &&
+                <PartnershipContractModal
+                    visible={newPartner !== undefined}
+                    partner={newPartner}
+                    acceptPartnershipRequest={(id, partnerItem) => 
+                        axios.post(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/accept', {}, {headers: {jwt}})
+                            .then((response:AxiosResponse) => {
+                                setNewPartner(undefined);
+                                dispatch(removePartnerPendingUser(id));
+                                if(newPartner.status === PartnerStatusEnum.PENDING_CONTRACT_USER) dispatch(addPartner(partnerItem));
+                                else dispatch(addPartnerPendingPartner(partnerItem));
+                            })
+                            .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))
+                    }
+                    declinePartnershipRequest={(id, partnerItem) => 
+                        axios.post(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/accept', {}, {headers: {jwt}})
+                            .then((response:AxiosResponse) => { 
+                                setNewPartner(undefined); 
+                                dispatch(removePartnerPendingUser(id)); 
+                            })
+                            .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))}
+                    onClose={() => setNewPartner(undefined)}
+                />
+        }
         </View>
     );
 };
