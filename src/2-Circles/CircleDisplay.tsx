@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, {AxiosResponse, AxiosError} from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, AppState } from 'react-native';
 import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
@@ -12,19 +12,19 @@ import { CircleList } from './CircleList';
 import { CircleStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
-import { EventTouchable, RequestorCircleImage } from './circle-widgets';
-import { AnnouncementTouchable, PrayerRequestTouchable } from '../3-Prayer-Request/prayer-request-widgets';
+import { EventTouchable, RequestorCircleImage, AnnouncementTouchable } from './circle-widgets';
+import { PrayerRequestTouchable } from '../3-Prayer-Request/prayer-request-widgets';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
 import { BackButton, Raised_Button } from '../widgets';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 
-export interface CircleDisplayParamList extends AppStackParamList {
+export interface CircleDisplayParamList {
     CircleProps: CircleListItem
 }
 
-type CircleDisplayProps = NativeStackScreenProps<CircleDisplayParamList, typeof ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME>;
+type CircleDisplayProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME>;
 
 export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -61,12 +61,13 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
         (announcementsData || []).map((announcement:CircleAnnouncementListItem, index:number) => 
             <AnnouncementTouchable
                 key={index}
-                announcementProps={announcement}
+                announcement={announcement}
+                showCircleImage={false}
+                style={styles.announcementItem}
             />
         );
 
     const renderPrayerRequests = ():JSX.Element[] => 
-    
         (prayerRequestsData || []).map((prayerRequest:PrayerRequestListItem, index:number) =>
             <PrayerRequestTouchable
                 key={index}
@@ -135,7 +136,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
 
             setEventsData(circleData.eventList || []);
 
-            if (circleData.requestorStatus == CircleStatusEnum.MEMBER) {
+            if (circleData.requestorStatus == CircleStatusEnum.MEMBER || circleData.requestorStatus == CircleStatusEnum.LEADER) {
                 setAnnouncementsData(circleData.announcementList || []);
                 setPrayerRequestsData(circleData.prayerRequestList || []);
             }
@@ -288,7 +289,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                                     onPress={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}
                                 />
                             }
-                            <BackButton callback={() => setCircleInfoModalVisible(false)} navigation={navigation}/>
+                            <BackButton callback={() => setCircleInfoModalVisible(false)} />
                         </View>
                     
                     </Modal>
@@ -377,6 +378,11 @@ const styles = StyleSheet.create({
     },
     announcementScroll: {
         height: 130
+    },
+    announcementItem: {
+        width: 140,
+        height: 60,
+        marginVertical: 0,
     },
     headerScroll: {
         flex: 1,

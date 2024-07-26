@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TextStyle, Text, Modal, Linking } from 'react-native';
 import theme, { FONT_SIZES } from '../theme';
-import { Outline_Button, Raised_Button } from '../widgets';
+import { BackButton, Outline_Button, Raised_Button } from '../widgets';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Partnerships from '../4-Partners/Partnerships';
@@ -23,6 +23,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
     const onLogout = () => {
         dispatch(resetAccount());
         navigation.popToTop();
+        navigation.pop();
     }
 
     return (
@@ -37,6 +38,11 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 <Outline_Button 
                     text={"Partner Settings"}
                     onPress={() => setPartnerModalVisible(true)}
+                    buttonStyle={styles.settingsButton}
+                />
+                <Outline_Button 
+                    text={"Circles"}
+                    onPress={() => navigation.navigate(ROUTE_NAMES.CIRCLE_LIST_ROUTE_NAME)}
                     buttonStyle={styles.settingsButton}
                 />
                 <Outline_Button 
@@ -75,6 +81,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                     navigation={navigation} callback={() => setPartnerModalVisible(false)}
                 />
             </Modal>
+            <BackButton navigation={navigation} />
        </View>
     )
 }

@@ -13,7 +13,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
 
-export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestListItem, onPress:(() => void), callback?:(() => void)}):JSX.Element => {
+export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestListItem, onPress?:((id:number, item:PrayerRequestListItem) => void), callback?:(() => void)}):JSX.Element => {
     const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     
@@ -116,7 +116,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
 
     return (
         <View style={styles.prayerRequestListCard}>
-            <TouchableOpacity onPress={props.onPress}>
+            <TouchableOpacity onPress={() => props.onPress && props.onPress(props.prayerRequestProp.prayerRequestID, props.prayerRequestProp)}>
                 <View style={styles.prayerRequestDataColumn}>
                     <View style={styles.prayerRequestDataRowLeft}>
                         <Text style={styles.topicText}>{props.prayerRequestProp.topic}</Text>
@@ -141,47 +141,6 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
     );
 }
 
-export const AnnouncementTouchable = (props:{announcementProps: CircleAnnouncementListItem}):JSX.Element => {
-    const styles = StyleSheet.create({
-        container: {
-            width: 140,
-            height: 60,
-            justifyContent: "center",
-            alignContent: "center",
-            alignSelf: "center",
-        },
-        bubbleStyle: {
-            backgroundColor: COLORS.primary,
-            width: 175,
-            height: 80,
-            borderRadius: 15,
-            justifyContent: "center",
-            alignContent: "center",
-            marginHorizontal: 5
-        },
-        titleText: {
-            ...theme.primary,
-            color: COLORS.white,
-            fontWeight: "700"
-        },
-        bodyText: {
-            ...theme.text,
-            fontSize: FONT_SIZES.S,
-            
-        }
-    });
-
-    return (
-        <View>
-            <TouchableOpacity style={styles.bubbleStyle}>
-                <View style={styles.container}>
-                    <Text style={styles.titleText}>{new Date(props.announcementProps.startDate as unknown as string).toDateString()}</Text>
-                    <Text style={styles.bodyText}>{props.announcementProps.message}</Text>
-                </View>
-            </TouchableOpacity>
-        </View>
-    );
-}
 
 export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentListItem, callback:((commentID:number) => void)}):JSX.Element => {
     const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');

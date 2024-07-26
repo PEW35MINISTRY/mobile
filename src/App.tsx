@@ -17,12 +17,12 @@ import PrayerRequestDisplay from './3-Prayer-Request/PrayerRequestDisplay';
 import PrayerRequestList from './3-Prayer-Request/PrayerRequestList';
 import ContentDisplay from './5-Content/ContentDisplay';
 import store, { RootState } from './redux-store';
-import theme from './theme';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import { AppTabNavigator } from './Widgets/navigation/AppTabNavigator';
 import InitialAccountFlow from './1-Profile/InitialAccountFlow';
 import ProfileSettings from './1-Profile/Settings';
 import AnimatedLogo from './Widgets/AnimatedLogo/AnimatedLogo';
+import DashboardDisplay from './10-Dashboard/DashboardDisplay';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -37,7 +37,16 @@ const forFade = (props:StackCardInterpolationProps) => ({
   }
 })
 
-// Handle all react navigation for Circle Screens
+const DashboardStackNavigatorProp = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name={ROUTE_NAMES.DASHBOARD_ROUTE_NAME} component={DashboardDisplay} />
+        <Stack.Screen name={ROUTE_NAMES.EDIT_PROFILE_ROUTE_NAME} component={EditProfile} />
+        <Stack.Screen name={ROUTE_NAMES.PROFILE_SETTINGS_ROUTE_NAME} component={ProfileSettings} />
+    </Stack.Navigator>
+  )
+}
+
 const CircleStackNavigatorProp = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
@@ -67,15 +76,6 @@ const ContentNavigatorProp = () => {
   )
 }
 
-// Handle all react navigation for Settings screens
-const SettingsStackNavigatorProp = () => {
-  return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name={ROUTE_NAMES.PROFILE_SETTINGS_ROUTE_NAME} component={ProfileSettings} />
-      <Stack.Screen name={ROUTE_NAMES.EDIT_PROFILE_ROUTE_NAME} component={EditProfile} />
-    </Stack.Navigator>
-  )
-}
 
 // Renders navigation buttons at bottom of screen. Each screen in the navigator should be a stack navigator 
 const BottomTabNavigator = () => {
@@ -84,10 +84,10 @@ const BottomTabNavigator = () => {
           tabBar={props => <AppTabNavigator {...props} />}
       >
   
+        <Tab.Screen name={ROUTE_NAMES.DASHBOARD_NAVIGATOR_ROUTE_NAME} component={DashboardStackNavigatorProp} />
         <Tab.Screen name={ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME} component={CircleStackNavigatorProp} />
         <Tab.Screen name={ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME} component={PrayerRequestStackNavigatorProp} />
         <Tab.Screen name={ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME} component={ContentNavigatorProp} />
-        <Tab.Screen name={ROUTE_NAMES.PROFILE_SETTINGS_NAVIGATOR_ROUTE_NAME} component={SettingsStackNavigatorProp} />
       
       </Tab.Navigator>
   );
@@ -112,15 +112,5 @@ const App = ():JSX.Element => {
     </Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  ...theme,
-  img: {
-    width: 200,
-    height: 200,
-    borderRadius: 50,
-    margin: 'auto',
-  },
-});
 
 export default App;

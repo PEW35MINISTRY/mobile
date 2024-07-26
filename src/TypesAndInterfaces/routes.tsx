@@ -22,13 +22,15 @@ export enum ROUTE_NAMES {
     PROFILE_SETTINGS_ROUTE_NAME = "ProfileSettings",
     LOGO_ANIMATION_ROUTE_NAME = "LogoAnimation",
     CONTENT_ROUTE_NAME = 'ContentRouteName',
+    DASHBOARD_ROUTE_NAME = 'DashboardRoute',
+    DASHBOARD_NAVIGATOR_ROUTE_NAME = 'DashboardRoutes',
 }
 
 export enum BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES {
+    DASHBOARD_NAVIGATOR_ROUTE_NAME = 'DashboardRoutes',
     CIRCLE_NAVIGATOR_ROUTE_NAME = "CircleRoutes",
     PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME = "PrayerRequestRoutes",
     CONTENT_NAVIGATOR_ROUTE_NAME = "ContentRoutes",
-    PROFILE_SETTINGS_NAVIGATOR_ROUTE_NAME = "ProfileSettingsRoutes",
 }
 
 export interface AppStackParamList extends ParamListBase {

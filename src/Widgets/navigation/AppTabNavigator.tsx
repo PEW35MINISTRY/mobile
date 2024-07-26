@@ -4,31 +4,24 @@ import { View, TouchableOpacity, StyleSheet, Text, Image } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { COLORS } from "../../theme";
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from "../../TypesAndInterfaces/routes";
+import { RootState, setTabFocus } from "../../redux-store";
+import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
 
 export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
+    const CIRCLE_NAVIGATOR_ICON_SELECTED = require('../../../assets/circle-icon-red.png')
+    const CIRCLE_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/circle-icon-gray.png');
     const PRAYER_REQUEST_NAVIGATOR_ICON_SELECTED = require('../../../assets/prayer-request-icon-red.png')
     const PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/prayer-request-icon-gray.png');
 
-    // Because I can't refer to the value of other objects in a static object declaration, generate the object dynamically
-    const generateDefaultNavigationState = () => {
-        var defaultNavigationState:Record<string, boolean> = {};
-        Object.values(BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES).forEach((route) => {
-            defaultNavigationState[route] = false;
-        })
-        return defaultNavigationState;
-    }
+    const dispatch = useAppDispatch();
+    const focusedTab = useAppSelector((state: RootState) => state.navigationTab.focusedTab);
 
-    const defaultNavigationState:Record<string, boolean> = generateDefaultNavigationState();
-    const [isFocused, setIsFocused] = useState<Record<string, boolean>>(defaultNavigationState);
-
-    const changeTab = (screenName:string) => {
-        var newState = {...defaultNavigationState};
-        newState[screenName] = true;
-        setIsFocused(newState);
+    const changeTab = (screenName:BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES) => {
+        dispatch(setTabFocus(screenName))
         props.navigation.navigate(screenName);
     }
 
-    const styes = StyleSheet.create({
+    const styles = StyleSheet.create({
         container: {
             justifyContent: "center",
             backgroundColor: COLORS.black,
@@ -45,56 +38,50 @@ export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
             marginHorizontal: 30,
         },
     });
-   
-    useEffect(() => {
-        var newState = {...defaultNavigationState};
-        newState[ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME] = true;
-        setIsFocused(newState);
-    }, [])
+
 
     return (
-        <View style={styes.container}>
-            <View style={styes.padding}>
+        <View style={styles.container}>
+            <View style={styles.padding}>
                 <TouchableOpacity
-                    style={styes.navTouchable}
-                    onPress={() => changeTab(ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME)}
+                    style={styles.navTouchable}
+                    onPress={() => changeTab(BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.DASHBOARD_NAVIGATOR_ROUTE_NAME)}
                 >
                     
                     <Ionicons
                         name="home"
-                        color={(isFocused[ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME] && COLORS.primary) || COLORS.grayDark}
+                        color={(focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.DASHBOARD_NAVIGATOR_ROUTE_NAME && COLORS.primary) || COLORS.grayDark}
                         size={55}
                     />
                         
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styes.navTouchable}
-                    onPress={() => changeTab(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME)}
+                    style={styles.navTouchable}
+                    onPress={() => changeTab(BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME)}
                 >
                     {
-                        isFocused[ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME] ? <Image source={PRAYER_REQUEST_NAVIGATOR_ICON_SELECTED} style={{height: 55, width: 55}}/> : <Image source={PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED} style={{height: 55, width: 55}}/>
+                        focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME ? <Image source={CIRCLE_NAVIGATOR_ICON_SELECTED} style={{height: 55, width: 55}}/> : <Image source={CIRCLE_NAVIGATOR_ICON_NOT_SELECTED} style={{height: 55, width: 55}}/>
                     }
                     
                         
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styes.navTouchable}
-                    onPress={() => changeTab(ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME)}
+                    style={styles.navTouchable}
+                    onPress={() => changeTab(BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME)}
                 >
-                    <Ionicons
-                        name="library"
-                        color={(isFocused[ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME] && COLORS.primary) || COLORS.grayDark}
-                        size={55}
-                    />
+                    {
+                        focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME ? <Image source={PRAYER_REQUEST_NAVIGATOR_ICON_SELECTED} style={{height: 55, width: 55}}/> : <Image source={PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED} style={{height: 55, width: 55}}/>
+                    }
+                    
                         
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styes.navTouchable}
-                    onPress={() => changeTab(ROUTE_NAMES.PROFILE_SETTINGS_NAVIGATOR_ROUTE_NAME)}
+                    style={styles.navTouchable}
+                    onPress={() => changeTab(BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME)}
                 >
                     <Ionicons
-                        name="person-circle"
-                        color={(isFocused[ROUTE_NAMES.PROFILE_SETTINGS_NAVIGATOR_ROUTE_NAME] && COLORS.primary) || COLORS.grayDark}
+                        name="library"
+                        color={(focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME && COLORS.primary) || COLORS.grayDark}
                         size={55}
                     />
                         
@@ -104,3 +91,4 @@ export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
         </View>
     )
 }
+

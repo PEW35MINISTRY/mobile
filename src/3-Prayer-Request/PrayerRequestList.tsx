@@ -20,13 +20,12 @@ enum PrayerRequestListViewMode {
 }
 
 const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
-    const dispatch = useAppDispatch();
     const PRAYER_REQUEST_RESOLVED_ICON = require('../../assets/resolved-icon.png');
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
-    const ownedPrayerRequests = useAppSelector((state: RootState) => state.account.userProfile.prayerRequestList);
 
+    const [ownedPrayerRequests, setOwnedPrayerRequests] = useState<PrayerRequestListItem[]>([]);
     const [receivingPrayerRequests, setReceivingPrayerRequests] = useState<PrayerRequestListItem[]>([]);
     const [viewMode, setViewMode] = useState<PrayerRequestListViewMode>(PrayerRequestListViewMode.RECIPIENT);
     const [prayerRequestCreateModalVisible, setPrayerRequestCreateModalVisible] = useState(false);
@@ -49,6 +48,12 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
             />
         );
 
+    const GET_UserOwnedPrayerRequests = async () =>
+        await axios.get(`${DOMAIN}/api/user/${userID}/prayer-request-list`, RequestAccountHeader)
+            .then((response:{data:PrayerRequestListItem[]}) => {
+                setOwnedPrayerRequests(response.data);
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+
     const GET_UserIsRecipientPrayerRequests = async () => {
         await axios.get(`${DOMAIN}/api/prayer-request/user-list`, RequestAccountHeader).then((response) => {
             if (response.data !== undefined) {
@@ -70,6 +75,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     }
 
     useEffect(() => {
+        GET_UserOwnedPrayerRequests();
         GET_UserIsRecipientPrayerRequests();
     }, [])
 
