@@ -1,5 +1,6 @@
 //https://medium.com/automating-react-native-app-release-to-google-play/react-native-with-typescript-84ae7c2f6801
 {
+  "extends": "@tsconfig/react-native/tsconfig.json",
   "compilerOptions": {
     "target": "es6",
     "module": "esnext",
