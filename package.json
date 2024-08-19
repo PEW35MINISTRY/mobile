@@ -35,7 +35,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.45.1",
-    "react-native": "0.72.15",
+    "react-native": "0.73.9",
     "react-native-dropdown-select-list": "github:PEW35MINISTRY/mobile-multi-select-dropdown",
     "react-native-gesture-handler": "^2.12.0",
     "react-native-image-picker": "^7.1.0",
@@ -56,23 +56,23 @@
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
-    "@react-native/metro-config": "^0.72.12",
-    "@tsconfig/react-native": "^3.0.0",
+    "@react-native/babel-preset": "0.73.21",
+    "@react-native/metro-config": "0.73.5",
+    "@react-native/typescript-config": "0.73.1",
     "@types/babel__core": "~7.20.5",
     "@types/prop-types": "^15.7.5",
-    "@types/react": "^18.0.24",
+    "@types/react": "^18.2.6",
     "@types/react-dom": "^18.0.11",
     "@types/react-native": "~0.68.20",
     "@types/react-native-dotenv": "~0.2.2",
     "@types/react-test-renderer": "^18.0.0",
     "concurrently": "^8.0.1",
-    "metro-react-native-babel-preset": "^0.76.9",
     "react-native-dotenv": "^3.4.8",
     "react-test-renderer": "18.2.0",
     "rimraf": "^5.0.0",
-    "typescript": "4.8.4"
+    "typescript": "5.0.4"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   }
 }
