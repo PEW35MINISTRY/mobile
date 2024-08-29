@@ -72,9 +72,8 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             <PrayerRequestTouchable
                 key={index}
                 prayerRequestProp={prayerRequest}
-                onPress={() => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
-                    params: {PrayerRequestProps: prayerRequest}, 
-                    screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
+                onPress={() => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, {
+                    PrayerRequestProps: prayerRequest
                 })}
             />
         );
