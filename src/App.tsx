@@ -53,6 +53,7 @@ const CircleStackNavigatorProp = () => {
       <Stack.Screen name={ROUTE_NAMES.CIRCLE_LIST_ROUTE_NAME} component={CircleList} />
       <Stack.Screen name={ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME} component={CircleDisplay} />
       <Stack.Screen name={ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME} component={CircleSearch} />
+      <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME} component={PrayerRequestDisplay} />
     </Stack.Navigator>
   )
 }
@@ -94,7 +95,6 @@ const BottomTabNavigator = () => {
 }
 
 const App = ():JSX.Element => {
-
   return (
     <Provider store = { store }>
       <RootSiblingParent>
