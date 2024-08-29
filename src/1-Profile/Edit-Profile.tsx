@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity, useWindowDimensions } from 'react-native';
 
 import { EDIT_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
@@ -52,8 +52,9 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       const editedFields = {} as ProfileEditRequestBody;
       for (const [key, value] of Object.entries(formValues)) {
         //@ts-ignore
-        if (value !== userProfile[key]) { editedFields[key] = value; fieldsChanged = true; }
+        if (value !== userProfile[key] && value !== "") { editedFields[key] = value; fieldsChanged = true; }
       }
+
       // send data to server
       if (fieldsChanged) {
         axios.patch(`${DOMAIN}/api/user/` + userProfile.userID, editedFields, RequestAccountHeader).then(response => {
@@ -63,7 +64,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               //@ts-ignore - Only copy over InputFields that exist in ProfileResponse
               if (updatedUserProfile[key] !== undefined) {
                  //@ts-ignore
-                updatedUserProfile[key] = editedFields[key]
+                updatedUserProfile[key] = editedFields[key];
                 profileChange = true;
               }   
             }
@@ -76,7 +77,6 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       }
       else navigation.pop();
-      
     }
 
     return (
