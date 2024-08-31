@@ -1,6 +1,6 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
-import { ColorValue, GestureResponderEvent, Image, ImageSourcePropType, ImageStyle, KeyboardTypeOptions, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle, ScrollView } from "react-native";
+import { ColorValue, GestureResponderEvent, Image, ImageSourcePropType, ImageStyle, KeyboardTypeOptions, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle, ScrollView, SafeAreaView } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import theme, { COLORS, FONT_SIZES, RADIUS } from './theme';
 import { useAppDispatch, useAppSelector } from "./TypesAndInterfaces/hooks";
@@ -517,7 +517,7 @@ export const BackButton = (props:{callback?:(() => void), navigation?:NativeStac
     })
 
     return (
-        <View style={styles.backButtonView}>
+        <SafeAreaView style={styles.backButtonView}>
             <TouchableOpacity
                 onPress={() => {
                     if(props.navigation) props.navigation.goBack();
@@ -532,7 +532,7 @@ export const BackButton = (props:{callback?:(() => void), navigation?:NativeStac
                 />
                 </View>
             </TouchableOpacity>
-        </View>
+        </SafeAreaView>
     )
 }
 
