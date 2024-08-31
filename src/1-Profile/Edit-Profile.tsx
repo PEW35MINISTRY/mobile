@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity, useWindowDimensions, SafeAreaView } from 'react-native';
 
 import { EDIT_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
@@ -80,7 +80,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     }
 
     return (
-      <View style={styles.center}>
+      <SafeAreaView style={styles.center}>
         <View style={theme.background_view}>
           <TouchableOpacity
             onPress={() => setProfileImageSettingsModalVisible(true)}
@@ -136,7 +136,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
             </Modal>
         </View>
             <BackButton navigation={navigation} callback={() => navigation.pop()}/>
-      </View>
+      </SafeAreaView>
         
     );
 }
