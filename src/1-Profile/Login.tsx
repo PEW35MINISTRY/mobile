@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useRef } from 'react';
-import { GestureResponderEvent, Image, StyleSheet, Text, View } from 'react-native';
+import { GestureResponderEvent, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
@@ -60,7 +60,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     const onSignUp = (event:GestureResponderEvent) => navigation.navigate(ROUTE_NAMES.SIGNUP_ROUTE_NAME);
 
     return (
-      <View style={theme.background_view}>
+      <SafeAreaView style={theme.background_view}>
         <Text style={styles.header}>Encouraging Prayer</Text>
         <Image source={LOGO} style={styles.logo} resizeMode='contain'></Image>
         <FormInput 
@@ -86,7 +86,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
         </View>
         <Image source={PEW35} style={styles.pew35_logo}></Image>
         <Image source={HANDS} style={styles.hands_image} resizeMode='contain'></Image>
-    </View>
+    </SafeAreaView>
   );
 }
 

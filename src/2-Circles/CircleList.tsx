@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { Raised_Button } from '../widgets';
 import theme, { COLORS } from '../theme';
@@ -36,7 +36,7 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
     }, [circleModals])
 
     return (
-        <View style={styles.modalView}>
+        <SafeAreaView style={styles.modalView}>
             <Text style={styles.modalHeaderText}>Circles</Text>
             <ScrollView contentContainerStyle={styles.circleSelectScroller}>
                 {renderCircleModals()}
@@ -45,7 +45,7 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
                 text={"Browse Circles"}
                 onPress={() => navigation.navigate(ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME)}
             />
-        </View>
+        </SafeAreaView>
     )
 }
 

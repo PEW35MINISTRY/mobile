@@ -2,7 +2,7 @@ import { DOMAIN } from "@env";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
@@ -116,7 +116,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
 
     const renderPendingPage = ():JSX.Element => {
         return (
-            <View style={{flex: 1}}>
+            <SafeAreaView style={{flex: 1}}>
                 {
                     pendingPrayerPartnerUsers.length > 0 && (
                         <View style={styles.partnerListSpacing}>
@@ -137,7 +137,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                         </View>
                     )
                 }
-            </View>
+            </SafeAreaView>
 
         )
     }

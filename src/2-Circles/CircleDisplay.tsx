@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, {AxiosResponse, AxiosError} from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, AppState } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, AppState, SafeAreaView } from 'react-native';
 import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
@@ -299,7 +299,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             
             {_renderController()} 
             <BackButton navigation={navigation} />
@@ -316,7 +316,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                     </View>
                 </TouchableOpacity>
             </View>
-        </View>
+        </SafeAreaView>
     )
 }
 

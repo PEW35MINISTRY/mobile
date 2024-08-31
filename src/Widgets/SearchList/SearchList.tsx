@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent, SafeAreaView } from 'react-native';
 import { SearchFilterIdentifiable, SearchListKey, SearchListValue} from './searchList-types';
 import { ContentListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/content-types';
 import SearchDetail, { SearchTypeInfo, DisplayItemType, SearchType, ListItemTypesEnum, SEARCH_MIN_CHARS, LabelListItem } from '../../TypesAndInterfaces/config-sync/input-config-sync/search-config';
@@ -249,7 +249,7 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
         || (props.backButtonNavigation !== undefined);
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             {showHeader() &&
                 <Animated.View ref={headerRef} 
                     style={[ styles.headerContainer, { transform: [{ translateY: isScrollingDown ? headerTranslate : 0 }] } ]}
@@ -372,7 +372,7 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                     </View>
               </Animated.ScrollView>
             }
-        </View>
+        </SafeAreaView>
     );
 }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StyleProp, ViewStyle, Linking, Dimensions, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StyleProp, ViewStyle, Linking, Dimensions, Modal, SafeAreaView } from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { DOMAIN } from '@env';
@@ -27,7 +27,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
   const [showYouTube, setShowYouTube] = useState(false);
 
   return (
-    <View style={StyleSheet.flatten([styles.card, style])} >
+    <SafeAreaView style={StyleSheet.flatten([styles.card, style])} >
         <ContentThumbnail imageUri={item.image} contentSource={item.source} onPress={() => {
           if(onPress) onPress(item.contentID, item);
           if(item.url && item.url.length > 5) { //Already filtered by MOBILE_CONTENT_SUPPORTED_SOURCES
@@ -84,7 +84,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
           </Modal>
         </View>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

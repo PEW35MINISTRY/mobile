@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextStyle, Text, Modal, Linking } from 'react-native';
+import { StyleSheet, View, TextStyle, Text, Modal, Linking, SafeAreaView } from 'react-native';
 import theme, { FONT_SIZES } from '../theme';
 import { BackButton, Outline_Button, Raised_Button } from '../widgets';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
@@ -27,7 +27,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
     }
 
     return (
-       <View style={styles.background}>
+       <SafeAreaView style={styles.background}>
             <Text style={styles.headerText}>Settings</Text>
             <View style={styles.settingsButtonsView}>
                 <Outline_Button 
@@ -82,7 +82,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 />
             </Modal>
             <BackButton navigation={navigation} />
-       </View>
+       </SafeAreaView>
     )
 }
 

@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
 import { PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
@@ -80,7 +80,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     }, [])
 
     return (
-        <View style={styles.backgroundColor}>
+        <SafeAreaView style={styles.backgroundColor}>
             <View style={styles.container}>
                 { (viewMode == PrayerRequestListViewMode.OWNER || viewMode == PrayerRequestListViewMode.ANSWERED) &&
                     <View style={styles.answeredView}>
@@ -135,7 +135,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                         <Text style={styles.prayerRequestCreateButtonText}>+</Text>
                     </View>
             </TouchableOpacity>
-        </View>
+        </SafeAreaView>
        
     )
 }

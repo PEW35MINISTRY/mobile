@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { addMemberCircle, addPartner, addPartnerPendingPartner, removeInviteCircle, removePartnerPendingUser, RootState, setTabFocus } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import { DOMAIN } from '@env';
@@ -38,7 +38,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
 
   
     return (
-        <View style={styles.pageContainer} >
+        <SafeAreaView style={styles.pageContainer} >
             <SearchList
                 key={'dashboard-page'}
                 additionalHeaderRows={[
@@ -133,7 +133,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                     onClose={() => setNewPartner(undefined)}
                 />
         }
-        </View>
+        </SafeAreaView>
     );
 };
     

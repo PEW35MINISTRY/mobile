@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity, SafeAreaView } from "react-native";
 import { useAppSelector } from "../../TypesAndInterfaces/hooks";
 import { RootState } from "../../redux-store";
 import { ProfileListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
@@ -205,7 +205,7 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
     }, [])
 
     return (
-        <View style={styles.backgroundContainer}>
+        <SafeAreaView style={styles.backgroundContainer}>
             <View style={styles.container}>
                 <Text style={styles.titleText}>Select Recipients</Text>
                 <View style={styles.viewTypeView}>
@@ -242,7 +242,7 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
                     onPress={() => props.callback()}
                 />
             </View> 
-        </View>
+        </SafeAreaView>
         
     )
 }
