@@ -116,7 +116,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
 
     const renderPendingPage = ():JSX.Element => {
         return (
-            <SafeAreaView style={{flex: 1}}>
+            <View style={{flex: 1}}>
                 {
                     pendingPrayerPartnerUsers.length > 0 && (
                         <View style={styles.partnerListSpacing}>
@@ -137,7 +137,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                         </View>
                     )
                 }
-            </SafeAreaView>
+            </View>
 
         )
     }
@@ -153,7 +153,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
 
     return (
         <RootSiblingParent>
-            <View style={styles.backgroundColor}>
+            <SafeAreaView style={styles.backgroundColor}>
                 <View style={styles.container}>
                     <View style={styles.viewModeView}>
                             <TouchableOpacity
@@ -202,7 +202,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                     onClose={() => setNewPartnerModalVisible(false)}
                 />
 
-            </View>
+            </SafeAreaView>
         </RootSiblingParent>       
      
   );
