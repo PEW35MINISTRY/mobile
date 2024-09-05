@@ -42,7 +42,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     }
 
     return (
-      <SafeAreaView style={styles.center}>
+      <SafeAreaView style={styles.backgroundView}>
         <View style={theme.background_view}>
             <Text style={styles.header}>Create Profile</Text>
               <FormInput 
@@ -65,6 +65,10 @@ const styles = StyleSheet.create({
   header: {
     ...theme.header,
     marginVertical: 20,
+  },
+  backgroundView: {
+    ...theme.center,
+    backgroundColor: COLORS.black
   },
   logo: {
     height: 175,

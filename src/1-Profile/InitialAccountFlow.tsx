@@ -53,7 +53,7 @@ const InitialAccountFlow = ({navigation}:StackNavigationProps):JSX.Element => {
     }
 
     return (
-        <SafeAreaView style={styles.center}>
+        <SafeAreaView style={styles.backgroundView}>
             <View style={styles.background_view}>
                 {renderSetupProp()}
              </View>
@@ -68,6 +68,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         alignSelf: "auto"
+      },
+      backgroundView: {
+        ...theme.center,
+        backgroundColor: COLORS.black
       },
       imageUploadButton: {
         height: 45,

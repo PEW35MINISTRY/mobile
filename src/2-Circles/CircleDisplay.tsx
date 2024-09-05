@@ -302,7 +302,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
         <SafeAreaView style={styles.container}>
             
             {_renderController()} 
-            <BackButton navigation={navigation} />
+            
             <View style={styles.circleSettingsView}>
                 <TouchableOpacity
                     onPress={() => setCircleInfoModalVisible(true)}    
@@ -316,14 +316,16 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                     </View>
                 </TouchableOpacity>
             </View>
+            <BackButton navigation={navigation} />
         </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        ...theme.background_view,
-        justifyContent: "center",
+        //...theme.background_view,
+        //justifyContent: "center",
+        backgroundColor: COLORS.black,
         flex: 1
     },
     leaderImage: {
