@@ -500,7 +500,7 @@ export const ProfileImage = (props:{style?:ImageStyle, onPress?:() => void}):JSX
     );
 }
 
-export const BackButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>}):JSX.Element => {
+export const BackButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>, buttonView?:ViewStyle}):JSX.Element => {
     const styles = StyleSheet.create({
         backButton: {
             justifyContent: "center",
@@ -512,7 +512,8 @@ export const BackButton = (props:{callback?:(() => void), navigation?:NativeStac
           backButtonView: {
             position: "absolute",
             top: 1,
-            left: 1
+            left: 1,
+            ...props.buttonView
           },
     })
 
@@ -527,6 +528,43 @@ export const BackButton = (props:{callback?:(() => void), navigation?:NativeStac
                 <View style={styles.backButton}>
                 <Ionicons 
                     name="return-up-back-outline"
+                    color={COLORS.white}
+                    size={30}
+                />
+                </View>
+            </TouchableOpacity>
+        </SafeAreaView>
+    )
+}
+
+export const XButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>, buttonView?:ViewStyle}):JSX.Element => {
+    const styles = StyleSheet.create({
+        xButton: {
+            justifyContent: "center",
+            alignItems: "center",
+            height: 55,
+            width: 55,
+            borderRadius: 15,
+          },
+          xButtonView: {
+            position: "absolute",
+            top: 1,
+            left: 1,
+            ...props.buttonView
+          },
+    })
+
+    return (
+        <SafeAreaView style={styles.xButtonView}>
+            <TouchableOpacity
+                onPress={() => {
+                    if(props.navigation) props.navigation.goBack();
+                    else if(props.callback) props.callback();
+                }}
+            >
+                <View style={styles.xButton}>
+                <Ionicons 
+                    name="close-outline"
                     color={COLORS.white}
                     size={30}
                 />
