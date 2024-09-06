@@ -39,7 +39,8 @@ const ContentDisplay = (props:{callback?:(() => void), navigation:NativeStackNav
     
       return (
         <SearchList
-                key={'content-page'}
+                key='content-page'
+                name='content-page'
                 filterOptions={MOBILE_SUPPORTED_CONTENT_TYPES}
                 onFilter={(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => ((listValue.displayItem as ContentListItem).type === ContentTypeEnum[appliedFilter?.filterOption as keyof typeof ContentTypeEnum])}
                 displayMap={new Map([
