@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, {AxiosResponse, AxiosError} from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, AppState, SafeAreaView } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, AppState, SafeAreaView, Platform } from 'react-native';
 import { CircleAnnouncementListItem, CircleEventListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
@@ -15,7 +15,7 @@ import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { EventTouchable, RequestorCircleImage, AnnouncementTouchable } from './circle-widgets';
 import { PrayerRequestTouchable } from '../3-Prayer-Request/prayer-request-widgets';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
-import { BackButton, Raised_Button } from '../widgets';
+import { BackButton, Raised_Button, XButton } from '../widgets';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
@@ -97,8 +97,8 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
-    const leaveCircle = async () => {
-        await axios.delete(`${DOMAIN}/api/circle/` + currCircleState?.circleID + "/leave", RequestAccountHeader).then(response => {
+    const leaveCircle = () => {
+        axios.delete(`${DOMAIN}/api/circle/` + currCircleState?.circleID + "/leave", RequestAccountHeader).then(response => {
             const newListItem:CircleListItem = {...appCircleListItem, status: CircleStatusEnum.NONE};
             dispatch(removeMemberCircle(newListItem.circleID));
             setLeaveCircleModalVisible(false);
@@ -198,9 +198,10 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                             visible={leaveCircleModalVisible}
                             animationType='slide'
                             transparent={true}
-                            onRequestClose={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}
+                            onRequestClose={() => setLeaveCircleModalVisible(false)}
                         >
                              <View style={styles.modalView}>
+                                <XButton callback={() => setLeaveCircleModalVisible(false)} />
                                 <Text style={styles.modalHeaderText}>Are you sure you want to leave?</Text>
                                 <View style={{maxWidth: '70%', alignSelf: "center"}}>
                                     <Raised_Button buttonStyle={styles.statusButton}
@@ -285,7 +286,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                                 (currCircleState.requestorStatus == CircleStatusEnum.MEMBER || currCircleState.requestorStatus == CircleStatusEnum.CONNECTED) && 
                                 <Raised_Button buttonStyle={styles.statusButton}
                                     text={"Leave Circle"}
-                                    onPress={() => setLeaveCircleModalVisible(!leaveCircleModalVisible)}
+                                    onPress={() => setLeaveCircleModalVisible(true)}
                                 />
                             }
                             <BackButton callback={() => setCircleInfoModalVisible(false)} />
@@ -316,7 +317,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                     </View>
                 </TouchableOpacity>
             </View>
-            <BackButton navigation={navigation} />
+            <BackButton navigation={navigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
         </SafeAreaView>
     )
 }
@@ -492,7 +493,7 @@ const styles = StyleSheet.create({
     },
     circleSettingsView: {
         position: "absolute",
-        top: 1,
+        top: 40,
         right: 1
     },
     
