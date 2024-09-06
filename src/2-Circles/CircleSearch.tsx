@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { BackButton, Input_Field, Raised_Button } from "../widgets";
 import theme, { COLORS } from "../theme";
@@ -61,7 +61,7 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
             <ScrollView contentContainerStyle={styles.circleSelectScroller}>
                 {renderCircleModals()}
             </ScrollView>
-            <BackButton navigation={navigation} />
+            <BackButton navigation={navigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
             
         </SafeAreaView>
     )
