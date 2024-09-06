@@ -40,7 +40,8 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
     return (
         <SafeAreaView style={styles.pageContainer} >
             <SearchList
-                key={'dashboard-page'}
+                key='dashboard-page'
+                name='dashboard-page'
                 additionalHeaderRows={[
                     <View style={styles.headerContainer} >
                         <ProfileImage
