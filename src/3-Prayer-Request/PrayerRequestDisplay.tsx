@@ -188,6 +188,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                                         route.params.callback !== undefined && route.params.callback();
                                         navigation.pop();
                                     }
+                                    
                                 }}
                             />
                         </Modal>
@@ -200,7 +201,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                             <View style={styles.commentCreateView}>
                             <PrayerRequestCommentCreate 
                                 prayerRequestItem={appPrayerRequestListItem}
-                                callback={(commentListItem:PrayerRequestCommentListItem) => {setCommentsData([...commentsData || [], commentListItem]); setCommentCreateModalVisible(false)}}
+                                callback={(commentListItem?:PrayerRequestCommentListItem) => {if (commentListItem !== undefined ) setCommentsData ([...commentsData || [], commentListItem]); setCommentCreateModalVisible(false)}}
                             />
                             </View>
 
