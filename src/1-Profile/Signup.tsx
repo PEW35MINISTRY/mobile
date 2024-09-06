@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { render } from 'react-dom';
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { GestureResponderEvent, Image, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { GestureResponderEvent, Image, Modal, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import { SIGNUP_PROFILE_FIELDS_USER } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
@@ -55,6 +55,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
                 onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
               />
         </View>
+        <BackButton navigation={navigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
       </SafeAreaView>
         
     );

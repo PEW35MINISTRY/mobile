@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextStyle, Text, Modal, Linking, SafeAreaView } from 'react-native';
+import { StyleSheet, View, TextStyle, Text, Modal, Linking, SafeAreaView, Platform } from 'react-native';
 import theme, { FONT_SIZES } from '../theme';
 import { BackButton, Outline_Button, Raised_Button } from '../widgets';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
@@ -81,7 +81,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                     navigation={navigation} callback={() => setPartnerModalVisible(false)}
                 />
             </Modal>
-            <BackButton navigation={navigation} />
+            <BackButton navigation={navigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
        </SafeAreaView>
     )
 }
