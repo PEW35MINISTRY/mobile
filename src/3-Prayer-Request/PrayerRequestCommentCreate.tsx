@@ -3,7 +3,7 @@ import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { PrayerRequestComment } from './prayer-request-widgets';
 import React, { useRef } from 'react';
 import ProfileImageSettings from '../1-Profile/ProfileImageSettings';
-import { Raised_Button } from '../widgets';
+import { Raised_Button, XButton } from '../widgets';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { PRAYER_REQUEST_COMMENT_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import theme, { COLORS } from '../theme';
@@ -16,7 +16,7 @@ import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { RootSiblingParent } from 'react-native-root-siblings';
 
-export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerRequestListItem, callback:((prayerRequestComment:PrayerRequestCommentListItem) => void)}):JSX.Element => {
+export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerRequestListItem, callback:((prayerRequestComment?:PrayerRequestCommentListItem) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
@@ -69,10 +69,9 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
                 />
 
           </View>
+          <XButton callback={props.callback}/>
         </View> 
       </RootSiblingParent>
-        
-        
     )
 }
 
