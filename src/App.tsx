@@ -43,6 +43,7 @@ const DashboardStackNavigatorProp = () => {
         <Stack.Screen name={ROUTE_NAMES.DASHBOARD_ROUTE_NAME} component={DashboardDisplay} />
         <Stack.Screen name={ROUTE_NAMES.EDIT_PROFILE_ROUTE_NAME} component={EditProfile} />
         <Stack.Screen name={ROUTE_NAMES.PROFILE_SETTINGS_ROUTE_NAME} component={ProfileSettings} />
+        <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME} component={PrayerRequestDisplay} key={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME + "Dashboard"}/>
     </Stack.Navigator>
   )
 }
@@ -53,7 +54,7 @@ const CircleStackNavigatorProp = () => {
       <Stack.Screen name={ROUTE_NAMES.CIRCLE_LIST_ROUTE_NAME} component={CircleList} />
       <Stack.Screen name={ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME} component={CircleDisplay} />
       <Stack.Screen name={ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME} component={CircleSearch} />
-      <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME} component={PrayerRequestDisplay} />
+      <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME} component={PrayerRequestDisplay} key={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME + "Circle"}/>
     </Stack.Navigator>
   )
 }
@@ -63,7 +64,7 @@ const PrayerRequestStackNavigatorProp = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_LIST_ROUTE_NAME} component={PrayerRequestList} />
-        <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME} component={PrayerRequestDisplay} />
+        <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME} component={PrayerRequestDisplay} key={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME + "PrayerRequestStack"}/>
     </Stack.Navigator>
   )
 }
