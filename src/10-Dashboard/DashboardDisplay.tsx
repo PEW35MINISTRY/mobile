@@ -80,10 +80,9 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                         [
                             new SearchListKey({displayTitle:'Prayer Requests'}),
                             [...newPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,
-                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
-                                    params: {PrayerRequestProps: item}, 
-                                    screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
-                                })}))
+                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, {
+                                    PrayerRequestProps: item}
+                                )}))
                         ],
                         [
                             new SearchListKey({displayTitle:'Announcements'}),
