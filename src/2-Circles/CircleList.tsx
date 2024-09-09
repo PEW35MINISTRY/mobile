@@ -16,7 +16,7 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
     const userInviteCircles = useAppSelector((state: RootState) => state.account.userProfile.circleInviteList);
     const userRequestCircles = useAppSelector((state: RootState) => state.account.userProfile.circleRequestList);
 
-    const [circleModals, setCircleModals] = useState<CircleListItem[]>([...userCircles || [], ...userInviteCircles || [], ...userRequestCircles || []])
+    const [circleModals, setCircleModals] = useState<CircleListItem[]>([...userCircles || [], ...userInviteCircles || [], ...userRequestCircles || []]);
 
     const renderCircleModals = ():JSX.Element[] => 
         (circleModals || []).map((circleProps:CircleListItem, index:number) => 
@@ -32,8 +32,15 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
     useEffect(() => {
         if(circleModals.length == 0) {
             navigation.navigate(ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME);
-        }        
-    }, [circleModals])
+        }   
+    }, []);
+
+    // Update circle list and re-render if a user joins or leaves a circle
+    useEffect(() => {
+        setCircleModals([...userCircles || [], ...userInviteCircles || [], ...userRequestCircles || []]);
+    }, [userCircles, userInviteCircles, userRequestCircles]);
+
+  
 
     return (
         <SafeAreaView style={styles.modalView}>
