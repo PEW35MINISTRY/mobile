@@ -477,6 +477,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         ...theme.title,
+        textAlign: "center",
         marginTop: 20
     },
     bottomView: {
