@@ -23,7 +23,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
     const onLogout = () => {
         dispatch(resetAccount());
         navigation.popToTop();
-        navigation.pop();
+        navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME)
     }
 
     return (
