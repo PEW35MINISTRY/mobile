@@ -165,7 +165,7 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
 
 export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextStyle, labelStyle?:TextStyle, containerStyle?:ViewStyle,
     value:string, onChangeText:((text: string) => void), placeholder?:string, placeholderTextColor?:ColorValue, keyboardType?:KeyboardTypeOptions,
-    textContentType?:any, validationLabel?:string, validationStyle?:TextStyle, editable?:boolean, multiline?:boolean}):JSX.Element => {  
+    textContentType?:any, validationLabel?:string, validationStyle?:TextStyle, editable?:boolean, multiline?:boolean, autoCapitalize?:boolean}):JSX.Element => {  
 
     const [labelColor, setLabelColor] = useState(COLORS.accent);
         
@@ -217,6 +217,7 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
                     editable={props.editable}
                     multiline={props.multiline}
                     textAlignVertical='top'
+                    autoCapitalize={props.autoCapitalize === false ? "none" : "words"}
                 />
                 {props.validationLabel && <Text style={styles.validationStyle}>{props.validationLabel}</Text>}
             </View> );

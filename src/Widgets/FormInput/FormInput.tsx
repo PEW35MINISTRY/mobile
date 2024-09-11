@@ -121,6 +121,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                                     inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
                                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                                     containerStyle={styles.centerInputStyle}
+                                    autoCapitalize={false}
                                 />
                             }
                             
