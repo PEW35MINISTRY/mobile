@@ -193,26 +193,6 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                                 {renderPrayerRequests()}
                             </ScrollView>
                         </View>
-
-                        <Modal
-                            visible={leaveCircleModalVisible}
-                            animationType='slide'
-                            transparent={true}
-                            onRequestClose={() => setLeaveCircleModalVisible(false)}
-                        >
-                             <View style={styles.modalView}>
-                                <XButton callback={() => setLeaveCircleModalVisible(false)} />
-                                <Text style={styles.modalHeaderText}>Are you sure you want to leave?</Text>
-                                <View style={{maxWidth: '70%', alignSelf: "center"}}>
-                                    <Raised_Button buttonStyle={styles.statusButton}
-                                        text={"Leave Circle"}
-                                        onPress={leaveCircle}
-                                    />
-                                </View>
-
-                            </View>
-                        </Modal>
-
                     </>
                 );
                 break;
@@ -291,9 +271,28 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                             }
                             <BackButton callback={() => setCircleInfoModalVisible(false)} />
                         </View>
+                        <Modal
+                            visible={leaveCircleModalVisible}
+                            animationType='slide'
+                            transparent={true}
+                            onRequestClose={() => setLeaveCircleModalVisible(false)}
+                        >
+                             <View style={styles.modalView}>
+                                <XButton callback={() => setLeaveCircleModalVisible(false)} />
+                                <Text style={styles.modalHeaderText}>Are you sure you want to leave?</Text>
+                                <View style={{maxWidth: '70%', alignSelf: "center"}}>
+                                    <Raised_Button buttonStyle={styles.statusButton}
+                                        text={"Leave Circle"}
+                                        onPress={leaveCircle}
+                                    />
+                                </View>
+
+                            </View>
+                        </Modal>
                     
                     </Modal>
                     {_circleMemberController()}
+
                 </View>
             )
         }
