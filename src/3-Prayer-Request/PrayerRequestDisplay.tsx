@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView } from 'react-native';
 import { PrayerRequestCommentListItem, PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState } from '../redux-store';
+import { removeNewPrayerRequest, removeOwnedPrayerRequest, RootState } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
@@ -20,10 +20,10 @@ import { ProfileListItem } from '../TypesAndInterfaces/config-sync/api-type-sync
 import { CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
+import { PartnershipContractModal } from '../4-Partners/partnership-widgets';
 
 export interface PrayerRequestDisplayParamList{
     PrayerRequestProps: PrayerRequestListItem,
-    callback?:(() => void)
 }
 type PrayerRequestDisplayProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME>;
 
@@ -53,6 +53,8 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const [sharedRecipientsModalVisible, setSharedRecipientsModalVisible] = useState(false);
     const [prayerRequestEditModalVisible, setPrayerRequestEditModalVisible] = useState(false);
     const [commentCreateModalVisible, setCommentCreateModalVisible] = useState(false);
+
+    const dispatch = useAppDispatch();
 
     const RequestAccountHeader = {
         headers: {
@@ -184,11 +186,10 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                                     setPrayerRequestEditModalVisible(false);
                                     if (prayerRequestData !== undefined && prayerRequestListData !== undefined) setPrayerRequestState(prayerRequestData, prayerRequestListData);
                                     else if (deletePrayerRequest == true) {
-                                        // remove prayer request from list page
-                                        route.params.callback !== undefined && route.params.callback();
-                                        navigation.pop();
+                                        dispatch(removeOwnedPrayerRequest(appPrayerRequestListItem.prayerRequestID));
+                                        dispatch(removeNewPrayerRequest(appPrayerRequestListItem.prayerRequestID)); // remove from dashboard
+                                        navigation.goBack();
                                     }
-                                    
                                 }}
                             />
                         </Modal>
