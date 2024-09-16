@@ -217,7 +217,7 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
                     editable={props.editable}
                     multiline={props.multiline}
                     textAlignVertical='top'
-                    autoCapitalize={props.autoCapitalize === false ? "none" : "words"}
+                    autoCapitalize={props.autoCapitalize === false ? "none" : "sentences"}
                 />
                 {props.validationLabel && <Text style={styles.validationStyle}>{props.validationLabel}</Text>}
             </View> );
