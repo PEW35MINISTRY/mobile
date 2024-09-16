@@ -49,6 +49,11 @@ const accountSlice = createSlice({
 
     addContact: (state, action: PayloadAction<ProfileListItem>) => state = addListItem(state, action, 'contactList'),
     removeContact: (state, action: PayloadAction<number>) => state = removeListItem(state, action, 'contactList', 'userID'),
+
+    addOwnedPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = addListItem(state, action, 'ownedPrayerRequestList'),
+    removeOwnedPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'ownedPrayerRequestList', 'prayerRequestID'),
+    removeNewPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'newPrayerRequestList', 'prayerRequestID')
+
   },
 });
 
@@ -57,7 +62,7 @@ const accountSlice = createSlice({
 export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfileImage, 
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
-      addContact, removeContact
+      addContact, removeContact, addOwnedPrayerRequest, removeOwnedPrayerRequest, removeNewPrayerRequest
     } = accountSlice.actions;
 
 
