@@ -34,14 +34,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
     const circleAnnouncementList:CircleAnnouncementListItem[] = useAppSelector((state:RootState) => state.account.userProfile.circleAnnouncementList) || [];
     const newPrayerRequestList:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.newPrayerRequestList) || [];
     const recommendedContentList:ContentListItem[] = useAppSelector((state:RootState) => state.account.userProfile.recommendedContentList) || [];
-
     const [newPartner, setNewPartner] = useState<PartnerListItem|undefined>(undefined);
-    const [newPrayerRequests, setNewPrayerRequests] = useState(newPrayerRequestList);
-
-    // if a user deletes a prayer request in the newPrayerRequest list, remove it and re-render
-    useEffect(() => {
-        setNewPrayerRequests(newPrayerRequestList);
-    }, [newPrayerRequestList])
 
     return (
         <SafeAreaView style={styles.pageContainer} >
@@ -85,7 +78,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                         ],
                         [
                             new SearchListKey({displayTitle:'Prayer Requests'}),
-                            [...newPrayerRequests].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,
+                            [...newPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,
                                 onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, {
                                     PrayerRequestProps: item}
                                 )}))
