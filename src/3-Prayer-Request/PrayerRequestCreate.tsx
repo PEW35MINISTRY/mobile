@@ -16,7 +16,7 @@ import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { RootSiblingParent } from 'react-native-root-siblings';
 
-const PrayerRequestCreateForm = (props:{callback:(() => void)}):JSX.Element => {
+const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListItem) => void)}):JSX.Element => {
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
@@ -39,7 +39,7 @@ const PrayerRequestCreateForm = (props:{callback:(() => void)}):JSX.Element => {
         prayerRequest.addCircleRecipientIDList = addCircleRecipientIDList;
         prayerRequest.addUserRecipientIDList = addUserRecipientIDList;
         
-        axios.post(`${DOMAIN}/api/prayer-request`, prayerRequest, RequestAccountHeader).then((response) => {
+        axios.post(`${DOMAIN}/api/prayer-request`, prayerRequest, RequestAccountHeader).then((response) => {    
             const newPrayerRequest:PrayerRequestResponseBody = response.data;
             const newPrayerRequestListItem:PrayerRequestListItem = {
                 prayerRequestID: newPrayerRequest.prayerRequestID,
@@ -53,7 +53,7 @@ const PrayerRequestCreateForm = (props:{callback:(() => void)}):JSX.Element => {
                 prayerCount: 0,
                 tagList: newPrayerRequest.tagList
             }
-            props.callback();
+            props.callback(newPrayerRequestListItem);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         
     }
