@@ -13,7 +13,6 @@ import ToastQueueManager from './utilities/ToastQueueManager';
 import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import { makeDisplayText } from './utilities/utilities';
 
-
 /**************************************************
  * These are reusable widgets for app consistency *
  **************************************************/
@@ -41,6 +40,55 @@ export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewSty
     return ( <TouchableOpacity style={styles.buttonStyle} onPress={props.onPress}>
                  <Text style={styles.textStyle}>{props.text}</Text>
              </TouchableOpacity> );
+}
+
+export const CheckBox = (props:{ label?: string, labelStyle?: object, iconColor?: string, onChange: () => void}):JSX.Element => {
+    
+    const [checked, setChecked] = useState<boolean>(false)
+    
+    const onChange = () => {
+        setChecked(!checked);
+        props.onChange();
+    }
+
+    const styles = StyleSheet.create({
+        checkBox: {
+          width: 25,
+          height: 25,
+          borderWidth: 1,
+          borderColor: '#000',
+          justifyContent: "center",
+          alignItems: "center"
+        },
+        wrapperCheckBox: {
+          flexDirection: "row",
+          alignItems: "center",
+        },
+        labelCheck: {
+          color: '#fff',
+          marginLeft: 6,
+          marginRight: 15
+        }
+      })
+    
+      return (
+        <View style={styles.wrapperCheckBox}>
+          <Text style={[styles.labelCheck, props.labelStyle]}>
+            {props.label}
+          </Text>
+          <TouchableOpacity onPress={onChange} style={[
+            styles.checkBox, {borderColor: COLORS.white}
+          ]}>
+            {
+              checked ? <Ionicons name="checkmark-outline"
+                color={COLORS.white}
+                size={30}
+              /> : null
+            }
+          </TouchableOpacity>
+
+        </View>
+      );
 }
 
 export const Raised_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewStyle, textStyle?:TextStyle, onPress:((event: GestureResponderEvent) => void)}):JSX.Element => {  
