@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { addMemberCircle, addPartner, addPartnerPendingPartner, removeInviteCircle, removePartnerPendingUser, RootState, setTabFocus } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import { DOMAIN } from '@env';
@@ -30,17 +30,17 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const jwt:string = useAppSelector((state:RootState) => state.account.jwt);
     const partnerPendingUserList:PartnerListItem[] = useAppSelector((state:RootState) => state.account.userProfile.partnerPendingUserList) || [];
-    const [newPartner, setNewPartner] = useState<PartnerListItem|undefined>(undefined);
     const circleInviteList:CircleListItem[] = useAppSelector((state:RootState) => state.account.userProfile.circleInviteList) || [];
     const circleAnnouncementList:CircleAnnouncementListItem[] = useAppSelector((state:RootState) => state.account.userProfile.circleAnnouncementList) || [];
     const newPrayerRequestList:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.newPrayerRequestList) || [];
     const recommendedContentList:ContentListItem[] = useAppSelector((state:RootState) => state.account.userProfile.recommendedContentList) || [];
+    const [newPartner, setNewPartner] = useState<PartnerListItem|undefined>(undefined);
 
-  
     return (
-        <View style={styles.pageContainer} >
+        <SafeAreaView style={styles.pageContainer} >
             <SearchList
-                key={'dashboard-page'}
+                key='dashboard-page'
+                name='dashboard-page'
                 additionalHeaderRows={[
                     <View style={styles.headerContainer} >
                         <ProfileImage
@@ -79,10 +79,9 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                         [
                             new SearchListKey({displayTitle:'Prayer Requests'}),
                             [...newPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,
-                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
-                                    params: {PrayerRequestProps: item}, 
-                                    screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
-                                })}))
+                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, {
+                                    PrayerRequestProps: item}
+                                )}))
                         ],
                         [
                             new SearchListKey({displayTitle:'Announcements'}),
@@ -133,7 +132,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                     onClose={() => setNewPartner(undefined)}
                 />
         }
-        </View>
+        </SafeAreaView>
     );
 };
     

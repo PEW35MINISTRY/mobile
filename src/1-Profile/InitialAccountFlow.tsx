@@ -2,7 +2,7 @@ import { DOMAIN } from "@env";
 import axios from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Modal } from "react-native";
+import { StyleSheet, Text, View, Modal, SafeAreaView } from "react-native";
 import { StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState, } from "../redux-store";
@@ -53,11 +53,11 @@ const InitialAccountFlow = ({navigation}:StackNavigationProps):JSX.Element => {
     }
 
     return (
-        <View style={styles.center}>
+        <SafeAreaView style={styles.backgroundView}>
             <View style={styles.background_view}>
                 {renderSetupProp()}
              </View>
-        </View>
+        </SafeAreaView>
     )
 }
 
@@ -68,6 +68,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         alignSelf: "auto"
+      },
+      backgroundView: {
+        ...theme.center,
+        backgroundColor: COLORS.black
       },
       imageUploadButton: {
         height: 45,

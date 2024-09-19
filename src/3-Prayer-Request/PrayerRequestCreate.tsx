@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, Platform } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
 import { PrayerRequestListItem, PrayerRequestPostRequestBody, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
@@ -10,13 +10,13 @@ import InputField, { InputType } from '../TypesAndInterfaces/config-sync/input-c
 import { CREATE_PRAYER_REQUEST_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
-import { Outline_Button, Raised_Button } from '../widgets';
+import { Outline_Button, Raised_Button, XButton } from '../widgets';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { RootSiblingParent } from 'react-native-root-siblings';
 
-const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestListItem) => void)}):JSX.Element => {
+const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListItem) => void)}):JSX.Element => {
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
@@ -39,7 +39,7 @@ const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestLi
         prayerRequest.addCircleRecipientIDList = addCircleRecipientIDList;
         prayerRequest.addUserRecipientIDList = addUserRecipientIDList;
         
-        axios.post(`${DOMAIN}/api/prayer-request`, prayerRequest, RequestAccountHeader).then((response) => {
+        axios.post(`${DOMAIN}/api/prayer-request`, prayerRequest, RequestAccountHeader).then((response) => {    
             const newPrayerRequest:PrayerRequestResponseBody = response.data;
             const newPrayerRequestListItem:PrayerRequestListItem = {
                 prayerRequestID: newPrayerRequest.prayerRequestID,
@@ -60,7 +60,7 @@ const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestLi
 
     return (
         <RootSiblingParent>
-            <View style={styles.center}>
+            <SafeAreaView style={styles.center}>
                 <View style={styles.background_view}>
                     <View style={styles.headerThing}>
                         <Text style={styles.headerText}>Create Prayer Request</Text>
@@ -98,8 +98,8 @@ const PrayerRequestCreateForm = (props:{callback:((prayerRequest:PrayerRequestLi
                         />
                     </Modal>
                 </View>
-                
-            </View>
+                <XButton callback={props.callback} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
+            </SafeAreaView>
         </RootSiblingParent>
         
     )

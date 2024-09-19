@@ -1,6 +1,6 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
-import { ColorValue, GestureResponderEvent, Image, ImageSourcePropType, ImageStyle, KeyboardTypeOptions, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle, ScrollView } from "react-native";
+import { ColorValue, GestureResponderEvent, Image, ImageSourcePropType, ImageStyle, KeyboardTypeOptions, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle, ScrollView, SafeAreaView } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import theme, { COLORS, FONT_SIZES, RADIUS } from './theme';
 import { useAppDispatch, useAppSelector } from "./TypesAndInterfaces/hooks";
@@ -12,7 +12,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ToastQueueManager from './utilities/ToastQueueManager';
 import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import { makeDisplayText } from './utilities/utilities';
-
 
 /**************************************************
  * These are reusable widgets for app consistency *
@@ -41,6 +40,55 @@ export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewSty
     return ( <TouchableOpacity style={styles.buttonStyle} onPress={props.onPress}>
                  <Text style={styles.textStyle}>{props.text}</Text>
              </TouchableOpacity> );
+}
+
+export const CheckBox = (props:{ label?: string, labelStyle?: object, iconColor?: string, onChange: () => void}):JSX.Element => {
+    
+    const [checked, setChecked] = useState<boolean>(false)
+    
+    const onChange = () => {
+        setChecked(!checked);
+        props.onChange();
+    }
+
+    const styles = StyleSheet.create({
+        checkBox: {
+          width: 25,
+          height: 25,
+          borderWidth: 1,
+          borderColor: '#000',
+          justifyContent: "center",
+          alignItems: "center"
+        },
+        wrapperCheckBox: {
+          flexDirection: "row",
+          alignItems: "center",
+        },
+        labelCheck: {
+          color: '#fff',
+          marginLeft: 6,
+          marginRight: 15
+        }
+      })
+    
+      return (
+        <View style={styles.wrapperCheckBox}>
+          <Text style={[styles.labelCheck, props.labelStyle]}>
+            {props.label}
+          </Text>
+          <TouchableOpacity onPress={onChange} style={[
+            styles.checkBox, {borderColor: COLORS.white}
+          ]}>
+            {
+              checked ? <Ionicons name="checkmark-outline"
+                color={COLORS.white}
+                size={30}
+              /> : null
+            }
+          </TouchableOpacity>
+
+        </View>
+      );
 }
 
 export const Raised_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewStyle, textStyle?:TextStyle, onPress:((event: GestureResponderEvent) => void)}):JSX.Element => {  
@@ -165,7 +213,7 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
 
 export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextStyle, labelStyle?:TextStyle, containerStyle?:ViewStyle,
     value:string, onChangeText:((text: string) => void), placeholder?:string, placeholderTextColor?:ColorValue, keyboardType?:KeyboardTypeOptions,
-    textContentType?:any, validationLabel?:string, validationStyle?:TextStyle, editable?:boolean, multiline?:boolean}):JSX.Element => {  
+    textContentType?:any, validationLabel?:string, validationStyle?:TextStyle, editable?:boolean, multiline?:boolean, autoCapitalize?:boolean}):JSX.Element => {  
 
     const [labelColor, setLabelColor] = useState(COLORS.accent);
         
@@ -217,6 +265,7 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
                     editable={props.editable}
                     multiline={props.multiline}
                     textAlignVertical='top'
+                    autoCapitalize={props.autoCapitalize === false ? "none" : "sentences"}
                 />
                 {props.validationLabel && <Text style={styles.validationStyle}>{props.validationLabel}</Text>}
             </View> );
@@ -500,7 +549,7 @@ export const ProfileImage = (props:{style?:ImageStyle, onPress?:() => void}):JSX
     );
 }
 
-export const BackButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>}):JSX.Element => {
+export const BackButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>, buttonView?:ViewStyle}):JSX.Element => {
     const styles = StyleSheet.create({
         backButton: {
             justifyContent: "center",
@@ -512,12 +561,13 @@ export const BackButton = (props:{callback?:(() => void), navigation?:NativeStac
           backButtonView: {
             position: "absolute",
             top: 1,
-            left: 1
+            left: 1,
+            ...props.buttonView
           },
     })
 
     return (
-        <View style={styles.backButtonView}>
+        <SafeAreaView style={styles.backButtonView}>
             <TouchableOpacity
                 onPress={() => {
                     if(props.navigation) props.navigation.goBack();
@@ -532,7 +582,44 @@ export const BackButton = (props:{callback?:(() => void), navigation?:NativeStac
                 />
                 </View>
             </TouchableOpacity>
-        </View>
+        </SafeAreaView>
+    )
+}
+
+export const XButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>, buttonView?:ViewStyle}):JSX.Element => {
+    const styles = StyleSheet.create({
+        xButton: {
+            justifyContent: "center",
+            alignItems: "center",
+            height: 55,
+            width: 55,
+            borderRadius: 15,
+          },
+          xButtonView: {
+            position: "absolute",
+            top: 1,
+            left: 1,
+            ...props.buttonView
+          },
+    })
+
+    return (
+        <SafeAreaView style={styles.xButtonView}>
+            <TouchableOpacity
+                onPress={() => {
+                    if(props.navigation) props.navigation.goBack();
+                    else if(props.callback) props.callback();
+                }}
+            >
+                <View style={styles.xButton}>
+                <Ionicons 
+                    name="close-outline"
+                    color={COLORS.white}
+                    size={30}
+                />
+                </View>
+            </TouchableOpacity>
+        </SafeAreaView>
     )
 }
 

@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
 import { PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
@@ -9,9 +9,10 @@ import theme, { COLORS, FONT_SIZES } from '../theme';
 import PrayerRequestCreate from './PrayerRequestCreate';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { PrayerRequestTouchable } from './prayer-request-widgets';
-import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 enum PrayerRequestListViewMode {
     RECIPIENT = "RECIPIENT",
@@ -19,13 +20,14 @@ enum PrayerRequestListViewMode {
     ANSWERED = "ANSWERED"
 }
 
-const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
+const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element => {
     const PRAYER_REQUEST_RESOLVED_ICON = require('../../assets/resolved-icon.png');
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
+    const userOwnedPrayerRequests = useAppSelector((state:RootState) => state.account.userProfile.ownedPrayerRequestList);
 
-    const [ownedPrayerRequests, setOwnedPrayerRequests] = useState<PrayerRequestListItem[]>([]);
+    const [ownedPrayerRequests, setOwnedPrayerRequests] = useState<PrayerRequestListItem[]>(userOwnedPrayerRequests || []);
     const [receivingPrayerRequests, setReceivingPrayerRequests] = useState<PrayerRequestListItem[]>([]);
     const [viewMode, setViewMode] = useState<PrayerRequestListViewMode>(PrayerRequestListViewMode.RECIPIENT);
     const [prayerRequestCreateModalVisible, setPrayerRequestCreateModalVisible] = useState(false);
@@ -41,18 +43,11 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
             <PrayerRequestTouchable
                 key={index+viewMode+prayerRequest.prayerRequestID}
                 prayerRequestProp={prayerRequest}
-                onPress={() => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME, {
-                    params: {PrayerRequestProps: prayerRequest}, 
-                    screen: ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME
+                onPress={() => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, {
+                    PrayerRequestProps: prayerRequest
                 })}
             />
         );
-
-    const GET_UserOwnedPrayerRequests = async () =>
-        await axios.get(`${DOMAIN}/api/user/${userID}/prayer-request-list`, RequestAccountHeader)
-            .then((response:{data:PrayerRequestListItem[]}) => {
-                setOwnedPrayerRequests(response.data);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
 
     const GET_UserIsRecipientPrayerRequests = async () => {
         await axios.get(`${DOMAIN}/api/prayer-request/user-list`, RequestAccountHeader).then((response) => {
@@ -75,12 +70,15 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
     }
 
     useEffect(() => {
-        GET_UserOwnedPrayerRequests();
         GET_UserIsRecipientPrayerRequests();
     }, [])
 
+    useEffect(() => {
+        setOwnedPrayerRequests(userOwnedPrayerRequests || []);
+    }, [userOwnedPrayerRequests]);
+
     return (
-        <View style={styles.backgroundColor}>
+        <SafeAreaView style={styles.backgroundColor}>
             <View style={styles.container}>
                 { (viewMode == PrayerRequestListViewMode.OWNER || viewMode == PrayerRequestListViewMode.ANSWERED) &&
                     <View style={styles.answeredView}>
@@ -124,7 +122,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                     animationType='slide'
                     transparent={true}
                 >
-                    <PrayerRequestCreate callback={() => setPrayerRequestCreateModalVisible(false)}/>
+                    <PrayerRequestCreate callback={(prayerRequest?:PrayerRequestListItem) => {if (prayerRequest !== undefined) setOwnedPrayerRequests([...ownedPrayerRequests, prayerRequest]); setPrayerRequestCreateModalVisible(false)}}/>
                 </Modal>
             </View>
 
@@ -135,7 +133,7 @@ const PrayerRequestList = ({navigation}:StackNavigationProps):JSX.Element => {
                         <Text style={styles.prayerRequestCreateButtonText}>+</Text>
                     </View>
             </TouchableOpacity>
-        </View>
+        </SafeAreaView>
        
     )
 }

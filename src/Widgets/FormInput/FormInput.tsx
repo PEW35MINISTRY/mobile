@@ -40,7 +40,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
         return formValues;
     }
 
-    const validateUserAttribute = async (fieldName:string, fieldValue:any, ):Promise<boolean> => {
+    const validateUserAttribute = async (fieldName:string, fieldValue:any):Promise<boolean> => {
         const fieldQuery = `${fieldName}=${fieldValue}`;
         try {
             const response = await axios.get(`${DOMAIN}/resources/available-account?${fieldQuery}`);
@@ -55,7 +55,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
     const {
         control,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, dirtyFields, isDirty },
         clearErrors,
       } = useForm({
         defaultValues: createFormValues()
@@ -99,7 +99,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                         required: field.required,
                         pattern: field.validationRegex,
                         validate: async (value, formValues) => {
-                            if (fieldValueIsString(field.type, value) && validateUniqueFields && field.unique && value.match(field.validationRegex)) {
+                            if (fieldValueIsString(field.type, value) && validateUniqueFields && field.unique && value.match(field.validationRegex) && dirtyFields[field.field]) {
                                 const result = await validateUserAttribute(field.field, value);
                                 return result;
                             }
@@ -121,6 +121,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                                     inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
                                     validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                                     containerStyle={styles.centerInputStyle}
+                                    autoCapitalize={false}
                                 />
                             }
                             

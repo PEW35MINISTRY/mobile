@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
-import React, { useRef } from 'react';
-import { GestureResponderEvent, Image, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { GestureResponderEvent, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
@@ -16,19 +16,20 @@ import TRANSPARENT from '../../assets/transparent.png';
 import { RootState, setAccount } from '../redux-store';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { LOGIN_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
-import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 
-export const signupCallback = (navigation:NativeStackNavigationProp<any, string, undefined>) => {
-  navigation.pop(); 
-  navigation.navigate(ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME)
+export interface LoginParamList {
+  newAccount?:boolean
 }
 
-const Login = ({navigation}:StackNavigationProps):JSX.Element => {
+type LoginProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.LOGIN_ROUTE_NAME>;
+
+const Login = ({navigation, route}:LoginProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
 
@@ -37,8 +38,6 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
     const onLogin = (formValues:Record<string, string | string[]>) => {
         axios.post(`${DOMAIN}/login`, formValues).then(response => {   
                 // Save for debugging
-                //console.log(`Welcome user ${response.data.userID}, ${response.data.userProfile.firstName}`, response.data.jwt);
-                //console.log(response.data.userProfile);
                 dispatch(setAccount({
                     jwt: response.data.jwt,
                     userID: response.data.userID,
@@ -59,8 +58,12 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const onSignUp = (event:GestureResponderEvent) => navigation.navigate(ROUTE_NAMES.SIGNUP_ROUTE_NAME);
 
+    useEffect(() => {
+      if (route.params !== undefined) if (route.params.newAccount !== undefined) navigation.navigate(ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME);
+    }, [route.params])
+
     return (
-      <View style={theme.background_view}>
+      <SafeAreaView style={theme.background_view}>
         <Text style={styles.header}>Encouraging Prayer</Text>
         <Image source={LOGO} style={styles.logo} resizeMode='contain'></Image>
         <FormInput 
@@ -86,7 +89,7 @@ const Login = ({navigation}:StackNavigationProps):JSX.Element => {
         </View>
         <Image source={PEW35} style={styles.pew35_logo}></Image>
         <Image source={HANDS} style={styles.hands_image} resizeMode='contain'></Image>
-    </View>
+    </SafeAreaView>
   );
 }
 

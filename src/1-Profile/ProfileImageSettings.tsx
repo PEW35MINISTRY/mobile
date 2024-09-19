@@ -2,7 +2,7 @@ import { DOMAIN } from "@env";
 import axios, { AxiosError } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Image, ImageSourcePropType, ImageRequireSource } from "react-native";
+import { StyleSheet, Text, View, Image, ImageSourcePropType, ImageRequireSource, SafeAreaView } from "react-native";
 import { ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } from "react-native-image-picker";
 import { CallbackParam, PROFILE_IMAGE_MIME_TYPES, StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
@@ -115,7 +115,7 @@ const ProfileImageSettings = (props:{callback:() => void, continueNavigation?:bo
 
     return (
       <RootSiblingParent>
-        <View style={styles.infoView}>
+        <SafeAreaView style={styles.infoView}>
             <View style={styles.titleView}>
               <Image source={profileImageUri} style={styles.profileImage} />
               <Text style={styles.titleText}>Avatar Settings</Text>
@@ -141,7 +141,7 @@ const ProfileImageSettings = (props:{callback:() => void, continueNavigation?:bo
                 // since we don't know if we want to pop the screen off the stack or not, let the parent screen decide, not the component.
                 onPress={props.callback}
             />
-        </View>
+        </SafeAreaView>
       </RootSiblingParent>
         
     )

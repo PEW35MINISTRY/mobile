@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent, SafeAreaView, Platform } from 'react-native';
 import { SearchFilterIdentifiable, SearchListKey, SearchListValue} from './searchList-types';
 import { ContentListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/content-types';
 import SearchDetail, { SearchTypeInfo, DisplayItemType, SearchType, ListItemTypesEnum, SEARCH_MIN_CHARS, LabelListItem } from '../../TypesAndInterfaces/config-sync/input-config-sync/search-config';
@@ -22,16 +22,35 @@ import { CircleAnnouncementListItem, CircleListItem } from '../../TypesAndInterf
 import { PendingPrayerPartnerListItem } from '../../4-Partners/partnership-widgets';
 import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 
-
-
 /*********************************************************************************
  *                DYNAMIC SEARCH & DISPLAY LIST                                  *
  *  Full Page List View Dynamically Populates base on ListItemType               *
  *  Handles Relevant Searching, Filtering, toggling multi List Display           *
  *  Callbacks available of onPress, action buttons, and filter by sub properties *
  *********************************************************************************/
-const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, backButtonNavigation?:NativeStackNavigationProp<any, string, undefined>, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, additionalHeaderRows?:JSX.Element[], headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
+const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, backButtonNavigation?:NativeStackNavigationProp<any, string, undefined>, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, additionalHeaderRows?:JSX.Element[], headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
     const jwt:string = useAppSelector((state) => state.account.jwt);
+    //console.log(props);
+    /* Style property for headerContainerStyle since it references the key prop */
+    const headerContainerStyle = StyleSheet.create({
+        headerContainer: {
+            position: 'absolute',
+            zIndex: 1,
+            top: (Platform.OS === 'ios' && props.name === 'content-page') ? 50 : 0,
+            left: 0,
+            right: 0,
+            width: '100%',
+            backgroundColor: COLORS.black,
+    
+            flexDirection: 'column',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+    
+            paddingHorizontal: 5,
+            paddingVertical: 10,
+            paddingTop: 15,
+        }
+    })
 
     /* Properties for Auto-hiding Sticky Header Handling */
     const scrollPosition = useRef<Animated.Value>(new Animated.Value(0)).current;
@@ -249,10 +268,10 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
         || (props.backButtonNavigation !== undefined);
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             {showHeader() &&
                 <Animated.View ref={headerRef} 
-                    style={[ styles.headerContainer, { transform: [{ translateY: isScrollingDown ? headerTranslate : 0 }] } ]}
+                    style={[ headerContainerStyle.headerContainer, { transform: [{ translateY: isScrollingDown ? headerTranslate : 0 }] } ]}
                     onLayout={(event) => setHeaderHeight(event.nativeEvent.layout.height)}
                 >
 
@@ -372,7 +391,7 @@ const SearchList = ({...props}:{key:any, pageTitle?:string, displayMap:Map<Searc
                     </View>
               </Animated.ScrollView>
             }
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -388,25 +407,8 @@ const styles = StyleSheet.create({
     ...theme,
     container: {
         backgroundColor: COLORS.black,
-        flex: 1,
+        flex: 1
     },
-    headerContainer: {
-        position: 'absolute',
-        zIndex: 1,
-        top: 0,
-        left: 0,
-        right: 0,
-        width: '100%',
-        backgroundColor: COLORS.black,
-
-        flexDirection: 'column',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-
-        paddingHorizontal: 5,
-        paddingVertical: 10,
-        paddingTop: 15,
-    },  
     searchHeaderField: {
         flex: 1,
         paddingHorizontal: theme.header.fontSize + 10,

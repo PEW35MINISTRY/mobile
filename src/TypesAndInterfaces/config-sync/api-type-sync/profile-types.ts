@@ -67,7 +67,7 @@ export const PROFILE_PROPERTY_LIST = [ //Sync to ProfileResponse
     'userRole', 'userRoleList',
     'circleList', 'circleInviteList', 'circleRequestList', 'circleAnnouncementList',
     'partnerList', 'partnerPendingUserList', 'partnerPendingPartnerList',
-    'newPrayerRequestList', 'recommendedContentList', 'contactList', 'profileAccessList'
+    'newPrayerRequestList', 'ownedPrayerRequestList','recommendedContentList', 'contactList', 'profileAccessList'
 ];
 
 export interface ProfileResponse {
@@ -95,6 +95,7 @@ export interface ProfileResponse {
     partnerPendingPartnerList?: PartnerListItem[],
     newPrayerRequestList?: PrayerRequestListItem[], //Recipient for dashboard
     recommendedContentList?: ContentListItem[],
+    ownedPrayerRequestList?:PrayerRequestListItem[],
     contactList?: ProfileListItem[],
     profileAccessList?: ProfileListItem[], //Leaders
 };

@@ -2,7 +2,7 @@ import { DOMAIN } from "@env";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
@@ -153,7 +153,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
 
     return (
         <RootSiblingParent>
-            <View style={styles.backgroundColor}>
+            <SafeAreaView style={styles.backgroundColor}>
                 <View style={styles.container}>
                     <View style={styles.viewModeView}>
                             <TouchableOpacity
@@ -202,7 +202,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                     onClose={() => setNewPartnerModalVisible(false)}
                 />
 
-            </View>
+            </SafeAreaView>
         </RootSiblingParent>       
      
   );

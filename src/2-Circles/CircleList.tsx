@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { Raised_Button } from '../widgets';
 import theme, { COLORS } from '../theme';
@@ -16,7 +16,7 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
     const userInviteCircles = useAppSelector((state: RootState) => state.account.userProfile.circleInviteList);
     const userRequestCircles = useAppSelector((state: RootState) => state.account.userProfile.circleRequestList);
 
-    const [circleModals, setCircleModals] = useState<CircleListItem[]>([...userCircles || [], ...userInviteCircles || [], ...userRequestCircles || []])
+    const [circleModals, setCircleModals] = useState<CircleListItem[]>([...userCircles || [], ...userInviteCircles || [], ...userRequestCircles || []]);
 
     const renderCircleModals = ():JSX.Element[] => 
         (circleModals || []).map((circleProps:CircleListItem, index:number) => 
@@ -32,11 +32,18 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
     useEffect(() => {
         if(circleModals.length == 0) {
             navigation.navigate(ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME);
-        }        
-    }, [circleModals])
+        }   
+    }, []);
+
+    // Update circle list and re-render if a user joins or leaves a circle
+    useEffect(() => {
+        setCircleModals([...userCircles || [], ...userInviteCircles || [], ...userRequestCircles || []]);
+    }, [userCircles, userInviteCircles, userRequestCircles]);
+
+  
 
     return (
-        <View style={styles.modalView}>
+        <SafeAreaView style={styles.modalView}>
             <Text style={styles.modalHeaderText}>Circles</Text>
             <ScrollView contentContainerStyle={styles.circleSelectScroller}>
                 {renderCircleModals()}
@@ -45,7 +52,7 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
                 text={"Browse Circles"}
                 onPress={() => navigation.navigate(ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME)}
             />
-        </View>
+        </SafeAreaView>
     )
 }
 
