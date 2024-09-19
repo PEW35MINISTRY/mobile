@@ -17,7 +17,6 @@ import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { signupCallback } from './Login';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
@@ -29,22 +28,10 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
 
     const [populateDemoProfile, setPopulateDemoProfile] = useState<boolean>(false);
-    
-    const onPopulateFields = (userProfile:ProfileResponse, jwt:string) => {
-      axios.post(`${DOMAIN}/api/user/` + userProfile.userID + '/demo-populate', {headers: { jwt }}).then(response => {
-        dispatch(setAccount({
-          jwt: jwt,
-          userID: userProfile.userID,
-          userProfile: response.data.userProfile,
-          }));
-      }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
-    }
 
     const onSignUp = (formValues:Record<string, string | string[]>) => {
       // send data to server
-      axios.post(`${DOMAIN}/signup`, formValues).then(response => {
-          populateDemoProfile ? onPopulateFields(response.data.userProfile, response.data.jwt)
-              :
+      axios.post(`${DOMAIN}/signup${populateDemoProfile ? '?populate=true' : ''}`, formValues).then(response => {
             dispatch(setAccount({
               jwt: response.data.jwt,
               userID: response.data.userID,
@@ -52,7 +39,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               }));
 
           // call callback via route
-          signupCallback(navigation);
+          navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true})
       }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       
     }
