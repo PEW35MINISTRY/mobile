@@ -269,11 +269,9 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                         validate: (value, formValues) => {
                             if (fieldValueIsString(field.type, value)) {
                                 if (field.field == 'dateOfBirth') {
-                                    const minAge:Date = getDOBMaxDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER);
-                                    const maxAge:Date = getDOBMinDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER);
+                                    const minAge:Date = getDOBMaxDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER);                                    
                                     const currAge = new Date(value);
-                                    if (currAge > minAge || currAge < maxAge) return false;
-                                    else return true;
+                                    return !(currAge > minAge);
                                 }
                                 else {
                                     if (value.match(field.validationRegex)) return true;
