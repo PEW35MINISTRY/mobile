@@ -122,7 +122,7 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                     animationType='slide'
                     transparent={true}
                 >
-                    <PrayerRequestCreate callback={(prayerRequest?:PrayerRequestListItem) => {if (prayerRequest !== undefined) setOwnedPrayerRequests([...ownedPrayerRequests, prayerRequest]); setPrayerRequestCreateModalVisible(false)}}/>
+                    <PrayerRequestCreate callback={() => {setPrayerRequestCreateModalVisible(false); setViewMode(PrayerRequestListViewMode.OWNER)}}/>
                 </Modal>
             </View>
 
