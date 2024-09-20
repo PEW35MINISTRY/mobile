@@ -309,7 +309,7 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
             >
                 <Input_Field 
                     label={props.label}
-                    value={new Date(props.date).toLocaleDateString('en-us', { month: 'long' })}
+                    value={new Date(props.date).toLocaleDateString('en-us', { day: 'numeric', year: 'numeric', month: 'short'})}
                     editable={false}
                     onChangeText={() => null}
                     validationLabel={props.validationLabel}
