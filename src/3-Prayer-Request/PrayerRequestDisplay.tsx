@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView } from 'react-native';
 import { PrayerRequestCommentListItem, PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { removeNewPrayerRequest, removeOwnedPrayerRequest, RootState } from '../redux-store';
+import { removeOwnedPrayerRequest, RootState } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
@@ -187,7 +187,6 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                                     if (prayerRequestData !== undefined && prayerRequestListData !== undefined) setPrayerRequestState(prayerRequestData, prayerRequestListData);
                                     else if (deletePrayerRequest == true) {
                                         dispatch(removeOwnedPrayerRequest(appPrayerRequestListItem.prayerRequestID));
-                                        dispatch(removeNewPrayerRequest(appPrayerRequestListItem.prayerRequestID)); // remove from dashboard
                                         navigation.goBack();
                                     }
                                 }}
