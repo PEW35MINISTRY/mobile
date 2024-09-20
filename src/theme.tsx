@@ -10,7 +10,7 @@ export enum COLORS {
     white = '#FFFFFF',
     transparent = 'rgba(0, 0, 0, 1.0)',
     transparentBlack = 'rgba(0, 0, 0, 0.6)',
-    transparentWhite = 'rgba(255, 255, 255, 0.2)',
+    transparentWhite = 'rgba(255, 255, 255, 0.5)',
 };
 
 export enum FONTS {
