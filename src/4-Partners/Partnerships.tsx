@@ -180,19 +180,20 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                     </View>
                 </View>
                 { partnerSettingsViewMode == PartnerViewMode.PARTNER_LIST ? renderPartners() : renderPendingPage()}
-                {
-                    (maxPartners > (prayerPartnersList.length + pendingPrayerPartnerUsers.length + pendingPrayerPartners.length)) &&
-                    <View style={styles.bottomView}>          
+                <View style={styles.bottomView}> 
+                    {
+                        (maxPartners > (prayerPartnersList.length + pendingPrayerPartnerUsers.length + pendingPrayerPartners.length)) &&
                         <Outline_Button 
                             text='New Partner'
                             onPress={() => POST_NewPartner()} 
                         />   
-                        <Raised_Button buttonStyle={{marginVertical: 15}}
-                            text='Done'
-                            onPress={() => props.callback !== undefined && props.callback()} 
-                        />
-                    </View>   
-                }
+                    }     
+                    <Raised_Button buttonStyle={{marginVertical: 15}}
+                        text='Done'
+                        onPress={() => props.callback !== undefined && props.callback()} 
+                    />
+                </View>   
+                
 
                 <PartnershipContractModal
                     visible={newPartnerModalVisible}
