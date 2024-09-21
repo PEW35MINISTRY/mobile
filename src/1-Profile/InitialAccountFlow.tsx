@@ -19,10 +19,10 @@ const InitialAccountFlow = ({navigation}:StackNavigationProps):JSX.Element => {
     
     const [accountInitComponents, setAccountInitComponents] = useState<JSX.Element[]>([
       <ProfileImageSettings 
-        callback={() => incrementAccountComponentIndex()}
+        callback={() => incrementAccountComponentIndex()} continueNavigation={true}
       />,
       <Partnerships 
-        callback={() => incrementAccountComponentIndex()} navigation={navigation} continueNavigation={true}
+        callback={() => incrementAccountComponentIndex()} continueNavigation={false}
       />
     ]);
 

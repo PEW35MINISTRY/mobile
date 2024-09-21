@@ -137,7 +137,7 @@ const ProfileImageSettings = (props:{callback:() => void, continueNavigation?:bo
                 />
             </View>
             <Raised_Button buttonStyle={styles.doneButton}
-                text={props.continueNavigation !== undefined ? "Next" : "Done"}
+                text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
                 // since we don't know if we want to pop the screen off the stack or not, let the parent screen decide, not the component.
                 onPress={props.callback}
             />

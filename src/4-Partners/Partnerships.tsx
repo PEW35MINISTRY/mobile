@@ -2,7 +2,7 @@ import { DOMAIN } from "@env";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
@@ -21,7 +21,7 @@ const enum PartnerViewMode {
   PENDING_PARTNERS = "PENDING_BOTH",
 }
 
-const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavigationProp<any, string, undefined>, continueNavigation?:boolean}):JSX.Element => {
+const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean}):JSX.Element => {
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -188,10 +188,14 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                             onPress={() => POST_NewPartner()} 
                         />   
                     }     
-                    <Raised_Button buttonStyle={{marginVertical: 15}}
-                        text='Done'
-                        onPress={() => props.callback !== undefined && props.callback()} 
-                    />
+                    {
+                        (props.continueNavigation !== undefined) &&                     
+                        <Raised_Button buttonStyle={{marginVertical: 15}}
+                            text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
+                            onPress={() => props.callback !== undefined && props.callback()} 
+                        />
+                    }
+
                 </View>   
                 
 
@@ -202,7 +206,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                     declinePartnershipRequest={() => {declinePartnershipRequest(newPartner); setNewPartnerModalVisible(false)}}
                     onClose={() => setNewPartnerModalVisible(false)}
                 />
-
+                <BackButton callback={props.callback} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
             </SafeAreaView>
         </RootSiblingParent>       
      
