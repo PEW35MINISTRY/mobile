@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, StyleSheet, Text, Image, SafeAreaView } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { COLORS } from "../../theme";
-import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from "../../TypesAndInterfaces/routes";
+import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, navigatorRouteMap, ROUTE_NAMES } from "../../TypesAndInterfaces/routes";
 import { RootState, setTabFocus } from "../../redux-store";
 import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
 
@@ -17,8 +17,11 @@ export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
     const focusedTab = useAppSelector((state: RootState) => state.navigationTab.focusedTab);
 
     const changeTab = (screenName:BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES) => {
+        const firstRoute = navigatorRouteMap.get(screenName);
         dispatch(setTabFocus(screenName))
-        props.navigation.navigate(screenName);
+        props.navigation.navigate(screenName, {
+            screen: firstRoute
+        });
     }
 
     const styles = StyleSheet.create({
