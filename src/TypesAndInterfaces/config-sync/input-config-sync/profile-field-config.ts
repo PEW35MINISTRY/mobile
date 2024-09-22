@@ -77,9 +77,9 @@ export const getDOBMaxDate = (role:RoleEnum = RoleEnum.USER):Date => (role === R
 ******************************************/
 
 export const LOGIN_PROFILE_FIELDS:InputField[] = [
-    new InputField({title: 'Email Address', field: 'email', type: InputType.EMAIL, required: true,  validationRegex: EMAIL_REGEX, validationMessage: 'Required, invalid email format.' }),
-    new InputField({title: 'Password', field: 'password', type: InputType.PASSWORD, required: true, validationRegex: new RegExp(/^.{5,20}$/), validationMessage: 'Required, 5-20 characters.' }),
-]
+    new InputField({title: 'Email Address', field: 'email', type: InputType.EMAIL, required: true,  validationRegex: EMAIL_REGEX, validationMessage: 'Required, invalid format.' }),
+    new InputField({title: 'Password', field: 'password', type: InputType.PASSWORD, required: true, validationRegex: PASSWORD_REGEX_DEV, validationMessage: 'Required, invalid.' }),
+];
 
 //Note: extending list forces the order, may need a sortID or duplicating for now
 export const EDIT_PROFILE_FIELDS:InputField[] = [
@@ -110,7 +110,7 @@ export const EDIT_PROFILE_FIELDS_ADMIN:InputField[] = [
 export const SIGNUP_PROFILE_FIELDS_USER:InputField[] = [
     new InputField({title: 'First Name', field: 'firstName', type: InputType.TEXT, required: true, validationRegex: new RegExp(/^.{1,30}$/), validationMessage: 'Required, max 30 characters.' }),
     new InputField({title: 'Last Name', field: 'lastName', type: InputType.TEXT, required: true, validationRegex: new RegExp(/^.{1,30}$/), validationMessage: 'Required, max 30 characters.' }),
-    new InputField({title: 'Public Name', field: 'displayName', type: InputType.TEXT, unique: true, validationRegex: new RegExp(/^[a-z][a-z0-9_-]{3,13}[a-z0-9]$/), validationMessage: 'Unique, start/end with letter/numbers, 5-15 chars, lowercase, numbers, dashes, underscores.' }),
+    new InputField({title: 'Public Name', field: 'displayName', type: InputType.TEXT, unique: true, validationRegex: new RegExp(/^[a-zA-Z0-9_-]{5,15}$/), validationMessage: 'Unique, 5-15 chars, letters, numbers, dashes, underscores.' }),
     new InputField({title: 'Email Address', field: 'email', type: InputType.EMAIL, unique: true,  validationRegex: EMAIL_REGEX, validationMessage: 'Required, invalid email format.' }),
     new InputField({title: 'Password', field: 'password', type: InputType.PASSWORD, required: false, validationRegex: PASSWORD_REGEX_DEV, validationMessage: PASSWORD_VALIDATION_MESSAGE_DEV, environmentList:[ENVIRONMENT_TYPE.DEVELOPMENT] }),
     new InputField({title: 'Password', field: 'password', type: InputType.PASSWORD, required: false, validationRegex: PASSWORD_REGEX_PROD, validationMessage: PASSWORD_VALIDATION_MESSAGE_PROD, environmentList:[ENVIRONMENT_TYPE.PRODUCTION] }),
