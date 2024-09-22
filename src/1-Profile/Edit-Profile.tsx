@@ -131,7 +131,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               transparent={true}
             >
               <Partnerships
-                callback={() => setPartnersModalVisible(false)} navigation={navigation}
+                callback={() => setPartnersModalVisible(false)}
               />
             </Modal>
         </View>
