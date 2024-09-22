@@ -156,7 +156,7 @@ export const AnnouncementTouchable = (props:{announcement:CircleAnnouncementList
                 <View style={styles.headerContainer}>
                     {props.showCircleImage &&
                         <RequestorCircleImage circleID={props.announcement.circleID} style={styles.circleImage} />}
-                    <Text style={styles.date}>{formatRelativeDate(props.announcement.startDate || '', undefined, {shortForm: (props.shortDate === true)})}</Text>
+                    <Text style={styles.date}>{formatRelativeDate(props.announcement.startDate || '', undefined, {shortForm: (props.shortDate === true), includeHours:true })}</Text>
                 </View>
                 <Text style={styles.bodyText} ellipsizeMode='tail' >{props.announcement.message}</Text>
             </View>

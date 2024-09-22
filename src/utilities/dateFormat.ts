@@ -24,7 +24,7 @@ export const formatNumberOrdinal = (n:number):string =>
   
   //Relative Date Rules
 const formatRelativeDate = (startDate:Date|string, endDate?:Date|string, options?:{shortForm?:boolean, includeHours?:boolean, includeDay?:boolean, includeMonth?:boolean, markPassed?:boolean}):string => {
-    options = {shortForm:false, includeHours:true, includeDay:true, includeMonth:true, markPassed:false, ...options}; //Apply defaults & inputted overrides
+    options = {shortForm:false, includeHours:false, includeDay:true, includeMonth:true, markPassed:false, ...options}; //Apply defaults & inputted overrides
     const now = new Date();
     let text = '';
 
