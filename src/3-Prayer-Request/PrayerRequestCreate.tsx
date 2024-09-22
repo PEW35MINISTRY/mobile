@@ -12,7 +12,7 @@ import { FormInput } from '../Widgets/FormInput/FormInput';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { Outline_Button, Raised_Button, XButton } from '../widgets';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
-import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { RootSiblingParent } from 'react-native-root-siblings';
 

@@ -11,7 +11,7 @@ import { RootState } from "../redux-store";
 import { ROUTE_NAMES } from "../TypesAndInterfaces/routes";
 import { CircleTouchable } from "./circle-widgets";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
 
 export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {

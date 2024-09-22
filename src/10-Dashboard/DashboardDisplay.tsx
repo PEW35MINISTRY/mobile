@@ -6,7 +6,7 @@ import theme, { COLORS, FONT_SIZES } from '../theme';
 import { DOMAIN } from '@env';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
-import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { ContentListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/content-types';
 import { ContentSourceEnum,  MOBILE_CONTENT_SUPPORTED_SOURCES } from '../TypesAndInterfaces/config-sync/input-config-sync/content-field-config';

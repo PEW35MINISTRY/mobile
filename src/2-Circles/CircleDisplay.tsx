@@ -17,7 +17,7 @@ import { PrayerRequestTouchable } from '../3-Prayer-Request/prayer-request-widge
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
 import { BackButton, Raised_Button, XButton } from '../widgets';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 
 export interface CircleDisplayParamList {

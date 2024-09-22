@@ -1,3 +1,11 @@
+
+
+/*********************************
+*    ADDITIONAL UTILITY TYPES    *
+**********************************/
+
+
+/* Server Error | Toast Display: ServerErrorResponse.notification */
 export type ServerErrorResponse = {
     status: number,
     notification: string,

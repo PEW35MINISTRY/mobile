@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import Toast, { ToastOptions } from "react-native-root-toast";
-import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 
 const DefaultToastConfig:ToastOptions = {
     duration: Toast.durations.LONG

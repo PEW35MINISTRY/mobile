@@ -10,7 +10,7 @@ import { RootState, updateProfileImage } from "../redux-store";
 import theme, { COLORS } from "../theme";
 import { Outline_Button, Raised_Button } from "../widgets";
 import { ProfileImage } from "../widgets";
-import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import { RootSiblingParent } from 'react-native-root-siblings';
 
