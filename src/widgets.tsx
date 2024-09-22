@@ -10,8 +10,9 @@ import { Slider } from '@react-native-assets/slider'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ToastQueueManager from './utilities/ToastQueueManager';
-import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import { makeDisplayText } from './utilities/utilities';
+import formatRelativeDate from './utilities/dateFormat';
 
 /**************************************************
  * These are reusable widgets for app consistency *
@@ -309,7 +310,7 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
             >
                 <Input_Field 
                     label={props.label}
-                    value={new Date(props.date).toLocaleDateString('en-us', { day: 'numeric', year: 'numeric', month: 'short'})}
+                    value={formatRelativeDate(props.date)}
                     editable={false}
                     onChangeText={() => null}
                     validationLabel={props.validationLabel}
