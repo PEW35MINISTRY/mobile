@@ -18,7 +18,7 @@ import { RequestorCircleImage } from '../2-Circles/circle-widgets';
 import { PrayerRequestCommentCreate } from './PrayerRequestCommentCreate';
 import { ProfileListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
-import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { PartnershipContractModal } from '../4-Partners/partnership-widgets';
 

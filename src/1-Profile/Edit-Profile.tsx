@@ -21,7 +21,7 @@ import { ProfileEditRequestBody } from '../TypesAndInterfaces/config-sync/api-ty
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import Partnerships from '../4-Partners/Partnerships';
-import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length

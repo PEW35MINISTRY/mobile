@@ -10,7 +10,7 @@ import theme, { COLORS, FONT_SIZES } from "../theme";
 import { CircleAnnouncementListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/circle-types";
 import { RequestorProfileImage } from "../1-Profile/profile-widgets";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
 
 export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestListItem, onPress?:((id:number, item:PrayerRequestListItem) => void), callback?:(() => void)}):JSX.Element => {

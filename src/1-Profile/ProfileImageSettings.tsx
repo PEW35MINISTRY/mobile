@@ -10,7 +10,7 @@ import { RootState, updateProfileImage } from "../redux-store";
 import theme, { COLORS } from "../theme";
 import { Outline_Button, Raised_Button } from "../widgets";
 import { ProfileImage } from "../widgets";
-import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import { RootSiblingParent } from 'react-native-root-siblings';
 
@@ -137,7 +137,7 @@ const ProfileImageSettings = (props:{callback:() => void, continueNavigation?:bo
                 />
             </View>
             <Raised_Button buttonStyle={styles.doneButton}
-                text={props.continueNavigation !== undefined ? "Next" : "Done"}
+                text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
                 // since we don't know if we want to pop the screen off the stack or not, let the parent screen decide, not the component.
                 onPress={props.callback}
             />

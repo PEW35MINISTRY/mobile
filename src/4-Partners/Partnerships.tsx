@@ -2,7 +2,7 @@ import { DOMAIN } from "@env";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
@@ -11,7 +11,7 @@ import { PartnershipContractModal, PendingPrayerPartnerListItem, PrayerPartnerLi
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
 import { PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import { RootSiblingParent } from 'react-native-root-siblings';
 
@@ -21,7 +21,7 @@ const enum PartnerViewMode {
   PENDING_PARTNERS = "PENDING_BOTH",
 }
 
-const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavigationProp<any, string, undefined>, continueNavigation?:boolean}):JSX.Element => {
+const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean}):JSX.Element => {
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -180,19 +180,24 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                     </View>
                 </View>
                 { partnerSettingsViewMode == PartnerViewMode.PARTNER_LIST ? renderPartners() : renderPendingPage()}
-                {
-                    (maxPartners > (prayerPartnersList.length + pendingPrayerPartnerUsers.length + pendingPrayerPartners.length)) &&
-                    <View style={styles.bottomView}>          
+                <View style={styles.bottomView}> 
+                    {
+                        (maxPartners > (prayerPartnersList.length + pendingPrayerPartnerUsers.length + pendingPrayerPartners.length)) &&
                         <Outline_Button 
                             text='New Partner'
                             onPress={() => POST_NewPartner()} 
                         />   
+                    }     
+                    {
+                        (props.continueNavigation !== undefined) &&                     
                         <Raised_Button buttonStyle={{marginVertical: 15}}
-                            text='Done'
+                            text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
                             onPress={() => props.callback !== undefined && props.callback()} 
                         />
-                    </View>   
-                }
+                    }
+
+                </View>   
+                
 
                 <PartnershipContractModal
                     visible={newPartnerModalVisible}
@@ -201,7 +206,7 @@ const Partnerships = (props:{callback?:(() => void), navigation:NativeStackNavig
                     declinePartnershipRequest={() => {declinePartnershipRequest(newPartner); setNewPartnerModalVisible(false)}}
                     onClose={() => setNewPartnerModalVisible(false)}
                 />
-
+                <BackButton callback={props.callback} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
             </SafeAreaView>
         </RootSiblingParent>       
      

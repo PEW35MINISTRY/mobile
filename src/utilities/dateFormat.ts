@@ -8,10 +8,11 @@ const DAY_OF_WEEK_LONG:string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', '
 const MONTH_SHORT:string[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 const MONTH_LONG:string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-export const getFutureDate = (date:Date = new Date(), days:number = 0, hours:number = 0):Date => {
-    date.setDate(date.getDate() + days);
-    date.setHours(date.getHours() + hours);
-    return date;
+export const getFutureDate = (date:Date = new Date(), days:number = 0):Date => {
+    const newDate = new Date(date);
+    newDate.setDate(date.getDate() + days);
+    newDate.setHours(0, 0, 0, 0);
+    return newDate;
   }
   
 export const formatNumberOrdinal = (n:number):string => 
@@ -22,10 +23,9 @@ export const formatNumberOrdinal = (n:number):string =>
   
   
   //Relative Date Rules
-const formatRelativeDate = (startDate:Date|string, endDate?:Date|string, options?:{shortForm?:boolean, includeHours?:boolean, markPassed?:boolean}):string => {
-    options = {shortForm:true, includeHours:true, markPassed:false, ...options}; //Apply defaults & inputted overrides
-    const today = new Date();
-    today.setHours(0);
+const formatRelativeDate = (startDate:Date|string, endDate?:Date|string, options?:{shortForm?:boolean, includeHours?:boolean, includeDay?:boolean, includeMonth?:boolean, markPassed?:boolean}):string => {
+    options = {shortForm:false, includeHours:false, includeDay:true, includeMonth:true, markPassed:false, ...options}; //Apply defaults & inputted overrides
+    const now = new Date();
     let text = '';
 
     //Handle Date type validations
@@ -37,47 +37,54 @@ const formatRelativeDate = (startDate:Date|string, endDate?:Date|string, options
     if(endDate !== undefined && typeof endDate === 'string') endDate = new Date(endDate);  
     if(startDate === endDate) endDate = undefined;
 
-    const isPassed:boolean = (options.markPassed === true) && (endDate !== undefined) && (endDate > today);
-  
-    //Date is currently onGoing
+
     let currentlyOnGoing = false;
-    if(today > startDate && endDate != undefined && today < endDate) {
+    if(options.includeDay === false)
+      text = '';
+
+    //Date range spans the current time
+    else if(now > startDate && endDate !== undefined && now < endDate) {
       currentlyOnGoing = true;
       text += 'Now';
     }
   
     //Day of the week 
-    else if(startDate > getFutureDate(today, -1) && startDate < getFutureDate(today, 1) && (!isPassed || !options.includeHours)) text += 'Today';
+    else if(startDate > getFutureDate(now, -1) && startDate < getFutureDate(now, 1)) text += options.shortForm ? 'Tod' : 'Today';
 
-    else if(startDate > getFutureDate(today, -2) && startDate < getFutureDate(today, -1)) text += options.shortForm ? 'Ytd' : 'Yesterday';
+    else if(startDate > getFutureDate(now, -2) && startDate < getFutureDate(now, -1)) text += options.shortForm ? 'Ytd' : 'Yesterday';
 
-    else if(startDate > getFutureDate(today, 1) && startDate < getFutureDate(today, 2)) text += options.shortForm ? 'Tom' : 'Tomorrow';
+    else if(startDate > getFutureDate(now, 1) && startDate < getFutureDate(now, 2)) text += options.shortForm ? 'Tom' : 'Tomorrow';
 
-    else if(startDate > getFutureDate(today, -7) && startDate < getFutureDate(today, 7)) text += options.shortForm ? DAY_OF_WEEK_SHORT[startDate.getDay()] : DAY_OF_WEEK_LONG[startDate.getDay()];
+    else if(startDate > getFutureDate(now, -7) && startDate < getFutureDate(now, 7)) text += options.shortForm ? DAY_OF_WEEK_SHORT[startDate.getDay()] : DAY_OF_WEEK_LONG[startDate.getDay()];
 
-    else if(startDate.getMonth() === today.getMonth()) text += formatNumberOrdinal(startDate.getDate());
+    else if(startDate.getMonth() === now.getMonth() && startDate.getFullYear() === now.getFullYear()) text += formatNumberOrdinal(startDate.getDate());
 
-    else text += options.shortForm ? MONTH_SHORT[startDate.getMonth()] : MONTH_LONG[startDate.getMonth()] + ' ' + formatNumberOrdinal(startDate.getDate());
+    else if(options.includeMonth) text += (options.shortForm ? MONTH_SHORT[startDate.getMonth()] : MONTH_LONG[startDate.getMonth()]) + ' ' + formatNumberOrdinal(startDate.getDate());
 
-    text += ' ';
+    //Different Year
+    if(startDate.getFullYear() !== now.getFullYear() && endDate === undefined) text += ', ' + startDate.getFullYear();
     
     //Hours
-    if(options.includeHours && !currentlyOnGoing && !isPassed) {
+    if(options.includeHours && (startDate > now)) {
+        if(text.trim().length > 0) text += ', '
         if(startDate.getHours() === 0) text += options.shortForm ? 'Mid' : 'Midnight';
         else if(startDate.getHours() === 12) text += 'Noon';
-        else text += `${startDate.getHours() % 12} ${(startDate.getHours() < 12) ? 'AM' : 'PM'}`;
+        else text += `${startDate.getHours() % 12}${(startDate.getHours() < 12) ? 'AM' : 'PM'}`;
     }
-  
 
     //End Date Range
-    if(endDate !== undefined && !isPassed) {
-      const endText:string = formatRelativeDate(endDate, undefined, options);
-      const matchingPrefix:string = Array.from(endText).reduce((result, char, index) => (new RegExp(`^${result+char}`).test(text) ? (result + char) : result), '');
-      text += ' - ' + endText.substring(matchingPrefix.length);
+    if (endDate !== undefined) {
+      const endDateIncludeMonth: boolean = options.includeMonth ? (startDate.getMonth() !== endDate.getMonth() || startDate.getFullYear() !== endDate.getFullYear()) : false;
+      const endDateIncludeDay: boolean = options.includeDay ? (startDate.getDate() !== endDate.getDate() || endDateIncludeMonth) : false;
+
+      const endDateFormatted: string = formatRelativeDate(endDate, undefined, { ...options, includeDay: endDateIncludeDay, includeMonth: endDateIncludeMonth });
+      if (endDateFormatted.length > 0) text += ' - ' + endDateFormatted;
     }
-    else if(isPassed) text += ' - Past';
-  
-    return text;
+
+    //Mark Passed
+    if (options.markPassed && !currentlyOnGoing && startDate < now && endDate === undefined) text += `${text.length > 0 ? ' - ' : ''}Past`;
+
+    return text.trim();
   }
 
   export default formatRelativeDate;

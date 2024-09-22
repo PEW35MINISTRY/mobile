@@ -5,7 +5,7 @@ import { SearchFilterIdentifiable, SearchListKey, SearchListValue} from './searc
 import { ContentListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/content-types';
 import SearchDetail, { SearchTypeInfo, DisplayItemType, SearchType, ListItemTypesEnum, SEARCH_MIN_CHARS, LabelListItem } from '../../TypesAndInterfaces/config-sync/input-config-sync/search-config';
 import { useAppSelector } from '../../TypesAndInterfaces/hooks';
-import { ServerErrorResponse } from '../../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { ServerErrorResponse } from '../../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../../utilities/ToastQueueManager';
 import { BackButton, Page_Title, Raised_Button, Tab_Selector } from '../../widgets';
 import ContentCard from '../../5-Content/ContentCard';

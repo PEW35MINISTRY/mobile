@@ -41,11 +41,6 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                     buttonStyle={styles.settingsButton}
                 />
                 <Outline_Button 
-                    text={"Circles"}
-                    onPress={() => navigation.navigate(ROUTE_NAMES.CIRCLE_LIST_ROUTE_NAME)}
-                    buttonStyle={styles.settingsButton}
-                />
-                <Outline_Button 
                     text={"Portal Login"}
                     onPress={() => Linking.openURL("https://encouragingprayer.org/login")}
                     buttonStyle={styles.settingsButton}
@@ -78,7 +73,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 transparent={true}
             >
                 <Partnerships 
-                    navigation={navigation} callback={() => setPartnerModalVisible(false)}
+                    callback={() => setPartnerModalVisible(false)}
                 />
             </Modal>
             <BackButton navigation={navigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>

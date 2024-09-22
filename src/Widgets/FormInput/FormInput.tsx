@@ -1,18 +1,18 @@
-import { DOMAIN } from "@env";
+import { DOMAIN, ENVIRONMENT } from "@env";
 import axios, { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet } from "react-native";
-import InputField, { InputType, InputSelectionField, isListType, InputRangeField,} from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
-import { RoleEnum, getDOBMaxDate, getDOBMinDate } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
+import InputField, { InputType, InputSelectionField, isListType, ENVIRONMENT_TYPE, InputRangeField } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
+import { RoleEnum, getDOBMaxDate } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import theme, { COLORS } from "../../theme";
 import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider } from "../../widgets";
 import React, { forwardRef, useImperativeHandle } from "react";
 import { FormSubmit, FormInputProps } from "./form-input-types";
-import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
-import { RootState } from "../../redux-store";
-import { SelectListItem } from "react-native-dropdown-select-list";
-import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/toast-types";
+import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../../utilities/ToastQueueManager";
+import { SelectListItem } from "react-native-dropdown-select-list";
+import { useAppSelector } from "../../TypesAndInterfaces/hooks";
+import { RootState } from "../../redux-store";
 
 export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUniqueFields = true, ...props}, ref):JSX.Element => {
 
@@ -89,7 +89,8 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
 
     return (
         <ScrollView style={{maxWidth: '90%', alignSelf: "center", alignContent: "center"}}>{
-            (props.fields).map((field:InputField, index:number) => {
+            (props.fields).filter((field:InputField)=>field.environmentList.includes(ENVIRONMENT_TYPE[(ENVIRONMENT ?? '') as ENVIRONMENT_TYPE]))
+              .map((field:InputField, index:number) => {
                 switch(field.type) {
                 case InputType.TEXT || InputType.NUMBER:
                     return (
@@ -269,11 +270,9 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                         validate: (value, formValues) => {
                             if (fieldValueIsString(field.type, value)) {
                                 if (field.field == 'dateOfBirth') {
-                                    const minAge:Date = getDOBMaxDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER);
-                                    const maxAge:Date = getDOBMinDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER);
+                                    const minAge:Date = getDOBMaxDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER);                                    
                                     const currAge = new Date(value);
-                                    if (currAge > minAge || currAge < maxAge) return false;
-                                    else return true;
+                                    return !(currAge > minAge);
                                 }
                                 else {
                                     if (value.match(field.validationRegex)) return true;

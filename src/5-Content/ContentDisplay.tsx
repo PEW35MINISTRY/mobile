@@ -4,7 +4,7 @@ import { RootState } from '../redux-store';
 import { DOMAIN } from '@env';
 import { useAppSelector } from '../TypesAndInterfaces/hooks';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { ContentListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/content-types';
 import { ContentSourceEnum, ContentTypeEnum, MOBILE_CONTENT_SUPPORTED_SOURCES } from '../TypesAndInterfaces/config-sync/input-config-sync/content-field-config';

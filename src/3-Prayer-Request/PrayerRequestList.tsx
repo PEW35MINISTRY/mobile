@@ -10,7 +10,7 @@ import PrayerRequestCreate from './PrayerRequestCreate';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { PrayerRequestTouchable } from './prayer-request-widgets';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
-import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/toast-types';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -122,7 +122,7 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                     animationType='slide'
                     transparent={true}
                 >
-                    <PrayerRequestCreate callback={(prayerRequest?:PrayerRequestListItem) => {if (prayerRequest !== undefined) setOwnedPrayerRequests([...ownedPrayerRequests, prayerRequest]); setPrayerRequestCreateModalVisible(false)}}/>
+                    <PrayerRequestCreate callback={() => {setPrayerRequestCreateModalVisible(false); setViewMode(PrayerRequestListViewMode.OWNER)}}/>
                 </Modal>
             </View>
 
