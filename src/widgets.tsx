@@ -308,17 +308,19 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
             <TouchableOpacity
                 onPress={(event:GestureResponderEvent) => setDatePickerVisible(true)}
             >
-                <Input_Field 
-                    label={props.label}
-                    value={formatRelativeDate(props.date)}
-                    editable={false}
-                    onChangeText={() => null}
-                    validationLabel={props.validationLabel}
-                    validationStyle={props.validationStyle}
-                    labelStyle={(props.validationLabel && {color: COLORS.primary}) || undefined}
-                    inputStyle={(props.validationLabel && {borderColor: COLORS.primary}) || undefined}
-                    containerStyle={{alignSelf: "center"}}
-                />
+                <View pointerEvents='none'>
+                    <Input_Field 
+                        label={props.label}
+                        value={formatRelativeDate(props.date)}
+                        editable={false}
+                        onChangeText={() => null}
+                        validationLabel={props.validationLabel}
+                        validationStyle={props.validationStyle}
+                        labelStyle={(props.validationLabel && {color: COLORS.primary}) || undefined}
+                        inputStyle={(props.validationLabel && {borderColor: COLORS.primary}) || undefined}
+                        containerStyle={{alignSelf: "center"}}
+                    />
+                </View>
             </TouchableOpacity>
             <DateTimePickerModal 
                 isVisible={isDatePickerVisible}
