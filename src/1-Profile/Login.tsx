@@ -1,6 +1,7 @@
 import { DOMAIN } from '@env';
-import axios, { AxiosError } from 'axios';
+import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useRef } from 'react';
+import * as Keychain from 'react-native-keychain'
 import { GestureResponderEvent, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
@@ -13,7 +14,7 @@ import GOOGLE from '../../assets/logo-google.png';
 import LOGO from '../../assets/logo.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import TRANSPARENT from '../../assets/transparent.png';
-import { RootState, setAccount } from '../redux-store';
+import { LocalStorageState, RootState, setAccount, setJWT, setSettings, setStorageState } from '../redux-store';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { LOGIN_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
@@ -34,17 +35,27 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
 
     const userID = useAppSelector((state: RootState) => state.account.userID);
+    const skipAnimation = useAppSelector((state:RootState) => state.localStorage.settings.skipAnimation);
 
     const onLogin = (formValues:Record<string, string | string[]>) => {
         axios.post(`${DOMAIN}/login`, formValues).then(response => {   
-                // Save for debugging
-                dispatch(setAccount({
-                    jwt: response.data.jwt,
-                    userID: response.data.userID,
-                    userProfile: response.data.userProfile,
-                }));
-                navigation.navigate(ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
+          const localSettings:LocalStorageState = {
+            jwt: response.data.jwt,
+            userID: response.data.userID,
+            settings: {skipAnimation: false}
+          }
+
+          dispatch(setAccount({
+              jwt: response.data.jwt,
+              userID: response.data.userID,
+              userProfile: response.data.userProfile,
+          }));
+
+          dispatch(setStorageState(localSettings));
+          Keychain.setGenericPassword(response.data.userID, JSON.stringify(localSettings));
+
+          navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
     }
 
     
@@ -61,6 +72,28 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
     useEffect(() => {
       if (route.params !== undefined) if (route.params.newAccount !== undefined) navigation.navigate(ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME);
     }, [route.params])
+
+    useEffect(() => {
+      const getLocalStorage = async () => {
+        const result = await Keychain.getGenericPassword()
+        if (result) {
+          const localSettings:LocalStorageState = JSON.parse(result.password);
+          await axios.get(`${DOMAIN}/api/authenticate`, {headers: {"jwt": localSettings.jwt}}).then((response:AxiosResponse) => {
+            localSettings.jwt = response.data.jwt;
+            dispatch(setJWT(response.data.jwt));
+            dispatch(setAccount({
+              jwt: response.data.jwt,
+              userID: response.data.userID,
+              userProfile: response.data.userProfile,
+            }));
+            navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
+          }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))
+
+        }
+      }
+
+      getLocalStorage();
+    })
 
     return (
       <SafeAreaView style={theme.background_view}>
