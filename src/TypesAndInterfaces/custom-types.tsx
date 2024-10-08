@@ -15,16 +15,6 @@ export interface CallbackParam {
     callback:(() => void)
 }
 
-export interface Credentials {
-    jwt: string,
-    userID: number,
-    settings?:UserSettings
-}
-
-export interface UserSettings {
-    
-}
-
 export interface StackNavigationProps extends NativeStackScreenProps<any> {};
 export interface TabNavigationProps extends BottomTabScreenProps<any> {};
 
