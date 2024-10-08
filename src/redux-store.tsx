@@ -97,12 +97,39 @@ const removeListItem = <T, K extends keyof ProfileResponse>(state:AccountState, 
     [listKey]: (state.userProfile[listKey] as T[] || []).filter((item:T) => item[idKey] !== action.payload)
   }});
 
+export type UserSettings ={
+  skipAnimation:boolean
+}
 
+export type LocalStorageState = {
+    jwt: string,
+    userID: number,
+    settings:UserSettings
+}
+
+const initialLocalStorageState = {
+  jwt: '',
+  userID: -1,
+  settings: {skipAnimation: false} as UserSettings
+}
+
+const localStorageSlice = createSlice({
+  name: "localStorageSlice",
+  initialState: initialLocalStorageState,
+  reducers: {
+    setStorageState: (state, action:PayloadAction<LocalStorageState>) => state = action.payload,
+    setJWT: (state, action:PayloadAction<string>) => state = {...state, jwt: action.payload},
+    setSettings: (state, action:PayloadAction<UserSettings>) => state = {...state, settings: action.payload}
+  }
+})
   
+export const { setStorageState, setJWT, setSettings } = localStorageSlice.actions;
+
 const store = configureStore({
     reducer: {
       account: accountSlice.reducer,
-      navigationTab: tabSlice.reducer
+      navigationTab: tabSlice.reducer,
+      localStorage: localStorageSlice.reducer
     }
 });
 
