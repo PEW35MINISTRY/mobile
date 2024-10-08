@@ -81,7 +81,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
 
     return (
       <SafeAreaView style={styles.backgroundView}>
-        <View style={theme.background_view}>
+        <View style={styles.backgroundView}>
           <TouchableOpacity
             onPress={() => setProfileImageSettingsModalVisible(true)}
 
@@ -148,9 +148,10 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   backgroundView: {
-    //...theme.center,
     flex: 1,
-    backgroundColor: COLORS.black
+    backgroundColor: COLORS.black,
+    textAlign: "center",
+    alignItems: "center"
   },
   logo: {
     height: 175,
