@@ -3,7 +3,7 @@ import { CircleListItem } from "./config-sync/api-type-sync/circle-types"
 import { PrayerRequestListItem } from "./config-sync/api-type-sync/prayer-request-types"
 import { CircleDisplayParamList } from "../2-Circles/CircleDisplay"
 import { PrayerRequestDisplayParamList } from "../3-Prayer-Request/PrayerRequestDisplay"
-import { LoginParamList } from "../1-Profile/Login"
+import { LoginParamList } from "../0-Pages/Login"
 
 export enum ROUTE_NAMES {
     LOGIN_ROUTE_NAME = "LOGIN",
@@ -25,6 +25,7 @@ export enum ROUTE_NAMES {
     CONTENT_ROUTE_NAME = 'ContentRouteName',
     DASHBOARD_ROUTE_NAME = 'DashboardRoute',
     DASHBOARD_NAVIGATOR_ROUTE_NAME = 'DashboardRoutes',
+    OFFLINE_WARNING_ROUTE_NAME = "OfflineWarning"
 }
 
 export enum BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES {

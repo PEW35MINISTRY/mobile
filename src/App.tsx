@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator, StackCardInterpolationProps } from '@react-navigation/stack';
 import React from "react";
 import { Settings, StyleSheet } from 'react-native';
@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 import { RootSiblingParent } from 'react-native-root-siblings';
 
 import EditProfile from "./1-Profile/Edit-Profile";
-import Login from "./1-Profile/Login";
+import Login from "./0-Pages/Login";
 import Signup from "./1-Profile/Signup";
 import { CircleSearch } from './2-Circles/CircleSearch';
 import { CircleDisplay } from './2-Circles/CircleDisplay';
@@ -20,12 +20,15 @@ import store, { RootState } from './redux-store';
 import { AppStackParamList, ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import { AppTabNavigator } from './Widgets/navigation/AppTabNavigator';
 import InitialAccountFlow from './1-Profile/InitialAccountFlow';
-import ProfileSettings from './1-Profile/Settings';
-import AnimatedLogo from './Widgets/AnimatedLogo/AnimatedLogo';
+import ProfileSettings from './0-Pages/Settings';
+import AnimatedLogo from './0-Pages/AnimatedLogo';
 import DashboardDisplay from './10-Dashboard/DashboardDisplay';
+import OfflineWarning from './0-Pages/OfflineWarning';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
+export const navigationRef = React.createRef<NavigationContainerRef<ReactNavigation.RootParamList>>();
 
 const CircleTabNavigatorOptions = {
   headerShown: false,
@@ -99,13 +102,14 @@ const App = ():JSX.Element => {
   return (
     <Provider store = { store }>
       <RootSiblingParent>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <Stack.Navigator screenOptions={{headerShown: false}}>
             <Stack.Screen name={ROUTE_NAMES.LOGIN_ROUTE_NAME} component={Login} />
             <Stack.Screen name={ROUTE_NAMES.SIGNUP_ROUTE_NAME} component={Signup} />
             <Stack.Screen name={ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME} component={InitialAccountFlow} />
             <Stack.Screen name={ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME} component={AnimatedLogo} />
             <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} options={{cardStyleInterpolator: forFade}}/>
+            <Stack.Screen name={ROUTE_NAMES.OFFLINE_WARNING_ROUTE_NAME} component={OfflineWarning} />
           </Stack.Navigator>
         </NavigationContainer>
       </RootSiblingParent>
