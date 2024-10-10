@@ -86,7 +86,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
             onPress={() => setProfileImageSettingsModalVisible(true)}
 
           >
-            <View style={styles.profileImageContainer}>
+            <View style={styles.profileImageContainer} pointerEvents='none'>
               <ProfileImage />
               <View style={styles.floatingEditIcon}>
                 <Ionicons 
