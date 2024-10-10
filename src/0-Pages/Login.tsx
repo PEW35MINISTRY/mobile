@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useRef } from 'react';
-import * as Keychain from 'react-native-keychain'
+import keychain from 'react-native-keychain'
 import { GestureResponderEvent, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
@@ -52,7 +52,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
           }));
 
           dispatch(setStorageState(localSettings));
-          Keychain.setGenericPassword(response.data.userID, JSON.stringify(localSettings));
+          keychain.setGenericPassword(response.data.userID, JSON.stringify(localSettings));
 
           navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
@@ -75,7 +75,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
 
     useEffect(() => {
       const getLocalStorage = async () => {
-        const result = await Keychain.getGenericPassword()
+        const result = await keychain.getGenericPassword()
         if (result) {
           const localSettings:LocalStorageState = JSON.parse(result.password);
           await axios.get(`${DOMAIN}/api/authenticate`, {headers: {"jwt": localSettings.jwt}}).then((response:AxiosResponse) => {
