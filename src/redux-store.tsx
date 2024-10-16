@@ -1,6 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
+import { NEW_PARTNER_REQUEST_TIMEOUT } from '@env';
 import { configureStore, createAction, createReducer, createSlice } from '@reduxjs/toolkit';
-import React, { useState } from 'react';
+import React, { act, useState } from 'react';
 import { PartnerListItem, ProfileListItem, ProfileResponse } from './TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { CircleListItem } from './TypesAndInterfaces/config-sync/api-type-sync/circle-types';
@@ -98,7 +99,8 @@ const removeListItem = <T, K extends keyof ProfileResponse>(state:AccountState, 
   }});
 
 export type UserSettings ={
-  skipAnimation:boolean
+  skipAnimation:boolean,
+  lastNewPartnerRequest:number
 }
 
 export type LocalStorageState = {
@@ -110,14 +112,14 @@ export type LocalStorageState = {
 const initialLocalStorageState = {
   jwt: '',
   userID: -1,
-  settings: {skipAnimation: false} as UserSettings
+  settings: {skipAnimation: false, lastNewPartnerRequest: 0} as UserSettings
 }
 
 const localStorageSlice = createSlice({
   name: "localStorageSlice",
   initialState: initialLocalStorageState,
   reducers: {
-    setStorageState: (state, action:PayloadAction<LocalStorageState>) => state = action.payload,
+    setStorageState: (state, action:PayloadAction<LocalStorageState>) => state = {jwt: action.payload.jwt, userID: action.payload.userID, settings: action.payload.settings},
     setJWT: (state, action:PayloadAction<string>) => state = {...state, jwt: action.payload},
     setSettings: (state, action:PayloadAction<UserSettings>) => state = {...state, settings: action.payload}
   }
