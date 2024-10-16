@@ -32,7 +32,7 @@ class ToastQueueManager {
         const ToastConfig = {...DefaultToastConfig, options}
 
         if (this.timeoutCount > 2 && !this.isOfflineWarningShown) {
-            navigationRef.current?.navigate(ROUTE_NAMES.OFFLINE_WARNING_ROUTE_NAME as unknown as never)
+            navigationRef.current?.navigate(ROUTE_NAMES.OFFLINE_WARNING_ROUTE_NAME as unknown as never);
             this.isOfflineWarningShown = true;
         }
 
