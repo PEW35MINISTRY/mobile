@@ -1,6 +1,7 @@
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
+import keychain from 'react-native-keychain'
 import { render } from 'react-dom';
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { GestureResponderEvent, Image, Modal, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -9,7 +10,7 @@ import PEW35 from '../../assets/pew35-logo.png';
 import { SIGNUP_PROFILE_FIELDS_USER } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, resetAccount, setAccount } from '../redux-store';
+import { LocalStorageState, RootState, resetAccount, setAccount, setStorageState } from '../redux-store';
 import theme, { COLORS } from '../theme';
 import { Raised_Button, BackButton, CheckBox } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
@@ -26,20 +27,25 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
+    const localStorageStateRef = useAppSelector((state:RootState) => state.localStorage);
 
     const [populateDemoProfile, setPopulateDemoProfile] = useState<boolean>(false);
 
     const onSignUp = (formValues:Record<string, string | string[]>) => {
       // send data to server
       axios.post(`${DOMAIN}/signup${populateDemoProfile ? '?populate=true' : ''}`, formValues).then(response => {
-            dispatch(setAccount({
-              jwt: response.data.jwt,
-              userID: response.data.userID,
-              userProfile: response.data.userProfile,
-              }));
+        dispatch(setAccount({
+          jwt: response.data.jwt,
+          userID: response.data.userID,
+          userProfile: response.data.userProfile,
+        }));
 
-          // call callback via route
-          navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true})
+        const localSettings:LocalStorageState = {...localStorageStateRef, userID: response.data.userID, jwt: response.data.jwt}
+        dispatch(setStorageState(localSettings));
+        keychain.setGenericPassword(localSettings.userID.toString(), JSON.stringify(localSettings));
+
+        // call callback via route
+        navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true})
       }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       
     }
