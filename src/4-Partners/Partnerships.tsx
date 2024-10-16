@@ -1,10 +1,11 @@
-import { DOMAIN } from "@env";
+import { DOMAIN, NEW_PARTNER_REQUEST_TIMEOUT } from "@env";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { Buffer } from "buffer";
+import keychain from 'react-native-keychain'
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { RootState } from "../redux-store";
+import { RootState, setSettings } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { BackButton, Dropdown_Select, Outline_Button, Raised_Button } from "../widgets";
 import { PartnershipContractModal, PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partnership-widgets";
@@ -27,6 +28,8 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
     const maxPartners = useAppSelector((state: RootState) => state.account.userProfile.maxPartners);
+    const localStorageStateRef = useAppSelector((state:RootState) => state.localStorage);
+    const dispatch = useAppDispatch();
 
     const [prayerPartnersList, setPrayerPartnersList] = useState<PartnerListItem[]>([]);
     const [pendingPrayerPartners, setPendingPrayerPartners] =  useState<PartnerListItem[]>([]);
@@ -72,19 +75,25 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
 
             if (newPartner.status == PartnerStatusEnum.PENDING_CONTRACT_PARTNER) setPendingPrayerPartners([...pendingPrayerPartners, partner]);
             else if (newPartner.status == PartnerStatusEnum.PARTNER) setPrayerPartnersList([...prayerPartnersList, partner]);
-            else console.warn("unexpected new partner state")
+            else console.warn("unexpected new partner state");
+
+            const newStorageState = {...localStorageStateRef.settings, lastNewPartnerRequest: Date.now()}
+
+            dispatch(setSettings(newStorageState));
+            keychain.setGenericPassword(localStorageStateRef.userID.toString(), JSON.stringify({...localStorageStateRef,newStorageState}));
+
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const declinePartnershipRequest = (partner:PartnerListItem) => {
         axios.delete(`${DOMAIN}/api/partner-pending/`+ partner.userID + '/decline', RequestAccountHeader).then((response:AxiosResponse) => {
-            (partner.status == PartnerStatusEnum.PENDING_CONTRACT_PARTNER) ? setPendingPrayerPartners([...pendingPrayerPartners].filter((partner:PartnerListItem) => partner.userID !== partner.userID)) : setPendingPrayerPartnerUsers([...pendingPrayerPartnerUsers].filter((partner:PartnerListItem) => partner.userID !== partner.userID));
+            (partner.status == PartnerStatusEnum.PENDING_CONTRACT_PARTNER) ? setPendingPrayerPartners([...pendingPrayerPartners].filter((partnerItem:PartnerListItem) => partnerItem.userID !== partner.userID)) : setPendingPrayerPartnerUsers([...pendingPrayerPartnerUsers].filter((partnerItem:PartnerListItem) => partnerItem.userID !== partner.userID));
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const leavePartnership = (partner:PartnerListItem) => {
         axios.delete(`${DOMAIN}/api/partner/` + partner.userID + '/leave', RequestAccountHeader).then((response:AxiosResponse) => {
-            setPrayerPartnersList([...prayerPartnersList].filter((partner:PartnerListItem) => partner.userID !== partner.userID));
+            setPrayerPartnersList([...prayerPartnersList].filter((partnerItem:PartnerListItem) => partnerItem.userID !== partner.userID));
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
@@ -107,6 +116,22 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
     }
 
     const POST_NewPartner = async () => {
+        if (!(maxPartners > (prayerPartnersList.length + pendingPrayerPartnerUsers.length + pendingPrayerPartners.length))) {
+            ToastQueueManager.show({message: "Max Partners Reached"});
+            return;
+        }
+        console.log((localStorageStateRef.settings.lastNewPartnerRequest + NEW_PARTNER_REQUEST_TIMEOUT));
+        console.log(((localStorageStateRef.settings.lastNewPartnerRequest + NEW_PARTNER_REQUEST_TIMEOUT) - Date.now()));
+        console.log(Date.now());
+        if ((Date.now() - NEW_PARTNER_REQUEST_TIMEOUT) < localStorageStateRef.settings.lastNewPartnerRequest) {
+            let timeoutEnd = Math.ceil(((localStorageStateRef.settings.lastNewPartnerRequest + NEW_PARTNER_REQUEST_TIMEOUT) - Date.now()) / 3600000);
+            console.log((localStorageStateRef.settings.lastNewPartnerRequest + NEW_PARTNER_REQUEST_TIMEOUT));
+            console.log(((localStorageStateRef.settings.lastNewPartnerRequest + NEW_PARTNER_REQUEST_TIMEOUT) - Date.now()));
+            console.log(Date.now());
+            ToastQueueManager.show({message: `Please try again in ${timeoutEnd} hours`});
+            return;
+        }
+
         axios.post(`${DOMAIN}/api/user/` + userID + '/new-partner', {}, RequestAccountHeader).then((response:AxiosResponse) => {
             setNewPartner(response.data as PartnerListItem);
             setPendingPrayerPartnerUsers([...pendingPrayerPartnerUsers, response.data as PartnerListItem]);
@@ -181,13 +206,12 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
                 </View>
                 { partnerSettingsViewMode == PartnerViewMode.PARTNER_LIST ? renderPartners() : renderPendingPage()}
                 <View style={styles.bottomView}> 
-                    {
-                        (maxPartners > (prayerPartnersList.length + pendingPrayerPartnerUsers.length + pendingPrayerPartners.length)) &&
-                        <Outline_Button 
-                            text='New Partner'
-                            onPress={() => POST_NewPartner()} 
-                        />   
-                    }     
+                    
+                    <Outline_Button 
+                        text='New Partner'
+                        onPress={() => POST_NewPartner()} 
+                    />   
+                       
                     {
                         (props.continueNavigation !== undefined) &&                     
                         <Raised_Button buttonStyle={{marginVertical: 15}}
