@@ -43,9 +43,9 @@ export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewSty
              </TouchableOpacity> );
 }
 
-export const CheckBox = (props:{ label?: string, labelStyle?: object, iconColor?: string, onChange: () => void}):JSX.Element => {
+export const CheckBox = (props:{ label?: string, labelStyle?: object, iconColor?: string, onChange: () => void, initialState?:boolean}):JSX.Element => {
     
-    const [checked, setChecked] = useState<boolean>(false)
+    const [checked, setChecked] = useState<boolean>(props.initialState === undefined ? false : props.initialState);
     
     const onChange = () => {
         setChecked(!checked);
