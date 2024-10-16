@@ -23,7 +23,7 @@ const OfflineWarning = (props:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
 
     const connectionCheckAuthenticate = async () => {
-        await axios.get(`${DOMAIN}/available`).then((response:AxiosResponse) => {
+        await axios.get(`${DOMAIN}/version`).then((response:AxiosResponse) => {
 
             ToastQueueManager.resetOfflineWarning();
 
