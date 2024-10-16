@@ -1,6 +1,6 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
-import { ColorValue, GestureResponderEvent, Image, ImageSourcePropType, ImageStyle, KeyboardTypeOptions, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle, ScrollView, SafeAreaView } from "react-native";
+import { ColorValue, GestureResponderEvent, Image, ImageSourcePropType, ImageStyle, KeyboardTypeOptions, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle, ScrollView, SafeAreaView, Keyboard } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import theme, { COLORS, FONT_SIZES, RADIUS } from './theme';
 import { useAppDispatch, useAppSelector } from "./TypesAndInterfaces/hooks";
@@ -158,7 +158,6 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
         filterContainer: {
             flexDirection: 'row',
             padding: 0,
-
             borderWidth: 1,
             borderColor: COLORS.grayDark,
             borderRadius: (props.textStyle?.fontSize ?? theme.text.fontSize) / 2,
@@ -237,6 +236,7 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
             borderColor: COLORS.accent,
             backgroundColor: COLORS.black,
             ...props.inputStyle,
+            maxHeight: 150
         },        
         containerStyle: {
             marginVertical: 5,
@@ -267,6 +267,8 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
                     multiline={props.multiline}
                     textAlignVertical='top'
                     autoCapitalize={props.autoCapitalize === false ? "none" : "sentences"}
+                    returnKeyType='done'
+                    blurOnSubmit={true}
                 />
                 {props.validationLabel && <Text style={styles.validationStyle}>{props.validationLabel}</Text>}
             </View> );
@@ -308,17 +310,19 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
             <TouchableOpacity
                 onPress={(event:GestureResponderEvent) => setDatePickerVisible(true)}
             >
-                <Input_Field 
-                    label={props.label}
-                    value={formatRelativeDate(props.date)}
-                    editable={false}
-                    onChangeText={() => null}
-                    validationLabel={props.validationLabel}
-                    validationStyle={props.validationStyle}
-                    labelStyle={(props.validationLabel && {color: COLORS.primary}) || undefined}
-                    inputStyle={(props.validationLabel && {borderColor: COLORS.primary}) || undefined}
-                    containerStyle={{alignSelf: "center"}}
-                />
+                <View pointerEvents='none'>
+                    <Input_Field 
+                        label={props.label}
+                        value={formatRelativeDate(props.date)}
+                        editable={false}
+                        onChangeText={() => null}
+                        validationLabel={props.validationLabel}
+                        validationStyle={props.validationStyle}
+                        labelStyle={(props.validationLabel && {color: COLORS.primary}) || undefined}
+                        inputStyle={(props.validationLabel && {borderColor: COLORS.primary}) || undefined}
+                        containerStyle={{alignSelf: "center"}}
+                    />
+                </View>
             </TouchableOpacity>
             <DateTimePickerModal 
                 isVisible={isDatePickerVisible}
@@ -478,8 +482,7 @@ export const SelectSlider = (props:{minValue:number, maxValue:number, defaultVal
     const styles = StyleSheet.create({
         dropdownText: {
             color: COLORS.white,
-            textAlign: "center",
-            
+            textAlign: "center"
         },
         labelStyle: {
             ...theme.accent,
@@ -520,7 +523,6 @@ export const SelectSlider = (props:{minValue:number, maxValue:number, defaultVal
                 thumbTintColor={COLORS.accent}
                 minimumTrackTintColor={COLORS.accent}
                 maximumTrackTintColor={COLORS.accent}
-                trackStyle={{width: 200}}
             />
             {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
         </View>

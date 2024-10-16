@@ -88,7 +88,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
     })
 
     return (
-        <ScrollView style={{maxWidth: '90%', alignSelf: "center", alignContent: "center"}}>{
+        <ScrollView style={{maxWidth: '90%'}}>{
             (props.fields).filter((field:InputField)=>field.environmentList.includes(ENVIRONMENT_TYPE[(ENVIRONMENT ?? '') as ENVIRONMENT_TYPE]))
               .map((field:InputField, index:number) => {
                 switch(field.type) {

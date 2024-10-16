@@ -6,6 +6,7 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
+    "purgerun": "rimraf build && rm -rf ios/build android/app/build .gradle && react-native start --reset-cache",
     "postversion": "react-native-version",
     "tsc": "tsc",
     "clean": "rimraf build && rm -rf ios/build android/app/build .gradle",

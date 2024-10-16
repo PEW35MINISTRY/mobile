@@ -6,7 +6,11 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Partnerships from '../4-Partners/Partnerships';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { resetAccount, RootState, setAccount } from '../redux-store';
+import { resetAccount, RootState, setAccount, setContacts, updateProfile } from '../redux-store';
+import { DOMAIN } from '@env';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
+import ToastQueueManager from '../utilities/ToastQueueManager';
 
 const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -38,6 +42,16 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 <Outline_Button 
                     text={"Partner Settings"}
                     onPress={() => setPartnerModalVisible(true)}
+                    buttonStyle={styles.settingsButton}
+                />
+                <Outline_Button 
+                    text={"Update Contacts"}
+                    onPress={ async () => axios.post(`${DOMAIN}/api/user/` + account.userID + '/update-contacts', {}, RequestAccountHeader).then((response:AxiosResponse) => dispatch(setContacts(response.data))).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))}
+                    buttonStyle={styles.settingsButton}
+                />
+                <Outline_Button 
+                    text={"Refresh Profile"}
+                    onPress={ async () => axios.get(`${DOMAIN}/api/user/` + account.userID, RequestAccountHeader).then((response:AxiosResponse) => dispatch(updateProfile(response.data))).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))}
                     buttonStyle={styles.settingsButton}
                 />
                 <Outline_Button 
