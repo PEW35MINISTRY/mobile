@@ -14,7 +14,7 @@ import GOOGLE from '../../assets/logo-google.png';
 import LOGO from '../../assets/logo.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import TRANSPARENT from '../../assets/transparent.png';
-import { LocalStorageState, RootState, setAccount, setJWT, setSettings, setStorageState } from '../redux-store';
+import { RootState, setAccount, setJWT, setStorageState } from '../redux-store';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { LOGIN_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
@@ -34,16 +34,11 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
 
-    const userID = useAppSelector((state: RootState) => state.account.userID);
-    const skipAnimation = useAppSelector((state:RootState) => state.localStorage.settings.skipAnimation);
+    const localUserID = useAppSelector((state: RootState) => state.localStorage.userID);
+    const localStorageStateRef = useAppSelector((state:RootState) => state.localStorage);
 
     const onLogin = (formValues:Record<string, string | string[]>) => {
         axios.post(`${DOMAIN}/login`, formValues).then(response => {   
-          const localSettings:LocalStorageState = {
-            jwt: response.data.jwt,
-            userID: response.data.userID,
-            settings: {skipAnimation: false}
-          }
 
           dispatch(setAccount({
               jwt: response.data.jwt,
@@ -51,10 +46,11 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
               userProfile: response.data.userProfile,
           }));
 
-          dispatch(setStorageState(localSettings));
-          keychain.setGenericPassword(response.data.userID, JSON.stringify(localSettings));
+          // Only need to set the JWT, but setting userID as well to prevent client and server from getting out of sync while offline
+          dispatch(setStorageState({...localStorageStateRef, userID: response.data.userID, jwt: response.data.jwt}));
+          keychain.setGenericPassword(response.data.userID.toString(), JSON.stringify({...localStorageStateRef, userID: response.data.userID, jwt: response.data.jwt}));
 
-          navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
+          navigation.navigate(localStorageStateRef.settings.skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
     }
 
@@ -75,25 +71,30 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
 
     useEffect(() => {
       const getLocalStorage = async () => {
-        const result = await keychain.getGenericPassword()
-        if (result) {
-          const localSettings:LocalStorageState = JSON.parse(result.password);
-          await axios.get(`${DOMAIN}/api/authenticate`, {headers: {"jwt": localSettings.jwt}}).then((response:AxiosResponse) => {
-            localSettings.jwt = response.data.jwt;
-            dispatch(setJWT(response.data.jwt));
-            dispatch(setAccount({
-              jwt: response.data.jwt,
-              userID: response.data.userID,
-              userProfile: response.data.userProfile,
-            }));
-            navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
-          }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))
-
-        }
+        const result = await keychain.getGenericPassword();
+        if (result) dispatch(setStorageState(JSON.parse(result.password)));
       }
+      if (route.params === undefined) getLocalStorage();
+    }, [])
 
-      getLocalStorage();
-    })
+    useEffect(() => {
+      // only attempt auto-login for users that have accounts
+      if (route.params === undefined && localUserID > 0) {
+        console.log(localStorageStateRef)
+        axios.post(`${DOMAIN}/api/authenticate`, {}, {headers: {"jwt": localStorageStateRef.jwt}}).then((response:AxiosResponse) => {
+          dispatch(setJWT(response.data.jwt));
+          dispatch(setAccount({
+            jwt: response.data.jwt,
+            userID: response.data.userID,
+            userProfile: response.data.userProfile,
+          }));
+
+          // Only need to set the JWT, but setting userID as well to prevent client and server from getting out of sync while offline
+          keychain.setGenericPassword(response.data.userID.toString(), JSON.stringify({...localStorageStateRef, jwt: response.data.jwt}));
+          navigation.navigate(localStorageStateRef.settings.skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
+        }).catch((error:AxiosError<ServerErrorResponse>) => console.warn(error));
+      }
+    }, [localUserID])
 
     return (
       <SafeAreaView style={theme.background_view}>
