@@ -1,5 +1,6 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
+import keychain from 'react-native-keychain'
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity, useWindowDimensions, SafeAreaView, Platform } from 'react-native';
 
@@ -10,11 +11,11 @@ import theme, { COLORS } from '../theme';
 
 import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
-import store from '../redux-store';
+import store, { setSettings } from '../redux-store';
 
 import { Controller, useForm } from "react-hook-form";
 import { RootState, updateProfile } from '../redux-store';
-import { BackButton, Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
+import { BackButton, CheckBox, Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ProfileEditRequestBody } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
@@ -33,9 +34,11 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
+    const localStorageRef = useAppSelector((state: RootState) => state.localStorage);
     
     const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
     const [partnersModalVisible, setPartnersModalVisible] = useState(false);
+    const [toggleShowAnimation, setToggleShowAnimation] = useState<boolean>(localStorageRef.settings.skipAnimation);
 
     const RequestAccountHeader = {
       headers: {
@@ -76,6 +79,11 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
             navigation.pop();
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       }
+      else if (toggleShowAnimation !== localStorageRef.settings.skipAnimation) { 
+        dispatch(setSettings({...localStorageRef.settings, skipAnimation: toggleShowAnimation}));
+        keychain.setGenericPassword(userID.toString(), JSON.stringify({...localStorageRef, settings: {...localStorageRef.settings, skipAnimation: toggleShowAnimation}}))
+        navigation.pop();
+      }
       else navigation.pop();
     }
 
@@ -109,6 +117,9 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               onPress={()=> setPartnersModalVisible(true)}
               buttonStyle={{borderRadius: 5, width: 250}}
             />
+            <View style={{marginTop: 10}}>
+              <CheckBox onChange={() => setToggleShowAnimation(!toggleShowAnimation)} label='Skip logo animation on login' initialState={toggleShowAnimation} />
+            </View>
             <Raised_Button buttonStyle={styles.sign_in_button}
                 text='Save Changes'
                 onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
