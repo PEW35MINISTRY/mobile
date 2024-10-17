@@ -1,4 +1,4 @@
-import { View, StyleSheet, Modal, Text } from 'react-native';
+import { View, StyleSheet, Modal, Text, KeyboardAvoidingView } from 'react-native';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { PrayerRequestComment } from './prayer-request-widgets';
 import React, { useRef } from 'react';
@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     },
     sign_in_button: {
       marginVertical: 15,
+      bottom: 20
     },
     dropdownText: {
       color: COLORS.white,

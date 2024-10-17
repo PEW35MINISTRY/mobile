@@ -82,9 +82,9 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
-    const leavePartnership = (partner:PartnerListItem) => {
-        axios.delete(`${DOMAIN}/api/partner/` + partner.userID + '/leave', RequestAccountHeader).then((response:AxiosResponse) => {
-            setPrayerPartnersList([...prayerPartnersList].filter((partner:PartnerListItem) => partner.userID !== partner.userID));
+    const leavePartnership = (leavingPartner:PartnerListItem) => {
+        axios.delete(`${DOMAIN}/api/partner/` + leavingPartner.userID + '/leave', RequestAccountHeader).then((response:AxiosResponse) => {
+            setPrayerPartnersList([...prayerPartnersList].filter((partner:PartnerListItem) => leavingPartner.userID !== partner.userID));
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
