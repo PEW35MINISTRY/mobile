@@ -120,7 +120,7 @@ const localStorageSlice = createSlice({
   name: "localStorageSlice",
   initialState: initialLocalStorageState,
   reducers: {
-    setStorageState: (state, action:PayloadAction<LocalStorageState>) => state = {jwt: action.payload.jwt, userID: action.payload.userID, settings: action.payload.settings},
+    setStorageState: (state, action:PayloadAction<LocalStorageState>) => state = action.payload,
     setJWT: (state, action:PayloadAction<string>) => state = {...state, jwt: action.payload},
     setSettings: (state, action:PayloadAction<UserSettings>) => state = {...state, settings: action.payload}
   }
