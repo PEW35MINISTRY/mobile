@@ -3,7 +3,7 @@ import axios, { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType, ENVIRONMENT_TYPE, InputRangeField } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
-import { RoleEnum, getDOBMaxDate } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
+import { RoleEnum, getDOBMaxDate, getDOBMinDate } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import theme, { COLORS } from "../../theme";
 import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider } from "../../widgets";
 import React, { forwardRef, useImperativeHandle } from "react";
@@ -270,9 +270,11 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                         validate: (value, formValues) => {
                             if (fieldValueIsString(field.type, value)) {
                                 if (field.field == 'dateOfBirth') {
-                                    const minAge:Date = getDOBMaxDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER);                                    
+                                    const minAge:Date = getDOBMinDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER); //Oldest
+                                    const maxAge:Date = getDOBMaxDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER); //Youngest
                                     const currAge = new Date(value);
-                                    return !(currAge > minAge);
+                                    if(isNaN(currAge.valueOf()) || currAge < minAge || currAge > maxAge)
+                                        return false;
                                 }
                                 else {
                                     if (value.match(field.validationRegex)) return true;

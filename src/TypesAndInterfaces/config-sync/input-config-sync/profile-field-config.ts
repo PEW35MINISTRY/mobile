@@ -20,7 +20,6 @@ export const PASSWORD_VALIDATION_MESSAGE_PROD = "Required, one uppercase, lowerc
 /***************************************
 *    PROFILE TYPES AND DEPENDENCIES
 ****************************************/
-//Note: enums must have matching values to cast (string as Enum) or define (Enum[string]) equally
 export enum ModelSourceEnvironmentEnum { //Allowed Interactions:
     DEVELOPMENT = 'DEVELOPMENT',         //DEVELOPMENT, MOCK
     MOCK = 'MOCK',                       //DEVELOPMENT, MOCK, INTERNAL
@@ -68,8 +67,8 @@ export const getDateYearsAgo = (years: number = 13):Date => {
 
 //HTML date input supports: 'YYYY-MM-DD'
 export const getShortDate = (dateISO:string):string => dateISO ? dateISO.split('T')[0] : getDateYearsAgo(13).toISOString().toString().split('T')[0];
-export const getDOBMinDate = (role:RoleEnum = RoleEnum.USER):Date => (role === RoleEnum.USER) ? getDateYearsAgo(19) : getDateYearsAgo(100); //Max Age
-export const getDOBMaxDate = (role:RoleEnum = RoleEnum.USER):Date => (role === RoleEnum.USER) ? getDateYearsAgo(13) : getDateYearsAgo(18); //Min Age
+export const getDOBMinDate = (role:RoleEnum = RoleEnum.USER):Date => getDateYearsAgo(100); //Oldest
+export const getDOBMaxDate = (role:RoleEnum = RoleEnum.USER):Date => (role === RoleEnum.USER) ? getDateYearsAgo(13) : getDateYearsAgo(18); //Youngest
 
 /*****************************************
 *   FIELD LISTS: LOGIN | SIGNUP | EDIT
@@ -102,7 +101,7 @@ export const EDIT_PROFILE_FIELDS_ADMIN:InputField[] = [
     ...EDIT_PROFILE_FIELDS,
     new InputSelectionField({title: 'Gender', field: 'gender', type: InputType.SELECT_LIST, required: true, selectOptionList: Object.values(GenderEnum)}),
     new InputField({title: 'Date of Birth', field: 'dateOfBirth', type: InputType.DATE, value: getDateYearsAgo().toISOString(), required: true, validationRegex: DATE_REGEX, validationMessage: 'Required, must be valid age.' }),
-    new InputRangeField({title: 'Walk Level', field: 'walkLevel', required: true, minValue: 1, maxValue: 10, type: InputType.RANGE_SLIDER, validationRegex: new RegExp(/[0-9]+/), validationMessage: 'Required, between 1-10.'}),
+    new InputRangeField({title: 'Walk Level', field: 'walkLevel', required: true, minValue: 0, maxValue: 10, type: InputType.RANGE_SLIDER, validationRegex: new RegExp(/[0-9]+/), validationMessage: 'Required, between 1-10.'}),
     new InputField({title: 'Profile Image', field: 'image', type: InputType.TEXT, validationRegex: new RegExp(/^.{5,2000}$/), validationMessage: 'Invalid URI, Max 2000 characters'}),
     new InputField({title: 'Profile Notes', field: 'notes', type: InputType.PARAGRAPH, validationRegex: new RegExp(/^.{0,3000}$/), validationMessage: 'Max 3000 characters.'}),
 ];
