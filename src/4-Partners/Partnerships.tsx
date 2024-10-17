@@ -58,8 +58,7 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
     const renderPendingPartners = (partnerList:PartnerListItem[] | undefined, pendingContract:boolean):JSX.Element[] => 
         (partnerList || []).map((partner:PartnerListItem, index:number) => 
             <PendingPrayerPartnerListItem partner={partner} key={index} buttonText={pendingContract ? 'View Contract' : 'Decline'}
-                onButtonPress={(id, partnerItem) => { pendingContract ? acceptPartnershipRequest(partnerItem) : declinePartnershipRequest(partnerItem);
-                    setNewPartnerModalVisible(true); }} />
+                onButtonPress={(id, partnerItem) => { pendingContract ? acceptPartnershipRequest(partnerItem) : declinePartnershipRequest(partnerItem) }} />
     );
 
     const acceptPartnershipRequest = (partner:PartnerListItem) => {
@@ -80,7 +79,7 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
             const newStorageState = {...localStorageStateRef.settings, lastNewPartnerRequest: Date.now()}
 
             dispatch(setSettings(newStorageState));
-            keychain.setGenericPassword(localStorageStateRef.userID.toString(), JSON.stringify({...localStorageStateRef,newStorageState}));
+            keychain.setGenericPassword(localStorageStateRef.userID.toString(), JSON.stringify({...localStorageStateRef, settings: newStorageState}));
 
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
@@ -120,14 +119,9 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
             ToastQueueManager.show({message: "Max Partners Reached"});
             return;
         }
-        console.log((localStorageStateRef.settings.lastNewPartnerRequest + NEW_PARTNER_REQUEST_TIMEOUT));
-        console.log(((localStorageStateRef.settings.lastNewPartnerRequest + NEW_PARTNER_REQUEST_TIMEOUT) - Date.now()));
-        console.log(Date.now());
+
         if ((Date.now() - NEW_PARTNER_REQUEST_TIMEOUT) < localStorageStateRef.settings.lastNewPartnerRequest) {
-            let timeoutEnd = Math.ceil(((localStorageStateRef.settings.lastNewPartnerRequest + NEW_PARTNER_REQUEST_TIMEOUT) - Date.now()) / 3600000);
-            console.log((localStorageStateRef.settings.lastNewPartnerRequest + NEW_PARTNER_REQUEST_TIMEOUT));
-            console.log(((localStorageStateRef.settings.lastNewPartnerRequest + NEW_PARTNER_REQUEST_TIMEOUT) - Date.now()));
-            console.log(Date.now());
+            let timeoutEnd = Math.ceil(((localStorageStateRef.settings.lastNewPartnerRequest + parseInt(NEW_PARTNER_REQUEST_TIMEOUT.toString())) - Date.now()) / 3600000);
             ToastQueueManager.show({message: `Please try again in ${timeoutEnd} hours`});
             return;
         }
