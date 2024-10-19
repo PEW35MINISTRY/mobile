@@ -24,11 +24,11 @@ const OfflineWarning = (props:StackNavigationProps):JSX.Element => {
 
     const connectionCheckAuthenticate = async () => {
         await axios.get(`${DOMAIN}/version`).then((response:AxiosResponse) => {
-
             ToastQueueManager.resetOfflineWarning();
 
-            navigationRef.current?.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME as unknown as never);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))
+            //@ts-ignore
+            navigationRef.current?.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {tryJWTLogin: true});
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     return (
