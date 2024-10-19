@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import keychain from 'react-native-keychain'
 import { StyleSheet, View, TextStyle, Text, Modal, Linking, SafeAreaView, Platform } from 'react-native';
 import theme, { FONT_SIZES } from '../theme';
 import { BackButton, Outline_Button, Raised_Button } from '../widgets';
@@ -6,8 +7,8 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Partnerships from '../4-Partners/Partnerships';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { resetAccount, RootState, setAccount, setContacts, updateProfile } from '../redux-store';
-import { DOMAIN } from '@env';
+import { resetAccount, RootState, setAccount, setContacts, setSettings, setStorageState, updateProfile } from '../redux-store';
+import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
@@ -28,6 +29,11 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
         dispatch(resetAccount());
         navigation.popToTop();
         navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME)
+    }
+
+    const onResetStorageState = () => {
+        // After calling, just reload the app
+        keychain.resetGenericPassword();
     }
 
     return (
@@ -74,11 +80,21 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                     onPress={() => Linking.openURL("https://pew35.org/support")}
                     buttonStyle={styles.settingsButton}
                 />
+                {
+                    ENVIRONMENT === "DEVELOPMENT" && 
+                        <Outline_Button 
+                            text="Reset Local Storage State"
+                            onPress={() => onResetStorageState()}
+                            buttonStyle={styles.settingsButton}
+                        />
+                }
                 <Raised_Button 
                     text="Logout"
                     onPress={() => onLogout()}
                     buttonStyle={styles.settingsButton}
                 />
+
+
             </View>
             <Modal 
                 visible={partnerModalVisible}
