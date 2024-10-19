@@ -26,6 +26,7 @@ import ToastQueueManager from '../utilities/ToastQueueManager';
 
 export interface LoginParamList {
   newAccount?:boolean
+  tryJWTLogin?:boolean
 }
 
 type LoginProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.LOGIN_ROUTE_NAME>;
@@ -37,7 +38,24 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
     const localUserID = useAppSelector((state: RootState) => state.localStorage.userID);
     const localStorageStateRef = useAppSelector((state:RootState) => state.localStorage);
 
-    const onLogin = (formValues:Record<string, string | string[]>) => {
+    const onJWTLogin = () => {
+      if (localUserID > 0) {
+        axios.post(`${DOMAIN}/api/authenticate`, {}, {headers: {"jwt": localStorageStateRef.jwt}}).then((response:AxiosResponse) => {
+          dispatch(setJWT(response.data.jwt));
+          dispatch(setAccount({
+            jwt: response.data.jwt,
+            userID: response.data.userID,
+            userProfile: response.data.userProfile,
+          }));
+
+          // Only need to set the JWT, but setting userID as well to prevent client and server from getting out of sync while offline
+          keychain.setGenericPassword(response.data.userID.toString(), JSON.stringify({...localStorageStateRef, jwt: response.data.jwt}));
+          navigation.navigate(localStorageStateRef.settings.skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
+        }).catch((error:AxiosError<ServerErrorResponse>) => console.warn(error));
+      }
+    }
+
+    const onEmailLogin = (formValues:Record<string, string | string[]>) => {
         axios.post(`${DOMAIN}/login`, formValues).then(response => {   
 
           dispatch(setAccount({
@@ -53,7 +71,6 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
           navigation.navigate(localStorageStateRef.settings.skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
     }
-
     
     const onGoogle = (event:GestureResponderEvent) => console.log(`Logging in via Google`);
 
@@ -66,7 +83,10 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
     const onSignUp = (event:GestureResponderEvent) => navigation.navigate(ROUTE_NAMES.SIGNUP_ROUTE_NAME);
 
     useEffect(() => {
-      if (route.params !== undefined) if (route.params.newAccount !== undefined) navigation.navigate(ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME);
+      if (route.params !== undefined) {
+        if (route.params.newAccount !== undefined) navigation.navigate(ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME)
+        else if (route.params.tryJWTLogin !== undefined) onJWTLogin();
+      }
     }, [route.params])
 
     useEffect(() => {
@@ -79,21 +99,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
 
     useEffect(() => {
       // only attempt auto-login for users that have accounts
-      if (route.params === undefined && localUserID > 0) {
-        console.log(localStorageStateRef)
-        axios.post(`${DOMAIN}/api/authenticate`, {}, {headers: {"jwt": localStorageStateRef.jwt}}).then((response:AxiosResponse) => {
-          dispatch(setJWT(response.data.jwt));
-          dispatch(setAccount({
-            jwt: response.data.jwt,
-            userID: response.data.userID,
-            userProfile: response.data.userProfile,
-          }));
-
-          // Only need to set the JWT, but setting userID as well to prevent client and server from getting out of sync while offline
-          keychain.setGenericPassword(response.data.userID.toString(), JSON.stringify({...localStorageStateRef, jwt: response.data.jwt}));
-          navigation.navigate(localStorageStateRef.settings.skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
-        }).catch((error:AxiosError<ServerErrorResponse>) => console.warn(error));
-      }
+      if (route.params === undefined) onJWTLogin();
     }, [localUserID])
 
     return (
@@ -102,7 +108,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
         <Image source={LOGO} style={styles.logo} resizeMode='contain'></Image>
         <FormInput 
           fields={LOGIN_PROFILE_FIELDS}
-          onSubmit={onLogin}
+          onSubmit={onEmailLogin}
           validateUniqueFields={false}
           ref={formInputRef}
         />
