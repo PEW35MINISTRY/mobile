@@ -58,7 +58,7 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
     const renderPendingPartners = (partnerList:PartnerListItem[] | undefined, pendingContract:boolean):JSX.Element[] => 
         (partnerList || []).map((partner:PartnerListItem, index:number) => 
             <PendingPrayerPartnerListItem partner={partner} key={index} buttonText={pendingContract ? 'View Contract' : 'Decline'}
-                onButtonPress={(id, partnerItem) => { pendingContract ? acceptPartnershipRequest(partnerItem) : declinePartnershipRequest(partnerItem) }} />
+                onButtonPress={(id, partnerItem) => { pendingContract ? (() => {setNewPartner(partner); setNewPartnerModalVisible(true)})() : declinePartnershipRequest(partnerItem) }} />
     );
 
     const acceptPartnershipRequest = (partner:PartnerListItem) => {
@@ -120,8 +120,9 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
             return;
         }
 
-        if ((Date.now() - NEW_PARTNER_REQUEST_TIMEOUT) < localStorageStateRef.settings.lastNewPartnerRequest) {
-            let timeoutEnd = Math.ceil(((localStorageStateRef.settings.lastNewPartnerRequest + parseInt(NEW_PARTNER_REQUEST_TIMEOUT.toString())) - Date.now()) / 3600000);
+        if ((Date.now() - parseInt(NEW_PARTNER_REQUEST_TIMEOUT)) < localStorageStateRef.settings.lastNewPartnerRequest) {
+            let timeoutEnd = Math.ceil(((localStorageStateRef.settings.lastNewPartnerRequest + parseInt(NEW_PARTNER_REQUEST_TIMEOUT)) - Date.now()) / 3600000); // round up to the nearest hour
+
             ToastQueueManager.show({message: `Please try again in ${timeoutEnd} hours`});
             return;
         }
