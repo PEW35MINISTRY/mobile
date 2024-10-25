@@ -10,7 +10,7 @@ import PEW35 from '../../assets/pew35-logo.png';
 import { SIGNUP_PROFILE_FIELDS_USER } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { LocalStorageState, RootState, resetAccount, setAccount, setStorageState } from '../redux-store';
+import { RootState, resetAccount, setAccount } from '../redux-store';
 import theme, { COLORS } from '../theme';
 import { Raised_Button, BackButton, CheckBox } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
@@ -27,7 +27,6 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
-    const localStorageStateRef = useAppSelector((state:RootState) => state.localStorage);
 
     const [populateDemoProfile, setPopulateDemoProfile] = useState<boolean>(false);
 
@@ -39,10 +38,6 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
           userID: response.data.userID,
           userProfile: response.data.userProfile,
         }));
-
-        const localSettings:LocalStorageState = {...localStorageStateRef, userID: response.data.userID, jwt: response.data.jwt}
-        dispatch(setStorageState(localSettings));
-        keychain.setGenericPassword(localSettings.userID.toString(), JSON.stringify(localSettings));
 
         // call callback via route
         navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true})
