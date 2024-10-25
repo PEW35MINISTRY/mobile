@@ -8,4 +8,5 @@ declare module '@env' {
     export const DOMAIN: string;
     export const ENVIRONMENT: string;
     export const NEW_PARTNER_REQUEST_TIMEOUT: string;
+    export const SETTINGS_VERSION: string;
 }
