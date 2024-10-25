@@ -14,7 +14,7 @@ import GOOGLE from '../../assets/logo-google.png';
 import LOGO from '../../assets/logo.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import TRANSPARENT from '../../assets/transparent.png';
-import { RootState, setAccount, setJWT, setStorageState } from '../redux-store';
+import store, { initializeAccountState, initializeSettingsState, RootState, setAccount } from '../redux-store';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { LOGIN_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
@@ -31,32 +31,20 @@ export interface LoginParamList {
 
 type LoginProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.LOGIN_ROUTE_NAME>;
 
+
 const Login = ({navigation, route}:LoginProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
 
-    const localUserID = useAppSelector((state: RootState) => state.localStorage.userID);
-    const localStorageStateRef = useAppSelector((state:RootState) => state.localStorage);
-
-    const onJWTLogin = () => {
-      if (localUserID > 0) {
-        axios.post(`${DOMAIN}/api/authenticate`, {}, {headers: {"jwt": localStorageStateRef.jwt}}).then((response:AxiosResponse) => {
-          dispatch(setJWT(response.data.jwt));
-          dispatch(setAccount({
-            jwt: response.data.jwt,
-            userID: response.data.userID,
-            userProfile: response.data.userProfile,
-          }));
-
-          // Only need to set the JWT, but setting userID as well to prevent client and server from getting out of sync while offline
-          keychain.setGenericPassword(response.data.userID.toString(), JSON.stringify({...localStorageStateRef, jwt: response.data.jwt}));
-          navigation.navigate(localStorageStateRef.settings.skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
-        }).catch((error:AxiosError<ServerErrorResponse>) => console.warn(error));
+    const onInitializeAccount = async () => {
+      if (await dispatch(initializeAccountState)) {
+        const skipAnimation = await dispatch(initializeSettingsState); 
+        navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
       }
     }
 
     const onEmailLogin = (formValues:Record<string, string | string[]>) => {
-        axios.post(`${DOMAIN}/login`, formValues).then(response => {   
+        axios.post(`${DOMAIN}/login`, formValues).then(async response => {   
 
           dispatch(setAccount({
               jwt: response.data.jwt,
@@ -64,11 +52,10 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
               userProfile: response.data.userProfile,
           }));
 
-          // Only need to set the JWT, but setting userID as well to prevent client and server from getting out of sync while offline
-          dispatch(setStorageState({...localStorageStateRef, userID: response.data.userID, jwt: response.data.jwt}));
-          keychain.setGenericPassword(response.data.userID.toString(), JSON.stringify({...localStorageStateRef, userID: response.data.userID, jwt: response.data.jwt}));
+          // load settings for the logged-in user
+          const skipAnimation = await dispatch(initializeSettingsState); 
 
-          navigation.navigate(localStorageStateRef.settings.skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
+          navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
     }
     
@@ -85,22 +72,13 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
     useEffect(() => {
       if (route.params !== undefined) {
         if (route.params.newAccount !== undefined) navigation.navigate(ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME)
-        else if (route.params.tryJWTLogin !== undefined) onJWTLogin();
+        else if (route.params.tryJWTLogin !== undefined) onInitializeAccount();
       }
     }, [route.params])
 
     useEffect(() => {
-      const getLocalStorage = async () => {
-        const result = await keychain.getGenericPassword();
-        if (result) dispatch(setStorageState(JSON.parse(result.password)));
-      }
-      if (route.params === undefined) getLocalStorage();
-    }, [])
-
-    useEffect(() => {
-      // only attempt auto-login for users that have accounts
-      if (route.params === undefined) onJWTLogin();
-    }, [localUserID])
+      onInitializeAccount();
+    }, []);
 
     return (
       <SafeAreaView style={theme.background_view}>
