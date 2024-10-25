@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import keychain from 'react-native-keychain'
 import { StyleSheet, View, TextStyle, Text, Modal, Linking, SafeAreaView, Platform } from 'react-native';
 import theme, { FONT_SIZES } from '../theme';
-import { BackButton, Outline_Button, Raised_Button } from '../widgets';
+import { BackButton, CheckBox, Outline_Button, Raised_Button } from '../widgets';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Partnerships from '../4-Partners/Partnerships';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { resetAccount, RootState, setAccount, setContacts, setSettings, setStorageState, updateProfile } from '../redux-store';
+import { clearSettings, resetAccount, resetSettings, RootState, setAccount, setContacts, setSettings, updateProfile } from '../redux-store';
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
@@ -16,9 +16,11 @@ import ToastQueueManager from '../utilities/ToastQueueManager';
 const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const dispatch = useAppDispatch();
-
+    const settingsRef = useAppSelector((state: RootState) => state.settings);
     const account = useAppSelector((state: RootState) => state.account);
+
     const [partnerModalVisible, setPartnerModalVisible] = useState(false);
+
     const RequestAccountHeader = {
         headers: {
           "jwt": account.jwt, 
@@ -27,13 +29,9 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const onLogout = () => {
         dispatch(resetAccount());
+        dispatch(clearSettings());
         navigation.popToTop();
-        navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME)
-    }
-
-    const onResetStorageState = () => {
-        // After calling, just reload the app
-        keychain.resetGenericPassword();
+        navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME);
     }
 
     return (
@@ -83,11 +81,14 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 {
                     ENVIRONMENT === "DEVELOPMENT" && 
                         <Outline_Button 
-                            text="Reset Local Storage State"
-                            onPress={() => onResetStorageState()}
+                            text="Reset Settings"
+                            onPress={() => dispatch(resetSettings())}
                             buttonStyle={styles.settingsButton}
                         />
                 }
+                 <View style={{marginVertical: 10}}>
+                    <CheckBox onChange={(value) => dispatch(setSettings({...settingsRef, skipAnimation: value}))} label='Skip logo animation on login' initialState={settingsRef.skipAnimation} />
+                </View>
                 <Raised_Button 
                     text="Logout"
                     onPress={() => onLogout()}
