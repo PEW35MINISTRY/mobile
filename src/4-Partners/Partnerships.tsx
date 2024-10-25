@@ -28,7 +28,7 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
     const maxPartners = useAppSelector((state: RootState) => state.account.userProfile.maxPartners);
-    const localStorageStateRef = useAppSelector((state:RootState) => state.localStorage);
+    const settingsRef = useAppSelector((state:RootState) => state.settings);
     const dispatch = useAppDispatch();
 
     const [prayerPartnersList, setPrayerPartnersList] = useState<PartnerListItem[]>([]);
@@ -76,10 +76,9 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
             else if (newPartner.status == PartnerStatusEnum.PARTNER) setPrayerPartnersList([...prayerPartnersList, partner]);
             else console.warn("unexpected new partner state");
 
-            const newStorageState = {...localStorageStateRef.settings, lastNewPartnerRequest: Date.now()}
+            const newStorageState = {...settingsRef, lastNewPartnerRequest: Date.now()}
 
             dispatch(setSettings(newStorageState));
-            keychain.setGenericPassword(localStorageStateRef.userID.toString(), JSON.stringify({...localStorageStateRef, settings: newStorageState}));
 
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
@@ -120,8 +119,8 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
             return;
         }
 
-        if ((Date.now() - parseInt(NEW_PARTNER_REQUEST_TIMEOUT)) < localStorageStateRef.settings.lastNewPartnerRequest) {
-            let timeoutEnd = Math.ceil(((localStorageStateRef.settings.lastNewPartnerRequest + parseInt(NEW_PARTNER_REQUEST_TIMEOUT)) - Date.now()) / 3600000); // round up to the nearest hour
+        if (settingsRef.lastNewPartnerRequest !== undefined && (Date.now() - parseInt(NEW_PARTNER_REQUEST_TIMEOUT)) < settingsRef.lastNewPartnerRequest) {
+            let timeoutEnd = Math.ceil(((settingsRef.lastNewPartnerRequest + parseInt(NEW_PARTNER_REQUEST_TIMEOUT)) - Date.now()) / 3600000); // round up to the nearest hour
 
             ToastQueueManager.show({message: `Please try again in ${timeoutEnd} hours`});
             return;
