@@ -1,6 +1,7 @@
 import { DOMAIN } from '@env';
-import axios, { AxiosError } from 'axios';
+import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useRef } from 'react';
+import keychain from 'react-native-keychain'
 import { GestureResponderEvent, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
@@ -13,7 +14,7 @@ import GOOGLE from '../../assets/logo-google.png';
 import LOGO from '../../assets/logo.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import TRANSPARENT from '../../assets/transparent.png';
-import { RootState, setAccount } from '../redux-store';
+import store, { initializeAccountState, initializeSettingsState, RootState, setAccount } from '../redux-store';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { LOGIN_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
@@ -25,28 +26,38 @@ import ToastQueueManager from '../utilities/ToastQueueManager';
 
 export interface LoginParamList {
   newAccount?:boolean
+  tryJWTLogin?:boolean
 }
 
 type LoginProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.LOGIN_ROUTE_NAME>;
+
 
 const Login = ({navigation, route}:LoginProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
 
-    const userID = useAppSelector((state: RootState) => state.account.userID);
-
-    const onLogin = (formValues:Record<string, string | string[]>) => {
-        axios.post(`${DOMAIN}/login`, formValues).then(response => {   
-                // Save for debugging
-                dispatch(setAccount({
-                    jwt: response.data.jwt,
-                    userID: response.data.userID,
-                    userProfile: response.data.userProfile,
-                }));
-                navigation.navigate(ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
+    const onInitializeAccount = async () => {
+      if (await dispatch(initializeAccountState)) {
+        const skipAnimation = await dispatch(initializeSettingsState); 
+        navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
+      }
     }
 
+    const onEmailLogin = (formValues:Record<string, string | string[]>) => {
+        axios.post(`${DOMAIN}/login`, formValues).then(async response => {   
+
+          dispatch(setAccount({
+              jwt: response.data.jwt,
+              userID: response.data.userID,
+              userProfile: response.data.userProfile,
+          }));
+
+          // load settings for the logged-in user
+          const skipAnimation = await dispatch(initializeSettingsState); 
+
+          navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
+    }
     
     const onGoogle = (event:GestureResponderEvent) => console.log(`Logging in via Google`);
 
@@ -59,8 +70,15 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
     const onSignUp = (event:GestureResponderEvent) => navigation.navigate(ROUTE_NAMES.SIGNUP_ROUTE_NAME);
 
     useEffect(() => {
-      if (route.params !== undefined) if (route.params.newAccount !== undefined) navigation.navigate(ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME);
+      if (route.params !== undefined) {
+        if (route.params.newAccount !== undefined) navigation.navigate(ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME)
+        else if (route.params.tryJWTLogin !== undefined) onInitializeAccount();
+      }
     }, [route.params])
+
+    useEffect(() => {
+      onInitializeAccount();
+    }, []);
 
     return (
       <SafeAreaView style={theme.background_view}>
@@ -68,7 +86,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
         <Image source={LOGO} style={styles.logo} resizeMode='contain'></Image>
         <FormInput 
           fields={LOGIN_PROFILE_FIELDS}
-          onSubmit={onLogin}
+          onSubmit={onEmailLogin}
           validateUniqueFields={false}
           ref={formInputRef}
         />

@@ -1,6 +1,7 @@
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
+import keychain from 'react-native-keychain'
 import { render } from 'react-dom';
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { GestureResponderEvent, Image, Modal, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -32,14 +33,14 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const onSignUp = (formValues:Record<string, string | string[]>) => {
       // send data to server
       axios.post(`${DOMAIN}/signup${populateDemoProfile ? '?populate=true' : ''}`, formValues).then(response => {
-            dispatch(setAccount({
-              jwt: response.data.jwt,
-              userID: response.data.userID,
-              userProfile: response.data.userProfile,
-              }));
+        dispatch(setAccount({
+          jwt: response.data.jwt,
+          userID: response.data.userID,
+          userProfile: response.data.userProfile,
+        }));
 
-          // call callback via route
-          navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true})
+        // call callback via route
+        navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true})
       }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       
     }

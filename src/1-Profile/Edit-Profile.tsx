@@ -1,5 +1,6 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
+import keychain from 'react-native-keychain'
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity, useWindowDimensions, SafeAreaView, Platform } from 'react-native';
 
@@ -10,11 +11,11 @@ import theme, { COLORS } from '../theme';
 
 import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
-import store from '../redux-store';
+import store, { setSettings } from '../redux-store';
 
 import { Controller, useForm } from "react-hook-form";
 import { RootState, updateProfile } from '../redux-store';
-import { BackButton, Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
+import { BackButton, CheckBox, Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ProfileEditRequestBody } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
@@ -32,7 +33,6 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
-    const userID = useAppSelector((state: RootState) => state.account.userID);
     
     const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
     const [partnersModalVisible, setPartnersModalVisible] = useState(false);
@@ -76,17 +76,18 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
             navigation.pop();
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       }
+
       else navigation.pop();
     }
 
     return (
       <SafeAreaView style={styles.backgroundView}>
-        <View style={theme.background_view}>
+        <View style={styles.backgroundView}>
           <TouchableOpacity
             onPress={() => setProfileImageSettingsModalVisible(true)}
 
           >
-            <View style={styles.profileImageContainer}>
+            <View style={styles.profileImageContainer} pointerEvents='none'>
               <ProfileImage />
               <View style={styles.floatingEditIcon}>
                 <Ionicons 
@@ -148,9 +149,10 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   backgroundView: {
-    //...theme.center,
     flex: 1,
-    backgroundColor: COLORS.black
+    backgroundColor: COLORS.black,
+    textAlign: "center",
+    alignItems: "center"
   },
   logo: {
     height: 175,

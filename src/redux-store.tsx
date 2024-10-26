@@ -1,10 +1,15 @@
-import type { PayloadAction } from '@reduxjs/toolkit';
+import type { Middleware, PayloadAction } from '@reduxjs/toolkit';
+import { DOMAIN, NEW_PARTNER_REQUEST_TIMEOUT, SETTINGS_VERSION } from '@env';
+import keychain, { UserCredentials } from 'react-native-keychain'
 import { configureStore, createAction, createReducer, createSlice } from '@reduxjs/toolkit';
-import React, { useState } from 'react';
+import React, { act, useState } from 'react';
 import { PartnerListItem, ProfileListItem, ProfileResponse } from './TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { CircleListItem } from './TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from './TypesAndInterfaces/routes';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { LoginResponseBody } from './TypesAndInterfaces/config-sync/api-type-sync/auth-types';
+import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 
 
 /******************************
@@ -17,19 +22,20 @@ export type AccountState = {
   userProfile: ProfileResponse,
 }
 
-const initialAccountState = {
+const initialAccountState:AccountState = {
   userID: -1,
   jwt: '',
   userProfile: {} as ProfileResponse
 }; 
 
 const accountSlice = createSlice({
-  name: 'accountSlice',
+  name: 'account',
   initialState: initialAccountState,
   reducers: {
     setAccount: (state, action:PayloadAction<AccountState>) => state = action.payload,
     resetAccount: () => initialAccountState,
     updateJWT: (state, action:PayloadAction<string>) => state = {...state, jwt: action.payload},
+    resetJWT: (state) => state = {...state, jwt: ''},
     updateProfile: (state, action:PayloadAction<ProfileResponse>) => state = {...state, userProfile: action.payload},
     updateProfileImage: (state, action:PayloadAction<string|undefined>) => state = {...state, userProfile: {...state.userProfile, image: action.payload}},
 
@@ -49,6 +55,7 @@ const accountSlice = createSlice({
 
     addContact: (state, action: PayloadAction<ProfileListItem>) => state = addListItem(state, action, 'contactList'),
     removeContact: (state, action: PayloadAction<number>) => state = removeListItem(state, action, 'contactList', 'userID'),
+    setContacts: (state, action: PayloadAction<ProfileListItem[]>) => state = {...state, userProfile: {...state.userProfile, contactList: action.payload}},
 
     addOwnedPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = addListItem(state, action, 'ownedPrayerRequestList'),
     removeOwnedPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'ownedPrayerRequestList', 'prayerRequestID'),
@@ -60,24 +67,33 @@ const accountSlice = createSlice({
 export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfileImage, 
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
-      addContact, removeContact, addOwnedPrayerRequest, removeOwnedPrayerRequest
+      addContact, removeContact, setContacts, addOwnedPrayerRequest, removeOwnedPrayerRequest
     } = accountSlice.actions;
 
+  export const saveJWTMiddleware:Middleware = store => next => action => {
+    const result = next(action);
+
+    if(action.type === setAccount.type || action.type === updateJWT.type) {
+      keychain.setGenericPassword('jwt', store.getState().account.jwt, {service: "jwt"});
+    }
+
+    return result;
+};
 
 /******************************
    App Tab Navigation | Tab Redux Reducer
 *******************************/
 
 export type tabState = {
-  focustedTab: BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES
+  focusedTab: BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES
 }
 
-const initialTabState = {
+const initialTabState:tabState = {
   focusedTab: BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.DASHBOARD_NAVIGATOR_ROUTE_NAME
 }
 
 const tabSlice = createSlice({
-  name: "tabSlice",
+  name: "tabs",
   initialState: initialTabState,
   reducers: {
     setTabFocus: (state, action:PayloadAction<BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES>) => state = {focusedTab: action.payload}
@@ -97,13 +113,120 @@ const removeListItem = <T, K extends keyof ProfileResponse>(state:AccountState, 
     [listKey]: (state.userProfile[listKey] as T[] || []).filter((item:T) => item[idKey] !== action.payload)
   }});
 
+/**********************************************************
+ * REDUX MIDDLEWARE: for non-static/async state operations
+ **********************************************************/
 
+//Custom Redux (Static) Middleware: https://redux.js.org/tutorials/fundamentals/part-6-async-logic
+//Called directly in index.tsx: store.dispatch(initializeAccountState); 
+export const initializeAccountState = async(dispatch: (arg0: { payload: AccountState; type: 'account/setAccount'; }|{type: 'account/resetAccount'; }) => void, getState: () => any):Promise<boolean> => { 
+
+  const storedJWT:boolean | UserCredentials = await keychain.getGenericPassword({service: "jwt"});
+  const jwt = storedJWT ? storedJWT.password : '';
+
+  if(jwt === undefined || jwt === '') {
+    return false;
+  }
+
+  //Login via JWT
+  try {
+    const response:AxiosResponse = await axios.post(`${DOMAIN}/api/authenticate`, {}, { headers: { jwt }});
+    const account:AccountState = {
+      jwt: response.data.jwt,
+      userID: response.data.userID,
+      userProfile: response.data.userProfile,
+    };
+
+    //Save to Redux for current session
+    dispatch(setAccount(account));
+    return true;
+  }
+  catch {console.log("Auto attempt failed to Re-login with cached authentication"); return false} 
   
+}
+
+/*****************************************
+   SETTINGS | Redux Reducer
+   Temporary - for current session only
+******************************************/
+
+export type SettingsState = {
+  version:number, //Settings version to indicate local storage reset
+  skipAnimation:boolean,
+  lastNewPartnerRequest:number|undefined, //timestamp
+}
+
+const initialSettingsState:SettingsState = {
+  version: parseInt(SETTINGS_VERSION ?? '1', 10),
+  skipAnimation: false,
+  lastNewPartnerRequest: undefined,
+};
+
+//Use as default; but don't save to local storage
+export const DEFAULT_LAST_NEW_PARTNER_REQUEST:number = Date.now() - parseInt(process.env.REACT_APP_NEW_PARTNER_TIMEOUT ?? '3600000', 10);  //1 hour ago
+ 
+const settingsSlice = createSlice({
+  name: 'settings',
+  initialState: initialSettingsState,
+  reducers: {
+    setSettings: (state, action:PayloadAction<SettingsState>) => state = {...action.payload},
+    resetSettings: () => initialSettingsState,
+    clearSettings: () => initialSettingsState,
+    setSkipAnimation: (state, action:PayloadAction<boolean>) => state = {...state, skipAnimation: action.payload},
+    setLastNewPartnerRequest: (state) => state = {...state, lastNewPartnerRequest: Date.now()},
+    resetLastNewPartnerRequest: (state) => state = {...state, lastNewPartnerRequest: undefined},    
+  },
+});
+
+//Export Dispatch Actions
+export const { setSettings, resetSettings, setSkipAnimation, 
+    setLastNewPartnerRequest, resetLastNewPartnerRequest, clearSettings
+} = settingsSlice.actions;
+
+
+export const initializeSettingsState = async(dispatch: (arg0: { payload: SettingsState; type: 'settings/setSettings'; }|{type: 'settings/resetSettings'; }) => void, getState: () => any):Promise<boolean> => {
+    try {
+        const userID = store.getState().account.userID.toString();
+        const localStorageSettings:boolean | UserCredentials = await keychain.getGenericPassword({service: userID});
+        const savedSettings:SettingsState = localStorageSettings ? JSON.parse(localStorageSettings.password) : initialSettingsState;
+        if(!isNaN(savedSettings.version) && (savedSettings.version == parseInt(SETTINGS_VERSION ?? '1'))) {
+          dispatch(setSettings(savedSettings));
+          return savedSettings.skipAnimation;
+        }
+        else {
+          console.warn("Invalid settings configuration, or settings version changed.");
+          dispatch(setSettings({...initialSettingsState, ...savedSettings}));
+          return false;
+        }
+    } catch (error) {
+        console.error('REDUX Settings | localStorage initialization failed: ', error);
+        dispatch(resetSettings());
+        return false;
+    }
+};
+
+export const saveSettingsMiddleware:Middleware = store => next => action => {
+  const result = next(action);
+
+  if(Object.values(settingsSlice.actions).map(action => action.type).includes(action.type) && action.type !== resetSettings.type) {
+    const storeRef = store.getState();
+    const settingsState: RootState['settings'] = storeRef.settings;
+    keychain.setGenericPassword('settings', JSON.stringify(settingsState), {service: storeRef.account.userID.toString()});
+
+  } else if(action.type === resetSettings.type) {
+    const userID = store.getState().account.userID.toString();
+    keychain.resetGenericPassword({service: userID});
+  }
+  return result;
+};
+
 const store = configureStore({
     reducer: {
       account: accountSlice.reducer,
-      navigationTab: tabSlice.reducer
-    }
+      navigationTab: tabSlice.reducer,
+      settings: settingsSlice.reducer
+    },
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(saveJWTMiddleware, saveSettingsMiddleware),
 });
 
 export default store;

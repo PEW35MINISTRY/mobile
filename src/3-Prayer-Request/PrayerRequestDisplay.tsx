@@ -1,7 +1,7 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, KeyboardAvoidingView } from 'react-native';
 import { PrayerRequestCommentListItem, PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { removeOwnedPrayerRequest, RootState } from '../redux-store';
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
         right: 10
     },
     commentCreateView: {
-        height: '50%',
+        height: '65%',
         marginTop: 'auto',
     }
 })

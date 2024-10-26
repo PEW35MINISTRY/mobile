@@ -2,9 +2,9 @@ import { TouchableOpacity, View, Image, SafeAreaView } from "react-native"
 import React, { useEffect, useRef, useState } from 'react';
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 //@ts-ignore - the file exists
-import PEW_35_ANIMATED_LOGO from '../../../assets/Mobile-Persist-600px-GIF.gif';
-import { ROUTE_NAMES } from "../../TypesAndInterfaces/routes";
-import { StackNavigationProps } from "../../TypesAndInterfaces/custom-types";
+import PEW_35_ANIMATED_LOGO from '../../assets/Mobile-Persist-600px-GIF.gif';
+import { ROUTE_NAMES } from "../TypesAndInterfaces/routes";
+import { StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { StackActions } from '@react-navigation/native';
 
 const AnimatedLogo = (props:StackNavigationProps):JSX.Element => {
