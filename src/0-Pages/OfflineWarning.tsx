@@ -9,7 +9,7 @@ import { StackActions } from '@react-navigation/native';
 import { Raised_Button } from "../widgets";
 import theme, { COLORS, FONTS } from "../theme";
 import keychain from 'react-native-keychain'
-import { LocalStorageState, RootState, setAccount, setJWT } from "../redux-store";
+import { RootState, setAccount } from "../redux-store";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { DOMAIN } from "@env";
 import { navigationRef } from "../App";
@@ -19,7 +19,7 @@ import ToastQueueManager from "../utilities/ToastQueueManager";
 
 const OfflineWarning = (props:StackNavigationProps):JSX.Element => {
 
-    const skipAnimation = useAppSelector((state:RootState) => state.localStorage.settings.skipAnimation);
+    const skipAnimation = useAppSelector((state:RootState) => state.settings.skipAnimation);
     const dispatch = useAppDispatch();
 
     const connectionCheckAuthenticate = async () => {
