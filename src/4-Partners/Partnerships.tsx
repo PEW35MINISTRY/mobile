@@ -119,8 +119,8 @@ const Partnerships = (props:{callback?:(() => void), continueNavigation?:boolean
             return;
         }
 
-        if (settingsRef.lastNewPartnerRequest !== undefined && (Date.now() - parseInt(NEW_PARTNER_REQUEST_TIMEOUT)) < settingsRef.lastNewPartnerRequest) {
-            let timeoutEnd = Math.ceil(((settingsRef.lastNewPartnerRequest + parseInt(NEW_PARTNER_REQUEST_TIMEOUT)) - Date.now()) / 3600000); // round up to the nearest hour
+        if (settingsRef.lastNewPartnerRequest !== undefined && (Date.now() - parseInt(NEW_PARTNER_REQUEST_TIMEOUT ?? '3600000')) < settingsRef.lastNewPartnerRequest) {
+            let timeoutEnd = Math.ceil(((settingsRef.lastNewPartnerRequest + parseInt(NEW_PARTNER_REQUEST_TIMEOUT ?? '3600000')) - Date.now()) / 3600000); // round up to the nearest hour
 
             ToastQueueManager.show({message: `Please try again in ${timeoutEnd} hours`});
             return;
