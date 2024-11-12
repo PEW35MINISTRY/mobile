@@ -158,7 +158,7 @@ export const PendingPrayerPartnerListItem = (props:{partner:PartnerListItem, but
 
 
 export const PartnershipContractModal = ({visible, partner, acceptPartnershipRequest, declinePartnershipRequest, onClose}:{visible:boolean, partner:PartnerListItem, 
-        acceptPartnershipRequest:(id:number, item:PartnerListItem) => void, declinePartnershipRequest:(id:number, item:PartnerListItem) => void, onClose:() => void}) => {
+        acceptPartnershipRequest:(id:number, item:PartnerListItem) => void, declinePartnershipRequest?:(id:number, item:PartnerListItem) => void, onClose:() => void}) => {
     
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
 
@@ -199,7 +199,7 @@ export const PartnershipContractModal = ({visible, partner, acceptPartnershipReq
                     />
                     <Outline_Button 
                         text={'Decline'}
-                        onPress={() => declinePartnershipRequest(partner.userID, partner)}
+                        onPress={() => declinePartnershipRequest !== undefined && declinePartnershipRequest(partner.userID, partner)}
                     />
                 </View>
             </View>

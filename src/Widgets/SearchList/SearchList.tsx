@@ -30,7 +30,6 @@ import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-s
  *********************************************************************************/
 const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, backButtonNavigation?:NativeStackNavigationProp<any, string, undefined>, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, additionalHeaderRows?:JSX.Element[], headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
     const jwt:string = useAppSelector((state) => state.account.jwt);
-    //console.log(props);
     /* Style property for headerContainerStyle since it references the key prop */
     const headerContainerStyle = StyleSheet.create({
         headerContainer: {
