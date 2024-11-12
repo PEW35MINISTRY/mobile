@@ -14,7 +14,7 @@ import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import { RootSiblingParent } from 'react-native-root-siblings';
 
-const ProfileImageSettings = (props:{callback:() => void, continueNavigation?:boolean}):JSX.Element => {
+const ProfileImageSettings = (props:{callback:(val:number) => void, continueNavigation?:boolean}):JSX.Element => {
     const dispatch = useAppDispatch();
     const DEFAULT_PROFILE_ICON = require("../../assets/profile-icon-blue.png");
 
@@ -139,7 +139,7 @@ const ProfileImageSettings = (props:{callback:() => void, continueNavigation?:bo
             <Raised_Button buttonStyle={styles.doneButton}
                 text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
                 // since we don't know if we want to pop the screen off the stack or not, let the parent screen decide, not the component.
-                onPress={props.callback}
+                onPress={() => props.callback(1)}
             />
         </SafeAreaView>
       </RootSiblingParent>
