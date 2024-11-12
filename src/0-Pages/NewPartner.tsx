@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { addPartnerPendingPartner, RootState, setSettings } from "../redux-store";
+import { addPartnerPendingPartner, RootState, setLastNewPartnerRequest, setSettings } from "../redux-store";
 import { PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { DOMAIN } from "@env";
@@ -26,7 +26,7 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
         userID: -1,
         firstName: "",
         displayName: ""
-    } as PartnerListItem);
+    });
 
     const RequestAccountHeader = {
         headers: {
@@ -37,8 +37,8 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
     const POST_NewPartner = (callbackState:number) => {
         if (callbackState < 0 && props.callback !== undefined) {props.callback(-1); return} 
 
-        axios.post(`${DOMAIN}/api/user/` + userID + '/new-partner', {}, RequestAccountHeader).then((response:AxiosResponse) => {
-            setNewPartner(response.data as PartnerListItem);
+        axios.post(`${DOMAIN}/api/user/` + userID + '/new-partner', {}, RequestAccountHeader).then((response:AxiosResponse<PartnerListItem>) => {
+            setNewPartner(response.data);
             setRequestNewPartnerModalVisible(true);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
@@ -46,8 +46,7 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
     const acceptPartnershipRequest = () => {
         axios.post(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/accept', {}, RequestAccountHeader).then((response:AxiosResponse) => {
             dispatch(addPartnerPendingPartner(newPartner));
-            const newStorageState = {...settingsRef, lastNewPartnerRequest: Date.now()}
-            dispatch(setSettings(newStorageState));
+            dispatch(setLastNewPartnerRequest());
 
             setRequestNewPartnerModalVisible(false);
             props.callback !== undefined && props.callback(1);
