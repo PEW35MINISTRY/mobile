@@ -6,7 +6,7 @@ import ToastQueueManager from "../../utilities/ToastQueueManager";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { DOMAIN } from "@env";
 import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
-import { RootState, updateProfile } from "../../redux-store";
+import { RootState, updateProfile, updateWalkLevel } from "../../redux-store";
 import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import { BackButton, Raised_Button } from "../../widgets";
 import { RootSiblingParent } from 'react-native-root-siblings';
@@ -23,10 +23,8 @@ const WalkLevelQuiz = (props:{callback?:((val:number) => void)}):JSX.Element => 
     const [walkLevelValue, setWalkLevelValue] = useState(Math.floor(userProfile.walkLevel / 2));
 
     const onSaveWalkLevel = () => {
-        //@ts-ignore
         const walkLevel = walkLevelValue * walkLevelMultiplier;
-        const updatedProfile = {...userProfile, walkLevel: walkLevel}
-        dispatch(updateProfile(updatedProfile));
+        dispatch(updateWalkLevel(walkLevel));
         
         axios.patch(`${DOMAIN}/api/user/${userID}/walk-level`, { walkLevel }, {headers: {"jwt": jwt}}).then((response:AxiosResponse) => {
             props.callback !== undefined && props.callback(1)
