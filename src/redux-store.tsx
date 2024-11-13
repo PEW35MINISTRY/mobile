@@ -38,6 +38,7 @@ const accountSlice = createSlice({
     resetJWT: (state) => state = {...state, jwt: ''},
     updateProfile: (state, action:PayloadAction<ProfileResponse>) => state = {...state, userProfile: action.payload},
     updateProfileImage: (state, action:PayloadAction<string|undefined>) => state = {...state, userProfile: {...state.userProfile, image: action.payload}},
+    updateWalkLevel: (state, action:PayloadAction<number>) => state = {...state, userProfile: {...state.userProfile, walkLevel: action.payload}},
 
     addMemberCircle: (state, action:PayloadAction<CircleListItem>) => state = addListItem(state, action, 'circleList'),
     removeMemberCircle: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'circleList', 'circleID'),
@@ -67,7 +68,7 @@ const accountSlice = createSlice({
 export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfileImage, 
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
-      addContact, removeContact, setContacts, addOwnedPrayerRequest, removeOwnedPrayerRequest
+      addContact, removeContact, setContacts, addOwnedPrayerRequest, removeOwnedPrayerRequest, updateWalkLevel
     } = accountSlice.actions;
 
   export const saveJWTMiddleware:Middleware = store => next => action => {

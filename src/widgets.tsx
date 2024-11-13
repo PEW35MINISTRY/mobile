@@ -472,7 +472,7 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
 
 export const SelectSlider = (props:{minValue:number, maxValue:number, defaultValue: number, maxField?:string, onValueChange:((val:string) => void), label?:string, validationLabel?:string, labelStyle?:TextStyle, validationStyle?:TextStyle}):JSX.Element => {
 
-    const [sliderValue, setSliderValue] = useState<number>(props.defaultValue);
+    const [sliderValue, setSliderValue] = useState<number>(isNaN(props.defaultValue) ? props.minValue : props.defaultValue);
 
     const onSliderValueChange = (value:number) => {
         setSliderValue(value);

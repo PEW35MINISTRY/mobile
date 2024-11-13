@@ -10,6 +10,8 @@ import theme, { COLORS } from "../theme";
 import ProfileImageSettings from "./ProfileImageSettings";
 import { ROUTE_NAMES } from "../TypesAndInterfaces/routes";
 import Partnerships from "../4-Partners/Partnerships";
+import WalkLevelQuiz from "../Widgets/WalkLevelQuiz/WalkLevelQuiz";
+import NewPartner from "../0-Pages/NewPartner";
 
 const InitialAccountFlow = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -19,11 +21,9 @@ const InitialAccountFlow = ({navigation}:StackNavigationProps):JSX.Element => {
     
     const [accountInitComponents, setAccountInitComponents] = useState<JSX.Element[]>([
       <ProfileImageSettings 
-        callback={() => incrementAccountComponentIndex()} continueNavigation={true}
+        callback={(val) => changeAccountComponentIndex(val)} continueNavigation={true}
       />,
-      <Partnerships 
-        callback={() => incrementAccountComponentIndex()} continueNavigation={false}
-      />
+      <NewPartner callback={(val) => changeAccountComponentIndex(val)} />
     ]);
 
     const [componentsLength, setComponentsLength] = useState<number>(accountInitComponents.length);
@@ -35,8 +35,8 @@ const InitialAccountFlow = ({navigation}:StackNavigationProps):JSX.Element => {
 
     }, [componentIndex])
 
-    const incrementAccountComponentIndex = () => {
-      setComponentIndex((val) => val+1);
+    const changeAccountComponentIndex = (change:number) => {
+      setComponentIndex((val) => ((change === -1 && val > 0 ) || change === 1) ? val+change : val);
     }
 
     const renderSetupProp = () => {
@@ -54,7 +54,7 @@ const InitialAccountFlow = ({navigation}:StackNavigationProps):JSX.Element => {
 
     return (
         <SafeAreaView style={styles.backgroundView}>
-            <View style={styles.background_view}>
+            <View style={styles.backgroundView}>
                 {renderSetupProp()}
              </View>
         </SafeAreaView>
@@ -62,50 +62,9 @@ const InitialAccountFlow = ({navigation}:StackNavigationProps):JSX.Element => {
 }
 
 const styles = StyleSheet.create({
-    ...theme, 
-    infoView: {
-        ...theme.background_view,
-        justifyContent: "center",
-        alignItems: "center",
-        alignSelf: "auto"
-      },
       backgroundView: {
-        ...theme.center,
-        backgroundColor: COLORS.black
-      },
-      imageUploadButton: {
-        height: 45,
-        minWidth: 100,
-        marginTop: 20,
-        marginHorizontal: 10
-      },
-      imageUploadButtonText: {
-        fontSize: 20
-      },
-      doneButton: {
-        height: 50,
-        position: "absolute",
-        bottom: 20
-      },
-      titleText: {
-        ...theme.header,
-        marginBottom: 10,
-        textAlign: "center"
-      },
-      profileImage: {
-        height: 200,
-        width: 200,
-        borderRadius: 15,
-        alignSelf: "center"
-
-      },
-      titleView: {
-        position: "absolute",
-        top: 20
-      },
-      inlineImageButtons: {
-        flexDirection: "row",
-        justifyContent: "space-evenly",
+        backgroundColor: COLORS.black,
+        flex: 1
       }
 })
 
