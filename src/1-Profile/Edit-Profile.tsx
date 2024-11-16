@@ -24,6 +24,8 @@ import { FormInput } from '../Widgets/FormInput/FormInput';
 import Partnerships from '../4-Partners/Partnerships';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
+import Slider from '@react-native-community/slider';
+
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -85,7 +87,6 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
         <View style={styles.backgroundView}>
           <TouchableOpacity
             onPress={() => setProfileImageSettingsModalVisible(true)}
-
           >
             <View style={styles.profileImageContainer} pointerEvents='none'>
               <ProfileImage />
@@ -98,52 +99,49 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               </View>
             </View>
           </TouchableOpacity>
-            <Text style={styles.header}>Edit Profile</Text>
-              <FormInput 
-                fields={EDIT_PROFILE_FIELDS}
-                defaultValues={userProfile}
-                onSubmit={onEditProfile}
-                ref={formInputRef}
-              />
-            <Outline_Button 
-              text={"Partnerships"}
-              onPress={()=> setPartnersModalVisible(true)}
-              buttonStyle={{borderRadius: 5, width: 250}}
+          <Text style={styles.header}>Edit Profile</Text>
+          <FormInput 
+            fields={EDIT_PROFILE_FIELDS}
+            defaultValues={userProfile}
+            onSubmit={onEditProfile}
+            ref={formInputRef}
+          />
+          <Outline_Button 
+            text={"Partnerships"}
+            onPress={()=> setPartnersModalVisible(true)}
+            buttonStyle={{borderRadius: 5, width: 250}}
+          />
+          <Raised_Button buttonStyle={styles.sign_in_button}
+              text='Save Changes'
+              onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
+          />
+          <Modal
+            visible={profileImageSettingsModalVisible}
+            onRequestClose={() => setProfileImageSettingsModalVisible(false)}
+            animationType='slide'
+            transparent={true}
+          >
+            <ProfileImageSettings 
+              callback={() => setProfileImageSettingsModalVisible(false)}
             />
-            <Raised_Button buttonStyle={styles.sign_in_button}
-                text='Save Changes'
-                onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
+          </Modal>
+          <Modal
+            visible={partnersModalVisible}
+            onRequestClose={() => setPartnersModalVisible(false)}
+            animationType='slide'
+            transparent={true}
+          >
+            <Partnerships
+              callback={() => setPartnersModalVisible(false)}
             />
-
-            <Modal
-              visible={profileImageSettingsModalVisible}
-              onRequestClose={() => setProfileImageSettingsModalVisible(false)}
-              animationType='slide'
-              transparent={true}
-            >
-              <ProfileImageSettings 
-                callback={() => setProfileImageSettingsModalVisible(false)}
-              />
-            </Modal>
-            <Modal
-              visible={partnersModalVisible}
-              onRequestClose={() => setPartnersModalVisible(false)}
-              animationType='slide'
-              transparent={true}
-            >
-              <Partnerships
-                callback={() => setPartnersModalVisible(false)}
-              />
-            </Modal>
+          </Modal>
         </View>
-            <BackButton navigation={navigation} callback={() => navigation.pop()} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
-      </SafeAreaView>
-        
+        <BackButton navigation={navigation} callback={() => navigation.pop()} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
+      </SafeAreaView>        
     );
 }
 
 const styles = StyleSheet.create({
-  ...theme,
   header: {
     ...theme.header,
     marginVertical: 20,
@@ -151,7 +149,6 @@ const styles = StyleSheet.create({
   backgroundView: {
     flex: 1,
     backgroundColor: COLORS.black,
-    textAlign: "center",
     alignItems: "center"
   },
   logo: {
