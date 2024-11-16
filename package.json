@@ -20,8 +20,8 @@
     "buildAndStart": "npm run build && npm run watchAndStart"
   },
   "dependencies": {
-    "@react-native-assets/slider": "^7.1.1",
     "@react-native-community/datetimepicker": "^7.6.2",
+    "@react-native-community/slider": "^4.5.5",
     "@react-navigation/bottom-tabs": "^6.5.8",
     "@react-navigation/drawer": "^6.6.3",
     "@react-navigation/native": "^6.1.6",
