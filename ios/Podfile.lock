@@ -1129,7 +1129,7 @@ PODS:
     - React-Core
   - RNInAppBrowser (3.4.0):
     - React
-  - RNKeychain (9.0.0):
+  - RNKeychain (9.2.2):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1448,7 +1448,7 @@ SPEC CHECKSUMS:
   RNDateTimePicker: 4f3c4dbd4f908be32ec8c93f086e8924bd4a2e07
   RNGestureHandler: 1155b1898ceddefeebf77792927360d44fe11e77
   RNInAppBrowser: c1a0dad2734458d79bcb6c8f4297ba8658a1da9f
-  RNKeychain: 8ca3a8ab36b2e67c961199132d96f3291e7696ac
+  RNKeychain: 4b4e8c588f3d4bdc82aeaabd3078b11701f130a0
   RNReanimated: ba95f6d26ca4b8a8f7f2b15f62a3513750762f6b
   RNScreens: 29418ceffb585b8f0ebd363de304288c3dce8323
   RNVectorIcons: 96e8c5c45609932bb2f8347e1c709bcca0e95654
