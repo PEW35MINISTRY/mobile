@@ -72,14 +72,12 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
             <View style={styles.youTubePlayerPage}>
               <BackButton callback={() => setShowYouTube(false)}
               />
-              <View style={styles.youTubePlayer}>
                 <YoutubePlayer
                   height={Dimensions.get('window').height * 0.5}
                   width={Dimensions.get('window').width}
                   videoId={extractYouTubeVideoId(item.url) || ''}
                   play={true}
                 />
-              </View>
             </View>
           </Modal>
         </View>

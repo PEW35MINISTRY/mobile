@@ -1,5 +1,6 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
+import keychain from 'react-native-keychain'
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity, useWindowDimensions, SafeAreaView, Platform } from 'react-native';
 
@@ -10,11 +11,11 @@ import theme, { COLORS } from '../theme';
 
 import HANDS from '../../assets/hands.png';
 import PEW35 from '../../assets/pew35-logo.png';
-import store from '../redux-store';
+import store, { setSettings } from '../redux-store';
 
 import { Controller, useForm } from "react-hook-form";
 import { RootState, updateProfile } from '../redux-store';
-import { BackButton, Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
+import { BackButton, CheckBox, Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ProfileEditRequestBody } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
@@ -23,6 +24,8 @@ import { FormInput } from '../Widgets/FormInput/FormInput';
 import Partnerships from '../4-Partners/Partnerships';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
+import Slider from '@react-native-community/slider';
+
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
 //const validPasswordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -32,7 +35,6 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
-    const userID = useAppSelector((state: RootState) => state.account.userID);
     
     const [profileImageSettingsModalVisible, setProfileImageSettingsModalVisible] = useState(false);
     const [partnersModalVisible, setPartnersModalVisible] = useState(false);
@@ -76,6 +78,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
             navigation.pop();
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       }
+
       else navigation.pop();
     }
 
@@ -84,7 +87,6 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
         <View style={styles.backgroundView}>
           <TouchableOpacity
             onPress={() => setProfileImageSettingsModalVisible(true)}
-
           >
             <View style={styles.profileImageContainer} pointerEvents='none'>
               <ProfileImage />
@@ -97,52 +99,49 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               </View>
             </View>
           </TouchableOpacity>
-            <Text style={styles.header}>Edit Profile</Text>
-              <FormInput 
-                fields={EDIT_PROFILE_FIELDS}
-                defaultValues={userProfile}
-                onSubmit={onEditProfile}
-                ref={formInputRef}
-              />
-            <Outline_Button 
-              text={"Partnerships"}
-              onPress={()=> setPartnersModalVisible(true)}
-              buttonStyle={{borderRadius: 5, width: 250}}
+          <Text style={styles.header}>Edit Profile</Text>
+          <FormInput 
+            fields={EDIT_PROFILE_FIELDS}
+            defaultValues={userProfile}
+            onSubmit={onEditProfile}
+            ref={formInputRef}
+          />
+          <Outline_Button 
+            text={"Partnerships"}
+            onPress={()=> setPartnersModalVisible(true)}
+            buttonStyle={{borderRadius: 5, width: 250}}
+          />
+          <Raised_Button buttonStyle={styles.sign_in_button}
+              text='Save Changes'
+              onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
+          />
+          <Modal
+            visible={profileImageSettingsModalVisible}
+            onRequestClose={() => setProfileImageSettingsModalVisible(false)}
+            animationType='slide'
+            transparent={true}
+          >
+            <ProfileImageSettings 
+              callback={() => setProfileImageSettingsModalVisible(false)}
             />
-            <Raised_Button buttonStyle={styles.sign_in_button}
-                text='Save Changes'
-                onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
+          </Modal>
+          <Modal
+            visible={partnersModalVisible}
+            onRequestClose={() => setPartnersModalVisible(false)}
+            animationType='slide'
+            transparent={true}
+          >
+            <Partnerships
+              callback={() => setPartnersModalVisible(false)}
             />
-
-            <Modal
-              visible={profileImageSettingsModalVisible}
-              onRequestClose={() => setProfileImageSettingsModalVisible(false)}
-              animationType='slide'
-              transparent={true}
-            >
-              <ProfileImageSettings 
-                callback={() => setProfileImageSettingsModalVisible(false)}
-              />
-            </Modal>
-            <Modal
-              visible={partnersModalVisible}
-              onRequestClose={() => setPartnersModalVisible(false)}
-              animationType='slide'
-              transparent={true}
-            >
-              <Partnerships
-                callback={() => setPartnersModalVisible(false)}
-              />
-            </Modal>
+          </Modal>
         </View>
-            <BackButton navigation={navigation} callback={() => navigation.pop()} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
-      </SafeAreaView>
-        
+        <BackButton navigation={navigation} callback={() => navigation.pop()} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
+      </SafeAreaView>        
     );
 }
 
 const styles = StyleSheet.create({
-  ...theme,
   header: {
     ...theme.header,
     marginVertical: 20,
@@ -150,7 +149,6 @@ const styles = StyleSheet.create({
   backgroundView: {
     flex: 1,
     backgroundColor: COLORS.black,
-    textAlign: "center",
     alignItems: "center"
   },
   logo: {

@@ -153,6 +153,27 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
     }, [route.params]);
 
     const _circleMemberController = () => {
+        if (currCircleState?.leaderID === userID) return (
+            <>
+                {
+                    announcementsData.length !== 0 && 
+                    <View style={styles.announcementSection}>
+                        <Text style={styles.annoucementText}>Announcements</Text>
+                            <ScrollView horizontal={true} contentContainerStyle={styles.announcementScroll}>
+                                {renderAnnouncements()}
+                            </ScrollView>
+                    </View>
+                }
+
+                <View style={styles.PRSection}>
+                    <Text style={styles.PRHeaderText}>Prayer Requests</Text>
+                    <ScrollView style={styles.PRScroll}>
+                        {renderPrayerRequests()}
+                    </ScrollView>
+                </View>
+            </>
+        );
+
         switch(currCircleState?.requestorStatus || CircleStatusEnum.NONE) {
             case CircleStatusEnum.REQUEST:
                 // Pending Acceptance
@@ -263,6 +284,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                                 </View>
                             </View>
                             {
+                                // Fall-through case for circle leader
                                 (currCircleState.requestorStatus == CircleStatusEnum.MEMBER || currCircleState.requestorStatus == CircleStatusEnum.CONNECTED) && 
                                 <Raised_Button buttonStyle={styles.statusButton}
                                     text={"Leave Circle"}
