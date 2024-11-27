@@ -6,13 +6,13 @@ import theme, { COLORS, FONT_SIZES, RADIUS } from './theme';
 import { useAppDispatch, useAppSelector } from "./TypesAndInterfaces/hooks";
 import { RootState } from './redux-store';
 import { MultipleSelectList, SelectList, SelectListItem } from 'react-native-dropdown-select-list';
-import { Slider } from '@react-native-assets/slider'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ToastQueueManager from './utilities/ToastQueueManager';
 import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import { makeDisplayText } from './utilities/utilities';
 import formatRelativeDate from './utilities/dateFormat';
+import Slider from '@react-native-community/slider';
 
 /**************************************************
  * These are reusable widgets for app consistency *
@@ -519,7 +519,6 @@ export const SelectSlider = (props:{minValue:number, maxValue:number, defaultVal
                 value={props.defaultValue}
                 onValueChange={onSliderValueChange}
                 step={1}
-                slideOnTap={true}
                 thumbTintColor={COLORS.accent}
                 minimumTrackTintColor={COLORS.accent}
                 maximumTrackTintColor={COLORS.accent}
