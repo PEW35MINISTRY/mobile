@@ -215,8 +215,8 @@ export const saveSettingsMiddleware:Middleware = store => next => action => {
     keychain.setGenericPassword('settings', JSON.stringify(settingsState), {service: storeRef.account.userID.toString()});
 
   } else if(action.type === resetSettings.type) {
-    const userID = store.getState().account.userID.toString();
-    keychain.resetGenericPassword({service: userID});
+    const storeRef = store.getState();
+    keychain.setGenericPassword('settings', JSON.stringify(initialSettingsState), {service: storeRef.account.userID.toString()});
   }
   return result;
 };
