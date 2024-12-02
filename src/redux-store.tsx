@@ -10,7 +10,7 @@ import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from './TypesAndInterfa
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { LoginResponseBody } from './TypesAndInterfaces/config-sync/api-type-sync/auth-types';
 import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
-
+import { Notifications, Registered, RegistrationError, NotificationCompletion } from 'react-native-notifications';
 
 /******************************
    Account | Credentials Redux Reducer
@@ -121,6 +121,39 @@ const removeListItem = <T, K extends keyof ProfileResponse>(state:AccountState, 
 //Custom Redux (Static) Middleware: https://redux.js.org/tutorials/fundamentals/part-6-async-logic
 //Called directly in index.tsx: store.dispatch(initializeAccountState); 
 export const initializeAccountState = async(dispatch: (arg0: { payload: AccountState; type: 'account/setAccount'; }|{type: 'account/resetAccount'; }) => void, getState: () => any):Promise<boolean> => { 
+
+  // Request permissions on iOS, refresh token on Android
+  Notifications.registerRemoteNotifications();
+
+  Notifications.events().registerRemoteNotificationsRegistered((event: Registered) => {
+      // TODO: Send the token to my server so it could send back push notifications...
+      console.log("Device Token Received", event.deviceToken);
+  });
+  Notifications.events().registerRemoteNotificationsRegistrationFailed((event: RegistrationError) => {
+      console.error(event);
+  });
+
+  Notifications.events().registerNotificationReceivedForeground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
+    console.log("Notification Received - Foreground", notification.payload);
+
+    // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
+    completion({alert: true, sound: true, badge: true});
+      });
+
+  Notifications.events().registerNotificationOpened((notification: Notification, completion: () => void, action: NotificationActionResponse) => {
+    console.log("Notification opened by device user", notification.payload);
+    console.log(`Notification opened with an action identifier: ${action.identifier} and response text: ${action.text}`);
+    completion();
+      });
+      
+  Notifications.events().registerNotificationReceivedBackground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
+    console.log("Notification Received - Background", notification.payload);
+
+    Notifications.postLocalNotification(notification, notification.payload.message_id)
+
+    // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
+    completion({alert: true, sound: true, badge: true});
+      });
 
   const storedJWT:boolean | UserCredentials = await keychain.getGenericPassword({service: "jwt"});
   const jwt = storedJWT ? storedJWT.password : '';
