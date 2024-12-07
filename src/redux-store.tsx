@@ -142,14 +142,14 @@ export const initializeAccountState = async(dispatch: (arg0: { payload: AccountS
 
   Notifications.events().registerNotificationOpened((notification: Notification, completion: () => void, action: NotificationActionResponse) => {
     console.log("Notification opened by device user", notification.payload);
-    console.log(`Notification opened with an action identifier: ${action.identifier} and response text: ${action.text}`);
     completion();
       });
       
   Notifications.events().registerNotificationReceivedBackground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
     console.log("Notification Received - Background", notification.payload);
+    console.log(notification.payload["google.message_id"]);
 
-    Notifications.postLocalNotification(notification, notification.payload.message_id)
+    Notifications.postLocalNotification(notification, notification.payload["google.message_id"])
 
     // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
     completion({alert: true, sound: true, badge: true});
