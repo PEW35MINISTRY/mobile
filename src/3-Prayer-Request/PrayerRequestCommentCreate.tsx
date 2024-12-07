@@ -57,7 +57,7 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
       <RootSiblingParent>
         <View style={styles.center}>
           <View style={theme.background_view}>
-              <Text style={styles.header}>Create Comment</Text>
+              <Text allowFontScaling={false} style={styles.header}>Create Comment</Text>
                 <FormInput 
                   fields={PRAYER_REQUEST_COMMENT_FIELDS}
                   onSubmit={onCommentCreate}

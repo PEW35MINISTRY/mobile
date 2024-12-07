@@ -35,7 +35,7 @@ const OfflineWarning = (props:StackNavigationProps):JSX.Element => {
     return (
         <SafeAreaView style={styles.backgroundView}>
             <Image source={OFFLINE_LOGO} resizeMode={"contain"} style={{maxHeight: '90%', maxWidth: '90%'}}/>
-            <Text style={styles.connectionMessage}>The stone rolled away, and so has your connection to our server</Text>
+            <Text allowFontScaling={false} style={styles.connectionMessage}>The stone rolled away, and so has your connection to our server</Text>
             <Raised_Button buttonStyle={styles.connectButton}
                 text="I'm Connected"
                 onPress={() => connectionCheckAuthenticate()}

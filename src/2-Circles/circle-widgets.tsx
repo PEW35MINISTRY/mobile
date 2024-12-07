@@ -93,7 +93,7 @@ export const CircleTouchable = (props:{circleProps: CircleListItem, buttonText?:
                             circleID={props.circleProps.circleID}
                             style={styles.circleImage}
                         />
-                        <Text style={styles.circleNameText}>{props.circleProps.name}</Text>
+                        <Text allowFontScaling={false} style={styles.circleNameText}>{props.circleProps.name}</Text>
                         {(props.onButtonPress) &&
                             <Outline_Button
                                 text={props.buttonText || ''}
@@ -156,9 +156,9 @@ export const AnnouncementTouchable = (props:{announcement:CircleAnnouncementList
                 <View style={styles.headerContainer}>
                     {props.showCircleImage &&
                         <RequestorCircleImage circleID={props.announcement.circleID} style={styles.circleImage} />}
-                    <Text style={styles.date}>{formatRelativeDate(props.announcement.startDate || '', undefined, {shortForm: (props.shortDate === true), includeHours:true })}</Text>
+                    <Text allowFontScaling={false} style={styles.date}>{formatRelativeDate(props.announcement.startDate || '', undefined, {shortForm: (props.shortDate === true), includeHours:true })}</Text>
                 </View>
-                <Text style={styles.bodyText} ellipsizeMode='tail' >{props.announcement.message}</Text>
+                <Text allowFontScaling={false} style={styles.bodyText} ellipsizeMode='tail' >{props.announcement.message}</Text>
             </View>
         </TouchableOpacity>
     );
@@ -242,11 +242,11 @@ export const EventTouchable = (props:{circleEvent:CircleEventListItem, onPress:(
                 <View style={styles.header}>
                     <Image source={{uri: props.circleEvent.image}} style={styles.eventImage} resizeMode="contain"/>
                     <View style={styles.floating}>
-                        <Text style={styles.titleText}>{props.circleEvent.name}</Text>
-                        <Text style={styles.timeText}>{new Date(props.circleEvent.startDate as unknown as string).toDateString()}</Text>
+                        <Text allowFontScaling={false} style={styles.titleText}>{props.circleEvent.name}</Text>
+                        <Text allowFontScaling={false} style={styles.timeText}>{new Date(props.circleEvent.startDate as unknown as string).toDateString()}</Text>
                     </View>
                     <View style={styles.descriptionView}>
-                        <Text style={styles.descriptionText}>{props.circleEvent.description}</Text>
+                        <Text allowFontScaling={false} style={styles.descriptionText}>{props.circleEvent.description}</Text>
                     </View>
                     
 
@@ -365,14 +365,14 @@ export const CircleContact = (props:{circleRecipientData:RecipientFormCircleList
             <View style={styles.prayerRequestDataTopView}>
                 <RequestorCircleImage style={{height: 40, width: 40}} imageUri={props.circleRecipientData.image} circleID={props.circleRecipientData.circleID}/>
                 <View style={styles.middleData}>
-                    <Text style={styles.nameText}>{props.circleRecipientData.name}</Text>
+                    <Text allowFontScaling={false} style={styles.nameText}>{props.circleRecipientData.name}</Text>
                 </View>
                 <View style={styles.centerView}>
                     <TouchableOpacity 
                         onPress={handlePress}
                     >  
                         <View style={styles.shareButtonView}>
-                            <Text style={styles.textStyle}>{shareButtonText}</Text>
+                            <Text allowFontScaling={false} style={styles.textStyle}>{shareButtonText}</Text>
                         </View>
                     </TouchableOpacity>
                 </View>

@@ -29,8 +29,8 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
     const renderTags = ():JSX.Element[] => {
         const textProps:JSX.Element[] = [];
         (props.prayerRequestProp.tagList || []).forEach((tag:PrayerRequestTagEnum, index:number) => {
-            textProps.push(<Text style={styles.tagsText} key={tag + "|" + index}>{tag}</Text>);
-            textProps.push(<Text style={styles.tagsText} key={index + "|" + tag}>{"|"}</Text>);
+            textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={tag + "|" + index}>{tag}</Text>);
+            textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={index + "|" + tag}>{"|"}</Text>);
         })
         textProps.pop();
 
@@ -119,7 +119,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             <TouchableOpacity onPress={() => props.onPress && props.onPress(props.prayerRequestProp.prayerRequestID, props.prayerRequestProp)}>
                 <View style={styles.prayerRequestDataColumn}>
                     <View style={styles.prayerRequestDataRowLeft}>
-                        <Text style={styles.topicText}>{props.prayerRequestProp.topic}</Text>
+                        <Text allowFontScaling={false} style={styles.topicText}>{props.prayerRequestProp.topic}</Text>
                         <View style={styles.tagsView}>
                             {renderTags()}
                         </View>
@@ -130,7 +130,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
                             <RequestorProfileImage imageUri={props.prayerRequestProp.requestorProfile.image} userID={props.prayerRequestProp.requestorProfile.userID} style={styles.pfpStyle}/>
                             <View style={styles.socialDataView}>
                                 <Image source={PRAYER_ICON} style={{height: 15, width: 15}} />
-                                <Text style={styles.prayerCountText}>{prayerCount}</Text>
+                                <Text allowFontScaling={false} style={styles.prayerCountText}>{prayerCount}</Text>
                             </View>
                         </View>
                      
@@ -247,8 +247,8 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
 
   
                 <View style={styles.middleData}>
-                    <Text style={styles.nameText}>{props.commentProp.commenterProfile.displayName}</Text>
-                    <Text style={styles.bodyText}>{props.commentProp.message}</Text>
+                    <Text allowFontScaling={false} style={styles.nameText}>{props.commentProp.commenterProfile.displayName}</Text>
+                    <Text allowFontScaling={false} style={styles.bodyText}>{props.commentProp.message}</Text>
                 </View>
                 <View style={styles.verticalData}>
                     <View style={styles.commentDataView}>
@@ -259,7 +259,7 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
                                     color={COLORS.white}
                                     size={15}
                                 />
-                                    <Text style={styles.likeCountText}>{likeCount}</Text>
+                                    <Text allowFontScaling={false} style={styles.likeCountText}>{likeCount}</Text>
                             </View>
                         </TouchableOpacity>
                     </View>

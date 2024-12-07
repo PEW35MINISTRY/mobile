@@ -39,7 +39,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
         <TouchableOpacity onPress={() => setShowDescription(current => !current)} >
           <View style={styles.footerVertical}>
             <View style={styles.footerTitleRow}>
-              <Text style={styles.contentCardTitle}>{item.title}</Text>
+              <Text allowFontScaling={false} style={styles.contentCardTitle}>{item.title}</Text>
               <IconCounter 
                 initialCount={item.likeCount}
                 ionsIconsName='thumbs-up-outline'
@@ -47,12 +47,12 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
               />
             </View>
             <View style={styles.footerDetailRow}>
-              <Text style={styles.detailText} numberOfLines={1} ellipsizeMode='tail' >{makeDisplayText(item.source)}</Text>
-              <Text style={styles.verticalDivider}>|</Text>
+              <Text allowFontScaling={false} style={styles.detailText} numberOfLines={1} ellipsizeMode='tail' >{makeDisplayText(item.source)}</Text>
+              <Text allowFontScaling={false} style={styles.verticalDivider}>|</Text>
               <View style={styles.tagContainer}>
                 {[...(item.keywordList || [])].map((keyword, index) => (
                   <TouchableOpacity key={`${keyword}-${index}`} onPress={() => onKeywordPress && onKeywordPress(keyword)}>
-                    <Text style={styles.tag}>#{makeDisplayText(keyword)}</Text>
+                    <Text allowFontScaling={false} style={styles.tag}>#{makeDisplayText(keyword)}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -60,7 +60,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
 
             {(showDescription && item.description && item.description.length > 0) &&
               <View style={styles.descriptionContainer}>
-                <Text style={styles.text} >{item.description}</Text>
+                <Text allowFontScaling={false} style={styles.text} >{item.description}</Text>
               </View>
             }
 

@@ -158,7 +158,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                 {
                     announcementsData.length !== 0 && 
                     <View style={styles.announcementSection}>
-                        <Text style={styles.annoucementText}>Announcements</Text>
+                        <Text allowFontScaling={false} style={styles.annoucementText}>Announcements</Text>
                             <ScrollView horizontal={true} contentContainerStyle={styles.announcementScroll}>
                                 {renderAnnouncements()}
                             </ScrollView>
@@ -166,7 +166,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                 }
 
                 <View style={styles.PRSection}>
-                    <Text style={styles.PRHeaderText}>Prayer Requests</Text>
+                    <Text allowFontScaling={false} style={styles.PRHeaderText}>Prayer Requests</Text>
                     <ScrollView style={styles.PRScroll}>
                         {renderPrayerRequests()}
                     </ScrollView>
@@ -179,7 +179,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                 // Pending Acceptance
                 return (
                     <View>
-                        <Text style={styles.statusText}>Pending Acceptance</Text>
+                        <Text allowFontScaling={false} style={styles.statusText}>Pending Acceptance</Text>
                     </View>
                 )
                 break;
@@ -201,7 +201,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                         {
                             announcementsData.length !== 0 && 
                             <View style={styles.announcementSection}>
-                                <Text style={styles.annoucementText}>Announcements</Text>
+                                <Text allowFontScaling={false} style={styles.annoucementText}>Announcements</Text>
                                     <ScrollView horizontal={true} contentContainerStyle={styles.announcementScroll}>
                                         {renderAnnouncements()}
                                     </ScrollView>
@@ -209,7 +209,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                         }
 
                         <View style={styles.PRSection}>
-                            <Text style={styles.PRHeaderText}>Prayer Requests</Text>
+                            <Text allowFontScaling={false} style={styles.PRHeaderText}>Prayer Requests</Text>
                             <ScrollView style={styles.PRScroll}>
                                 {renderPrayerRequests()}
                             </ScrollView>
@@ -234,7 +234,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
         if (!dataFetchComplete || currCircleState === undefined) {
             return (
                 <View style={styles.container}>
-                    <Text style={styles.circleNameText}>Please Wait</Text>
+                    <Text allowFontScaling={false} style={styles.circleNameText}>Please Wait</Text>
                 </View>
                 
             )
@@ -251,7 +251,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                         />
                     </View>
                     <View style={styles.eventSection}>
-                        <Text style={styles.PRHeaderText}>Events</Text>
+                        <Text allowFontScaling={false} style={styles.PRHeaderText}>Events</Text>
                         <ScrollView horizontal={true} contentContainerStyle={styles.eventScroll}>
                             {renderEvents()}
                         </ScrollView>
@@ -270,17 +270,17 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                                     style={styles.circleImageInfoPage}
                                 />
                                 <View style={styles.circleNameHeader}> 
-                                    <Text style={styles.circleNameText}>{currCircleState.name}</Text>
+                                    <Text allowFontScaling={false} style={styles.circleNameText}>{currCircleState.name}</Text>
                                 </View>
                                
 
-                                <Text style={styles.circleLeaderText}>Circle Leader:</Text>
+                                <Text allowFontScaling={false} style={styles.circleLeaderText}>Circle Leader:</Text>
 
                                 <RequestorProfileImage imageUri={currCircleState.leaderProfile.image} style={styles.leaderImage} />
                                 
                                 <View>
-                                    <Text style={styles.leaderNameText}>{currCircleState.leaderProfile.displayName}</Text>
-                                    <Text style={styles.orgName}>Citadel, Owatonna</Text>
+                                    <Text allowFontScaling={false} style={styles.leaderNameText}>{currCircleState.leaderProfile.displayName}</Text>
+                                    <Text allowFontScaling={false} style={styles.orgName}>Citadel, Owatonna</Text>
                                 </View>
                             </View>
                             {
@@ -301,7 +301,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                         >
                              <View style={styles.modalView}>
                                 <XButton callback={() => setLeaveCircleModalVisible(false)} />
-                                <Text style={styles.modalHeaderText}>Are you sure you want to leave?</Text>
+                                <Text allowFontScaling={false} style={styles.modalHeaderText}>Are you sure you want to leave?</Text>
                                 <View style={{maxWidth: '70%', alignSelf: "center"}}>
                                     <Raised_Button buttonStyle={styles.statusButton}
                                         text={"Leave Circle"}

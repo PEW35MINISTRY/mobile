@@ -99,7 +99,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
               </View>
             </View>
           </TouchableOpacity>
-          <Text style={styles.header}>Edit Profile</Text>
+          <Text allowFontScaling={false} style={styles.header}>Edit Profile</Text>
           <FormInput 
             fields={EDIT_PROFILE_FIELDS}
             defaultValues={userProfile}

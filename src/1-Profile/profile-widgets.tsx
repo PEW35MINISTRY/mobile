@@ -155,14 +155,14 @@ export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileL
             <View style={styles.prayerRequestDataTopView}>
                 <RequestorProfileImage style={{height: 40, width: 40}} imageUri={props.profileRecipientData.image} userID={props.profileRecipientData.userID}/>
                 <View style={styles.middleData}>
-                    <Text style={styles.nameText}>{props.profileRecipientData.displayName}</Text>
+                    <Text allowFontScaling={false} style={styles.nameText}>{props.profileRecipientData.displayName}</Text>
                 </View>
                 <View style={styles.ShareButtonTopLevelView}>
                     <TouchableOpacity 
                         onPress={handlePress}
                     >  
                         <View style={styles.shareButtonView}>
-                            <Text style={styles.textStyle}>{shareButtonText}</Text>
+                            <Text allowFontScaling={false} style={styles.textStyle}>{shareButtonText}</Text>
                         </View>
                     </TouchableOpacity>
                 </View>

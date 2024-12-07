@@ -39,7 +39,7 @@ export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewSty
     });
 
     return ( <TouchableOpacity style={styles.buttonStyle} onPress={props.onPress}>
-                 <Text style={styles.textStyle}>{props.text}</Text>
+                 <Text allowFontScaling={false} style={styles.textStyle}>{props.text}</Text>
              </TouchableOpacity> );
 }
 
@@ -74,7 +74,7 @@ export const CheckBox = (props:{ label?: string, labelStyle?: object, iconColor?
     
       return (
         <View style={styles.wrapperCheckBox}>
-          <Text style={[styles.labelCheck, props.labelStyle]}>
+          <Text allowFontScaling={false} style={[styles.labelCheck, props.labelStyle]}>
             {props.label}
           </Text>
           <TouchableOpacity onPress={onChange} style={[
@@ -144,7 +144,7 @@ export const Page_Title = (props:{title:string, containerStyle?:ViewStyle, textS
     });
 
     return ( <View style={styles.containerStyle}>
-                <Text style={styles.textStyle}>{props.title}</Text>
+                <Text allowFontScaling={false} style={styles.textStyle}>{props.title}</Text>
             </View> );
 }
 
@@ -200,7 +200,7 @@ export const Tab_Selector = (props:{optionList:string[], defaultIndex:number|und
                             props.onDeselect();
                         }
                         }} >
-                        <Text style={(index === selectedIndex) ? [styles.text, styles.filterSelected] 
+                        <Text allowFontScaling={false} style={(index === selectedIndex) ? [styles.text, styles.filterSelected] 
                             : [styles.text, styles.filterNotSelected] }>{makeDisplayText(item)}</Text>
                     </TouchableOpacity>
                     {index < props.optionList.length - 1 && <View style={styles.divider} />}
@@ -251,8 +251,9 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
     });
 
     return ( <View style={styles.containerStyle}>
-                {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
+                {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
                 <TextInput
+                    allowFontScaling={false}
                     onFocus={()=>setLabelColor(COLORS.accent)}
                     onBlur={()=>setLabelColor(COLORS.transparentWhite)}
                     style={styles.inputStyle}
@@ -270,7 +271,7 @@ export const Input_Field = (props:{label?:string|JSX.Element, inputStyle?:TextSt
                     returnKeyType='done'
                     blurOnSubmit={true}
                 />
-                {props.validationLabel && <Text style={styles.validationStyle}>{props.validationLabel}</Text>}
+                {props.validationLabel && <Text allowFontScaling={false} style={styles.validationStyle}>{props.validationLabel}</Text>}
             </View> );
 }
 
@@ -375,7 +376,7 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
     
     return (
         <View style={styles.containerStyle} >
-            {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
+            {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
             <SelectList 
                 setSelected={(val: string) => props.setSelected(val)}
                 data={props.data}
@@ -395,7 +396,7 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
                     />
                 }
             />
-            {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
+            {props.validationLabel && <Text allowFontScaling={false} style={styles.errorTextStyle}>{props.validationLabel}</Text>}
 
         </View>
         
@@ -441,7 +442,7 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
     
     return (
         <View style={styles.containerStyle}>
-            {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
+            {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
             <MultipleSelectList 
                 setSelected={(val: string[]) => props.setSelected(val)}
                 data={props.data}
@@ -462,7 +463,7 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
                     />
                 }
              />
-            {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
+            {props.validationLabel && <Text allowFontScaling={false} style={styles.errorTextStyle}>{props.validationLabel}</Text>}
 
         </View>
         
@@ -511,8 +512,8 @@ export const SelectSlider = (props:{minValue:number, maxValue:number, defaultVal
 
     return (
         <View style={styles.containerStyle}>
-            {props.label && <Text style={styles.labelStyle}>{props.label}</Text>}
-            <Text style={styles.sliderValueText}>{sliderValue}</Text>
+            {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
+            <Text allowFontScaling={false} style={styles.sliderValueText}>{sliderValue}</Text>
             <Slider 
                 minimumValue={props.minValue}
                 maximumValue={props.maxValue}
@@ -523,7 +524,7 @@ export const SelectSlider = (props:{minValue:number, maxValue:number, defaultVal
                 minimumTrackTintColor={COLORS.accent}
                 maximumTrackTintColor={COLORS.accent}
             />
-            {props.validationLabel && <Text style={styles.errorTextStyle}>{props.validationLabel}</Text>}
+            {props.validationLabel && <Text allowFontScaling={false} style={styles.errorTextStyle}>{props.validationLabel}</Text>}
         </View>
     )
 }
@@ -665,7 +666,7 @@ export const IconCounter = (props:{initialCount:number, iconImage?:ImageSourcePr
                     size={theme.text.fontSize}
                 />
             }
-            {(count > 0) && <Text style={styles.likeCountText}>{count}</Text>}
+            {(count > 0) && <Text allowFontScaling={false} style={styles.likeCountText}>{count}</Text>}
         </View>
       </TouchableOpacity>
     )
