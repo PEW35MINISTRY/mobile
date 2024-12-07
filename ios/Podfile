@@ -10,6 +10,13 @@ prepare_react_native_project!
 
 pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
+pod 'GoogleUtilities/AppDelegateSwizzler', '~> 8.0', :modular_headers => true
+pod 'GoogleUtilities/Environment', '~> 8.0', :modular_headers => true
+pod 'GoogleUtilities/Reachability', '~> 8.0', :modular_headers => true
+pod 'GoogleUtilities/UserDefaults', '~> 8.0', :modular_headers => true
+pod 'FirebaseCore', :modular_headers => true
+
+pod 'FirebaseMessaging'
 
 # If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
 # because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
