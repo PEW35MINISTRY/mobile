@@ -36,7 +36,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
     return (
        <SafeAreaView style={styles.background}>
-            <Text style={styles.headerText}>Settings</Text>
+            <Text allowFontScaling={false} style={styles.headerText}>Settings</Text>
             <View style={styles.settingsButtonsView}>
                 <Outline_Button 
                     text={"Edit Profile"}

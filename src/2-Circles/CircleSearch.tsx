@@ -49,7 +49,7 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
 
     return (
         <SafeAreaView style={styles.modalView}>
-            <Text style={styles.modalHeaderText}>Search Circles</Text>
+            <Text allowFontScaling={false} style={styles.modalHeaderText}>Search Circles</Text>
             <Input_Field
                 value={circleSearchText}
                 onChangeText={setCircleSearchText}

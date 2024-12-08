@@ -207,7 +207,7 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
     return (
         <SafeAreaView style={styles.backgroundContainer}>
             <View style={styles.container}>
-                <Text style={styles.titleText}>Select Recipients</Text>
+                <Text allowFontScaling={false} style={styles.titleText}>Select Recipients</Text>
                 <View style={styles.viewTypeView}>
                     <TouchableOpacity
                         onPress={() => {
@@ -216,9 +216,9 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
                             }
                         }}
                     >
-                        <Text style={(viewType == RecipientFormViewType.USER && styles.viewTypeTextSelected) || styles.viewTypeTextNotSelected}>Profiles</Text>
+                        <Text allowFontScaling={false} style={(viewType == RecipientFormViewType.USER && styles.viewTypeTextSelected) || styles.viewTypeTextNotSelected}>Profiles</Text>
                     </TouchableOpacity>
-                    <Text style={styles.viewTypeTextSelected}>|</Text>
+                    <Text allowFontScaling={false} style={styles.viewTypeTextSelected}>|</Text>
                     <TouchableOpacity
                         onPress={() => {
                             if (viewType == RecipientFormViewType.USER) {
@@ -226,7 +226,7 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
                             }
                         }}
                     >
-                        <Text style={(viewType == RecipientFormViewType.CIRCLE && styles.viewTypeTextSelected) || styles.viewTypeTextNotSelected}>Circles</Text>
+                        <Text allowFontScaling={false} style={(viewType == RecipientFormViewType.CIRCLE && styles.viewTypeTextSelected) || styles.viewTypeTextNotSelected}>Circles</Text>
                     </TouchableOpacity>
                 </View>
             </View>

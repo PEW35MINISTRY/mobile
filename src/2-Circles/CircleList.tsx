@@ -44,7 +44,7 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
 
     return (
         <SafeAreaView style={styles.modalView}>
-            <Text style={styles.modalHeaderText}>Circles</Text>
+            <Text allowFontScaling={false} style={styles.modalHeaderText}>Circles</Text>
             <ScrollView contentContainerStyle={styles.circleSelectScroller}>
                 {renderCircleModals()}
             </ScrollView>

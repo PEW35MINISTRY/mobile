@@ -37,7 +37,7 @@ const WalkLevelQuiz = (props:{callback?:((val:number) => void)}):JSX.Element => 
             elements.push(
                 <TouchableOpacity key={index} onPress={() => setWalkLevelValue(index)}>
                     <View key={index} style={walkLevelValue === index ? styles.inlineWalkLevelSelected : styles.inlineWalkLevelNormal}>
-                        <Text style={styles.optionsText}>{data[0]}</Text><Text style={styles.optionsText}>{data[1]}</Text>
+                        <Text allowFontScaling={false} style={styles.optionsText}>{data[0]}</Text><Text allowFontScaling={false} style={styles.optionsText}>{data[1]}</Text>
                     </View>
                 </TouchableOpacity>
 
@@ -51,7 +51,7 @@ const WalkLevelQuiz = (props:{callback?:((val:number) => void)}):JSX.Element => 
         <RootSiblingParent>
             <SafeAreaView style={styles.backgroundView}>
                 <View style={styles.container}>
-                    <Text style={styles.titleText}>How do you see your relationship with God?</Text>
+                    <Text allowFontScaling={false} style={styles.titleText}>How do you see your relationship with God?</Text>
                     {renderWalkLevelOptions()}
                 </View>
                 <View style={styles.bottomView}>

@@ -64,7 +64,7 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
             <SafeAreaView style={styles.center}>
                 <View style={styles.background_view}>
                     <View style={styles.headerThing}>
-                        <Text style={styles.headerText}>Create Prayer Request</Text>
+                        <Text allowFontScaling={false} style={styles.headerText}>Create Prayer Request</Text>
                     </View>
                     <FormInput 
                         fields={CREATE_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}

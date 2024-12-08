@@ -275,7 +275,7 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
                 >
 
                     {(searchTerm !== undefined) ?
-                        <TextInput
+                        <Text allowFontScaling={false}Input
                             style={styles.searchInput}
                             placeholder={'Search...'}
                             placeholderTextColor={COLORS.accent}
@@ -335,7 +335,7 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
                             text={`Reset Page`}
                             onPress={() => resetPage()}
                         />
-                      : <Text style={styles.accent} >Loading . . . </Text>
+                      : <Text allowFontScaling={false} style={styles.accent} >Loading . . . </Text>
                     }
                 </View>
 
@@ -377,7 +377,7 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
                                     announcement={item.displayItem as CircleAnnouncementListItem} onPress={item.onPress} showCircleImage={true}
                                 />
                                 
-                            : <Text>ERROR</Text> }
+                            : <Text allowFontScaling={false}>ERROR</Text> }
                         </React.Fragment>
                     ))}
 
@@ -398,7 +398,7 @@ export default SearchList;
 
 export const LabelItem = ({...props}:{key:any, label:LabelListItem, onPress?:(id:number, item:LabelListItem)=>void}) => 
     <View key={props.key} style={styles.labelCard}>
-        <Text style={styles.labelCardText} numberOfLines={1} ellipsizeMode='tail' >{props.label}</Text>
+        <Text allowFontScaling={false} style={styles.labelCardText} numberOfLines={1} ellipsizeMode='tail' >{props.label}</Text>
     </View>;
 
 

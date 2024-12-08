@@ -48,7 +48,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     return (
       <SafeAreaView style={styles.backgroundView}>
         <View style={theme.background_view}>
-            <Text style={styles.header}>Create Profile</Text>
+            <Text allowFontScaling={false} style={styles.header}>Create Profile</Text>
               <FormInput 
                 fields={SIGNUP_PROFILE_FIELDS_USER}
                 onSubmit={onSignUp}
