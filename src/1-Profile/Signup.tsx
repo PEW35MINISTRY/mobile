@@ -1,5 +1,5 @@
 import { DOMAIN, ENVIRONMENT } from '@env';
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import keychain from 'react-native-keychain'
 import { render } from 'react-dom';
@@ -10,7 +10,7 @@ import PEW35 from '../../assets/pew35-logo.png';
 import { SIGNUP_PROFILE_FIELDS_USER } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, resetAccount, setAccount } from '../redux-store';
+import { RootState, initializeNotifications, resetAccount, setAccount, setDeviceID } from '../redux-store';
 import theme, { COLORS } from '../theme';
 import { Raised_Button, BackButton, CheckBox } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
@@ -22,6 +22,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { ProfileResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
+import { LoginResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/auth-types';
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -32,12 +33,15 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const onSignUp = (formValues:Record<string, string | string[]>) => {
       // send data to server
-      axios.post(`${DOMAIN}/signup${populateDemoProfile ? '?populate=true' : ''}`, formValues).then(response => {
+      axios.post(`${DOMAIN}/signup${populateDemoProfile ? '?populate=true' : ''}`, formValues).then((response:AxiosResponse<LoginResponseBody>) => {
         dispatch(setAccount({
           jwt: response.data.jwt,
           userID: response.data.userID,
           userProfile: response.data.userProfile,
         }));
+
+        dispatch(setDeviceID(response.data.deviceID || -1));
+        dispatch(initializeNotifications);
 
         // call callback via route
         navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true})
