@@ -23,6 +23,7 @@ import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
+import { LoginResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/auth-types';
 
 export interface LoginParamList {
   newAccount?:boolean
@@ -46,7 +47,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
     }
 
     const onEmailLogin = (formValues:Record<string, string | string[]>) => {
-        axios.post(`${DOMAIN}/login`, formValues).then(async response => {   
+        axios.post(`${DOMAIN}/login`, formValues).then(async (response:AxiosResponse<LoginResponseBody>) => {   
 
           dispatch(setAccount({
               jwt: response.data.jwt,
