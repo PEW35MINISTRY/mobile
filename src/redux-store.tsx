@@ -122,39 +122,6 @@ const removeListItem = <T, K extends keyof ProfileResponse>(state:AccountState, 
 //Called directly in index.tsx: store.dispatch(initializeAccountState); 
 export const initializeAccountState = async(dispatch: (arg0: { payload: AccountState; type: 'account/setAccount'; }|{type: 'account/resetAccount'; }) => void, getState: () => any):Promise<boolean> => { 
 
-  // Request permissions on iOS, refresh token on Android
-  Notifications.registerRemoteNotifications();
-
-  Notifications.events().registerRemoteNotificationsRegistered((event: Registered) => {
-      // TODO: Send the token to my server so it could send back push notifications...
-      console.log("Device Token Received", event.deviceToken);
-  });
-  Notifications.events().registerRemoteNotificationsRegistrationFailed((event: RegistrationError) => {
-      console.error(event);
-  });
-
-  Notifications.events().registerNotificationReceivedForeground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
-    console.log("Notification Received - Foreground", notification.payload);
-
-    // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
-    completion({alert: true, sound: true, badge: true});
-      });
-
-  Notifications.events().registerNotificationOpened((notification: Notification, completion: () => void, action: NotificationActionResponse) => {
-    console.log("Notification opened by device user", notification.payload);
-    completion();
-      });
-      
-  Notifications.events().registerNotificationReceivedBackground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
-    console.log("Notification Received - Background", notification.payload);
-    console.log(notification.payload["google.message_id"]);
-
-    Notifications.postLocalNotification(notification, notification.payload["google.message_id"])
-
-    // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
-    completion({alert: true, sound: true, badge: true});
-      });
-
   const storedJWT:boolean | UserCredentials = await keychain.getGenericPassword({service: "jwt"});
   const jwt = storedJWT ? storedJWT.password : '';
 
@@ -187,12 +154,14 @@ export const initializeAccountState = async(dispatch: (arg0: { payload: AccountS
 export type SettingsState = {
   version:number, //Settings version to indicate local storage reset
   skipAnimation:boolean,
+  deviceID: number,
   lastNewPartnerRequest:number|undefined, //timestamp
 }
 
 const initialSettingsState:SettingsState = {
   version: parseInt(SETTINGS_VERSION ?? '1', 10),
   skipAnimation: false,
+  deviceID: -1,
   lastNewPartnerRequest: undefined,
 };
 
@@ -208,13 +177,14 @@ const settingsSlice = createSlice({
     clearSettings: () => initialSettingsState,
     setSkipAnimation: (state, action:PayloadAction<boolean>) => state = {...state, skipAnimation: action.payload},
     setLastNewPartnerRequest: (state) => state = {...state, lastNewPartnerRequest: Date.now()},
+    setDeviceID: (state, action:PayloadAction<number>) => state = {...state, deviceID: action.payload},
     resetLastNewPartnerRequest: (state) => state = {...state, lastNewPartnerRequest: undefined},    
   },
 });
 
 //Export Dispatch Actions
 export const { setSettings, resetSettings, setSkipAnimation, 
-    setLastNewPartnerRequest, resetLastNewPartnerRequest, clearSettings
+    setLastNewPartnerRequest, resetLastNewPartnerRequest, clearSettings, setDeviceID
 } = settingsSlice.actions;
 
 
@@ -254,11 +224,60 @@ export const saveSettingsMiddleware:Middleware = store => next => action => {
   return result;
 };
 
+export const initializeNotifications = async(dispatch: (arg0: { payload: SettingsState; type: 'settings/setSettings'; }|{type: 'settings/setDeviceID'; }|{type: 'settings/resetSettings'; }) => void, getState: () => any):Promise<void> => {
+
+  // get state variables
+  const userID = store.getState().account.userID;
+  const deviceID = store.getState().settings.deviceID;
+  const jwt = store.getState().account.jwt;
+
+  // Request permissions on iOS, refresh token on Android
+  Notifications.registerRemoteNotifications();
+
+  Notifications.events().registerRemoteNotificationsRegistered(async (event: Registered) => {
+      // fetch device token and send to server
+      console.log("Device Token Received", event.deviceToken);
+      const deviceToken = event.deviceToken;
+
+      const requestBody = deviceID === -1 ? {deviceToken: deviceToken} : {deviceID: deviceID, deviceToken: deviceToken}
+
+      const response:AxiosResponse<number> = await axios.post(`${DOMAIN}/api/user/${userID}/notification/device`, requestBody, { headers: { jwt }});
+      if (response.data !== deviceID) dispatch(setDeviceID(response.data));
+  });
+
+  Notifications.events().registerRemoteNotificationsRegistrationFailed((event: RegistrationError) => {
+      console.error(event);
+  });
+
+  Notifications.events().registerNotificationReceivedForeground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
+    console.log("Notification Received - Foreground", notification.payload);
+
+    // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
+    completion({alert: true, sound: true, badge: true});
+  });
+
+  Notifications.events().registerNotificationOpened((notification: Notification, completion: () => void, action: NotificationActionResponse) => {
+    console.log("Notification opened by device user", notification.payload);
+    completion();
+  });
+      
+  Notifications.events().registerNotificationReceivedBackground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
+    console.log("Notification Received - Background", notification.payload);
+    console.log(notification.payload["google.message_id"]);
+
+    Notifications.postLocalNotification(notification, notification.payload["google.message_id"])
+
+    // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
+    completion({alert: true, sound: true, badge: true});
+  });
+
+}
+
 const store = configureStore({
     reducer: {
       account: accountSlice.reducer,
       navigationTab: tabSlice.reducer,
-      settings: settingsSlice.reducer
+      settings: settingsSlice.reducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(saveJWTMiddleware, saveSettingsMiddleware),
 });
