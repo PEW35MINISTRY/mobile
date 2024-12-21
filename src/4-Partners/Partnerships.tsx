@@ -137,7 +137,7 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
                 {
                     pendingPrayerPartnerUsers.length > 0 && (
                         <View style={styles.partnerListSpacing}>
-                            <Text style={styles.partnerStatusViewModeTitle}>Pending Partners</Text>
+                            <Text allowFontScaling={false} style={styles.partnerStatusViewModeTitle}>Pending Partners</Text>
                             <ScrollView style={styles.partnerList} >
                                 {renderPendingPartners(pendingPrayerPartnerUsers, true)}
                             </ScrollView>
@@ -147,7 +147,7 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
                 {
                     pendingPrayerPartners.length > 0 && (
                         <View style={styles.partnerListSpacing}>
-                            <Text style={styles.partnerStatusViewModeTitle}>Pending Acceptance</Text>
+                            <Text allowFontScaling={false} style={styles.partnerStatusViewModeTitle}>Pending Acceptance</Text>
                             <ScrollView style={styles.partnerList} >
                                 {renderPendingPartners(pendingPrayerPartners, false)}
                             </ScrollView>
@@ -179,9 +179,9 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
                                     }
                                 }}
                             >
-                                <Text style={(partnerSettingsViewMode == PartnerViewMode.PARTNER_LIST && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Partners</Text>
+                                <Text allowFontScaling={false} style={(partnerSettingsViewMode == PartnerViewMode.PARTNER_LIST && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Partners</Text>
                             </TouchableOpacity>
-                            <Text style={styles.viewModeTextSelected}>|</Text>
+                            <Text allowFontScaling={false} style={styles.viewModeTextSelected}>|</Text>
                             <TouchableOpacity
                                 onPress={() => {
                                     if (partnerSettingsViewMode !== PartnerViewMode.PENDING_PARTNERS) {
@@ -189,7 +189,7 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
                                     }
                                 }}
                             >
-                                <Text style={(partnerSettingsViewMode == PartnerViewMode.PENDING_PARTNERS && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Pending</Text>
+                                <Text allowFontScaling={false} style={(partnerSettingsViewMode == PartnerViewMode.PENDING_PARTNERS && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Pending</Text>
                             </TouchableOpacity>
 
                         

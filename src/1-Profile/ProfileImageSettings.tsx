@@ -118,7 +118,7 @@ const ProfileImageSettings = (props:{callback:(val:number) => void, continueNavi
         <SafeAreaView style={styles.infoView}>
             <View style={styles.titleView}>
               <Image source={profileImageUri} style={styles.profileImage} />
-              <Text style={styles.titleText}>Avatar Settings</Text>
+              <Text allowFontScaling={false} style={styles.titleText}>Avatar Settings</Text>
             </View>
             <Outline_Button 
                 text={"Select Image"}

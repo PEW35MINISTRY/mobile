@@ -80,8 +80,8 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const renderTags = ():JSX.Element[] => {
         const textProps:JSX.Element[] = [];
         (tags || []).forEach((tag:PrayerRequestTagEnum, index:number) => {
-            textProps.push(<Text style={styles.tagsText} key={tag}>{tag}</Text>);
-            textProps.push(<Text style={styles.tagsText} key={index}>{"|"}</Text>)
+            textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={tag}>{tag}</Text>);
+            textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={index}>{"|"}</Text>)
         })
         textProps.pop()
 
@@ -138,7 +138,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         if (!dataFetchComplete || currPrayerRequestState == undefined) {
             return (
                 <View style={styles.container}>
-                    <Text style={styles.splashText}>Please Wait</Text>
+                    <Text allowFontScaling={false} style={styles.splashText}>Please Wait</Text>
                 </View>
                 
             )
@@ -150,25 +150,25 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                         <View style={styles.profileHeader}>
                             <RequestorProfileImage userID={appPrayerRequestListItem.requestorProfile.userID} imageUri={appPrayerRequestListItem.requestorProfile.image} style={{height: 35, width: 35}} />
                             <View style={styles.middleData}>
-                                <Text style={styles.requestorNameText}>{appPrayerRequestListItem.requestorProfile.displayName}</Text>
+                                <Text allowFontScaling={false} style={styles.requestorNameText}>{appPrayerRequestListItem.requestorProfile.displayName}</Text>
                             </View>
                         </View>
                         <View style={styles.topicView}>
-                            <Text style={styles.prayerRequestTopicText}>{appPrayerRequestListItem.topic}</Text>
+                            <Text allowFontScaling={false} style={styles.prayerRequestTopicText}>{appPrayerRequestListItem.topic}</Text>
                         </View>
                         <View style={styles.prayerDescriptionView}>
-                            <Text style={styles.prayerDescriptionText}>{currPrayerRequestState.description}</Text>
+                            <Text allowFontScaling={false} style={styles.prayerDescriptionText}>{currPrayerRequestState.description}</Text>
                         </View>
                         <View style={styles.prayerRequestMetricsView}>
                             {renderTags()}
                             <TouchableOpacity onPress={onPrayPress}>
                                 <View style={styles.socialDataView}>
                                 <Image source={PRAYER_ICON} style={{height: 15, width: 15}} />
-                                    <Text style={styles.prayerCountText}>{prayerCount}</Text>
+                                    <Text allowFontScaling={false} style={styles.prayerCountText}>{prayerCount}</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
-                        <Text style={styles.modalTitleText}>Shares</Text>
+                        <Text allowFontScaling={false} style={styles.modalTitleText}>Shares</Text>
                         <ScrollView horizontal={true} contentContainerStyle={styles.sharedCirclesScroll}>
                             {renderCircleRecipients()}
                             {renderUserRecipients()}
@@ -207,7 +207,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
 
                         </Modal>
                         {
-                            (commentsData !== undefined && commentsData.length !== 0) && <Text style={styles.commentsTitle}>Comments</Text>
+                            (commentsData !== undefined && commentsData.length !== 0) && <Text allowFontScaling={false} style={styles.commentsTitle}>Comments</Text>
                         }
                         
                     </View>
@@ -226,7 +226,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                                 onPress={() => setCommentCreateModalVisible(true)}
                             >
                                 <View style={styles.commentButton}>
-                                    <Text style={styles.commentButtonText}>+</Text>
+                                    <Text allowFontScaling={false} style={styles.commentButtonText}>+</Text>
                                 </View>
                         </TouchableOpacity>
 

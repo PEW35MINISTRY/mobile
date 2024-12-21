@@ -59,14 +59,14 @@ export const PrayerPartnerListItem = (props:{partner:PartnerListItem, leavePartn
             <View style={styles.prayerRequestDataTopView}>
                 <RequestorProfileImage style={{height: 40, width: 40}} imageUri={props.partner.image} userID={props.partner.userID}/>
                 <View style={styles.middleData}>
-                    <Text style={styles.nameText}>{props.partner.displayName}</Text>
+                    <Text allowFontScaling={false} style={styles.nameText}>{props.partner.displayName}</Text>
                 </View>
                 <View style={styles.ShareButtonTopLevelView}>
                     <TouchableOpacity 
                         onPress={() => props.leavePartnership(props.partner)}
                     >  
                         <View style={styles.shareButtonView}>
-                            <Text style={styles.textStyle}>Leave Partnership</Text>
+                            <Text allowFontScaling={false} style={styles.textStyle}>Leave Partnership</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -139,13 +139,13 @@ export const PendingPrayerPartnerListItem = (props:{partner:PartnerListItem, but
                 <View style={styles.prayerRequestDataTopView}>
                     <RequestorProfileImage style={{height: 40, width: 40}} imageUri={props.partner.image} userID={props.partner.userID}/>
                     <View style={styles.middleData}>
-                        <Text style={styles.nameText}>{props.partner.displayName}</Text>
+                        <Text allowFontScaling={false} style={styles.nameText}>{props.partner.displayName}</Text>
                     </View>
                     {props.buttonText &&
                         <View style={styles.ShareButtonTopLevelView}>
                             <TouchableOpacity onPress={() => props.onButtonPress && props.onButtonPress(props.partner.userID, props.partner)} >  
                                 <View style={styles.contractButtonView}>
-                                    <Text style={styles.textStyle}>{props.buttonText}</Text>
+                                    <Text allowFontScaling={false} style={styles.textStyle}>{props.buttonText}</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -191,8 +191,8 @@ export const PartnershipContractModal = ({visible, partner, acceptPartnershipReq
         >
             <View style={styles.modalView}>
                 <View style={styles.newPartnerView}>
-                    <Text style={styles.newPartnerTitle}>New Prayer Partner</Text>
-                    <Text style={styles.newPartnerText}>{PARTNERSHIP_CONTRACT(userProfile.displayName, partner.displayName || '')}</Text>
+                    <Text allowFontScaling={false} style={styles.newPartnerTitle}>New Prayer Partner</Text>
+                    <Text allowFontScaling={false} style={styles.newPartnerText}>{PARTNERSHIP_CONTRACT(userProfile.displayName, partner.displayName || '')}</Text>
                     <Raised_Button 
                         text={'Accept Partnership'}
                         onPress={() => acceptPartnershipRequest(partner.userID, partner)}

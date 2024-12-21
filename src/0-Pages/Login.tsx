@@ -86,7 +86,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
 
     return (
       <SafeAreaView style={theme.background_view}>
-        <Text style={styles.header}>Encouraging Prayer</Text>
+        <Text allowFontScaling={false} style={styles.header}>Encouraging Prayer</Text>
         <Image source={LOGO} style={styles.logo} resizeMode='contain'></Image>
         <FormInput 
           fields={LOGIN_PROFILE_FIELDS}

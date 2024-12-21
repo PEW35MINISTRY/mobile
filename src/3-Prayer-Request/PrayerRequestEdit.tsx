@@ -90,7 +90,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
         <RootSiblingParent>
             <SafeAreaView style={styles.center}>
                 <View style={styles.background_view}>
-                    <Text style={styles.header}>Edit Prayer Request</Text>
+                    <Text allowFontScaling={false} style={styles.header}>Edit Prayer Request</Text>
                     <FormInput 
                         fields={EDIT_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}
                         ref={formInputRef}
@@ -141,7 +141,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                         transparent={true}
                     >
                         <View style={styles.deleteView}>
-                            <Text style={styles.confirmDeleteText}>Are you sure you want to delete this prayer request?</Text>
+                            <Text allowFontScaling={false} style={styles.confirmDeleteText}>Are you sure you want to delete this prayer request?</Text>
                             <View style={styles.buttons}>
                                 <Raised_Button buttonStyle={styles.sign_in_button}
                                     text='Delete'

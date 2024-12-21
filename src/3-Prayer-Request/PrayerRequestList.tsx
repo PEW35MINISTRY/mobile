@@ -97,9 +97,9 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                             }
                         }}
                     >
-                        <Text style={(viewMode == PrayerRequestListViewMode.RECIPIENT && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Inbox</Text>
+                        <Text allowFontScaling={false} style={(viewMode == PrayerRequestListViewMode.RECIPIENT && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Inbox</Text>
                     </TouchableOpacity>
-                    <Text style={styles.viewModeTextSelected}>|</Text>
+                    <Text allowFontScaling={false} style={styles.viewModeTextSelected}>|</Text>
                     <TouchableOpacity
                         onPress={() => {
                             if (viewMode !== PrayerRequestListViewMode.OWNER) {
@@ -107,7 +107,7 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                             }
                         }}
                     >
-                        <Text style={(viewMode == PrayerRequestListViewMode.OWNER && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Owned</Text>
+                        <Text allowFontScaling={false} style={(viewMode == PrayerRequestListViewMode.OWNER && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Owned</Text>
                     </TouchableOpacity>
 
                     
@@ -130,7 +130,7 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                     onPress={() => setPrayerRequestCreateModalVisible(true)}
                 >
                     <View style={styles.prayerRequestCreateButton}>
-                        <Text style={styles.prayerRequestCreateButtonText}>+</Text>
+                        <Text allowFontScaling={false} style={styles.prayerRequestCreateButtonText}>+</Text>
                     </View>
             </TouchableOpacity>
         </SafeAreaView>
