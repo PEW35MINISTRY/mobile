@@ -11,6 +11,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import { LoginResponseBody } from './TypesAndInterfaces/config-sync/api-type-sync/auth-types';
 import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import { Notifications, Registered, RegistrationError, NotificationCompletion } from 'react-native-notifications';
+import { useAppDispatch } from './TypesAndInterfaces/hooks';
 
 /******************************
    Account | Credentials Redux Reducer
@@ -65,7 +66,7 @@ const accountSlice = createSlice({
 
 // Export action functions to use in app with dispatch
 // How to use in component: https://redux-toolkit.js.org/tutorials/quick-start#use-redux-state-and-actions-in-react-components
-export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfileImage, 
+export const { setAccount, resetAccount, updateJWT, resetJWT, updateProfile, updateProfileImage, 
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
       addContact, removeContact, setContacts, addOwnedPrayerRequest, removeOwnedPrayerRequest, updateWalkLevel
@@ -76,6 +77,9 @@ export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfile
 
     if(action.type === setAccount.type || action.type === updateJWT.type) {
       keychain.setGenericPassword('jwt', store.getState().account.jwt, {service: "jwt"});
+    }
+    else if (action.type === resetJWT.type) {
+      keychain.setGenericPassword('jwt', "12345", {service: "jwt"});
     }
 
     return result;
@@ -194,12 +198,13 @@ export const initializeSettingsState = async(dispatch: (arg0: { payload: Setting
         const localStorageSettings:boolean | UserCredentials = await keychain.getGenericPassword({service: userID});
         const savedSettings:SettingsState = localStorageSettings ? JSON.parse(localStorageSettings.password) : initialSettingsState;
         if(!isNaN(savedSettings.version) && (savedSettings.version == parseInt(SETTINGS_VERSION ?? '1'))) {
+          console.log(savedSettings);
           dispatch(setSettings(savedSettings));
           return savedSettings.skipAnimation;
         }
         else {
           console.warn("Invalid settings configuration, or settings version changed.");
-          dispatch(setSettings({...initialSettingsState, ...savedSettings}));
+          dispatch(setSettings({...initialSettingsState, ...savedSettings, version: parseInt(SETTINGS_VERSION ?? '1')}));
           return false;
         }
     } catch (error) {
@@ -208,6 +213,23 @@ export const initializeSettingsState = async(dispatch: (arg0: { payload: Setting
         return false;
     }
 };
+
+export const initializeNotifications = async(dispatch: (arg0: { payload: number, type: 'settings/setDeviceID'; }) => void, getState: () => any):Promise<void> => {
+  const reduxState = getState();
+  const userID = reduxState.account.userID;
+  const deviceID = reduxState.settings.deviceID;
+  const jwt = reduxState.account.jwt;
+  const deviceToken = reduxState.deviceToken;
+
+  console.log(deviceToken);
+
+  const requestBody = deviceID === -1 ? {deviceToken: deviceToken} : {deviceID: deviceID, deviceToken: deviceToken}
+
+  const response:AxiosResponse<string> = await axios.post(`${DOMAIN}/api/user/${userID}/notification/device`, requestBody, { headers: { jwt }});
+  console.log(`notificationd device response: [${response.data}]`);
+  const responseDeviceID = parseInt(response.data);
+  if (responseDeviceID !== deviceID) dispatch(setDeviceID(responseDeviceID));
+}
 
 export const saveSettingsMiddleware:Middleware = store => next => action => {
   const result = next(action);
@@ -224,60 +246,34 @@ export const saveSettingsMiddleware:Middleware = store => next => action => {
   return result;
 };
 
-export const initializeNotifications = async(dispatch: (arg0: { payload: SettingsState; type: 'settings/setSettings'; }|{type: 'settings/setDeviceID'; }|{type: 'settings/resetSettings'; }) => void, getState: () => any):Promise<void> => {
-
-  // get state variables
-  const userID = store.getState().account.userID;
-  const deviceID = store.getState().settings.deviceID;
-  const jwt = store.getState().account.jwt;
+const initializeDeviceToken = ():string => {
 
   // Request permissions on iOS, refresh token on Android
   Notifications.registerRemoteNotifications();
 
   Notifications.events().registerRemoteNotificationsRegistered(async (event: Registered) => {
-      // fetch device token and send to server
-      console.log("Device Token Received", event.deviceToken);
-      const deviceToken = event.deviceToken;
-
-      const requestBody = deviceID === -1 ? {deviceToken: deviceToken} : {deviceID: deviceID, deviceToken: deviceToken}
-
-      const response:AxiosResponse<number> = await axios.post(`${DOMAIN}/api/user/${userID}/notification/device`, requestBody, { headers: { jwt }});
-      if (response.data !== deviceID) dispatch(setDeviceID(response.data));
+    console.log("Registered");
+    store.dispatch(setDeviceToken(event.deviceToken));
   });
-
-  Notifications.events().registerRemoteNotificationsRegistrationFailed((event: RegistrationError) => {
-      console.error(event);
-  });
-
-  Notifications.events().registerNotificationReceivedForeground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
-    console.log("Notification Received - Foreground", notification.payload);
-
-    // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
-    completion({alert: true, sound: true, badge: true});
-  });
-
-  Notifications.events().registerNotificationOpened((notification: Notification, completion: () => void, action: NotificationActionResponse) => {
-    console.log("Notification opened by device user", notification.payload);
-    completion();
-  });
-      
-  Notifications.events().registerNotificationReceivedBackground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
-    console.log("Notification Received - Background", notification.payload);
-    console.log(notification.payload["google.message_id"]);
-
-    Notifications.postLocalNotification(notification, notification.payload["google.message_id"])
-
-    // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
-    completion({alert: true, sound: true, badge: true});
-  });
-
+  return '';
 }
+
+const deviceTokenSlice = createSlice({
+  name: 'deviceToken',
+  initialState: initializeDeviceToken(),
+  reducers: {
+    setDeviceToken: (state, action:PayloadAction<string>) => state = action.payload
+  }
+});
+
+const { setDeviceToken } = deviceTokenSlice.actions;
 
 const store = configureStore({
     reducer: {
       account: accountSlice.reducer,
       navigationTab: tabSlice.reducer,
       settings: settingsSlice.reducer,
+      deviceToken: deviceTokenSlice.reducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(saveJWTMiddleware, saveSettingsMiddleware),
 });
