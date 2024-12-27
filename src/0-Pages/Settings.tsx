@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import keychain from 'react-native-keychain'
 import { StyleSheet, View, TextStyle, Text, Modal, Linking, SafeAreaView, Platform } from 'react-native';
 import theme, { FONT_SIZES } from '../theme';
@@ -7,11 +7,13 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Partnerships from '../4-Partners/Partnerships';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { clearSettings, resetAccount, resetSettings, RootState, setAccount, setContacts, setSettings, updateProfile } from '../redux-store';
+import { clearSettings, resetAccount, resetJWT, resetSettings, RootState, setAccount, setContacts, setSettings, updateProfile } from '../redux-store';
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
+import { Notifications, Registered, RegistrationError, NotificationCompletion } from 'react-native-notifications';
+
 
 const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -83,6 +85,14 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                         <Outline_Button 
                             text="Reset Settings"
                             onPress={() => dispatch(resetSettings())}
+                            buttonStyle={styles.settingsButton}
+                        />
+                }
+                                {
+                    ENVIRONMENT === "DEVELOPMENT" && 
+                        <Outline_Button 
+                            text="Reset JWT"
+                            onPress={() => dispatch(resetJWT())}
                             buttonStyle={styles.settingsButton}
                         />
                 }
