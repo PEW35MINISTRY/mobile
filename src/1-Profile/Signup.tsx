@@ -10,7 +10,7 @@ import PEW35 from '../../assets/pew35-logo.png';
 import { SIGNUP_PROFILE_FIELDS_USER } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, initializeNotifications, resetAccount, setAccount, setDeviceID } from '../redux-store';
+import { RootState, registerNotificationDevice, resetAccount, setAccount, setDeviceID } from '../redux-store';
 import theme, { COLORS } from '../theme';
 import { Raised_Button, BackButton, CheckBox } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
@@ -41,7 +41,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
         }));
 
         dispatch(setDeviceID(response.data.deviceID || -1));
-        dispatch(initializeNotifications);
+        dispatch(registerNotificationDevice);
 
         // call callback via route
         navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true})

@@ -2,16 +2,11 @@ import type { Middleware, PayloadAction } from '@reduxjs/toolkit';
 import { DOMAIN, NEW_PARTNER_REQUEST_TIMEOUT, SETTINGS_VERSION } from '@env';
 import keychain, { UserCredentials } from 'react-native-keychain'
 import { configureStore, createAction, createReducer, createSlice } from '@reduxjs/toolkit';
-import React, { act, useState } from 'react';
 import { PartnerListItem, ProfileListItem, ProfileResponse } from './TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { CircleListItem } from './TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import { LoginResponseBody } from './TypesAndInterfaces/config-sync/api-type-sync/auth-types';
-import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
-import { Notifications, Registered, RegistrationError, NotificationCompletion } from 'react-native-notifications';
-import { useAppDispatch } from './TypesAndInterfaces/hooks';
 
 /******************************
    Account | Credentials Redux Reducer
@@ -214,7 +209,7 @@ export const initializeSettingsState = async(dispatch: (arg0: { payload: Setting
     }
 };
 
-export const initializeNotifications = async(dispatch: (arg0: { payload: number, type: 'settings/setDeviceID'; }) => void, getState: () => any):Promise<void> => {
+export const registerNotificationDevice = async(dispatch: (arg0: { payload: number, type: 'settings/setDeviceID'; }) => void, getState: () => any):Promise<void> => {
   const reduxState = getState();
   const userID = reduxState.account.userID;
   const deviceID = reduxState.settings.deviceID;
@@ -246,27 +241,15 @@ export const saveSettingsMiddleware:Middleware = store => next => action => {
   return result;
 };
 
-const initializeDeviceToken = ():string => {
-
-  // Request permissions on iOS, refresh token on Android
-  Notifications.registerRemoteNotifications();
-
-  Notifications.events().registerRemoteNotificationsRegistered(async (event: Registered) => {
-    console.log("Registered");
-    store.dispatch(setDeviceToken(event.deviceToken));
-  });
-  return '';
-}
-
 const deviceTokenSlice = createSlice({
   name: 'deviceToken',
-  initialState: initializeDeviceToken(),
+  initialState: '',
   reducers: {
     setDeviceToken: (state, action:PayloadAction<string>) => state = action.payload
   }
 });
 
-const { setDeviceToken } = deviceTokenSlice.actions;
+export const { setDeviceToken } = deviceTokenSlice.actions;
 
 const store = configureStore({
     reducer: {
