@@ -28,7 +28,6 @@ export const initializeNotifications = async () => {
     Notifications.registerRemoteNotifications();
 
     Notifications.events().registerRemoteNotificationsRegistered(async (event: Registered) => {
-      console.log("Registered");
       dispatch(setDeviceToken(event.deviceToken));
     });
     initializeNotificationCallbacks();
@@ -55,7 +54,6 @@ const initializeNotificationCallbacks = () => {
   });
 
   Notifications.events().registerNotificationReceivedForeground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
-    console.log("Notification Received - Foreground", notification.payload);
 
     //Notifications.postLocalNotification(notification, notification.payload["google.message_id"])
 
@@ -66,12 +64,10 @@ const initializeNotificationCallbacks = () => {
   Notifications.events().registerNotificationOpened((notification: Notification, completion: () => void, action: NotificationActionResponse) => {
 
     // TODO: when a user taps on the notification, navigate them to the relevant part of the app
-
     completion();
   });
         
   Notifications.events().registerNotificationReceivedBackground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
-    console.log("Notification Received - Background", notification.payload);
 
     // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
     completion({alert: true, sound: true, badge: true});

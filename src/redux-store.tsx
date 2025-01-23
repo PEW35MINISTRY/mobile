@@ -144,7 +144,7 @@ export const initializeAccountState = async(dispatch: (arg0: { payload: AccountS
     dispatch(setAccount(account));
     return true;
   }
-  catch {console.log("Auto attempt failed to Re-login with cached authentication"); return false} 
+  catch {return false} 
   
 }
 
@@ -196,7 +196,6 @@ export const initializeSettingsState = async(dispatch: (arg0: { payload: Setting
         const localStorageSettings:boolean | UserCredentials = await keychain.getGenericPassword({service: userID});
         const savedSettings:SettingsState = localStorageSettings ? JSON.parse(localStorageSettings.password) : initialSettingsState;
         if(!isNaN(savedSettings.version) && (savedSettings.version == parseInt(SETTINGS_VERSION ?? '1'))) {
-          console.log(savedSettings);
           dispatch(setSettings(savedSettings));
           return savedSettings.skipAnimation;
         }
@@ -219,12 +218,9 @@ export const registerNotificationDevice = async(dispatch: (arg0: { payload: numb
   const jwt = reduxState.account.jwt;
   const deviceToken = reduxState.deviceToken;
 
-  console.log(deviceToken);
-
   if (deviceID === -1) {
     const response:AxiosResponse<string> = await axios.post(`${DOMAIN}/api/user/${userID}/notification/device`, {deviceToken: deviceToken, deviceName: generateDefaultDeviceName()}, { headers: { jwt }});
     const responseDeviceID = parseInt(response.data);
-    console.log(`notificationd device response: [${response.data}]`);
     if (responseDeviceID !== deviceID) dispatch(setDeviceID(responseDeviceID));
   } else {
       await axios.post(`${DOMAIN}/api/user/${userID}/notification/device/${deviceID}/verify`, {deviceToken: deviceToken}, { headers: { jwt }}).catch((error:AxiosError<ServerErrorResponse>) => {
