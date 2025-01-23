@@ -57,7 +57,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
 
           // load settings for the logged-in user
           const skipAnimation = await dispatch(initializeSettingsState); 
-          dispatch(registerNotificationDevice) // asynchronous, don't need to wait
+          dispatch(registerNotificationDevice); // asynchronous, don't need to wait
 
           navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"

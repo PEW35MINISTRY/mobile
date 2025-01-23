@@ -6,7 +6,10 @@ import { PartnerListItem, ProfileListItem, ProfileResponse } from './TypesAndInt
 import { PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { CircleListItem } from './TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from './TypesAndInterfaces/routes';
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
+import { generateDefaultDeviceName } from './utilities/notifications';
+import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
+import { DeviceVerificationResponseType } from './TypesAndInterfaces/config-sync/api-type-sync/notification-types';
 
 /******************************
    Account | Credentials Redux Reducer
@@ -218,12 +221,17 @@ export const registerNotificationDevice = async(dispatch: (arg0: { payload: numb
 
   console.log(deviceToken);
 
-  const requestBody = deviceID === -1 ? {deviceToken: deviceToken} : {deviceID: deviceID, deviceToken: deviceToken}
-
-  const response:AxiosResponse<string> = await axios.post(`${DOMAIN}/api/user/${userID}/notification/device`, requestBody, { headers: { jwt }});
-  console.log(`notificationd device response: [${response.data}]`);
-  const responseDeviceID = parseInt(response.data);
-  if (responseDeviceID !== deviceID) dispatch(setDeviceID(responseDeviceID));
+  if (deviceID === -1) {
+    const response:AxiosResponse<string> = await axios.post(`${DOMAIN}/api/user/${userID}/notification/device`, {deviceToken: deviceToken, deviceName: generateDefaultDeviceName()}, { headers: { jwt }});
+    const responseDeviceID = parseInt(response.data);
+    console.log(`notificationd device response: [${response.data}]`);
+    if (responseDeviceID !== deviceID) dispatch(setDeviceID(responseDeviceID));
+  } else {
+      await axios.post(`${DOMAIN}/api/user/${userID}/notification/device/${deviceID}/verify`, {deviceToken: deviceToken}, { headers: { jwt }}).catch((error:AxiosError<ServerErrorResponse>) => {
+        dispatch(setDeviceID(-1));
+        if (error.response?.data.notification === DeviceVerificationResponseType.DELETED) store.dispatch(registerNotificationDevice);
+      })
+  }
 }
 
 export const saveSettingsMiddleware:Middleware = store => next => action => {

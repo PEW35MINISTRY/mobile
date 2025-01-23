@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import keychain from 'react-native-keychain'
-import { StyleSheet, View, TextStyle, Text, Modal, Linking, SafeAreaView, Platform } from 'react-native';
+import { StyleSheet, View, TextStyle, Text, Modal, Linking, SafeAreaView, Platform, ScrollView } from 'react-native';
 import theme, { FONT_SIZES } from '../theme';
 import { BackButton, CheckBox, Outline_Button, Raised_Button } from '../widgets';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
@@ -12,8 +12,7 @@ import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
-import { Notifications, Registered, RegistrationError, NotificationCompletion } from 'react-native-notifications';
-
+import Devices from '../1-Profile/Devices';
 
 const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -22,6 +21,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
     const account = useAppSelector((state: RootState) => state.account);
 
     const [partnerModalVisible, setPartnerModalVisible] = useState(false);
+    const [notificationDeviceModalVisible, setNotificationDeviceModalVisible] = useState(false);
 
     const RequestAccountHeader = {
         headers: {
@@ -39,7 +39,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
     return (
        <SafeAreaView style={styles.background}>
             <Text allowFontScaling={false} style={styles.headerText}>Settings</Text>
-            <View style={styles.settingsButtonsView}>
+            <ScrollView contentContainerStyle={styles.settingsButtonsView}>
                 <Outline_Button 
                     text={"Edit Profile"}
                     onPress={() => navigation.navigate(ROUTE_NAMES.EDIT_PROFILE_ROUTE_NAME)}
@@ -48,6 +48,11 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 <Outline_Button 
                     text={"Partner Settings"}
                     onPress={() => setPartnerModalVisible(true)}
+                    buttonStyle={styles.settingsButton}
+                />
+                <Outline_Button 
+                    text={"Signed in Devices"}
+                    onPress={() => setNotificationDeviceModalVisible(true)}
                     buttonStyle={styles.settingsButton}
                 />
                 <Outline_Button 
@@ -96,6 +101,8 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                             buttonStyle={styles.settingsButton}
                         />
                 }
+            </ScrollView>
+            <View style={styles.settingsButtonsView}>
                  <View style={{marginVertical: 10}}>
                     <CheckBox onChange={(value) => dispatch(setSettings({...settingsRef, skipAnimation: value}))} label='Skip logo animation on login' initialState={settingsRef.skipAnimation} />
                 </View>
@@ -104,8 +111,6 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                     onPress={() => onLogout()}
                     buttonStyle={styles.settingsButton}
                 />
-
-
             </View>
             <Modal 
                 visible={partnerModalVisible}
@@ -116,6 +121,14 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 <Partnerships 
                     callback={() => setPartnerModalVisible(false)}
                 />
+            </Modal>
+            <Modal 
+                visible={notificationDeviceModalVisible}
+                onRequestClose={() => setNotificationDeviceModalVisible(false)}
+                animationType='slide'
+                transparent={true}
+            >
+                <Devices callback={() => setNotificationDeviceModalVisible(false)}/>
             </Modal>
             <BackButton navigation={navigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
        </SafeAreaView>
@@ -132,13 +145,13 @@ const styles = StyleSheet.create({
     },
     settingsButtonsView: {
         //justifyContent: "flex-start",
-        marginTop: 30,
         alignItems: "center",
     },
     headerText: {
         ...theme.header,
         fontSize: FONT_SIZES.XL,
-        top: 10
+        top: 10,
+        marginBottom: 20
     },
     settingsButton: {
         borderRadius: 5, 

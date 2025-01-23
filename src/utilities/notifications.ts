@@ -16,9 +16,6 @@ const checkNotificationsPermissions = async ():Promise<boolean> => {
     }
     else return true;
   }
-  else return true;
-
-  // this has to be here to make ts happy
   return true;
 }
 
@@ -39,6 +36,19 @@ export const initializeNotifications = async () => {
 
 }
 
+export const generateDefaultDeviceName = () => {
+  switch (Platform.OS) {
+      case "android": {
+          return `${Platform.constants.Model}_android ${Platform.constants.Release}`;
+          break;
+      }
+      case "ios": {
+          return `${Platform.constants.systemName}_iOS ${Platform.constants.osVersion}`;
+          break;
+      }
+  }
+}
+
 const initializeNotificationCallbacks = () => {
   Notifications.events().registerRemoteNotificationsRegistrationFailed((event: RegistrationError) => {
     console.error(event);
@@ -54,15 +64,14 @@ const initializeNotificationCallbacks = () => {
   });
 
   Notifications.events().registerNotificationOpened((notification: Notification, completion: () => void, action: NotificationActionResponse) => {
-    console.log("Notification opened by device user", notification.payload);
+
+    // TODO: when a user taps on the notification, navigate them to the relevant part of the app
+
     completion();
   });
         
   Notifications.events().registerNotificationReceivedBackground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
     console.log("Notification Received - Background", notification.payload);
-    console.log(notification.payload["google.message_id"]);
-
-    //Notifications.postLocalNotification(notification, notification.payload["google.message_id"])
 
     // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.
     completion({alert: true, sound: true, badge: true});

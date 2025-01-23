@@ -6,8 +6,6 @@
 
 import { initializeNotifications } from "./notifications";
 
-
-
 export const initializeAppUtils = () => {
     initializeNotifications();
 }
@@ -17,3 +15,4 @@ export const makeDisplayText = (text:string = ''):string => text.toLowerCase().s
 
 export const makeAbbreviatedText = (text: string = '', abbreviateLastWord: boolean = true): string => 
     makeDisplayText(text).split(' ').map((w, i, arr) => (i === arr.length - 1 && !abbreviateLastWord) ? w : w.charAt(0)).join(' ');
+
