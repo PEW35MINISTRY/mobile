@@ -1,7 +1,7 @@
 import { DOMAIN } from "@env";
 import axios, { AxiosError } from "axios";
-import React, { useState, useEffect } from "react";
-import { ImageStyle, ImageSourcePropType, StyleSheet, Image, Text, View, TouchableOpacity} from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { ImageStyle, ImageSourcePropType, StyleSheet, Image, Text, View, TouchableOpacity, Modal} from "react-native";
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
@@ -46,7 +46,7 @@ export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string
             if (props.userID == userID) setRequestorImage({uri: userProfileImage})
             else fetchProfileImage();
         }
-    },[])
+    },[userProfileImage])
     return <Image source={requestorImage} style={styles.profileImage} resizeMode="contain"></Image> 
 }
 
@@ -171,6 +171,4 @@ export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileL
 
         </View>
     )
-
-    
 }

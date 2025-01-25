@@ -1,8 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator, StackCardInterpolationProps } from '@react-navigation/stack';
-import React from "react";
-import { Settings, StyleSheet } from 'react-native';
+import React, { useEffect } from "react";
 import 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 import { RootSiblingParent } from 'react-native-root-siblings';
@@ -24,7 +23,7 @@ import ProfileSettings from './0-Pages/Settings';
 import AnimatedLogo from './0-Pages/AnimatedLogo';
 import DashboardDisplay from './10-Dashboard/DashboardDisplay';
 import OfflineWarning from './0-Pages/OfflineWarning';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { initializeAppUtils } from './utilities/utilities';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -99,6 +98,11 @@ const BottomTabNavigator = () => {
 }
 
 const App = ():JSX.Element => {
+
+  useEffect(() => {
+    initializeAppUtils();
+  }, []);
+
   return (
     <Provider store = { store }>
       <RootSiblingParent>

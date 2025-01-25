@@ -127,7 +127,7 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
             </View>
 
             <TouchableOpacity
-                    onPress={() => setPrayerRequestCreateModalVisible(true)}
+                    onPress={() =>  setPrayerRequestCreateModalVisible(true)}
                 >
                     <View style={styles.prayerRequestCreateButton}>
                         <Text allowFontScaling={false} style={styles.prayerRequestCreateButtonText}>+</Text>

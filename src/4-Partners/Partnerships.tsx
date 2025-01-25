@@ -62,7 +62,8 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
     const renderPendingPartners = (partnerList:PartnerListItem[] | undefined, pendingContract:boolean):JSX.Element[] => 
         (partnerList || []).map((partner:PartnerListItem, index:number) => 
             <PendingPrayerPartnerListItem partner={partner} key={index} buttonText={pendingContract ? 'View Contract' : 'Decline'}
-                onButtonPress={(id, partnerItem) => { pendingContract ? (() => {setNewPartner(partner); setRequestNewPartnerModalVisible(true)})() : declinePartnershipRequest(partnerItem) }} />
+                onButtonPress={(id, partnerItem) => { pendingContract ? (() => {setNewPartner(partner); setPrayerContractModalVisible(true)})() : declinePartnershipRequest(partnerItem) }} />
+               
     );
 
     const acceptPartnershipRequest = (partner:PartnerListItem) => {

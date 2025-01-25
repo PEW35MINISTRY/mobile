@@ -545,6 +545,10 @@ export const ProfileImage = (props:{style?:ImageStyle, onPress?:() => void}):JSX
         },
     })
 
+    useEffect(() => {
+        setRequestorImage(userProfileImage === undefined ? DEFAULT_PROFILE_ICON : {uri: userProfileImage});
+    }, [userProfileImage])
+
     return (
         <TouchableOpacity onPress={() => props.onPress && props.onPress()}>
             <Image source={requestorImage} style={styles.profileImage}></Image>
@@ -622,6 +626,81 @@ export const XButton = (props:{callback?:(() => void), navigation?:NativeStackNa
                 />
                 </View>
             </TouchableOpacity>
+        </SafeAreaView>
+    )
+}
+
+export const DeleteButton = (props:{callback:(() => void),  buttonView?:ViewStyle}):JSX.Element => {
+    const styles = StyleSheet.create({
+        deleteButton: {
+            justifyContent: "center",
+            alignItems: "center",
+            height: 55,
+            width: 55,
+            borderRadius: 15,
+          },
+          deleteButtonView: {
+            position: "absolute",
+            top: 1,
+            right: 1,
+            ...props.buttonView
+          },
+    })
+
+    return (
+        <SafeAreaView style={styles.deleteButtonView}>
+            <TouchableOpacity
+                onPress={() => props.callback()}
+            >
+                <View style={styles.deleteButton}>
+                <Ionicons 
+                    name="trash-outline"
+                    color={COLORS.white}
+                    size={30}
+                />
+                </View>
+            </TouchableOpacity>
+        </SafeAreaView>
+    )
+}
+
+export const DeleteConfirmation = (props:{callback:(() => void), onCancel:(() => void), itemName:string}):JSX.Element => {
+    const styles = StyleSheet.create({
+        deleteView: {
+            backgroundColor: COLORS.black,
+            height: '40%',
+            marginTop: 'auto',
+        },
+        confirmDeleteText: {
+            ...theme.title,
+            alignSelf: "center",
+            textAlign: "center",
+            maxWidth: '90%'
+        },
+        buttons: {
+            maxWidth: '70%',
+            alignItems: "center",
+            justifyContent: "center",
+            alignSelf: "center"
+        },    
+        sign_in_button: {
+            marginVertical: 28,
+        },
+    })
+    
+    return (
+        <SafeAreaView style={styles.deleteView}>
+            <Text allowFontScaling={false} style={styles.confirmDeleteText}>Are you sure you want to delete {props.itemName}?</Text>
+            <View style={styles.buttons}>
+                <Raised_Button buttonStyle={styles.sign_in_button}
+                    text='Delete'
+                    onPress={() => props.callback()}
+                />
+                <Outline_Button 
+                    text="Cancel"
+                    onPress={() => props.onCancel()}
+                />
+            </View>
         </SafeAreaView>
     )
 }
