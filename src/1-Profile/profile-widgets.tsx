@@ -6,7 +6,6 @@ import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusEnum } from "../Widgets/RecipientIDList/recipient-types";
-import { render } from 'react-dom';
 
 export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string, userID?:number}):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -46,7 +45,7 @@ export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string
             if (props.userID == userID) setRequestorImage({uri: userProfileImage})
             else fetchProfileImage();
         }
-    },[userProfileImage])
+    },[userProfileImage, props.imageUri, props.userID])
     return <Image source={requestorImage} style={styles.profileImage} resizeMode="contain"></Image> 
 }
 
