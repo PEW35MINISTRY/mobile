@@ -1,5 +1,5 @@
 /***** ONLY DEPENDENCY: ./inputField - Define all other types locally *****/
-import InputField, { ENVIRONMENT_TYPE, InputType, InputRangeField, InputSelectionField, DeviceOSEnum } from "./inputField";
+import InputField, { ENVIRONMENT_TYPE, InputType, InputRangeField, InputSelectionField } from "./inputField";
 
 
 /*******************************************************

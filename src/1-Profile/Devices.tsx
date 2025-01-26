@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, TextStyle, Text, Modal, Linking, SafeAreaView, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import theme, { COLORS, FONT_SIZES } from '../theme';
-import { BackButton, CheckBox, DeleteButton, DeleteConfirmation, Outline_Button, Raised_Button, XButton } from '../widgets';
+import { BackButton, CheckBox, DeleteButton, Confirmation, Outline_Button, Raised_Button, XButton } from '../widgets';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { clearSettings, resetAccount, resetJWT, resetSettings, RootState, setAccount, setContacts, setSettings, updateProfile } from '../redux-store';
 import { DOMAIN, ENVIRONMENT } from '@env';
@@ -53,6 +53,7 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
                 setInfoModalVisible(false);
                 setDevices(devices.filter((device) => device.deviceID !== selectedDevice.deviceID));
                 setSelectedDevice(undefined);
+                ToastQueueManager.show({message: "Device Removed"});
             }
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error))
     }
@@ -71,6 +72,7 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
     }, []);
 
     return (
+        <RootSiblingParent>
         <SafeAreaView style={styles.backgroundColor}>
             <Text allowFontScaling={false} style={styles.header}>Devices</Text>
             <ScrollView contentContainerStyle={styles.container}>
@@ -105,10 +107,11 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
                             animationType='slide'
                             transparent={true}
                         >
-                            <DeleteConfirmation 
+                            <Confirmation 
                                 callback={onDeletePress}
                                 onCancel={() => setDeleteModalVisible(false)}
-                                itemName={selectedDevice !== undefined && selectedDevice.deviceName || 'This device'}
+                                promptText={selectedDevice !== undefined && `delete ${selectedDevice.deviceName}` || 'delete this device'}
+                                buttonText='Delete'
                             />
                         </Modal>
                     </View>
@@ -118,6 +121,7 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
 
             
         </SafeAreaView>
+        </RootSiblingParent>
     )
 }
 

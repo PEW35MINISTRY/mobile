@@ -13,6 +13,8 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Devices from '../1-Profile/Devices';
+import { ENVIRONMENT_TYPE } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import { getEnvironment } from '../utilities/utilities';
 
 const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -51,7 +53,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                     buttonStyle={styles.settingsButton}
                 />
                 <Outline_Button 
-                    text={"Signed in Devices"}
+                    text={"Notification Devices"}
                     onPress={() => setNotificationDeviceModalVisible(true)}
                     buttonStyle={styles.settingsButton}
                 />
@@ -86,20 +88,19 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                     buttonStyle={styles.settingsButton}
                 />
                 {
-                    ENVIRONMENT === "DEVELOPMENT" && 
-                        <Outline_Button 
-                            text="Reset Settings"
-                            onPress={() => dispatch(resetSettings())}
-                            buttonStyle={styles.settingsButton}
-                        />
-                }
-                                {
-                    ENVIRONMENT === "DEVELOPMENT" && 
+                    [ENVIRONMENT_TYPE.LOCAL, ENVIRONMENT_TYPE.DEVELOPMENT].includes(getEnvironment()) && 
+                    <>
                         <Outline_Button 
                             text="Reset JWT"
                             onPress={() => dispatch(resetJWT())}
                             buttonStyle={styles.settingsButton}
                         />
+                        <Outline_Button 
+                            text="Reset Settings"
+                            onPress={() => dispatch(resetSettings())}
+                            buttonStyle={styles.settingsButton}
+                        />
+                    </>
                 }
             </ScrollView>
             <View style={styles.settingsButtonsView}>

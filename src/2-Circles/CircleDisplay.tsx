@@ -15,7 +15,7 @@ import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { EventTouchable, RequestorCircleImage, AnnouncementTouchable } from './circle-widgets';
 import { PrayerRequestTouchable } from '../3-Prayer-Request/prayer-request-widgets';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
-import { BackButton, Raised_Button, XButton } from '../widgets';
+import { BackButton, Confirmation, Raised_Button, XButton } from '../widgets';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
@@ -299,17 +299,12 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                             transparent={true}
                             onRequestClose={() => setLeaveCircleModalVisible(false)}
                         >
-                             <View style={styles.modalView}>
-                                <XButton callback={() => setLeaveCircleModalVisible(false)} />
-                                <Text allowFontScaling={false} style={styles.modalHeaderText}>Are you sure you want to leave?</Text>
-                                <View style={{maxWidth: '70%', alignSelf: "center"}}>
-                                    <Raised_Button buttonStyle={styles.statusButton}
-                                        text={"Leave Circle"}
-                                        onPress={leaveCircle}
-                                    />
-                                </View>
-
-                            </View>
+                            <Confirmation 
+                                callback={leaveCircle}
+                                onCancel={() => setLeaveCircleModalVisible(false)}
+                                promptText={currCircleState !== undefined && `leave ${currCircleState.name}` || 'leave this circle'}
+                                buttonText='Leave'
+                            />
                         </Modal>
                     
                     </Modal>
@@ -345,8 +340,6 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
 
 const styles = StyleSheet.create({
     container: {
-        //...theme.background_view,
-        //justifyContent: "center",
         backgroundColor: COLORS.black,
         flex: 1
     },

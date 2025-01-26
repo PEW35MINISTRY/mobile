@@ -17,6 +17,8 @@ import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { LoginResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/auth-types';
+import { ENVIRONMENT_TYPE } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import { getEnvironment } from '../utilities/utilities';
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -52,7 +54,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
                 ref={formInputRef}
               />
               {
-                ENVIRONMENT === "DEVELOPMENT" && <CheckBox onChange={() => setPopulateDemoProfile(!populateDemoProfile)} label='Populate Demo Profile' />
+                [ENVIRONMENT_TYPE.LOCAL, ENVIRONMENT_TYPE.DEVELOPMENT].includes(getEnvironment()) && <CheckBox onChange={() => setPopulateDemoProfile(!populateDemoProfile)} label='Populate Demo Profile' />
               }
               <Raised_Button buttonStyle={styles.sign_in_button}
                 text='Create Account'

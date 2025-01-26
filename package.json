@@ -11,7 +11,7 @@
     "start-nocache": "react-native start --reset-cache",
     "postversion": "react-native-version",
     "tsc": "tsc",
-    "clean": "rimraf build && rm -rf ios/build androidapp/build .gradle",
+    "clean": "rimraf build && rm -rf ios/build android/app/build .gradle",
     "build": "npm run clean && npm run tsc --",
     "watch": "npm run build -- -w",
     "watchAndRunAndroid": "concurrently \"npm run watch\" \"npm run android\"",

@@ -1,4 +1,12 @@
-import { DeviceOSEnum } from "../input-config-sync/inputField"
+
+/*********** ONLY DEPENDENCIES FROM DIRECTORY: /field-sync/ ***********/
+
+
+/************************************************************
+*    NOTIFICATION DEVICE TYPE CONFIGURATION FILE            *a
+* Sync across all repositories: server, portal, mobile      *
+* Server: 1-src\1-api\8-notification\notification-types.mts *
+*************************************************************/
 
 export type NotificationDeviceVerify = {
     deviceID?: number,
@@ -8,14 +16,15 @@ export type NotificationDeviceVerify = {
 export type NotificationDeviceSignup = {
     deviceToken: string,
     deviceName?: string,
-    deviceOS?: DeviceOSEnum
+    deviceOS?: string
 }
 
-export type NotificationDeviceListItem = {
+export interface NotificationDeviceListItem {
     deviceID:number, //Readonly, record in Database
     userID:number,
     deviceName:string,
-    modifiedDT:string //ISO string
+    modifiedDT:string, //ISO string
+    endpointARN?:string //ADMIN detailed
 }
 
 export enum DeviceVerificationResponseType {

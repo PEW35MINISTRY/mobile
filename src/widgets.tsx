@@ -664,7 +664,7 @@ export const DeleteButton = (props:{callback:(() => void),  buttonView?:ViewStyl
     )
 }
 
-export const DeleteConfirmation = (props:{callback:(() => void), onCancel:(() => void), itemName:string}):JSX.Element => {
+export const Confirmation = (props:{callback:(() => void), onCancel:(() => void), promptText:string, buttonText:string}):JSX.Element => {
     const styles = StyleSheet.create({
         deleteView: {
             backgroundColor: COLORS.black,
@@ -690,10 +690,10 @@ export const DeleteConfirmation = (props:{callback:(() => void), onCancel:(() =>
     
     return (
         <SafeAreaView style={styles.deleteView}>
-            <Text allowFontScaling={false} style={styles.confirmDeleteText}>Are you sure you want to delete {props.itemName}?</Text>
+            <Text allowFontScaling={false} style={styles.confirmDeleteText}>Are you sure you want to {props.promptText}?</Text>
             <View style={styles.buttons}>
                 <Raised_Button buttonStyle={styles.sign_in_button}
-                    text='Delete'
+                    text={props.buttonText}
                     onPress={() => props.callback()}
                 />
                 <Outline_Button 

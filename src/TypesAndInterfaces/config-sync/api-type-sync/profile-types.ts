@@ -1,6 +1,5 @@
 /************* ONLY DEPENDENCIES FROM DIRECTORY: /field-sync/ *************/
 
-import { DeviceOSEnum } from '../input-config-sync/inputField.js';
 import { ModelSourceEnvironmentEnum, GenderEnum, PartnerStatusEnum, RoleEnum } from '../input-config-sync/profile-field-config.js'
 import { CircleAnnouncementListItem, CircleListItem } from './circle-types.js'
 import { ContentListItem } from './content-types.js';
