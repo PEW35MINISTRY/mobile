@@ -46,7 +46,7 @@ export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string
             if (props.userID == userID) setRequestorImage({uri: userProfileImage})
             else fetchProfileImage();
         }
-    },[userProfileImage])
+    },[userProfileImage, props.imageUri, props.userID])
     return <Image source={requestorImage} style={styles.profileImage} resizeMode="contain"></Image> 
 }
 
