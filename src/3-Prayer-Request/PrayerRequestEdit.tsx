@@ -11,7 +11,7 @@ import PrayerRequestList from './PrayerRequestList';
 import InputField, { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
-import { Outline_Button, Raised_Button, XButton } from '../widgets';
+import { Confirmation, Outline_Button, Raised_Button, XButton } from '../widgets';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
@@ -34,7 +34,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
         }
     }
 
-    const handlePrayerRequestDelete = () =>
+    const onPrayerRequestDelete = () =>
         axios.delete(`${DOMAIN}/api/prayer-request-edit/` + props.prayerRequestListData.prayerRequestID, RequestAccountHeader)
             .then((response) => {
                 props.callback(undefined, undefined, true);
@@ -140,19 +140,12 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                         animationType='slide'
                         transparent={true}
                     >
-                        <View style={styles.deleteView}>
-                            <Text allowFontScaling={false} style={styles.confirmDeleteText}>Are you sure you want to delete this prayer request?</Text>
-                            <View style={styles.buttons}>
-                                <Raised_Button buttonStyle={styles.sign_in_button}
-                                    text='Delete'
-                                    onPress={handlePrayerRequestDelete}
-                                />
-                                <Outline_Button 
-                                    text="Cancel"
-                                    onPress={() => setDeletePrayerRequestModalVisible(false)}
-                                />
-                            </View>
-                        </View>
+                        <Confirmation 
+                            callback={onPrayerRequestDelete}
+                            onCancel={() => setDeletePrayerRequestModalVisible(false)}
+                            promptText='delete this prayer request'
+                            buttonText='Delete'
+                        />
                     </Modal>
                     
                 </View>

@@ -1,27 +1,24 @@
 import { DOMAIN, ENVIRONMENT } from '@env';
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import keychain from 'react-native-keychain'
 import { render } from 'react-dom';
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { GestureResponderEvent, Image, Modal, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import HANDS from '../../assets/hands.png';
-import PEW35 from '../../assets/pew35-logo.png';
+import { Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SIGNUP_PROFILE_FIELDS_USER } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, resetAccount, setAccount } from '../redux-store';
+import { RootState, registerNotificationDevice, resetAccount, setAccount, setDeviceID } from '../redux-store';
 import theme, { COLORS } from '../theme';
 import { Raised_Button, BackButton, CheckBox } from '../widgets';
 import ProfileImageSettings from './ProfileImageSettings';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
-import { ProfileResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
+import { LoginResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/auth-types';
+import { ENVIRONMENT_TYPE } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import { getEnvironment } from '../utilities/utilities';
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -32,12 +29,14 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const onSignUp = (formValues:Record<string, string | string[]>) => {
       // send data to server
-      axios.post(`${DOMAIN}/signup${populateDemoProfile ? '?populate=true' : ''}`, formValues).then(response => {
+      axios.post(`${DOMAIN}/signup${populateDemoProfile ? '?populate=true' : ''}`, formValues).then((response:AxiosResponse<LoginResponseBody>) => {
         dispatch(setAccount({
           jwt: response.data.jwt,
           userID: response.data.userID,
           userProfile: response.data.userProfile,
         }));
+
+        dispatch(registerNotificationDevice);
 
         // call callback via route
         navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true})
@@ -55,7 +54,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
                 ref={formInputRef}
               />
               {
-                ENVIRONMENT === "DEVELOPMENT" && <CheckBox onChange={() => setPopulateDemoProfile(!populateDemoProfile)} label='Populate Demo Profile' />
+                [ENVIRONMENT_TYPE.LOCAL, ENVIRONMENT_TYPE.DEVELOPMENT].includes(getEnvironment()) && <CheckBox onChange={() => setPopulateDemoProfile(!populateDemoProfile)} label='Populate Demo Profile' />
               }
               <Raised_Button buttonStyle={styles.sign_in_button}
                 text='Create Account'

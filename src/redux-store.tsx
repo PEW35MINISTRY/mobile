@@ -2,15 +2,14 @@ import type { Middleware, PayloadAction } from '@reduxjs/toolkit';
 import { DOMAIN, NEW_PARTNER_REQUEST_TIMEOUT, SETTINGS_VERSION } from '@env';
 import keychain, { UserCredentials } from 'react-native-keychain'
 import { configureStore, createAction, createReducer, createSlice } from '@reduxjs/toolkit';
-import React, { act, useState } from 'react';
 import { PartnerListItem, ProfileListItem, ProfileResponse } from './TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { CircleListItem } from './TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from './TypesAndInterfaces/routes';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { LoginResponseBody } from './TypesAndInterfaces/config-sync/api-type-sync/auth-types';
+import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
+import { generateDefaultDeviceName } from './utilities/notifications';
 import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
-
+import { DeviceVerificationResponseType } from './TypesAndInterfaces/config-sync/api-type-sync/notification-types';
 
 /******************************
    Account | Credentials Redux Reducer
@@ -65,7 +64,7 @@ const accountSlice = createSlice({
 
 // Export action functions to use in app with dispatch
 // How to use in component: https://redux-toolkit.js.org/tutorials/quick-start#use-redux-state-and-actions-in-react-components
-export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfileImage, 
+export const { setAccount, resetAccount, updateJWT, resetJWT, updateProfile, updateProfileImage, 
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
       addContact, removeContact, setContacts, addOwnedPrayerRequest, removeOwnedPrayerRequest, updateWalkLevel
@@ -76,6 +75,9 @@ export const { setAccount, resetAccount, updateJWT, updateProfile, updateProfile
 
     if(action.type === setAccount.type || action.type === updateJWT.type) {
       keychain.setGenericPassword('jwt', store.getState().account.jwt, {service: "jwt"});
+    }
+    else if (action.type === resetJWT.type) {
+      keychain.setGenericPassword('jwt', "12345", {service: "jwt"});
     }
 
     return result;
@@ -142,7 +144,7 @@ export const initializeAccountState = async(dispatch: (arg0: { payload: AccountS
     dispatch(setAccount(account));
     return true;
   }
-  catch {console.log("Auto attempt failed to Re-login with cached authentication"); return false} 
+  catch {return false} 
   
 }
 
@@ -154,12 +156,14 @@ export const initializeAccountState = async(dispatch: (arg0: { payload: AccountS
 export type SettingsState = {
   version:number, //Settings version to indicate local storage reset
   skipAnimation:boolean,
+  deviceID: number,
   lastNewPartnerRequest:number|undefined, //timestamp
 }
 
 const initialSettingsState:SettingsState = {
   version: parseInt(SETTINGS_VERSION ?? '1', 10),
   skipAnimation: false,
+  deviceID: -1,
   lastNewPartnerRequest: undefined,
 };
 
@@ -175,13 +179,14 @@ const settingsSlice = createSlice({
     clearSettings: () => initialSettingsState,
     setSkipAnimation: (state, action:PayloadAction<boolean>) => state = {...state, skipAnimation: action.payload},
     setLastNewPartnerRequest: (state) => state = {...state, lastNewPartnerRequest: Date.now()},
+    setDeviceID: (state, action:PayloadAction<number>) => state = {...state, deviceID: action.payload},
     resetLastNewPartnerRequest: (state) => state = {...state, lastNewPartnerRequest: undefined},    
   },
 });
 
 //Export Dispatch Actions
 export const { setSettings, resetSettings, setSkipAnimation, 
-    setLastNewPartnerRequest, resetLastNewPartnerRequest, clearSettings
+    setLastNewPartnerRequest, resetLastNewPartnerRequest, clearSettings, setDeviceID
 } = settingsSlice.actions;
 
 
@@ -196,7 +201,7 @@ export const initializeSettingsState = async(dispatch: (arg0: { payload: Setting
         }
         else {
           console.warn("Invalid settings configuration, or settings version changed.");
-          dispatch(setSettings({...initialSettingsState, ...savedSettings}));
+          dispatch(setSettings({...initialSettingsState, ...savedSettings, version: parseInt(SETTINGS_VERSION ?? '1')}));
           return false;
         }
     } catch (error) {
@@ -205,6 +210,25 @@ export const initializeSettingsState = async(dispatch: (arg0: { payload: Setting
         return false;
     }
 };
+
+export const registerNotificationDevice = async(dispatch: (arg0: { payload: number, type: 'settings/setDeviceID'; }) => void, getState: () => any):Promise<void> => {
+  const reduxState = getState();
+  const userID = reduxState.account.userID;
+  const deviceID = reduxState.settings.deviceID;
+  const jwt = reduxState.account.jwt;
+  const deviceToken = reduxState.deviceToken;
+
+  if (deviceID === -1) {
+    const response:AxiosResponse<string> = await axios.post(`${DOMAIN}/api/user/${userID}/notification/device`, {deviceToken: deviceToken, deviceName: generateDefaultDeviceName()}, { headers: { jwt }});
+    const responseDeviceID = parseInt(response.data);
+    if (responseDeviceID !== deviceID) dispatch(setDeviceID(responseDeviceID));
+  } else {
+      await axios.post(`${DOMAIN}/api/user/${userID}/notification/device/${deviceID}/verify`, {deviceToken: deviceToken}, { headers: { jwt }}).catch((error:AxiosError<ServerErrorResponse>) => {
+        dispatch(setDeviceID(-1));
+        if (error.response?.data.notification === DeviceVerificationResponseType.DELETED) store.dispatch(registerNotificationDevice);
+      })
+  }
+}
 
 export const saveSettingsMiddleware:Middleware = store => next => action => {
   const result = next(action);
@@ -221,11 +245,22 @@ export const saveSettingsMiddleware:Middleware = store => next => action => {
   return result;
 };
 
+const deviceTokenSlice = createSlice({
+  name: 'deviceToken',
+  initialState: '',
+  reducers: {
+    setDeviceToken: (state, action:PayloadAction<string>) => state = action.payload
+  }
+});
+
+export const { setDeviceToken } = deviceTokenSlice.actions;
+
 const store = configureStore({
     reducer: {
       account: accountSlice.reducer,
       navigationTab: tabSlice.reducer,
-      settings: settingsSlice.reducer
+      settings: settingsSlice.reducer,
+      deviceToken: deviceTokenSlice.reducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(saveJWTMiddleware, saveSettingsMiddleware),
 });

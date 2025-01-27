@@ -6,11 +6,17 @@
 ********************************************************/
 
 export enum ENVIRONMENT_TYPE {
+    LOCAL = 'LOCAL',
     DEVELOPMENT = 'DEVELOPMENT',
     PRODUCTION = 'PRODUCTION'
 }
 
 export const SUPPORTED_IMAGE_EXTENSION_LIST = ['png', 'jpg', 'jpeg'];  //Sync with AWS settings
+
+export enum DeviceOSEnum {
+    IOS = 'IOS',
+    ANDROID = 'ANDROID'
+}
 
 export enum InputType {
     TEXT = 'TEXT',
