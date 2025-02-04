@@ -10,6 +10,7 @@ import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
 import { generateDefaultDeviceName } from './utilities/notifications';
 import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import { DeviceVerificationResponseType } from './TypesAndInterfaces/config-sync/api-type-sync/notification-types';
+import { Platform } from 'react-native';
 
 /******************************
    Account | Credentials Redux Reducer
@@ -219,7 +220,7 @@ export const registerNotificationDevice = async(dispatch: (arg0: { payload: numb
   const deviceToken = reduxState.deviceToken;
 
   if (deviceID === -1) {
-    const response:AxiosResponse<string> = await axios.post(`${DOMAIN}/api/user/${userID}/notification/device`, {deviceToken: deviceToken, deviceName: generateDefaultDeviceName()}, { headers: { jwt }});
+    const response:AxiosResponse<string> = await axios.post(`${DOMAIN}/api/user/${userID}/notification/device`, {deviceToken: deviceToken, deviceName: generateDefaultDeviceName(), deviceOS: Platform.OS.toUpperCase()}, { headers: { jwt }});
     const responseDeviceID = parseInt(response.data);
     if (responseDeviceID !== deviceID) dispatch(setDeviceID(responseDeviceID));
   } else {
