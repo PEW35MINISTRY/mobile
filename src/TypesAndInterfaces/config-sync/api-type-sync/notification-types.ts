@@ -16,7 +16,7 @@ export type NotificationDeviceVerify = {
 export type NotificationDeviceSignup = {
     deviceToken: string,
     deviceName?: string,
-    deviceOS?: string
+    deviceOS: string
 }
 
 export interface NotificationDeviceListItem {
