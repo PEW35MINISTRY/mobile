@@ -9,8 +9,8 @@ import { DOMAIN } from "@env";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import { PartnershipContractModal } from "../4-Partners/partnership-widgets";
-import { RootSiblingParent } from 'react-native-root-siblings';
 import WalkLevelQuiz from "../Widgets/WalkLevelQuiz/WalkLevelQuiz";
+import Toast from "react-native-toast-message";
 
 const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?:boolean}):JSX.Element => {
 
@@ -63,7 +63,6 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
     return (
         
         <SafeAreaView style={{flex: 1, height: '100%'}}>
-            <RootSiblingParent>
                 <WalkLevelQuiz callback={POST_NewPartner}/>
                 <PartnershipContractModal
                     visible={requestNewPartnerModalVisible}
@@ -72,11 +71,8 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
                     declinePartnershipRequest={() => declinePartnershipRequest()}
                     onClose={() => setRequestNewPartnerModalVisible(false)}
                 />
-            </RootSiblingParent>
+            <Toast />
         </SafeAreaView>
-
-
-
     )
 }
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView, Platform } from "react-native";
-import InputField, { InputRangeField } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
 import { EDIT_PROFILE_FIELDS_ADMIN, walkLevelMultiplier, walkLevelOptions } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import ToastQueueManager from "../../utilities/ToastQueueManager";
 import axios, { AxiosError, AxiosResponse } from "axios";
@@ -9,10 +8,9 @@ import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
 import { RootState, updateProfile, updateWalkLevel } from "../../redux-store";
 import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import { BackButton, Raised_Button } from "../../widgets";
-import { RootSiblingParent } from 'react-native-root-siblings';
 import theme, { COLORS } from "../../theme";
-import { FormInput } from "../FormInput/FormInput";
-import { FormSubmit } from "../FormInput/form-input-types";
+import Toast from "react-native-toast-message";
+
 
 const WalkLevelQuiz = (props:{callback?:((val:number) => void)}):JSX.Element => {
 
@@ -48,7 +46,6 @@ const WalkLevelQuiz = (props:{callback?:((val:number) => void)}):JSX.Element => 
     }
 
     return (
-        <RootSiblingParent>
             <SafeAreaView style={styles.backgroundView}>
                 <View style={styles.container}>
                     <Text allowFontScaling={false} style={styles.titleText}>How do you see your relationship with God?</Text>
@@ -61,10 +58,8 @@ const WalkLevelQuiz = (props:{callback?:((val:number) => void)}):JSX.Element => 
                         />
                     </View>
                 <BackButton callback={() => props.callback !== undefined && props.callback(-1)} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
+                <Toast />
             </SafeAreaView>
-        </RootSiblingParent>
-        
-
     )
 }
 

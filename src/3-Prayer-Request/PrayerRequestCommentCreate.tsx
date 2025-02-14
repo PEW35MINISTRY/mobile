@@ -14,7 +14,7 @@ import { RootState } from '../redux-store';
 import { useAppSelector } from '../TypesAndInterfaces/hooks';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
-import { RootSiblingParent } from 'react-native-root-siblings';
+import Toast from 'react-native-toast-message';
 
 export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerRequestListItem, callback:((prayerRequestComment?:PrayerRequestCommentListItem) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -54,7 +54,6 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
     }
 
     return (
-      <RootSiblingParent>
         <View style={styles.center}>
           <View style={theme.background_view}>
               <Text allowFontScaling={false} style={styles.header}>Create Comment</Text>
@@ -70,8 +69,8 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
 
           </View>
           <XButton callback={props.callback}/>
+          <Toast />
         </View> 
-      </RootSiblingParent>
     )
 }
 

@@ -6,7 +6,6 @@ import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { clearSettings, resetAccount, resetJWT, resetSettings, RootState, setAccount, setContacts, setSettings, updateProfile } from '../redux-store';
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import { RootSiblingParent } from 'react-native-root-siblings';
 
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
@@ -15,6 +14,7 @@ import { NOTIFICATION_DEVICE_FIELDS } from '../TypesAndInterfaces/config-sync/in
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
+import Toast from 'react-native-toast-message';
 
 const Devices = (props:{callback?:(() => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -40,7 +40,7 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
                 const newNotificationDevice = {...selectedDevice, deviceName: deviceName};
                 setSelectedDevice(newNotificationDevice);
                 setDevices([newNotificationDevice, ...devices.filter((device) => device.deviceID !== newNotificationDevice.deviceID)]);
-                ToastQueueManager.show({message: "Device Name Saved"});
+                ToastQueueManager.show({message: "Device Name Saved", options: {type: "success"}});
                 
             }
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
@@ -53,7 +53,7 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
                 setInfoModalVisible(false);
                 setDevices(devices.filter((device) => device.deviceID !== selectedDevice.deviceID));
                 setSelectedDevice(undefined);
-                ToastQueueManager.show({message: "Device Removed"});
+                ToastQueueManager.show({message: "Device Removed", options: {type: "success"}});
             }
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error))
     }
@@ -72,7 +72,6 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
     }, []);
 
     return (
-        <RootSiblingParent>
         <SafeAreaView style={styles.backgroundColor}>
             <Text allowFontScaling={false} style={styles.header}>Devices</Text>
             <ScrollView contentContainerStyle={styles.container}>
@@ -84,7 +83,6 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
                 animationType='slide'
                 transparent={true}
             >
-                <RootSiblingParent>
                     <View style={styles.infoModalView}>
                         <View style={styles.deviceView}>
                             <Text allowFontScaling={false} style={styles.header}>Device Details</Text>
@@ -115,13 +113,11 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
                             />
                         </Modal>
                     </View>
-                </RootSiblingParent>
+                <Toast/>
             </Modal>
             <BackButton callback={() => props.callback !== undefined && props.callback()} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
-
-            
+            <Toast />
         </SafeAreaView>
-        </RootSiblingParent>
     )
 }
 

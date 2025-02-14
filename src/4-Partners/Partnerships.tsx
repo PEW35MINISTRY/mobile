@@ -1,7 +1,5 @@
 import { DOMAIN, NEW_PARTNER_REQUEST_TIMEOUT } from "@env";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { Buffer } from "buffer";
-import keychain from 'react-native-keychain'
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
@@ -11,11 +9,10 @@ import { BackButton, Dropdown_Select, Outline_Button, Raised_Button } from "../w
 import { PartnershipContractModal, PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partnership-widgets";
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
 import { PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
-import { RootSiblingParent } from 'react-native-root-siblings';
 import NewPartner from "../0-Pages/NewPartner";
+import Toast from "react-native-toast-message";
 
 // pending partner acceptance, full partner, pending user
 const enum PartnerViewMode {
@@ -169,7 +166,6 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
     }, [userProfilePendingPartners, userProfilePendingUsers])
 
     return (
-        <RootSiblingParent>
             <SafeAreaView style={styles.backgroundColor}>
                 <View style={styles.container}>
                     <View style={styles.viewModeView}>
@@ -230,9 +226,8 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
                 />
 
                 <BackButton callback={() => props.callback !== undefined && props.callback(-1)} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
-            </SafeAreaView>
-        </RootSiblingParent>       
-     
+                <Toast />
+            </SafeAreaView>   
   );
 
 }

@@ -1,17 +1,17 @@
 import { AxiosError } from "axios";
-import Toast, { ToastOptions } from "react-native-root-toast";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
-import { useState } from "react";
 import { navigationRef } from "../App";
 import { ROUTE_NAMES } from "../TypesAndInterfaces/routes";
+import Toast, { ToastShowParams } from 'react-native-toast-message';
 
-const DefaultToastConfig:ToastOptions = {
-    duration: Toast.durations.LONG
+const DefaultToastConfig:ToastShowParams = {
+    position: "bottom",
+    type: "info"
 }
 
 interface ToastQueueManagerParams {
     message: string,
-    options?: ToastOptions
+    options?: ToastShowParams
 }
 
 class ToastQueueManager {
@@ -27,7 +27,7 @@ class ToastQueueManager {
         this.timeoutCount = 0;
         this.isOfflineWarningShown = false;
     }
-    show({error, options, message}: {error?: AxiosError<ServerErrorResponse>; options?:ToastOptions; message?:string}): void {
+    show({error, options, message}: {error?: AxiosError<ServerErrorResponse>; options?:ToastShowParams; message?:string}): void {
 
         const ToastConfig = {...DefaultToastConfig, options}
 
@@ -61,6 +61,7 @@ class ToastQueueManager {
 
 
     showNextToast() {
+        console.log("showNextToast called");
         if (this.queue.length === 0) return;
 
         //@ts-ignore - queue will never be empty here
@@ -68,12 +69,16 @@ class ToastQueueManager {
 
         this.isToastVisible = true;
 
-        Toast.show(toastParams.message, {
+        // use setTimeout to toggle next toast; onHide fails in the case of the Toast ref beng lost lost due to the screen becoming unfocused
+        setTimeout(() => {
+            console.log("hide");
+            this.isToastVisible = false;
+            this.showNextToast();
+        }, 4000)
+
+        Toast.show({
+            text1: toastParams.message,
             ...toastParams.options,
-            onHidden: () => {
-                this.isToastVisible = false;
-                this.showNextToast();
-            }
         });
        
     }
