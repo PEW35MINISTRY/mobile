@@ -122,7 +122,8 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                     animationType='slide'
                     transparent={true}
                 >
-                    <PrayerRequestCreate callback={() => {setPrayerRequestCreateModalVisible(false); setViewMode(PrayerRequestListViewMode.OWNER)}}/>
+                    <PrayerRequestCreate callback={() => {setPrayerRequestCreateModalVisible(false); setViewMode(PrayerRequestListViewMode.OWNER); ToastQueueManager.show({message: "Sucessfully created Prayer Request"});
+}}/>
                 </Modal>
             </View>
 

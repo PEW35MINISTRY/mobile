@@ -64,7 +64,8 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
 
     const renderComments = ():JSX.Element[] => 
         (commentsData || []).map((comment:PrayerRequestCommentListItem, index:number) => 
-            <PrayerRequestComment commentProp={comment} key={index} callback={(commentID:number) => {setCommentsData((commentsData || []).filter((commentItem:PrayerRequestCommentListItem) => commentItem.commentID !== commentID ))}} />
+            <PrayerRequestComment commentProp={comment} key={index} callback={(commentID:number) => {setCommentsData((commentsData || []).filter((commentItem:PrayerRequestCommentListItem) => commentItem.commentID !== commentID )); ToastQueueManager.show({message: "Comment deleted"});
+}} />
         );
     
     const renderUserRecipients = ():JSX.Element[] => 
@@ -202,7 +203,8 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                             <View style={styles.commentCreateView}>
                             <PrayerRequestCommentCreate 
                                 prayerRequestItem={appPrayerRequestListItem}
-                                callback={(commentListItem?:PrayerRequestCommentListItem) => {if (commentListItem !== undefined ) setCommentsData ([...commentsData || [], commentListItem]); setCommentCreateModalVisible(false)}}
+                                callback={(commentListItem?:PrayerRequestCommentListItem) => {if (commentListItem !== undefined ) setCommentsData ([...commentsData || [], commentListItem]); setCommentCreateModalVisible(false); ToastQueueManager.show({message: "Comment posted"});
+                            }}
                             />
                             </View>
 
