@@ -28,7 +28,6 @@ export const initializeNotifications = async () => {
     Notifications.registerRemoteNotifications();
 
     Notifications.events().registerRemoteNotificationsRegistered(async (event: Registered) => {
-      console.log(event.deviceToken);
       dispatch(setDeviceToken(event.deviceToken));
     });
     initializeNotificationCallbacks();

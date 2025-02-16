@@ -62,7 +62,6 @@ class ToastQueueManager {
 
 
     showNextToast() {
-        console.log("showNextToast called");
         if (this.queue.length === 0) return;
 
         //@ts-ignore - queue will never be empty here
@@ -72,7 +71,6 @@ class ToastQueueManager {
 
         // use setTimeout to toggle next toast; onHide fails in the case of the Toast ref beng lost lost due to the screen becoming unfocused
         setTimeout(() => {
-            console.log("hide");
             this.isToastVisible = false;
             this.queue.length === 0 && toastParams.callback !== undefined && toastParams.callback(false);
             this.showNextToast();
