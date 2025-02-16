@@ -22,8 +22,8 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
     const [newPartner, setNewPartner] = useState<PartnerListItem>({
         status: PartnerStatusEnum.FAILED,
         userID: -1,
-        firstName: "E",
-        displayName: "E"
+        firstName: "",
+        displayName: ""
     });
 
     const RequestAccountHeader = {
