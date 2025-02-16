@@ -11,7 +11,7 @@ import { BackButton, Raised_Button } from "../../widgets";
 import theme, { COLORS } from "../../theme";
 import Toast from "react-native-toast-message";
 
-const WalkLevelQuiz = (props:{callback?:((val:number, callback?:((value:any) => void)) => void)}):JSX.Element => {
+const WalkLevelQuiz = (props:{callback?:((val:number, setToastRefState?:((value:any) => void)) => void)}):JSX.Element => {
 
     const dispatch = useAppDispatch();
     const jwt = useAppSelector((state: RootState) => state.account.jwt);

@@ -32,13 +32,13 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
         }
     }
 
-    const POST_NewPartner = (callbackState:number, toastCallback?:((value:any) => void)) => {
+    const POST_NewPartner = (callbackState:number, setToastRefState?:((value:any) => void)) => {
         if (callbackState < 0 && props.callback !== undefined) {props.callback(-1); return} 
         
         axios.post(`${DOMAIN}/api/user/` + userID + '/new-partner', {}, RequestAccountHeader).then((response:AxiosResponse<PartnerListItem>) => {
             setNewPartner(response.data);
             setRequestNewPartnerModalVisible(true);
-        }).catch((error:AxiosError<ServerErrorResponse>) => {toastCallback !== undefined && toastCallback(true); ToastQueueManager.show({error, callback: toastCallback})});
+        }).catch((error:AxiosError<ServerErrorResponse>) => {setToastRefState !== undefined && setToastRefState(true); ToastQueueManager.show({error, callback: setToastRefState})});
     }
 
     const acceptPartnershipRequest = () => {
