@@ -11,22 +11,22 @@ import { BackButton, Raised_Button } from "../../widgets";
 import theme, { COLORS } from "../../theme";
 import Toast from "react-native-toast-message";
 
-
-const WalkLevelQuiz = (props:{callback?:((val:number) => void)}):JSX.Element => {
+const WalkLevelQuiz = (props:{callback?:((val:number, callback?:((value:any) => void)) => void)}):JSX.Element => {
 
     const dispatch = useAppDispatch();
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
     const [walkLevelValue, setWalkLevelValue] = useState(Math.floor(userProfile.walkLevel / 2));
+    const [showToastRef, setShowToastRef] = useState(false);
 
     const onSaveWalkLevel = () => {
         const walkLevel = walkLevelValue * walkLevelMultiplier;
         dispatch(updateWalkLevel(walkLevel));
         
         axios.patch(`${DOMAIN}/api/user/${userID}/walk-level`, { walkLevel }, {headers: {"jwt": jwt}}).then((response:AxiosResponse) => {
-            props.callback !== undefined && props.callback(1)
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+            props.callback !== undefined && props.callback(1, setShowToastRef)
+        }).catch((error:AxiosError<ServerErrorResponse>) => {setShowToastRef(true); ToastQueueManager.show({error, callback: setShowToastRef}) });
     }
 
     const renderWalkLevelOptions = () => {
@@ -58,7 +58,7 @@ const WalkLevelQuiz = (props:{callback?:((val:number) => void)}):JSX.Element => 
                         />
                     </View>
                 <BackButton callback={() => props.callback !== undefined && props.callback(-1)} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
-                <Toast />
+                {showToastRef && <Toast />}
             </SafeAreaView>
     )
 }

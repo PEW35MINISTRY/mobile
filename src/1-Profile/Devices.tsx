@@ -26,6 +26,8 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
     const [selectedDevice, setSelectedDevice] = useState<NotificationDeviceListItem | undefined>();
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [infoModalVisible, setInfoModalVisible] = useState(false);
+    const [showBaseToastRef, setShowBaseToastRef] = useState(false);
+    const [showNestedToastRef, setShowNestedToastRef] = useState(false);
 
     const RequestAccountHeader = {
         headers: {
@@ -40,7 +42,8 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
                 const newNotificationDevice = {...selectedDevice, deviceName: deviceName};
                 setSelectedDevice(newNotificationDevice);
                 setDevices([newNotificationDevice, ...devices.filter((device) => device.deviceID !== newNotificationDevice.deviceID)]);
-                ToastQueueManager.show({message: "Device Name Saved", options: {type: "success"}});
+                setShowNestedToastRef(true);
+                ToastQueueManager.show({message: "Device Name Saved", options: {type: "success"}, callback: setShowNestedToastRef});
                 
             }
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
@@ -49,11 +52,12 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
     const onDeletePress = () => {
         axios.delete(`${DOMAIN}/api/user/${userID}/notification/device/${selectedDevice?.deviceID}`, RequestAccountHeader).then((response:AxiosResponse<string>) => {
             if (selectedDevice !== undefined) {
-                setDeleteModalVisible(false);
                 setInfoModalVisible(false);
+                setDeleteModalVisible(false);
                 setDevices(devices.filter((device) => device.deviceID !== selectedDevice.deviceID));
+                setShowBaseToastRef(true);
+                ToastQueueManager.show({message: "Device Removed", options: {type: "success"}, callback: setShowBaseToastRef});
                 setSelectedDevice(undefined);
-                ToastQueueManager.show({message: "Device Removed", options: {type: "success"}});
             }
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show(error))
     }
@@ -113,10 +117,10 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
                             />
                         </Modal>
                     </View>
-                <Toast/>
+                {showNestedToastRef && <Toast/>}
             </Modal>
             <BackButton callback={() => props.callback !== undefined && props.callback()} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
-            <Toast />
+            {showBaseToastRef && <Toast />}
         </SafeAreaView>
     )
 }

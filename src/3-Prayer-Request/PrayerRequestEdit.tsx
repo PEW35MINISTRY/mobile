@@ -27,6 +27,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
     const [removeCircleRecipientIDList, setRemoveCircleRecipientIDList] = useState<number[]>([]);
     const [recipientFormModalVisible, setRecipientFormModalVisible] = useState(false);
     const [deletePrayerRequestModalVisible, setDeletePrayerRequestModalVisible] = useState(false);
+    const [showToastRef, setShowToastRef] = useState(false);
 
     const RequestAccountHeader = {
         headers: {
@@ -38,6 +39,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
         axios.delete(`${DOMAIN}/api/prayer-request-edit/` + props.prayerRequestListData.prayerRequestID, RequestAccountHeader)
             .then((response) => {
                 props.callback(undefined, undefined, true);
+                ToastQueueManager.show({message: "Prayer request deleted"})
             }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
 
 
@@ -77,13 +79,13 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                 newPrayerRequestListItem.topic = newPrayerRequest.topic;
                 newPrayerRequestListItem.tagList = newPrayerRequest.tagList
 
+                ToastQueueManager.show({message: "Prayer Request saved"})
                 props.callback(newPrayerRequest, newPrayerRequestListItem);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+            }).catch((error:AxiosError<ServerErrorResponse>) => { setShowToastRef(true); ToastQueueManager.show({error, callback: setShowToastRef})});
         }
         else {
             props.callback();
         }
-
     }
 
     return (
@@ -149,7 +151,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                     
                 </View>
                 <XButton callback={props.callback} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
-                <Toast />
+                {showToastRef && <Toast />}
             </SafeAreaView>  
     )
 }

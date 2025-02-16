@@ -123,7 +123,7 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
 
         if (settingsRef.lastNewPartnerRequest !== undefined && (Date.now() - parseInt(NEW_PARTNER_REQUEST_TIMEOUT ?? '3600000')) < settingsRef.lastNewPartnerRequest) {
             let timeoutEnd = Math.ceil(((settingsRef.lastNewPartnerRequest + parseInt(NEW_PARTNER_REQUEST_TIMEOUT ?? '3600000')) - Date.now()) / 3600000); // round up to the nearest hour
-            ToastQueueManager.show({message: `Please try again in ${timeoutEnd} hours`});
+            ToastQueueManager.show({message: `New partner available again in ${timeoutEnd} hours`});
             return;
         }
         setRequestNewPartnerModalVisible(true);

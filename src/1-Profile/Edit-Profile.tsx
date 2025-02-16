@@ -75,6 +75,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
                 updatedUserProfile
               ));
             }
+            ToastQueueManager.show({message: "Profile saved"})
             navigation.pop();
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       }

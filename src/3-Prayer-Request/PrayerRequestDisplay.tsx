@@ -139,6 +139,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
             return (
                 <View style={styles.container}>
                     <Text allowFontScaling={false} style={styles.splashText}>Please Wait</Text>
+                    <BackButton navigation={navigation} />
                 </View>
                 
             )
