@@ -9,10 +9,9 @@ import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState, updateProfileImage } from "../redux-store";
 import theme, { COLORS } from "../theme";
 import { Outline_Button, Raised_Button } from "../widgets";
-import { ProfileImage } from "../widgets";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
-import { RootSiblingParent } from 'react-native-root-siblings';
+import Toast from "react-native-toast-message";
 
 const ProfileImageSettings = (props:{callback:(val:number) => void, continueNavigation?:boolean}):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -114,35 +113,34 @@ const ProfileImageSettings = (props:{callback:(val:number) => void, continueNavi
       }, [userProfile.image]);
 
     return (
-      <RootSiblingParent>
-        <SafeAreaView style={styles.infoView}>
-            <View style={styles.titleView}>
-              <Image source={profileImageUri} style={styles.profileImage} />
-              <Text allowFontScaling={false} style={styles.titleText}>Avatar Settings</Text>
-            </View>
-            <Outline_Button 
-                text={"Select Image"}
-                onPress={onOpenImagePicker}
-            />
-            <View style={styles.inlineImageButtons}>
-                <Raised_Button buttonStyle={styles.imageUploadButton}
-                    text={"Set As Avatar"}
-                    onPress={postProfileImage}
-                    textStyle={styles.imageUploadButtonText}
-                />
-                <Raised_Button buttonStyle={styles.imageUploadButton}
-                    text={"Delete Avatar"}
-                    onPress={deleteProfileImage}
-                    textStyle={styles.imageUploadButtonText}
-                />
-            </View>
-            <Raised_Button buttonStyle={styles.doneButton}
-                text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
-                // since we don't know if we want to pop the screen off the stack or not, let the parent screen decide, not the component.
-                onPress={() => props.callback(1)}
-            />
-        </SafeAreaView>
-      </RootSiblingParent>
+      <SafeAreaView style={styles.infoView}>
+          <View style={styles.titleView}>
+            <Image source={profileImageUri} style={styles.profileImage} />
+            <Text allowFontScaling={false} style={styles.titleText}>Avatar Settings</Text>
+          </View>
+          <Outline_Button 
+              text={"Select Image"}
+              onPress={onOpenImagePicker}
+          />
+          <View style={styles.inlineImageButtons}>
+              <Raised_Button buttonStyle={styles.imageUploadButton}
+                  text={"Set As Avatar"}
+                  onPress={postProfileImage}
+                  textStyle={styles.imageUploadButtonText}
+              />
+              <Raised_Button buttonStyle={styles.imageUploadButton}
+                  text={"Delete Avatar"}
+                  onPress={deleteProfileImage}
+                  textStyle={styles.imageUploadButtonText}
+              />
+          </View>
+          <Raised_Button buttonStyle={styles.doneButton}
+              text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
+              // since we don't know if we want to pop the screen off the stack or not, let the parent screen decide, not the component.
+              onPress={() => props.callback(1)}
+          />
+          <Toast />
+      </SafeAreaView>
         
     )
 }

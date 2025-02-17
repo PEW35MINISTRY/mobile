@@ -14,7 +14,7 @@ import { Outline_Button, Raised_Button, XButton } from '../widgets';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
-import { RootSiblingParent } from 'react-native-root-siblings';
+import Toast from 'react-native-toast-message';
 
 const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListItem) => void)}):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -60,7 +60,6 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
     }
 
     return (
-        <RootSiblingParent>
             <SafeAreaView style={styles.center}>
                 <View style={styles.background_view}>
                     <View style={styles.headerThing}>
@@ -100,9 +99,8 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
                     </Modal>
                 </View>
                 <XButton callback={props.callback} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
+                <Toast />
             </SafeAreaView>
-        </RootSiblingParent>
-        
     )
 }
 

@@ -15,7 +15,7 @@ import { Confirmation, Outline_Button, Raised_Button, XButton } from '../widgets
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
-import { RootSiblingParent } from 'react-native-root-siblings';
+import Toast from 'react-native-toast-message';
 
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -27,6 +27,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
     const [removeCircleRecipientIDList, setRemoveCircleRecipientIDList] = useState<number[]>([]);
     const [recipientFormModalVisible, setRecipientFormModalVisible] = useState(false);
     const [deletePrayerRequestModalVisible, setDeletePrayerRequestModalVisible] = useState(false);
+    const [showToastRef, setShowToastRef] = useState(false);
 
     const RequestAccountHeader = {
         headers: {
@@ -38,6 +39,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
         axios.delete(`${DOMAIN}/api/prayer-request-edit/` + props.prayerRequestListData.prayerRequestID, RequestAccountHeader)
             .then((response) => {
                 props.callback(undefined, undefined, true);
+                ToastQueueManager.show({message: "Prayer request deleted"})
             }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
 
 
@@ -77,17 +79,16 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                 newPrayerRequestListItem.topic = newPrayerRequest.topic;
                 newPrayerRequestListItem.tagList = newPrayerRequest.tagList
 
+                ToastQueueManager.show({message: "Prayer Request saved"})
                 props.callback(newPrayerRequest, newPrayerRequestListItem);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+            }).catch((error:AxiosError<ServerErrorResponse>) => { setShowToastRef(true); ToastQueueManager.show({error, callback: setShowToastRef})});
         }
         else {
             props.callback();
         }
-
     }
 
     return (
-        <RootSiblingParent>
             <SafeAreaView style={styles.center}>
                 <View style={styles.background_view}>
                     <Text allowFontScaling={false} style={styles.header}>Edit Prayer Request</Text>
@@ -150,9 +151,8 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                     
                 </View>
                 <XButton callback={props.callback} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
-            </SafeAreaView>
-        </RootSiblingParent>
-        
+                {showToastRef && <Toast />}
+            </SafeAreaView>  
     )
 }
 

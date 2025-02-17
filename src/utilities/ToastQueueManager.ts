@@ -1,17 +1,18 @@
 import { AxiosError } from "axios";
-import Toast, { ToastOptions } from "react-native-root-toast";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
-import { useState } from "react";
 import { navigationRef } from "../App";
 import { ROUTE_NAMES } from "../TypesAndInterfaces/routes";
+import Toast, { ToastShowParams } from 'react-native-toast-message';
 
-const DefaultToastConfig:ToastOptions = {
-    duration: Toast.durations.LONG
+const DefaultToastConfig:ToastShowParams = {
+    position: "bottom",
+    type: "info"
 }
 
 interface ToastQueueManagerParams {
     message: string,
-    options?: ToastOptions
+    options?: ToastShowParams,
+    callback?: ((value:any) => void),
 }
 
 class ToastQueueManager {
@@ -27,7 +28,7 @@ class ToastQueueManager {
         this.timeoutCount = 0;
         this.isOfflineWarningShown = false;
     }
-    show({error, options, message}: {error?: AxiosError<ServerErrorResponse>; options?:ToastOptions; message?:string}): void {
+    show({error, options, message, callback}: {error?: AxiosError<ServerErrorResponse>; options?:ToastShowParams; message?:string; callback?:((value:any) => void)}): void {
 
         const ToastConfig = {...DefaultToastConfig, options}
 
@@ -39,20 +40,20 @@ class ToastQueueManager {
         if (error !== undefined) {
             // Handle server connection issues
             if (error.code === "ERR_NETWORK") {
-                this.queue.push({message: "Unable to connect to the server. Try again later", options: ToastConfig});
+                this.queue.push({message: "Unable to connect to the server. Try again later", options: ToastConfig, callback: callback});
 
                 this.timeoutCount = this.timeoutCount + 1;
             }
 
             // Display notification from server
-            else if (error.response !== undefined) this.queue.push({message: error.response.data.notification, options: ToastConfig});
+            else if (error.response !== undefined) this.queue.push({message: error.response.data.notification, options: ToastConfig, callback: callback});
             
             // Should never get here, but covering for all cases
             else this.queue.push({message: "Server Error", options: ToastConfig});
         }
         else {
             // Display custom message
-            if (message !== undefined) this.queue.push({message: message, options: ToastConfig});
+            if (message !== undefined) this.queue.push({message: message, options: ToastConfig, callback: callback});
             else this.queue.push({message: "Problem displaying message", options: ToastConfig});
         }
 
@@ -68,12 +69,16 @@ class ToastQueueManager {
 
         this.isToastVisible = true;
 
-        Toast.show(toastParams.message, {
+        // use setTimeout to toggle next toast; onHide fails in the case of the Toast ref beng lost lost due to the screen becoming unfocused
+        setTimeout(() => {
+            this.isToastVisible = false;
+            this.queue.length === 0 && toastParams.callback !== undefined && toastParams.callback(false);
+            this.showNextToast();
+        }, 4100)
+
+        Toast.show({
+            text1: toastParams.message,
             ...toastParams.options,
-            onHidden: () => {
-                this.isToastVisible = false;
-                this.showNextToast();
-            }
         });
        
     }

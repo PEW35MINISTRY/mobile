@@ -4,7 +4,6 @@ import { createStackNavigator, StackCardInterpolationProps } from '@react-naviga
 import React, { useEffect } from "react";
 import 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
-import { RootSiblingParent } from 'react-native-root-siblings';
 
 import EditProfile from "./1-Profile/Edit-Profile";
 import Login from "./0-Pages/Login";
@@ -24,6 +23,7 @@ import AnimatedLogo from './0-Pages/AnimatedLogo';
 import DashboardDisplay from './10-Dashboard/DashboardDisplay';
 import OfflineWarning from './0-Pages/OfflineWarning';
 import { initializeAppUtils } from './utilities/utilities';
+import Toast from 'react-native-toast-message';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -105,7 +105,6 @@ const App = ():JSX.Element => {
 
   return (
     <Provider store = { store }>
-      <RootSiblingParent>
         <NavigationContainer ref={navigationRef}>
           <Stack.Navigator screenOptions={{headerShown: false}}>
             <Stack.Screen name={ROUTE_NAMES.LOGIN_ROUTE_NAME} component={Login} />
@@ -116,8 +115,7 @@ const App = ():JSX.Element => {
             <Stack.Screen name={ROUTE_NAMES.OFFLINE_WARNING_ROUTE_NAME} component={OfflineWarning} />
           </Stack.Navigator>
         </NavigationContainer>
-      </RootSiblingParent>
-
+      <Toast />
     </Provider>
   );
 }

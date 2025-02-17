@@ -8,7 +8,6 @@ import theme, { COLORS, FONTS, FONT_SIZES } from '../theme';
 
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { addMemberCircle, addRequestedCircle, removeInviteCircle, removeMemberCircle, removeRequestedCircle, RootState } from '../redux-store';
-import { CircleList } from './CircleList';
 import { CircleStatusEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
@@ -94,6 +93,7 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             setAppCircleListItem(newListItem);  //update local state
             dispatch(addRequestedCircle(newListItem));
             setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.REQUEST}) : undefined);
+            ToastQueueManager.show({message: "Membership request received"});    
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
@@ -104,7 +104,8 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             setLeaveCircleModalVisible(false);
             setCircleInfoModalVisible(false);
             setAppCircleListItem(newListItem);
-            setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.NONE}) : undefined);      
+            setCurrCircleState(current => (current !== undefined) ? ({...current, requestorStatus: CircleStatusEnum.NONE}) : undefined);  
+            ToastQueueManager.show({message: `You are no longer a member of ${newListItem.name}`});    
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 

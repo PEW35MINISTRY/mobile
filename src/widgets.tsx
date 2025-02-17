@@ -13,6 +13,7 @@ import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-s
 import { makeDisplayText } from './utilities/utilities';
 import formatRelativeDate from './utilities/dateFormat';
 import Slider from '@react-native-community/slider';
+import Toast from 'react-native-toast-message';
 
 /**************************************************
  * These are reusable widgets for app consistency *
@@ -701,6 +702,7 @@ export const Confirmation = (props:{callback:(() => void), onCancel:(() => void)
                     onPress={() => props.onCancel()}
                 />
             </View>
+            <Toast />
         </SafeAreaView>
     )
 }

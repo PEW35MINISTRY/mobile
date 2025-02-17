@@ -123,7 +123,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                             .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))
                     }
                     declinePartnershipRequest={(id, partnerItem) => 
-                        axios.post(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/accept', {}, {headers: {jwt}})
+                        axios.delete(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/decline', {headers: {jwt}})
                             .then((response:AxiosResponse) => { 
                                 setNewPartner(undefined); 
                                 dispatch(removePartnerPendingUser(id)); 

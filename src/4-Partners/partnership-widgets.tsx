@@ -8,6 +8,7 @@ import { RootState } from "../redux-store";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { PARTNERSHIP_CONTRACT } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import { Outline_Button, Raised_Button } from "../widgets";
+import Toast from "react-native-toast-message";
 
 export const PrayerPartnerListItem = (props:{partner:PartnerListItem, leavePartnership:((partner:PartnerListItem) => void)}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
@@ -203,6 +204,7 @@ export const PartnershipContractModal = ({visible, partner, acceptPartnershipReq
                     />
                 </View>
             </View>
+            <Toast />
         </Modal>
     );
 }

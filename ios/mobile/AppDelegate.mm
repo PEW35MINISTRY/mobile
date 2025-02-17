@@ -3,8 +3,6 @@
 #import <React/RCTBundleURLProvider.h>
 #import "RNNotifications.h"
 
-#import "FirebaseCore.h";
-
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -14,7 +12,6 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
   [RNNotifications startMonitorNotifications];
-  [FIRApp configure];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

@@ -80,8 +80,8 @@ android {
         applicationId "com.pew35.encouragingprayer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "3.0"
+        versionCode 6
+        versionName "6.0"
     }
     signingConfigs {
         debug {

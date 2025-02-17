@@ -9,7 +9,6 @@ import { DOMAIN } from "@env";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import { PartnershipContractModal } from "../4-Partners/partnership-widgets";
-import { RootSiblingParent } from 'react-native-root-siblings';
 import WalkLevelQuiz from "../Widgets/WalkLevelQuiz/WalkLevelQuiz";
 
 const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?:boolean}):JSX.Element => {
@@ -17,7 +16,6 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
     const dispatch = useAppDispatch();
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
-    const settingsRef = useAppSelector((state:RootState) => state.settings);
 
     const [requestNewPartnerModalVisible, setRequestNewPartnerModalVisible] = useState(false);
 
@@ -34,13 +32,13 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
         }
     }
 
-    const POST_NewPartner = (callbackState:number) => {
+    const POST_NewPartner = (callbackState:number, setToastRefState?:((value:any) => void)) => {
         if (callbackState < 0 && props.callback !== undefined) {props.callback(-1); return} 
-
+        
         axios.post(`${DOMAIN}/api/user/` + userID + '/new-partner', {}, RequestAccountHeader).then((response:AxiosResponse<PartnerListItem>) => {
             setNewPartner(response.data);
             setRequestNewPartnerModalVisible(true);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+        }).catch((error:AxiosError<ServerErrorResponse>) => {setToastRefState !== undefined && setToastRefState(true); ToastQueueManager.show({error, callback: setToastRefState})});
     }
 
     const acceptPartnershipRequest = () => {
@@ -63,7 +61,6 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
     return (
         
         <SafeAreaView style={{flex: 1, height: '100%'}}>
-            <RootSiblingParent>
                 <WalkLevelQuiz callback={POST_NewPartner}/>
                 <PartnershipContractModal
                     visible={requestNewPartnerModalVisible}
@@ -72,11 +69,7 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
                     declinePartnershipRequest={() => declinePartnershipRequest()}
                     onClose={() => setRequestNewPartnerModalVisible(false)}
                 />
-            </RootSiblingParent>
         </SafeAreaView>
-
-
-
     )
 }
 

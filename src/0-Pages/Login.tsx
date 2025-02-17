@@ -1,16 +1,11 @@
 import { DOMAIN } from '@env';
 import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useRef } from 'react';
-import keychain from 'react-native-keychain'
 import { GestureResponderEvent, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
-import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
+import { useAppDispatch } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
 
 import HANDS from '../../assets/hands.png';
-import APPLE from '../../assets/logo-apple.png';
-import FACEBOOK from '../../assets/logo-facebook.png';
-import GOOGLE from '../../assets/logo-google.png';
 import LOGO from '../../assets/logo.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import TRANSPARENT from '../../assets/transparent.png';
