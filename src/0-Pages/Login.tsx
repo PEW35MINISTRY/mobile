@@ -42,7 +42,6 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
     }
 
     const onEmailLogin = (formValues:Record<string, string | string[]>) => {
-      console.log(DOMAIN);
         axios.post(`${DOMAIN}/login`, formValues).then(async (response:AxiosResponse<LoginResponseBody>) => {   
 
           dispatch(setAccount({
