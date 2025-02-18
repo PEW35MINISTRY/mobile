@@ -41,12 +41,13 @@ export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string
     }
 
     useEffect(() => {
-        if (props.imageUri !== undefined && props.imageUri !== "" && props.imageUri !== null) setRequestorImage({uri: props.imageUri})
-        else if (props.userID !== undefined) {
-            if (props.userID == userID) setRequestorImage({uri: userProfileImage})
-            else fetchProfileImage();
+        if (props.userID !== undefined && props.userID === userID && userProfileImage !== undefined) {
+            setRequestorImage({uri: userProfileImage})
         }
-    },[userProfileImage, props.imageUri, props.userID])
+        else if (props.imageUri !== undefined && props.imageUri !== "" && props.imageUri !== null) setRequestorImage({uri: props.imageUri})
+        else if (props.userID !== undefined) fetchProfileImage();
+    },[userProfileImage, props.imageUri, props.userID]);
+
     return <Image source={requestorImage} style={styles.profileImage} resizeMode="contain"></Image> 
 }
 

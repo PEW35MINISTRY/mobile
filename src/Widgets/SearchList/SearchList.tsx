@@ -275,7 +275,7 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
                 >
 
                     {(searchTerm !== undefined) ?
-                        <Text allowFontScaling={false}Input
+                        <TextInput allowFontScaling={false}
                             style={styles.searchInput}
                             placeholder={'Search...'}
                             placeholderTextColor={COLORS.accent}
