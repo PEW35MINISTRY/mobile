@@ -127,13 +127,17 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                 </Modal>
             </View>
 
-            <TouchableOpacity
-                    onPress={() =>  setPrayerRequestCreateModalVisible(true)}
-                >
-                    <View style={styles.prayerRequestCreateButton}>
+            <View style={styles.prayerRequestCreateButton}>
+                <TouchableOpacity
+                        onPress={() => setPrayerRequestCreateModalVisible(true)}
+                    >
                         <Text allowFontScaling={false} style={styles.prayerRequestCreateButtonText}>+</Text>
+
+                </TouchableOpacity>
                     </View>
-            </TouchableOpacity>
+
+            
+
         </SafeAreaView>
        
     )
