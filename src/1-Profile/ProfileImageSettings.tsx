@@ -2,7 +2,7 @@ import { DOMAIN } from "@env";
 import axios, { AxiosError } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Image, ImageSourcePropType, ImageRequireSource, SafeAreaView } from "react-native";
+import { StyleSheet, Text, View, Image, ImageSourcePropType, ImageRequireSource, SafeAreaView, Platform } from "react-native";
 import { ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } from "react-native-image-picker";
 import { CallbackParam, PROFILE_IMAGE_MIME_TYPES, StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
@@ -21,9 +21,7 @@ const ProfileImageSettings = (props:{callback:(val:number) => void, continueNavi
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
 
-    const [profileImageData, setProfileImageData] = useState<string | undefined>(undefined);
     const [profileImageUri, setProfileImageUri] = useState<ImageSourcePropType>(DEFAULT_PROFILE_ICON);
-    const [profileImageType, setProfileImageType] = useState<string | undefined>(undefined);
 
     const RequestAccountHeader = {
         headers: {
@@ -42,28 +40,13 @@ const ProfileImageSettings = (props:{callback:(val:number) => void, continueNavi
       uri: userProfile.image
     }
 
-    const deleteProfileImage = async () => {
-      // Only process the delete if the user's profile image exists. Save
-      if (userProfile.image !== undefined) {
-        await axios.delete(`${DOMAIN}/api/user/` + userID + '/image', RequestAccountHeader).then(response => {
-          dispatch(updateProfileImage(
-            undefined
-          ));
-          setProfileImageData(undefined);
-          setProfileImageUri(DEFAULT_PROFILE_ICON);
-          setProfileImageType(undefined);
-          ToastQueueManager.show({message: "Profile Image Deleted"});
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
-      }
-      else ToastQueueManager.show({message: "No Profile Image to Delete"});
-    }
-
-    const postProfileImage = async () => {
+    const postProfileImage = async (encodedImage:string, imageType:string) => {
         // Set content type of the request so the server can process the blob
-        RequestImageHeader["headers"]["Content-Type"] = profileImageType || "";
+        RequestImageHeader["headers"]["Content-Type"] = imageType || "";
   
-        if (profileImageData !== undefined && profileImageType !== undefined) {
-          await axios.post(`${DOMAIN}/api/user/` + userID + `/image/` + userID + '-user-profile.' + profileImageType.substring(6), Buffer.from(profileImageData, 'base64'), RequestImageHeader).then(response => {
+        if (encodedImage !== undefined && imageType !== undefined) {
+          ToastQueueManager.show({message: "Uploading profile image"});
+          await axios.post(`${DOMAIN}/api/user/` + userID + `/image/` + userID + '-user-profile.' + imageType.substring(6), Buffer.from(encodedImage, 'base64'), RequestImageHeader).then(response => {
             dispatch(updateProfileImage(
               response.data
             ));
@@ -97,9 +80,8 @@ const ProfileImageSettings = (props:{callback:(val:number) => void, continueNavi
                 ToastQueueManager.show({message: "Invalid image mime type. Valid choices are " + PROFILE_IMAGE_MIME_TYPES});
             }
             else {
-              setProfileImageData(response.assets[0].base64);
               setProfileImageUri({uri: response.assets[0].uri});
-              setProfileImageType(response.assets[0].type);
+              postProfileImage(response.assets[0].base64, response.assets[0].type)
             }
           }
         });
@@ -122,23 +104,12 @@ const ProfileImageSettings = (props:{callback:(val:number) => void, continueNavi
               text={"Select Image"}
               onPress={onOpenImagePicker}
           />
-          <View style={styles.inlineImageButtons}>
-              <Raised_Button buttonStyle={styles.imageUploadButton}
-                  text={"Set As Avatar"}
-                  onPress={postProfileImage}
-                  textStyle={styles.imageUploadButtonText}
-              />
-              <Raised_Button buttonStyle={styles.imageUploadButton}
-                  text={"Delete Avatar"}
-                  onPress={deleteProfileImage}
-                  textStyle={styles.imageUploadButtonText}
-              />
-          </View>
-          <Raised_Button buttonStyle={styles.doneButton}
+              <Raised_Button buttonStyle={styles.doneButton}
               text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
               // since we don't know if we want to pop the screen off the stack or not, let the parent screen decide, not the component.
               onPress={() => props.callback(1)}
           />
+
           <Toast />
       </SafeAreaView>
         
@@ -180,7 +151,7 @@ const styles = StyleSheet.create({
       },
       titleView: {
         position: "absolute",
-        top: 20
+        top: Platform.OS === 'ios' ? 50 : 30
       },
       inlineImageButtons: {
         flexDirection: "row",
