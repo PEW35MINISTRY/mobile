@@ -1,4 +1,5 @@
 /***** ONLY DEPENDENCY: ./inputField - Define all other types locally *****/
+import { FOREVER_PRAYER_REQUEST_DURATION_DAYS } from '@env';
 import InputField, { InputSelectionField, InputType } from './inputField';
 
 /***********************************************
@@ -22,6 +23,14 @@ export enum PrayerRequestTagEnum {
     GLOBAL = 'GLOBAL'
 }
 
+export const PrayerRequestDurationsMap:Record<string, string> = {
+    '2 Days': '2',
+    '7 Days': '7',
+    '14 Days': '14',
+    '30 Days': '30',
+    'Forever': FOREVER_PRAYER_REQUEST_DURATION_DAYS,
+}
+
 export const getDateDaysFuture = (days: number = 14):Date => {
     let date = new Date();
     date.setDate(date.getDate() + days);
@@ -35,16 +44,16 @@ export const getDateDaysFuture = (days: number = 14):Date => {
 export const CREATE_PRAYER_REQUEST_FIELDS:InputField[] = [
     new InputField({title: 'Topic', field: 'topic', required: true, type: InputType.TEXT, validationRegex: new RegExp(/^.{1,30}$/), validationMessage: 'Required, max 30 characters.' }),
     new InputField({title: 'Description', field: 'description', required: true, type: InputType.PARAGRAPH, validationRegex: new RegExp(/^.{0,200}$/), validationMessage: 'Max 200 characters.'}),
-    new InputSelectionField({title: 'Long Term', field: 'isOnGoing', value: 'false', type: InputType.SELECT_LIST, selectOptionList: ['true', 'false']}),
     new InputSelectionField({title: 'Category', field: 'tagList', type: InputType.MULTI_SELECTION_LIST, selectOptionList: Object.values(PrayerRequestTagEnum)}),
-    new InputField({title: 'Relevance', field: 'expirationDate', required: true, type: InputType.DATE, value: getDateDaysFuture().toISOString(), validationRegex: DATE_REGEX, validationMessage: 'Required, must be future date.' }),
+    new InputSelectionField({title: 'Duration', field: 'expirationDate', required: true, type: InputType.SELECT_LIST, selectOptionList: Object.keys(PrayerRequestDurationsMap), value: '7 Days', validationRegex: DATE_REGEX, validationMessage: 'Required, must be future date.' }),
     new InputField({title: 'Send to Contacts', field: 'addUserRecipientIDList', hide: true, type: InputType.USER_ID_LIST, validationRegex: new RegExp(/[0-9]+/)}),
     new InputField({title: 'Send to Circles', field: 'addCircleRecipientIDList', hide: true, type: InputType.CIRCLE_ID_LIST, validationRegex: new RegExp(/[0-9]+/)}),
 ];
 
 export const EDIT_PRAYER_REQUEST_FIELDS:InputField[] = [
-    new InputSelectionField({title: 'Resolved', field: 'isResolved', value: 'false', type: InputType.SELECT_LIST, selectOptionList: ['true', 'false']}),
-    ...CREATE_PRAYER_REQUEST_FIELDS,
+    new InputSelectionField({title: 'Status', field: 'isResolved', value: 'Active', type: InputType.SELECT_LIST, selectOptionList: ['Active', 'Inactive']}),
+    ...CREATE_PRAYER_REQUEST_FIELDS.filter((field) => field.field !== 'expirationDate'),
+    new InputField({title: 'Duration', field: 'expirationDate', required: true, type: InputType.DATE, value: getDateDaysFuture().toISOString(), validationRegex: DATE_REGEX, validationMessage: 'Required, must be future date.' }),
     new InputField({title: 'Send to Contacts', field: 'addUserRecipientIDList', hide: true, type: InputType.USER_ID_LIST, validationRegex: new RegExp(/[0-9]+/)}),
     new InputField({title: 'Remove Contacts', field: 'removeUserRecipientIDList', hide: true, type: InputType.USER_ID_LIST, validationRegex: new RegExp(/[0-9]+/)}),
     new InputField({title: 'Send to Circles', field: 'addCircleRecipientIDList', hide: true, type: InputType.CIRCLE_ID_LIST, validationRegex: new RegExp(/[0-9]+/)}),

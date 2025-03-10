@@ -594,6 +594,44 @@ export const BackButton = (props:{callback?:(() => void), navigation?:NativeStac
     )
 }
 
+export const EditButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>, buttonView?:ViewStyle}) => {
+    const styles = StyleSheet.create({
+        editButtonView: {
+            position: "absolute",
+            top: 1,
+            right: 1,
+            ...props.buttonView
+        },
+        editButton: {
+            justifyContent: "center",
+            alignItems: "center",
+            height: 55,
+            width: 55,
+            borderRadius: 15,
+        }
+    })
+    
+    return (
+        <SafeAreaView style={styles.editButtonView}>
+            <TouchableOpacity 
+                onPress={() => { 
+                    if(props.navigation) props.navigation.goBack();
+                    else if(props.callback) props.callback();
+                }}
+            >
+                <View style={styles.editButton}>
+                    <Ionicons 
+                        name="pencil-outline"
+                        color={COLORS.white}
+                        size={30}
+                    />
+                </View>
+            </TouchableOpacity>
+
+        </SafeAreaView>
+    )
+}
+
 export const XButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>, buttonView?:ViewStyle}):JSX.Element => {
     const styles = StyleSheet.create({
         xButton: {

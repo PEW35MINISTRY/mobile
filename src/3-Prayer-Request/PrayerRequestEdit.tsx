@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
 import { PrayerRequestListItem, PrayerRequestPatchRequestBody, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS } from '../theme';
-import { EDIT_PRAYER_REQUEST_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
+import { EDIT_PRAYER_REQUEST_FIELDS, getDateDaysFuture } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import PrayerRequestList from './PrayerRequestList';
 import InputField, { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { FormInput } from '../Widgets/FormInput/FormInput';
@@ -16,6 +16,7 @@ import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Toast from 'react-native-toast-message';
+import { formatPrayerRequestEditExportFields, formatPrayerRequestEditIngestFields } from '../utilities/transformer';
 
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -48,7 +49,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
         const editedFields:PrayerRequestPatchRequestBody = {
             topic: props.prayerRequestResponseData.topic,
             description: props.prayerRequestResponseData.description,
-            expirationDate: props.prayerRequestResponseData.expirationDate
+            expirationDate: '',
         };
 
         // Copy over the other fields that changed
@@ -56,7 +57,10 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
             //@ts-ignore
             if (value !== editedFields[key]) { editedFields[key] = value; fieldsChanged = true; }
         }
-        
+
+        const formattedFieldsChanged = formatPrayerRequestEditExportFields(editedFields);
+        if (formattedFieldsChanged) fieldsChanged = true;
+
         // Copy over recipient fields manually for each field
         if (addCircleRecipientIDList.length > 0) {
             editedFields.addCircleRecipientIDList = addCircleRecipientIDList; fieldsChanged = true;
@@ -70,6 +74,8 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
         if (removeUserRecipientIDList.length > 0) {
             editedFields.removeUserRecipientIDList = removeUserRecipientIDList; fieldsChanged = true;
         }
+
+        if (editedFields.expirationDate === '') editedFields.expirationDate = props.prayerRequestResponseData.expirationDate
 
         if (fieldsChanged) {
             axios.patch(`${DOMAIN}/api/prayer-request-edit/` + props.prayerRequestResponseData.prayerRequestID, editedFields, RequestAccountHeader).then((response) => {
@@ -95,7 +101,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                     <FormInput 
                         fields={EDIT_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}
                         ref={formInputRef}
-                        defaultValues={props.prayerRequestResponseData}
+                        defaultValues={formatPrayerRequestEditIngestFields(props.prayerRequestResponseData) }
                         onSubmit={onPrayerRequestEdit}
                     />
                     <Outline_Button 

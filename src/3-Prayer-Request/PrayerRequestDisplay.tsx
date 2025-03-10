@@ -4,14 +4,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, KeyboardAvoidingView } from 'react-native';
 import { PrayerRequestCommentListItem, PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { removeOwnedPrayerRequest, RootState } from '../redux-store';
+import { addOwnedPrayerRequest, removeOwnedPrayerRequest, RootState } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import PrayerRequestEditForm from './PrayerRequestEdit';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
-import { BackButton } from '../widgets';
+import { BackButton, EditButton } from '../widgets';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { PrayerRequestComment } from './prayer-request-widgets';
 import { RequestorCircleImage } from '../2-Circles/circle-widgets';
@@ -50,7 +50,6 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const [tags, setTags] = useState<PrayerRequestTagEnum[]>([]);
     const [prayerCount, setPrayerCount] = useState(-1);
     const [hasPrayed, setHasPrayed] = useState(false); // TODO: change based on upcoming change where this is static in the PR body
-    const [sharedRecipientsModalVisible, setSharedRecipientsModalVisible] = useState(false);
     const [prayerRequestEditModalVisible, setPrayerRequestEditModalVisible] = useState(false);
     const [commentCreateModalVisible, setCommentCreateModalVisible] = useState(false);
 
@@ -84,7 +83,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
             textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={tag}>{tag}</Text>);
             textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={index}>{"|"}</Text>)
         })
-        textProps.pop()
+        textProps.pop();
 
         return textProps;
     }
@@ -186,8 +185,15 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                                 prayerRequestResponseData={currPrayerRequestState}
                                 callback={(prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => {
                                     setPrayerRequestEditModalVisible(false);
-                                    if (prayerRequestData !== undefined && prayerRequestListData !== undefined) setPrayerRequestState(prayerRequestData, prayerRequestListData);
-                                    else if (deletePrayerRequest == true) {
+                                   
+                                    if (prayerRequestData !== undefined && prayerRequestListData !== undefined) {
+                                        setPrayerRequestState(prayerRequestData, prayerRequestListData);
+                                        if (prayerRequestData?.isResolved !== currPrayerRequestState.isResolved) {
+                                            if (prayerRequestData?.isResolved) dispatch(removeOwnedPrayerRequest(appPrayerRequestListItem.prayerRequestID));
+                                            else if (prayerRequestData?.isResolved === false) dispatch(addOwnedPrayerRequest(appPrayerRequestListItem));
+                                        }
+                                    }  
+                                    else if (deletePrayerRequest === true) {
                                         dispatch(removeOwnedPrayerRequest(appPrayerRequestListItem.prayerRequestID));
                                         navigation.goBack();
                                     }
@@ -222,9 +228,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                     }
                     
                     <View style={styles.buttonActionView}>
-                    {
-                        // Only render the 'Add Comment' button when the person viewing the prayer request isn't the PR owner. Otherwise render the edit button
-                        appPrayerRequestListItem.requestorProfile.userID !== userID ? 
+               
                         <TouchableOpacity
                                 onPress={() => setCommentCreateModalVisible(true)}
                             >
@@ -233,21 +237,9 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                                 </View>
                         </TouchableOpacity>
 
-                        :
-
-                        <TouchableOpacity
-                                onPress={() => setPrayerRequestEditModalVisible(true)}
-                            >
-                                <View style={styles.commentButton}>
-                                <Ionicons 
-                                    name="pencil-outline"
-                                    color={COLORS.white}
-                                    size={30}
-                                />
-                                </View>
-                        </TouchableOpacity>
-                    }
+                       
                     </View>
+                    {appPrayerRequestListItem.requestorProfile.userID === userID && <EditButton callback={() => setPrayerRequestEditModalVisible(true)} /> }
                     <BackButton navigation={navigation} />
                     
                 </View>    
