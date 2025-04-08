@@ -703,6 +703,19 @@ export const DeleteButton = (props:{callback:(() => void),  buttonView?:ViewStyl
     )
 }
 
+export const Filler = (props:{fillerStyle:ViewStyle}):JSX.Element => {
+
+    const styles = StyleSheet.create({
+        fillerView: {
+            ...props.fillerStyle
+        }
+    })
+
+    return (
+        <SafeAreaView style={styles.fillerView} />
+    )
+} 
+
 export const Confirmation = (props:{callback:(() => void), onCancel:(() => void), promptText:string, buttonText:string}):JSX.Element => {
     const styles = StyleSheet.create({
         deleteView: {

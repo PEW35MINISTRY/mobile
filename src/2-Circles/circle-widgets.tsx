@@ -109,7 +109,7 @@ export const CircleTouchable = (props:{circleProps: CircleListItem, buttonText?:
 }
 
 
-export const AnnouncementTouchable = (props:{announcement:CircleAnnouncementListItem, showCircleImage?:boolean, shortDate?:boolean, onPress?:(id:number, announcementItem:CircleAnnouncementListItem) => void, style?:ViewStyle}):JSX.Element => {
+export const AnnouncementTouchable = (props:{announcement:CircleAnnouncementListItem, showCircleImage?:boolean, shortDate?:boolean, onPress?:(id:number, announcementItem:CircleAnnouncementListItem) => void, style?:ViewStyle, imageUri:string}):JSX.Element => {
     const styles = StyleSheet.create({
         container: {           
             flexDirection: 'column',
@@ -155,7 +155,7 @@ export const AnnouncementTouchable = (props:{announcement:CircleAnnouncementList
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
                     {props.showCircleImage &&
-                        <RequestorCircleImage circleID={props.announcement.circleID} style={styles.circleImage} />}
+                        <RequestorCircleImage circleID={props.announcement.circleID} imageUri={props.imageUri} style={styles.circleImage} />}
                     <Text allowFontScaling={false} style={styles.date}>{formatRelativeDate(props.announcement.startDate || '', undefined, {shortForm: (props.shortDate === true), includeHours:true })}</Text>
                 </View>
                 <Text allowFontScaling={false} style={styles.bodyText} ellipsizeMode='tail' >{props.announcement.message}</Text>
@@ -243,7 +243,7 @@ export const EventTouchable = (props:{circleEvent:CircleEventListItem, onPress:(
                     <Image source={{uri: props.circleEvent.image}} style={styles.eventImage} resizeMode="contain"/>
                     <View style={styles.floating}>
                         <Text allowFontScaling={false} style={styles.titleText}>{props.circleEvent.name}</Text>
-                        <Text allowFontScaling={false} style={styles.timeText}>{new Date(props.circleEvent.startDate as unknown as string).toDateString()}</Text>
+                        <Text allowFontScaling={false} style={styles.timeText}>{new Date(props.circleEvent.startDate).toDateString()}</Text>
                     </View>
                     <View style={styles.descriptionView}>
                         <Text allowFontScaling={false} style={styles.descriptionText}>{props.circleEvent.description}</Text>

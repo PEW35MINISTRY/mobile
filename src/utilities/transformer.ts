@@ -6,12 +6,8 @@ import { PrayerRequestDurationsMap } from "../TypesAndInterfaces/config-sync/inp
 export const formatPrayerRequestCreateFields = (prayerRequest:PrayerRequestPostRequestBody):void => {
  // Convert date display to date object
     const durationDays = prayerRequest.expirationDate;
-    console.log(durationDays);
-    prayerRequest.expirationDate = getDateDaysFuture(parseInt(PrayerRequestDurationsMap[durationDays])).toISOString();
-    console.log(prayerRequest.expirationDate);
 
-    // Set 'isOngoing' if duration is set to 'Forever'
-    prayerRequest.isOnGoing = durationDays === FOREVER_PRAYER_REQUEST_DURATION_DAYS ? true : false;
+    prayerRequest.expirationDate = getDateDaysFuture(parseInt(PrayerRequestDurationsMap[durationDays])).toISOString();
 }
 
 export const formatPrayerRequestEditIngestFields = (prayerRequest:PrayerRequestResponseBody):PrayerRequestResponseBody => {
@@ -22,13 +18,6 @@ export const formatPrayerRequestEditIngestFields = (prayerRequest:PrayerRequestR
 
 export const formatPrayerRequestEditExportFields = (prayerRequest:PrayerRequestPatchRequestBody):boolean => {
     var fieldsChanged = false;
-    // Convert date display to date object
-    const isoDuration = prayerRequest.expirationDate;
-    if (isoDuration !== '') {
-        // Set 'isOngoing' if duration is set to 'Forever'
-        prayerRequest.isOnGoing = new Date(isoDuration).getTime() >= parseInt(FOREVER_PRAYER_REQUEST_DURATION_ISO) ? true : false;
-        fieldsChanged = true;
-    }
 
     if (prayerRequest.isResolved !== undefined) {
         // @ts-ignore - convert from string type to bool

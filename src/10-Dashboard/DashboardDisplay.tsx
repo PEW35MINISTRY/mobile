@@ -33,6 +33,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
     const circleInviteList:CircleListItem[] = useAppSelector((state:RootState) => state.account.userProfile.circleInviteList) || [];
     const circleAnnouncementList:CircleAnnouncementListItem[] = useAppSelector((state:RootState) => state.account.userProfile.circleAnnouncementList) || [];
     const newPrayerRequestList:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.newPrayerRequestList) || [];
+    const expiringPrayerRequestList:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.expiringPrayerRequestList || []);
     const recommendedContentList:ContentListItem[] = useAppSelector((state:RootState) => state.account.userProfile.recommendedContentList) || [];
     const [newPartner, setNewPartner] = useState<PartnerListItem|undefined>(undefined);
 
@@ -77,7 +78,16 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                             }))
                         ],
                         [
-                            new SearchListKey({displayTitle:'Prayer Requests'}),
+                            new SearchListKey({displayTitle:'Expiring Prayer Requests'}),
+                            [...expiringPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,
+                                onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, {
+                                            PrayerRequestProps: item,
+                                            navigateToEdit: true
+                                        }
+                                    )}))
+                        ],
+                        [
+                            new SearchListKey({displayTitle:'New Prayer Requests'}),
                             [...newPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,
                                 onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, {
                                     PrayerRequestProps: item}

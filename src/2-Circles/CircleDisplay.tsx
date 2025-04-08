@@ -45,26 +45,29 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
     const [announcementsData, setAnnouncementsData] = useState<CircleAnnouncementListItem[]>([]);
     const [prayerRequestsData, setPrayerRequestsData] = useState<PrayerRequestListItem[]>([]);
     const [eventsData, setEventsData] = useState<CircleEventListItem[]>([]);
+    const [eventsVisible, setEventsVisible] = useState<boolean>(true);
+    const [announcementsVisible, setAnnouncementsVisible] = useState<boolean>(true);
     const [dataFetchComplete, setDataFetchComplete] = useState(false); // toggles wait screen 
 
     const renderEvents = ():JSX.Element[] =>
-        (eventsData || []).map((event:CircleEventListItem, index:number) => 
+        eventsVisible ? (eventsData || []).map((event:CircleEventListItem, index:number) => 
             <EventTouchable
                 key={index}
                 circleEvent={event}
                 onPress={() => null}
             />
-        );
+        ) : [];
 
     const renderAnnouncements = ():JSX.Element[] => 
-        (announcementsData || []).map((announcement:CircleAnnouncementListItem, index:number) => 
+        announcementsVisible ? (announcementsData || []).map((announcement:CircleAnnouncementListItem, index:number) => 
             <AnnouncementTouchable
                 key={index}
                 announcement={announcement}
                 showCircleImage={false}
+                imageUri='a'
                 style={styles.announcementItem}
             />
-        );
+        ) : [];
 
     const renderPrayerRequests = ():JSX.Element[] => 
         (prayerRequestsData || []).map((prayerRequest:PrayerRequestListItem, index:number) =>
@@ -118,20 +121,14 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
         
         await axios.get(`${DOMAIN}/api/circle/` + circleProps.circleID, RequestAccountHeader).then(response => {
             const circleData:CircleResponse = response.data;
-            const circleItem:CircleListItem = {
-                circleID: circleData.circleID,
-                name: circleData.name,
-                image: circleData.image || '',
-                status: circleData.requestorStatus
-            };
 
             setCurrCircleState(circleData);
-            setAppCircleListItem(circleItem);
+            setAppCircleListItem(circleProps);
 
             // locally, the app only knows that we requested membership. If the server sends a MEMBER status, update redux
             if (circleProps.status == CircleStatusEnum.REQUEST && circleData.requestorStatus == CircleStatusEnum.MEMBER) {
-                dispatch(removeRequestedCircle(circleItem.circleID));
-                dispatch(addMemberCircle(circleItem));
+                dispatch(removeRequestedCircle(circleProps.circleID));
+                dispatch(addMemberCircle(circleProps));
             }
 
             setEventsData(circleData.eventList || []);
@@ -146,10 +143,8 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
     }
 
     useEffect(() => {
-        if(route.params.CircleProps !== undefined) { //Prevents rendering early
-            setAppCircleListItem(route.params.CircleProps);
-            renderCircle(route.params.CircleProps);
-        }
+        if(route.params.CircleProps !== undefined) renderCircle(route.params.CircleProps);
+        
 
     }, [route.params]);
 
@@ -158,8 +153,10 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             <>
                 {
                     announcementsData.length !== 0 && 
-                    <View style={styles.announcementSection}>
-                        <Text allowFontScaling={false} style={styles.annoucementText}>Announcements</Text>
+                    <View style={ announcementsVisible ? styles.announcementSectionVisible : styles.announcementSectionHidden}>
+                        <TouchableOpacity onPress={() => setAnnouncementsVisible(!announcementsVisible)} >
+                            <Text allowFontScaling={false} style={styles.annoucementText}>Announcements</Text>
+                        </TouchableOpacity>
                             <ScrollView horizontal={true} contentContainerStyle={styles.announcementScroll}>
                                 {renderAnnouncements()}
                             </ScrollView>
@@ -201,8 +198,12 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                     <>
                         {
                             announcementsData.length !== 0 && 
-                            <View style={styles.announcementSection}>
-                                <Text allowFontScaling={false} style={styles.annoucementText}>Announcements</Text>
+
+                            <View style={announcementsVisible ? styles.announcementSectionVisible : styles.announcementSectionHidden}>
+                                <TouchableOpacity onPress={() => setAnnouncementsVisible(!announcementsVisible)}>
+                                    <Text allowFontScaling={false} style={styles.annoucementText}>Announcements</Text>
+
+                                </TouchableOpacity>
                                     <ScrollView horizontal={true} contentContainerStyle={styles.announcementScroll}>
                                         {renderAnnouncements()}
                                     </ScrollView>
@@ -251,8 +252,10 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                             style={styles.circleImageMainPage}
                         />
                     </View>
-                    <View style={styles.eventSection}>
-                        <Text allowFontScaling={false} style={styles.PRHeaderText}>Events</Text>
+                    <View style={ eventsVisible ? styles.eventSectionVisible : styles.eventSectionHidden}>
+                        <TouchableOpacity onPress={() => setEventsVisible(!eventsVisible)}>
+                            <Text allowFontScaling={false} style={styles.PRHeaderText}>Events</Text>
+                        </TouchableOpacity>
                         <ScrollView horizontal={true} contentContainerStyle={styles.eventScroll}>
                             {renderEvents()}
                         </ScrollView>
@@ -389,9 +392,13 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },  
     // announcements will be fixed height, as they slide horizontally
-    announcementSection: {
+    announcementSectionVisible: {
         height: 140,
-        marginTop: 20
+        marginBottom: 10,
+    },
+    announcementSectionHidden: {
+        height: 40,
+        //marginTop: 20
     },
     announcementScroll: {
         height: 130
@@ -404,8 +411,13 @@ const styles = StyleSheet.create({
     headerScroll: {
         flex: 1,
     },
-    eventSection: {
+    eventSectionVisible: {
         height: 190,
+        marginTop: 30,
+        marginBottom: 10
+    },
+    eventSectionHidden: {
+        height: 40,
         marginTop: 30
     },
     eventScroll: {
@@ -464,7 +476,6 @@ const styles = StyleSheet.create({
         ...theme.primary,
         fontSize: 22,
         color: COLORS.white,
-        marginBottom: 15,
         textAlign: "center"
     },
     modalToggleTouchable: {
