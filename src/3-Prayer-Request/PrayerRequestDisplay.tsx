@@ -4,14 +4,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, KeyboardAvoidingView } from 'react-native';
 import { PrayerRequestCommentListItem, PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { addOwnedPrayerRequest, removeOwnedPrayerRequest, RootState } from '../redux-store';
+import { addAnsweredPrayerRequest, addOwnedPrayerRequest, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeOwnedPrayerRequest, RootState, setOwnedPrayerRequests } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import PrayerRequestEditForm from './PrayerRequestEdit';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
-import { BackButton, EditButton } from '../widgets';
+import { BackButton, EditButton, Filler } from '../widgets';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { PrayerRequestComment } from './prayer-request-widgets';
 import { RequestorCircleImage } from '../2-Circles/circle-widgets';
@@ -20,10 +20,10 @@ import { ProfileListItem } from '../TypesAndInterfaces/config-sync/api-type-sync
 import { CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
-import { PartnershipContractModal } from '../4-Partners/partnership-widgets';
 
 export interface PrayerRequestDisplayParamList{
     PrayerRequestProps: PrayerRequestListItem,
+    navigateToEdit?: boolean
 }
 type PrayerRequestDisplayProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME>;
 
@@ -32,6 +32,8 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
+    const ownedPrayerRequests = useAppSelector((state:RootState) => state.account.userProfile.ownedPrayerRequestList);
+    
     const [appPrayerRequestListItem, setAppPrayerRequestListItem] = useState<PrayerRequestListItem>({
         prayerRequestID: -1,
         requestorProfile: {
@@ -52,6 +54,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const [hasPrayed, setHasPrayed] = useState(false); // TODO: change based on upcoming change where this is static in the PR body
     const [prayerRequestEditModalVisible, setPrayerRequestEditModalVisible] = useState(false);
     const [commentCreateModalVisible, setCommentCreateModalVisible] = useState(false);
+    const [userHasOpenedEditModal, setUserHasOpenedEditModal] = useState(false); // prevent recursive loading of the edit modal
 
     const dispatch = useAppDispatch();
 
@@ -61,12 +64,12 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         }   
     }
 
-    const renderComments = ():JSX.Element[] => 
+    const renderComments = ():JSX.Element[] =>
         (commentsData || []).map((comment:PrayerRequestCommentListItem, index:number) => 
             <PrayerRequestComment commentProp={comment} key={index} callback={(commentID:number) => {setCommentsData((commentsData || []).filter((commentItem:PrayerRequestCommentListItem) => commentItem.commentID !== commentID )); ToastQueueManager.show({message: "Comment deleted"});
 }} />
         );
-    
+
     const renderUserRecipients = ():JSX.Element[] => 
         (userRecipientData || []).map((profile:ProfileListItem, index:number) => 
             <RequestorProfileImage userID={profile.userID} imageUri={profile.image} key={index} style={styles.snippetImage}/>
@@ -99,12 +102,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
 
     const setPrayerRequestState = (prayerRequestData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem) => {
         setDataFetchComplete(false);
-        const prayerRequestItem:PrayerRequestListItem = {
-            prayerRequestID: prayerRequestData.prayerRequestID,
-            requestorProfile: prayerRequestListData.requestorProfile,
-            topic: prayerRequestData.topic,
-            prayerCount: prayerRequestData.prayerCount || prayerRequestListData.prayerCount
-        };
+        const prayerRequestItem:PrayerRequestListItem = { ...prayerRequestListData, prayerCount: prayerRequestData.prayerCount };
 
         setCurrPrayerRequestState(prayerRequestData);
         setAppPrayerRequestListItem(prayerRequestItem);
@@ -127,14 +125,56 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
-    useEffect(() => {
-        if (route.params.PrayerRequestProps !== undefined) {
-            setAppPrayerRequestListItem(route.params.PrayerRequestProps)
-            renderPrayerRequest(route.params.PrayerRequestProps);
+    const prayerRequestEditCallback = (prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => {
+        setPrayerRequestEditModalVisible(false);
+
+        const navigateToEdit = route.params.navigateToEdit !== undefined && route.params.navigateToEdit;
+
+        if (prayerRequestData !== undefined && prayerRequestListData !== undefined) {
+        
+            // if a prayer request is on the expiring dashboard and the user modified the expiration date, remove it from the dashboard
+            if (navigateToEdit && currPrayerRequestState !== undefined) {
+                if (new Date(prayerRequestData.expirationDate) > new Date(currPrayerRequestState.expirationDate)) {
+                    dispatch(removeExpiringPrayerRequest(appPrayerRequestListItem.prayerRequestID));
+
+                    if (prayerRequestData?.isResolved === currPrayerRequestState.isResolved) dispatch(addOwnedPrayerRequest(prayerRequestListData))
+                }
+            }
+
+            if (currPrayerRequestState !== undefined && prayerRequestData?.isResolved !== currPrayerRequestState.isResolved) {
+                navigateToEdit && dispatch(removeExpiringPrayerRequest(appPrayerRequestListItem.prayerRequestID));
+                if (prayerRequestData?.isResolved) { 
+                    dispatch(removeOwnedPrayerRequest(prayerRequestListData.prayerRequestID)); 
+                    dispatch(addAnsweredPrayerRequest(prayerRequestListData)) 
+                }
+                else if (prayerRequestData?.isResolved === false) { 
+                    dispatch(addOwnedPrayerRequest(prayerRequestListData)); 
+                    dispatch(removeAnsweredPrayerRequest(prayerRequestListData.prayerRequestID)) 
+                }
+            } else dispatch(setOwnedPrayerRequests((ownedPrayerRequests || []).map((prayerRequestItem:PrayerRequestListItem) => prayerRequestItem.prayerRequestID === prayerRequestListData.prayerRequestID ? prayerRequestListData : prayerRequestItem)));
+            setPrayerRequestState(prayerRequestData, prayerRequestListData);
+        }  
+        else if (deletePrayerRequest === true) {
+            dispatch(removeOwnedPrayerRequest(appPrayerRequestListItem.prayerRequestID));
+            dispatch(removeExpiringPrayerRequest(appPrayerRequestListItem.prayerRequestID));
+            navigation.goBack();
         }
+    }
+
+    useEffect(() => {
+        if (route.params.PrayerRequestProps !== undefined) renderPrayerRequest(route.params.PrayerRequestProps);
+        
     }, [route.params])
 
+    useEffect(() => {
+        if (route.params.navigateToEdit !== undefined && route.params.navigateToEdit && dataFetchComplete && userHasOpenedEditModal === false) {
+            setPrayerRequestEditModalVisible(true);
+            setUserHasOpenedEditModal(true)
+        } 
+    }, [dataFetchComplete])
+
     const _renderController = ():JSX.Element => {
+
         if (!dataFetchComplete || currPrayerRequestState == undefined) {
             return (
                 <View style={styles.container}>
@@ -183,21 +223,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                             <PrayerRequestEditForm 
                                 prayerRequestListData={appPrayerRequestListItem}
                                 prayerRequestResponseData={currPrayerRequestState}
-                                callback={(prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => {
-                                    setPrayerRequestEditModalVisible(false);
-                                   
-                                    if (prayerRequestData !== undefined && prayerRequestListData !== undefined) {
-                                        setPrayerRequestState(prayerRequestData, prayerRequestListData);
-                                        if (prayerRequestData?.isResolved !== currPrayerRequestState.isResolved) {
-                                            if (prayerRequestData?.isResolved) dispatch(removeOwnedPrayerRequest(appPrayerRequestListItem.prayerRequestID));
-                                            else if (prayerRequestData?.isResolved === false) dispatch(addOwnedPrayerRequest(appPrayerRequestListItem));
-                                        }
-                                    }  
-                                    else if (deletePrayerRequest === true) {
-                                        dispatch(removeOwnedPrayerRequest(appPrayerRequestListItem.prayerRequestID));
-                                        navigation.goBack();
-                                    }
-                                }}
+                                callback={prayerRequestEditCallback}
                             />
                         </Modal>
                         <Modal 
@@ -224,6 +250,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                         (commentsData !== undefined && commentsData.length !== 0) && 
                             <ScrollView style={styles.commentsView}>
                                 {renderComments()}
+                                <Filler fillerStyle={styles.fillerStyle}/>
                             </ScrollView>
                     }
                     
@@ -258,6 +285,9 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: COLORS.black,
         flex: 1
+    },
+    fillerStyle: {
+        height: 90
     },
     bodyContainer: {
         backgroundColor: COLORS.black,

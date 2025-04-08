@@ -29,7 +29,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
         const textProps:JSX.Element[] = [];
         (props.prayerRequestProp.tagList || []).forEach((tag:PrayerRequestTagEnum, index:number) => {
             textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={tag + "|" + index}>{tag}</Text>);
-            textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={index + "|" + tag}>{"|"}</Text>);
+            textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={index + "|" + tag}>{" | "}</Text>);
         })
         textProps.pop();
 
@@ -50,14 +50,20 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
         prayerRequestListCard: {
             borderRadius: 5,
             backgroundColor: COLORS.grayDark,
-            minWidth: '90%',
-            height: 55,
+            width: '100%',
+            maxHeight: 200,
+            minHeight: 55,
             marginTop: 15,
-
         },
         topicText: {
             ...theme.header,
             fontSize: 28,
+            maxWidth: '90%'
+        },
+        listItemFooter: {
+            flexDirection: "row", 
+            justifyContent: "space-between", 
+            width: '100%'
         },
         prayerRequestDataColumn: {
             flexDirection: "row",
@@ -67,14 +73,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             flexDirection: "column",
         },
         prayerRequestDataRowRight: {
-            flexDirection: "column",
-            flex: 1,
-            justifyContent: "flex-start",
-            alignSelf: "center",
-            alignContent: "center",
-        },
-        prayerRequestFlex: {
-            flex: 1
+            top: 1
         },
         socialDataView: {
             borderWidth: 1,
@@ -83,7 +82,8 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             alignItems: "center",
             flexDirection: "row",
             paddingRight: 3,
-            marginVertical: 6
+            
+            //marginVertical: 6,
         },
         socialDataColumn: {
             flexDirection: "column"
@@ -97,20 +97,20 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
         },
         tagsView: {
             backgroundColor: COLORS.grayDark,
-            bottom: 2,
+            paddingBottom: 5,
             flexDirection: "row",
         },
         tagsText: {
             ...theme.text,
-            marginHorizontal: 2,
             fontSize: 12
         },
         pfpStyle: {
-            height: 22, 
-            width: 22, 
-            marginTop: 5
+            position: 'absolute',
+            height: 30, 
+            width: 30, 
+            top: 1,
+            right: 1
         }
-
     });
 
     return (
@@ -118,22 +118,23 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             <TouchableOpacity onPress={() => props.onPress && props.onPress(props.prayerRequestProp.prayerRequestID, props.prayerRequestProp)}>
                 <View style={styles.prayerRequestDataColumn}>
                     <View style={styles.prayerRequestDataRowLeft}>
+                    <RequestorProfileImage imageUri={props.prayerRequestProp.requestorProfile.image} userID={props.prayerRequestProp.requestorProfile.userID} style={styles.pfpStyle}/>
                         <Text allowFontScaling={false} style={styles.topicText}>{props.prayerRequestProp.topic}</Text>
-                        <View style={styles.tagsView}>
-                            {renderTags()}
+                        <View style={styles.listItemFooter}>
+                            <View style={styles.tagsView}>
+                                {renderTags()}
+                            </View>
+                            <View style={{flexDirection: "column"}}>
+                                <TouchableOpacity onPress={onPrayedPress}>
+                                    <View style={styles.socialDataView}>
+                                        <Image source={PRAYER_ICON} style={{height: 15, width: 15}} />
+                                        <Text allowFontScaling={false} style={styles.prayerCountText}>{prayerCount}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                            
                         </View>
                     </View>
-                    <View style={styles.prayerRequestFlex}></View>
-                    <TouchableOpacity onPress={onPrayedPress}>
-                        <View style={styles.prayerRequestDataRowRight}>
-                            <RequestorProfileImage imageUri={props.prayerRequestProp.requestorProfile.image} userID={props.prayerRequestProp.requestorProfile.userID} style={styles.pfpStyle}/>
-                            <View style={styles.socialDataView}>
-                                <Image source={PRAYER_ICON} style={{height: 15, width: 15}} />
-                                <Text allowFontScaling={false} style={styles.prayerCountText}>{prayerCount}</Text>
-                            </View>
-                        </View>
-                     
-                    </TouchableOpacity>
                 </View>
             </TouchableOpacity>
         </View>
@@ -141,8 +142,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
 }
 
 
-export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentListItem, callback:((commentID:number) => void)}):JSX.Element => {
-    const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
+export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentListItem, callback:((commentID:number) => void), visible?:boolean}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userProfile.userID);
     const [likeCount, setLikeCount] = useState(props.commentProp.likeCount);
@@ -186,7 +186,8 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
         container: {
             justifyContent: "flex-start",
             left: 15,
-            marginVertical: 6
+            marginVertical: 6,
+            color: props.visible ? 'purple' : undefined
         },
         nameText: {
             ...theme.header,

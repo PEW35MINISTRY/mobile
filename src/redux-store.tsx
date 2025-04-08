@@ -60,6 +60,11 @@ const accountSlice = createSlice({
 
     addOwnedPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = addListItem(state, action, 'ownedPrayerRequestList'),
     removeOwnedPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'ownedPrayerRequestList', 'prayerRequestID'),
+    setOwnedPrayerRequests: (state, action:PayloadAction<PrayerRequestListItem[]>) => state = {...state, userProfile: {...state.userProfile, ownedPrayerRequestList: action.payload}},
+    removeExpiringPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'expiringPrayerRequestList', 'prayerRequestID'),
+    setAnsweredPrayerRequestList: (state, action:PayloadAction<PrayerRequestListItem[]>) => state = {...state, userProfile: {...state.userProfile, answeredPrayerRequestList: action.payload}},
+    removeAnsweredPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'answeredPrayerRequestList', 'prayerRequestID'),
+    addAnsweredPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = addListItem(state, action, 'answeredPrayerRequestList'),
   },
 });
 
@@ -67,8 +72,8 @@ const accountSlice = createSlice({
 // How to use in component: https://redux-toolkit.js.org/tutorials/quick-start#use-redux-state-and-actions-in-react-components
 export const { setAccount, resetAccount, updateJWT, resetJWT, updateProfile, updateProfileImage, 
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
-      addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
-      addContact, removeContact, setContacts, addOwnedPrayerRequest, removeOwnedPrayerRequest, updateWalkLevel
+      addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, removeExpiringPrayerRequest,
+      addContact, removeContact, setContacts, addOwnedPrayerRequest, removeOwnedPrayerRequest, updateWalkLevel, setOwnedPrayerRequests, setAnsweredPrayerRequestList, addAnsweredPrayerRequest, removeAnsweredPrayerRequest
     } = accountSlice.actions;
 
   export const saveJWTMiddleware:Middleware = store => next => action => {

@@ -1,36 +1,36 @@
 import { DOMAIN } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView } from 'react-native';
+import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState } from '../redux-store';
-import { PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
+import { RootState, setAnsweredPrayerRequestList } from '../redux-store';
+import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import PrayerRequestCreate from './PrayerRequestCreate';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { PrayerRequestTouchable } from './prayer-request-widgets';
-import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Filler } from '../widgets';
 
 enum PrayerRequestListViewMode {
     RECIPIENT = "RECIPIENT",
     OWNER = "OWNER",
-    ANSWERED = "ANSWERED"
 }
 
 const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element => {
-    const PRAYER_REQUEST_RESOLVED_ICON = require('../../assets/resolved-icon.png');
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const userOwnedPrayerRequests = useAppSelector((state:RootState) => state.account.userProfile.ownedPrayerRequestList);
+    const answeredPrayerRequests = useAppSelector((state:RootState) => state.account.userProfile.answeredPrayerRequestList)
 
-    const [ownedPrayerRequests, setOwnedPrayerRequests] = useState<PrayerRequestListItem[]>(userOwnedPrayerRequests || []);
     const [receivingPrayerRequests, setReceivingPrayerRequests] = useState<PrayerRequestListItem[]>([]);
     const [viewMode, setViewMode] = useState<PrayerRequestListViewMode>(PrayerRequestListViewMode.RECIPIENT);
     const [prayerRequestCreateModalVisible, setPrayerRequestCreateModalVisible] = useState(false);
+
+    const dispatch = useAppDispatch();
 
     const RequestAccountHeader = {
         headers: {
@@ -48,6 +48,8 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                 })}
             />
         );
+    
+        
 
     const GET_UserIsRecipientPrayerRequests = async () => {
         await axios.get(`${DOMAIN}/api/prayer-request/user-list`, RequestAccountHeader).then((response) => {
@@ -63,8 +65,9 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
         await axios.get(`${DOMAIN}/api/user/` + userID + `/prayer-request-resolved-list`, RequestAccountHeader).then((response) => {
             if (response.data !== undefined) {
                 const prayerRequestList:PrayerRequestListItem[] = response.data;
-                setReceivingPrayerRequests(prayerRequestList);
-                setViewMode(PrayerRequestListViewMode.ANSWERED)
+                if (prayerRequestList.length !== answeredPrayerRequests?.length) {
+                    dispatch(setAnsweredPrayerRequestList(prayerRequestList));
+                }
             }
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
@@ -73,20 +76,9 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
         GET_UserIsRecipientPrayerRequests();
     }, [])
 
-    useEffect(() => {
-        setOwnedPrayerRequests(userOwnedPrayerRequests || []);
-    }, [userOwnedPrayerRequests]);
-
     return (
         <SafeAreaView style={styles.backgroundColor}>
             <View style={styles.container}>
-                { (viewMode == PrayerRequestListViewMode.OWNER || viewMode == PrayerRequestListViewMode.ANSWERED) &&
-                    <View style={styles.answeredView}>
-                        <TouchableOpacity onPress={() => GET_ResolvedPrayerRequests()}>
-                            <Image source={PRAYER_REQUEST_RESOLVED_ICON} style={{height: 30, width: 30}} />
-                        </TouchableOpacity>
-                    </View>
-                }
                 <View style={styles.viewModeView}>
                 
                     <TouchableOpacity
@@ -103,6 +95,7 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                     <TouchableOpacity
                         onPress={() => {
                             if (viewMode !== PrayerRequestListViewMode.OWNER) {
+                                GET_ResolvedPrayerRequests();
                                 setViewMode(PrayerRequestListViewMode.OWNER);
                             }
                         }}
@@ -113,7 +106,16 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                     
                 </View>
                 <ScrollView style={styles.prayerRequestList}>
-                    { viewMode == PrayerRequestListViewMode.OWNER ? renderPrayerRequests(ownedPrayerRequests) : renderPrayerRequests(receivingPrayerRequests)}
+                    { viewMode == PrayerRequestListViewMode.OWNER ? 
+                        <>
+                            {renderPrayerRequests(userOwnedPrayerRequests)}
+                            <Text style={styles.answeredPrayerRequestDividerText}>Inactive</Text>
+                            {renderPrayerRequests(answeredPrayerRequests)}
+                            <Filler fillerStyle={styles.fillerStyle}/>
+                            
+                        </> 
+                        
+                        : renderPrayerRequests(receivingPrayerRequests)}
                 </ScrollView>
               
                 <Modal 
@@ -157,6 +159,15 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         top: 15,
         marginBottom: 25
+    },
+    answeredPrayerRequestDividerText: {
+        ...theme.header,
+        marginTop: 10,
+        marginBottom: 2,
+        textAlign: "center",
+    },
+    fillerStyle: {
+        height: 90,
     },
     viewModeTextSelected: {
         ...theme.title,
