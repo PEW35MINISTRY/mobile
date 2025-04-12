@@ -38,7 +38,6 @@ export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string,
 
     const fetchCircleImage = async () => {
         await axios.get(`${DOMAIN}/api/circle/` + props.circleID + '/image', RequestAccountHeader).then((response:AxiosResponse) => {
-            console.log(response.data)
             setRequestorImage({uri: response.data})
         }).catch((error:AxiosError) =>  setRequestorImage(DEFAULT_CIRCLE_ICON))
     }
@@ -319,6 +318,7 @@ export const CircleContact = (props:{circleRecipientData:RecipientFormCircleList
         middleData: {
             flexDirection: "column",
             marginLeft: 10,
+            maxWidth: '65%'
         },
         prayerCountText: {
             ...theme.text,

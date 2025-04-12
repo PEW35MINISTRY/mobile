@@ -110,6 +110,7 @@ export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileL
         middleData: {
             flexDirection: "column",
             marginLeft: 10,
+            maxWidth: '65%'
         },
         prayerCountText: {
             ...theme.text,

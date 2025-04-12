@@ -33,7 +33,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
     const circleInviteList:CircleListItem[] = useAppSelector((state:RootState) => state.account.userProfile.circleInviteList) || [];
     const circleAnnouncementList:CircleAnnouncementListItem[] = useAppSelector((state:RootState) => state.account.userProfile.circleAnnouncementList) || [];
     const newPrayerRequestList:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.newPrayerRequestList) || [];
-    const expiringPrayerRequestList:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.expiringPrayerRequestList || []);
+    const expiringPrayerRequestList:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.expiringPrayerRequestList) || [];
     const recommendedContentList:ContentListItem[] = useAppSelector((state:RootState) => state.account.userProfile.recommendedContentList) || [];
     const [newPartner, setNewPartner] = useState<PartnerListItem|undefined>(undefined);
 
