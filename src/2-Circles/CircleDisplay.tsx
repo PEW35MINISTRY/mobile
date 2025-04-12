@@ -63,8 +63,6 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
             <AnnouncementTouchable
                 key={index}
                 announcement={announcement}
-                showCircleImage={false}
-                imageUri='a'
                 style={styles.announcementItem}
             />
         ) : [];

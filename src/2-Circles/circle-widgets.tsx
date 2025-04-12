@@ -1,12 +1,13 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import React, { useState, useEffect } from "react";
+import { Buffer } from "buffer";
 import { View, TouchableOpacity, StyleSheet, Image, Text, GestureResponderEvent, ImageSourcePropType, ImageStyle, ViewStyle, ScrollView, NativeScrollEvent } from 'react-native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from "../TypesAndInterfaces/routes";
 import { CircleListItem, CircleAnnouncementListItem, CircleEventListItem, CircleLeaderResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { DOMAIN } from "@env";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import { Outline_Button } from "../widgets";
@@ -30,15 +31,16 @@ export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string,
             maxWidth: 100,
             borderRadius: 15,
             alignSelf: "center",
-            ...props.style
+            ...props.style,
+            //flex: 1,
         },
     })
 
     const fetchCircleImage = async () => {
-        await axios.get(`${DOMAIN}/api/circle/` + props.circleID + '/image', RequestAccountHeader).then(response => {
-            // Toast override: show default image on 404 instead of toast
+        await axios.get(`${DOMAIN}/api/circle/` + props.circleID + '/image', RequestAccountHeader).then((response:AxiosResponse) => {
+            console.log(response.data)
             setRequestorImage({uri: response.data})
-        }).catch((error:AxiosError) => setRequestorImage(DEFAULT_CIRCLE_ICON))
+        }).catch((error:AxiosError) =>  setRequestorImage(DEFAULT_CIRCLE_ICON))
     }
 
     useEffect(() => {
@@ -46,7 +48,7 @@ export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string,
         else if (props.circleID !== undefined) fetchCircleImage();
     }, [])
 
-    return <Image source={requestorImage} style={styles.circleImage} resizeMode="contain" onError={() => setRequestorImage(DEFAULT_CIRCLE_ICON)} />;
+    return <Image source={ requestorImage} style={styles.circleImage} resizeMode="contain" onError={() => setRequestorImage(DEFAULT_CIRCLE_ICON)} />;
 }
 
 export const CircleTouchable = (props:{circleProps: CircleListItem, buttonText?:string, onButtonPress?:(id:number, item:CircleListItem) => void, onPress?:((id:number, item:CircleListItem) => void)}):JSX.Element => {
@@ -109,7 +111,7 @@ export const CircleTouchable = (props:{circleProps: CircleListItem, buttonText?:
 }
 
 
-export const AnnouncementTouchable = (props:{announcement:CircleAnnouncementListItem, showCircleImage?:boolean, shortDate?:boolean, onPress?:(id:number, announcementItem:CircleAnnouncementListItem) => void, style?:ViewStyle, imageUri:string}):JSX.Element => {
+export const AnnouncementTouchable = (props:{announcement:CircleAnnouncementListItem, showCircleImage?:boolean, shortDate?:boolean, onPress?:(id:number, announcementItem:CircleAnnouncementListItem) => void, style?:ViewStyle}):JSX.Element => {
     const styles = StyleSheet.create({
         container: {           
             flexDirection: 'column',
@@ -135,6 +137,7 @@ export const AnnouncementTouchable = (props:{announcement:CircleAnnouncementList
             height: theme.primary.fontSize + 5,
             maxWidth: theme.primary.fontSize + 5,
             margin: 0,
+            flex: 1,
         },
         date: {
             ...theme.primary,
@@ -155,7 +158,7 @@ export const AnnouncementTouchable = (props:{announcement:CircleAnnouncementList
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
                     {props.showCircleImage &&
-                        <RequestorCircleImage circleID={props.announcement.circleID} imageUri={props.imageUri} style={styles.circleImage} />}
+                        <RequestorCircleImage circleID={props.announcement.circleID} style={styles.circleImage} />}
                     <Text allowFontScaling={false} style={styles.date}>{formatRelativeDate(props.announcement.startDate || '', undefined, {shortForm: (props.shortDate === true), includeHours:true })}</Text>
                 </View>
                 <Text allowFontScaling={false} style={styles.bodyText} ellipsizeMode='tail' >{props.announcement.message}</Text>

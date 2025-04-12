@@ -64,6 +64,9 @@ const initializeNotificationCallbacks = () => {
   Notifications.events().registerNotificationOpened((notification: Notification, completion: () => void, action: NotificationActionResponse) => {
 
     // TODO: when a user taps on the notification, navigate them to the relevant part of the app
+    console.log(notification.payload);
+    console.log(action.identifier)
+    console.log(action.text);
     completion();
   });
         
