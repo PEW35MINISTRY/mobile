@@ -1,5 +1,4 @@
 /***** ONLY DEPENDENCY: ./inputField - Define all other types locally *****/
-import { FOREVER_PRAYER_REQUEST_DURATION_DAYS } from '@env';
 import InputField, { InputSelectionField, InputType } from './inputField';
 
 /***********************************************
@@ -28,7 +27,6 @@ export const PrayerRequestDurationsMap:Record<string, string> = {
     '7 Days': '7',
     '14 Days': '14',
     '30 Days': '30',
-    'Forever': FOREVER_PRAYER_REQUEST_DURATION_DAYS,
 }
 
 export const getDateDaysFuture = (days: number = 14):Date => {

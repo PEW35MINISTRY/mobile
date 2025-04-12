@@ -1,4 +1,3 @@
-import { FOREVER_PRAYER_REQUEST_DURATION_DAYS, FOREVER_PRAYER_REQUEST_DURATION_ISO } from "@env";
 import { PrayerRequestPatchRequestBody, PrayerRequestPostRequestBody, PrayerRequestResponseBody } from "../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types";
 import { getDateDaysFuture } from "../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config";
 import { PrayerRequestDurationsMap } from "../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config";
