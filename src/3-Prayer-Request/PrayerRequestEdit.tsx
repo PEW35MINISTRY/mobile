@@ -16,7 +16,6 @@ import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Toast from 'react-native-toast-message';
-import { formatPrayerRequestEditExportFields, formatPrayerRequestEditIngestFields } from '../utilities/transformer';
 
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -58,9 +57,6 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
             //@ts-ignore
             if (value !== editedFields[key]) { editedFields[key] = value; fieldsChanged = true; }
         }
-
-        const formattedFieldsChanged = formatPrayerRequestEditExportFields(editedFields);
-        if (formattedFieldsChanged) fieldsChanged = true;
 
         // Copy over recipient fields manually for each field
         if (addCircleRecipientIDList.length > 0) {
@@ -107,7 +103,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                     <FormInput 
                         fields={EDIT_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}
                         ref={formInputRef}
-                        defaultValues={formatPrayerRequestEditIngestFields({...props.prayerRequestResponseData}) }
+                        defaultValues={props.prayerRequestResponseData}
                         onSubmit={onPrayerRequestEdit}
                     />
                     <Outline_Button 

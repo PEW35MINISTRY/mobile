@@ -15,7 +15,6 @@ import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Toast from 'react-native-toast-message';
-import { formatPrayerRequestCreateFields } from '../utilities/transformer';
 
 const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListItem) => void)}):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -34,12 +33,8 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
     }
 
     const onPrayerRequestCreate = (formValues:Record<string, string | string[]>) => {
-        //@ts-ignore - can't directly TS cast or copy over values
-        // new InputSelectionField({title: 'Long Term', field: 'isOnGoing', value: 'false', type: InputType.SELECT_LIST, selectOptionList: ['true', 'false']}),
-        
+        //@ts-ignore - can't directly TS cast or copy over values        
         const prayerRequest:PrayerRequestPostRequestBody = {...formValues}
-
-        formatPrayerRequestCreateFields(prayerRequest);
 
         prayerRequest.addCircleRecipientIDList = addCircleRecipientIDList;
         prayerRequest.addUserRecipientIDList = addUserRecipientIDList;
