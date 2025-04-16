@@ -337,10 +337,10 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
     )
 }
 
-export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean, label?:string, setSelected:((val:string) => void), data: SelectListItem[], displayOptionsList?:String[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, labelStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
+export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean, label?:string, setSelected:((val:string) => void), selectOptionsList: SelectListItem[], displayOptionsList?:String[], displaySelectOptions?:SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, labelStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
     
-    const selectOptionsDataKeys = useState<any[]>(props.data.map((selectListItem) => selectListItem.key));
-    const selectOptionsDataValues = useState<any[]>(props.data.map((selectListItem) => selectListItem.value));
+    const selectOptionsDataKeys = useState<any[]>(props.selectOptionsList.map((selectListItem) => selectListItem.key));
+    const selectOptionsDataValues = useState<any[]>(props.selectOptionsList.map((selectListItem) => selectListItem.value));
 
     const styles = StyleSheet.create({
         dropdownText: {
@@ -384,7 +384,7 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
             {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
             <SelectList 
                 setSelected={(val: string) => props.displayOptionsList !== undefined ? props.saveKey ? selectOptionsDataKeys[props.displayOptionsList.indexOf(val)] : selectOptionsDataValues[props.displayOptionsList.indexOf(val)] : props.setSelected(val)}
-                data={props.displayOptionsList !== undefined ? props.displayOptionsList : props.data}
+                data={props.displaySelectOptions !== undefined ? props.displaySelectOptions : props.selectOptionsList}
                 save={(props.saveKey !== undefined && props.saveKey == true) ? "key" : "value"}
                 boxStyles={styles.selectBoxStyle} 
                 dropdownTextStyles={styles.dropdownText}

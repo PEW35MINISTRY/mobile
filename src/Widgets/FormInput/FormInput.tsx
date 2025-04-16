@@ -215,16 +215,25 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                     break;
                 case InputType.SELECT_LIST:
                     if (field instanceof InputSelectionField) {
-                        var selectListData:SelectListItem[] = [];
-                        for (var i=0; i<field.displayOptionList.length; i++) {
+                        const selectListData:SelectListItem[] = [];
+                        const displayOptionsList:SelectListItem[] = [];
+                        for (var i=0; i<field.selectOptionList.length; i++) {
                             selectListData.push({key: i, value: field.selectOptionList[i]})
+                        }
+                        if (field.displayOptionList !== undefined) {
+                            for (var i=0; i<field.displayOptionList.length; i++) {
+                                displayOptionsList.push({key: i, value: field.displayOptionList[i]})
+                            }
                         }
 
                         const getSelectListDefaultValue = (selectListValue:string | undefined) => {
                             if (selectListValue !== undefined) {
                                 const selectListValueString = selectListValue.toString();
                                 for (var i=0; i<selectListData.length; i++) {
-                                    if (selectListData[i].value == selectListValueString) return selectListData[i];
+                                    if (selectListData[i].value == selectListValueString) {
+                                        if (field.displayOptionList !== undefined) return displayOptionsList[i];
+                                        else return selectListData[i];
+                                    }
                                 }
                             }
                             return undefined;
@@ -242,8 +251,10 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                                     <Dropdown_Select
                                         label={field.title}
                                         setSelected={(val:string) => onChange(val)}
-                                        data={selectListData}
+                                        selectOptionsList={selectListData}
                                         placeholder="Select"
+                                        displaySelectOptions={displayOptionsList.length !== 0 ? displayOptionsList : undefined}
+                                        displayOptionsList={displayOptionsList.length !== 0 ? field.displayOptionList : undefined}
                                         labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                                         validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                                         validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
