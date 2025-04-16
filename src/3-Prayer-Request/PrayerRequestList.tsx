@@ -76,6 +76,10 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
         GET_UserIsRecipientPrayerRequests();
     }, [])
 
+    useEffect(() => {
+        GET_ResolvedPrayerRequests();
+    }, [])
+
     return (
         <SafeAreaView style={styles.backgroundColor}>
             <View style={styles.container}>
@@ -95,7 +99,6 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                     <TouchableOpacity
                         onPress={() => {
                             if (viewMode !== PrayerRequestListViewMode.OWNER) {
-                                GET_ResolvedPrayerRequests();
                                 setViewMode(PrayerRequestListViewMode.OWNER);
                             }
                         }}

@@ -7,7 +7,7 @@ import { addOwnedPrayerRequest, RootState } from '../redux-store';
 import { PrayerRequestListItem, PrayerRequestPostRequestBody, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS } from '../theme';
 import InputField, { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
-import { CREATE_PRAYER_REQUEST_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
+import { CREATE_PRAYER_REQUEST_FIELDS, PrayerRequestDurationsMap } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { Outline_Button, Raised_Button, XButton } from '../widgets';
@@ -15,6 +15,7 @@ import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Toast from 'react-native-toast-message';
+import { getDateDaysFuture } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
 
 const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListItem) => void)}):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -33,6 +34,13 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
     }
 
     const onPrayerRequestCreate = (formValues:Record<string, string | string[]>) => {
+        // Convert `duration` mock field to `expurationDate`
+
+        //@ts-ignore - implicit string[] index signature
+        formValues.expirationDate  = getDateDaysFuture(parseInt(formValues.duration)).toISOString();
+
+        delete formValues.duration; // avoid server warning "unexpectd field"
+
         //@ts-ignore - can't directly TS cast or copy over values        
         const prayerRequest:PrayerRequestPostRequestBody = {...formValues}
 
@@ -66,7 +74,7 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
                         <Text allowFontScaling={false} style={styles.headerText}>Create Prayer Request</Text>
                     </View>
                     <FormInput 
-                        fields={CREATE_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}
+                        fields={CREATE_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST && !field.hide)}
                         ref={formInputRef}
                         onSubmit={onPrayerRequestCreate}
                     />
