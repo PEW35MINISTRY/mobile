@@ -34,12 +34,12 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
     }
 
     const onPrayerRequestCreate = (formValues:Record<string, string | string[]>) => {
-        // Convert `duration` mock field to `expurationDate`
+        // Convert `duration` mock field to `expirationDate`
 
         //@ts-ignore - implicit string[] index signature
         formValues.expirationDate  = getDateDaysFuture(parseInt(formValues.duration)).toISOString();
 
-        delete formValues.duration; // avoid server warning "unexpectd field"
+        delete formValues.duration; // avoid server warning "non model recognized field"
 
         //@ts-ignore - can't directly TS cast or copy over values        
         const prayerRequest:PrayerRequestPostRequestBody = {...formValues}

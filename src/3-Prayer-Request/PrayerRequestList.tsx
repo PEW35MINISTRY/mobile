@@ -21,10 +21,10 @@ enum PrayerRequestListViewMode {
 
 const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element => {
 
-    const jwt = useAppSelector((state: RootState) => state.account.jwt);
-    const userID = useAppSelector((state: RootState) => state.account.userID);
-    const userOwnedPrayerRequests = useAppSelector((state:RootState) => state.account.userProfile.ownedPrayerRequestList);
-    const answeredPrayerRequests = useAppSelector((state:RootState) => state.account.answeredPrayerRequestList);
+    const jwt:string = useAppSelector((state: RootState) => state.account.jwt);
+    const userID:number = useAppSelector((state: RootState) => state.account.userID);
+    const userOwnedPrayerRequests:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.ownedPrayerRequestList ?? []);
+    const answeredPrayerRequests:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.answeredPrayerRequestList ?? []);
 
     const [receivingPrayerRequests, setReceivingPrayerRequests] = useState<PrayerRequestListItem[]>([]);
     const [viewMode, setViewMode] = useState<PrayerRequestListViewMode>(PrayerRequestListViewMode.RECIPIENT);
@@ -77,11 +77,11 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
 
     useEffect(() => {
         GET_UserIsRecipientPrayerRequests();
-    }, [])
+    }, []);
 
     useEffect(() => {
         GET_ResolvedPrayerRequests();
-    }, [])
+    }, []);
 
     return (
         <SafeAreaView style={styles.backgroundColor}>
