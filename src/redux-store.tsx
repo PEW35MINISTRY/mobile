@@ -1,25 +1,29 @@
-import type { Middleware, PayloadAction } from '@reduxjs/toolkit';
-import { DOMAIN, NEW_PARTNER_REQUEST_TIMEOUT, SETTINGS_VERSION } from '@env';
-import keychain, { UserCredentials } from 'react-native-keychain'
-import { configureStore, createAction, createReducer, createSlice } from '@reduxjs/toolkit';
+import { Platform } from 'react-native';
+import keychain, { UserCredentials } from 'react-native-keychain';
+import { configureStore, createSlice, type Middleware, type PayloadAction } from '@reduxjs/toolkit';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { DOMAIN, SETTINGS_VERSION } from '@env';
+import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import { PartnerListItem, ProfileListItem, ProfileResponse } from './TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { CircleListItem } from './TypesAndInterfaces/config-sync/api-type-sync/circle-types';
-import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from './TypesAndInterfaces/routes';
-import axios, { Axios, AxiosError, AxiosResponse } from 'axios';
-import { generateDefaultDeviceName } from './utilities/notifications';
 import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import { DeviceVerificationResponseType } from './TypesAndInterfaces/config-sync/api-type-sync/notification-types';
-import { Platform } from 'react-native';
+import { generateDefaultDeviceName } from './utilities/notifications';
+
+
 
 /******************************
    Account | Credentials Redux Reducer
 *******************************/
 
-export type AccountState = {
+interface AccountStateRequired {
   userID: number,
   jwt: string, 
   userProfile: ProfileResponse,
+}
+
+interface AccountState extends AccountStateRequired {
   answeredPrayerRequestList: PrayerRequestListItem[],
 }
 
@@ -34,7 +38,7 @@ const accountSlice = createSlice({
   name: 'account',
   initialState: initialAccountState,
   reducers: {
-    setAccount: (state, action:PayloadAction<AccountState>) => state = action.payload,
+    setAccount: (state, action:PayloadAction<AccountStateRequired>) => state = {...initialAccountState, ...action.payload},
     resetAccount: () => initialAccountState,
     updateJWT: (state, action:PayloadAction<string>) => state = {...state, jwt: action.payload},
     resetJWT: (state) => state = {...state, jwt: ''},
@@ -64,8 +68,8 @@ const accountSlice = createSlice({
     removeOwnedPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'ownedPrayerRequestList', 'prayerRequestID'),
     setOwnedPrayerRequests: (state, action:PayloadAction<PrayerRequestListItem[]>) => state = {...state, userProfile: {...state.userProfile, ownedPrayerRequestList: action.payload}},
     removeExpiringPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'expiringPrayerRequestList', 'prayerRequestID'),
-    
-    // Not part of userProfile, but rather at the top-level 'answeredPrayerRequestList'
+        
+    //Not apart of userProfile | answeredPrayerRequestList are fetched and saved in PrayerRequestList
     setAnsweredPrayerRequestList: (state, action:PayloadAction<PrayerRequestListItem[]>) => state = {...state, answeredPrayerRequestList: action.payload},
     removeAnsweredPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'answeredPrayerRequestList', 'prayerRequestID'),
     addAnsweredPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = addListItem(state, action, 'answeredPrayerRequestList'),
@@ -74,10 +78,13 @@ const accountSlice = createSlice({
 
 // Export action functions to use in app with dispatch
 // How to use in component: https://redux-toolkit.js.org/tutorials/quick-start#use-redux-state-and-actions-in-react-components
-export const { setAccount, resetAccount, updateJWT, resetJWT, updateProfile, updateProfileImage, 
+export const { setAccount, resetAccount, updateJWT, resetJWT, updateProfile, updateProfileImage, updateWalkLevel,
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, removeExpiringPrayerRequest,
-      addContact, removeContact, setContacts, addOwnedPrayerRequest, removeOwnedPrayerRequest, updateWalkLevel, setOwnedPrayerRequests, setAnsweredPrayerRequestList, addAnsweredPrayerRequest, removeAnsweredPrayerRequest
+      addOwnedPrayerRequest, removeOwnedPrayerRequest, setOwnedPrayerRequests,
+      addContact, removeContact, setContacts, 
+
+      setAnsweredPrayerRequestList, addAnsweredPrayerRequest, removeAnsweredPrayerRequest
     } = accountSlice.actions;
 
   export const saveJWTMiddleware:Middleware = store => next => action => {
@@ -116,15 +123,21 @@ const tabSlice = createSlice({
 export const { setTabFocus } = tabSlice.actions;
 
 //List Utilities
-const addListItem = <T, K extends keyof ProfileResponse>(state:AccountState, action:PayloadAction<T>, listKey:K):AccountState => ({
-  ...state, userProfile: { ...state.userProfile,
-    [listKey]: [action.payload, ...(state.userProfile[listKey] || []) as T[]]
-  }});
+const addListItem = <T, K extends keyof ProfileResponse | 'answeredPrayerRequestList'>(state:AccountState, action:PayloadAction<T>, listKey:K):AccountState => {
+    if(listKey === 'answeredPrayerRequestList')
+        return { ...state, answeredPrayerRequestList: [action.payload as PrayerRequestListItem, ...(state.answeredPrayerRequestList ?? [])] };
+    
+    else
+        return { ...state, userProfile: { ...state.userProfile, [listKey]: [action.payload, ...(state.userProfile[listKey as keyof ProfileResponse] as T[] ?? [])] }};
+}
 
-const removeListItem = <T, K extends keyof ProfileResponse>(state:AccountState, action:PayloadAction<number>, listKey:K, idKey:keyof T):AccountState => ({
-  ...state, userProfile: { ...state.userProfile,
-    [listKey]: (state.userProfile[listKey] as T[] || []).filter((item:T) => item[idKey] !== action.payload)
-  }});
+const removeListItem = <T, K extends keyof ProfileResponse | 'answeredPrayerRequestList'>(state:AccountState, action:PayloadAction<number>, listKey:K, idKey:keyof T | keyof PrayerRequestListItem):AccountState => {
+    if(listKey === 'answeredPrayerRequestList')
+        return { ...state, answeredPrayerRequestList: (state.answeredPrayerRequestList ?? []).filter((item:PrayerRequestListItem) => item[idKey as keyof PrayerRequestListItem] !== action.payload) };
+
+    else
+        return { ...state, userProfile: { ...state.userProfile, [listKey]: ((state.userProfile[listKey as keyof ProfileResponse] as T[]) ?? []).filter((item: T) => item[idKey as keyof T] !== action.payload) }};
+}
 
 /**********************************************************
  * REDUX MIDDLEWARE: for non-static/async state operations
@@ -132,7 +145,7 @@ const removeListItem = <T, K extends keyof ProfileResponse>(state:AccountState, 
 
 //Custom Redux (Static) Middleware: https://redux.js.org/tutorials/fundamentals/part-6-async-logic
 //Called directly in index.tsx: store.dispatch(initializeAccountState); 
-export const initializeAccountState = async(dispatch: (arg0: { payload: AccountState; type: 'account/setAccount'; }|{type: 'account/resetAccount'; }) => void, getState: () => any):Promise<boolean> => { 
+export const initializeAccountState = async(dispatch:(arg0: { payload:AccountStateRequired; type:'account/setAccount'; }|{type:'account/resetAccount'; }) => void, getState: () => any):Promise<boolean> => { 
 
   const storedJWT:boolean | UserCredentials = await keychain.getGenericPassword({service: "jwt"});
   const jwt = storedJWT ? storedJWT.password : '';
@@ -144,7 +157,7 @@ export const initializeAccountState = async(dispatch: (arg0: { payload: AccountS
   //Login via JWT
   try {
     const response:AxiosResponse = await axios.post(`${DOMAIN}/api/authenticate`, {}, { headers: { jwt }});
-    const account:AccountState = {
+    const account:AccountStateRequired = {
       jwt: response.data.jwt,
       userID: response.data.userID,
       userProfile: response.data.userProfile,
