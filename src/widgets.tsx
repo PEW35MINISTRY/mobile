@@ -339,8 +339,8 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
 
 export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean, label?:string, setSelected:((val:string) => void), selectOptionsList: SelectListItem[], displayOptionsList?:String[], displaySelectOptions?:SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, labelStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
     
-    const selectOptionsDataKeys = useState<any[]>(props.selectOptionsList.map((selectListItem) => selectListItem.key));
-    const selectOptionsDataValues = useState<any[]>(props.selectOptionsList.map((selectListItem) => selectListItem.value));
+    const [selectOptionsDataKeys] = useState<any>(props.selectOptionsList.map((selectListItem) => selectListItem.key));
+    const [selectOptionsDataValues] = useState<any>(props.selectOptionsList.map((selectListItem) => selectListItem.value));
 
     const styles = StyleSheet.create({
         dropdownText: {
@@ -383,7 +383,7 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
         <View style={styles.containerStyle} >
             {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
             <SelectList 
-                setSelected={(val: string) => props.displayOptionsList !== undefined ? props.saveKey ? selectOptionsDataKeys[props.displayOptionsList.indexOf(val)] : selectOptionsDataValues[props.displayOptionsList.indexOf(val)] : props.setSelected(val)}
+                setSelected={(val: string) =>  props.displayOptionsList !== undefined ? props.saveKey ? props.setSelected(selectOptionsDataKeys[props.displayOptionsList.indexOf(val)]) : props.setSelected(selectOptionsDataValues[props.displayOptionsList.indexOf(val)]) : props.setSelected(val)}
                 data={props.displaySelectOptions !== undefined ? props.displaySelectOptions : props.selectOptionsList}
                 save={(props.saveKey !== undefined && props.saveKey == true) ? "key" : "value"}
                 boxStyles={styles.selectBoxStyle} 
@@ -707,10 +707,11 @@ export const DeleteButton = (props:{callback:(() => void),  buttonView?:ViewStyl
     )
 }
 
-export const Filler = (props:{fillerStyle:ViewStyle}):JSX.Element => {
+export const Filler = (props:{fillerStyle?:ViewStyle}):JSX.Element => {
 
     const styles = StyleSheet.create({
         fillerView: {
+            height: 90,
             ...props.fillerStyle
         }
     })

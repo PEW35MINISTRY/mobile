@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType, ENVIRONMENT_TYPE, InputRangeField } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
 import { RoleEnum, getDOBMaxDate, getDOBMinDate } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import theme, { COLORS } from "../../theme";
-import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider } from "../../widgets";
+import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider, Filler } from "../../widgets";
 import React, { forwardRef, useImperativeHandle } from "react";
 import { FormSubmit, FormInputProps } from "./form-input-types";
 import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
@@ -250,7 +250,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                                     {fieldValueIsString(field.type, value) &&                                
                                     <Dropdown_Select
                                         label={field.title}
-                                        setSelected={(val:string) => onChange(val)}
+                                        setSelected={(val:string) => onChange(val) }
                                         selectOptionsList={selectListData}
                                         placeholder="Select"
                                         displaySelectOptions={displayOptionsList.length !== 0 ? displayOptionsList : undefined}
@@ -441,5 +441,6 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
 
             })
         }
+        <Filler />
     </ScrollView>)
 });
