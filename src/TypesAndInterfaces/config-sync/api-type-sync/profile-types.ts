@@ -57,7 +57,7 @@ export const PROFILE_PROPERTY_LIST = [ //Sync to ProfileResponse
     'userRole', 'userRoleList',
     'circleList', 'circleInviteList', 'circleRequestList', 'circleAnnouncementList',
     'partnerList', 'partnerPendingUserList', 'partnerPendingPartnerList',
-    'newPrayerRequestList', 'ownedPrayerRequestList', 'recommendedContentList', 'contactList', 'profileAccessList'
+    'newPrayerRequestList', 'ownedPrayerRequestList', 'expiringPrayerRequestList', 'recommendedContentList', 'contactList', 'profileAccessList'
 ];
 
 export interface ProfileResponse {
@@ -86,6 +86,7 @@ export interface ProfileResponse {
     partnerPendingPartnerList?: PartnerListItem[],
     newPrayerRequestList?: PrayerRequestListItem[], //Recipient for dashboard
     ownedPrayerRequestList?: PrayerRequestListItem[], //Not resolved (pending) for which user is the Requestor
+    expiringPrayerRequestList?:PrayerRequestListItem[], // Owned prayer requests that are long term but past their set expiration date
     recommendedContentList?: ContentListItem[],
     contactList?: ProfileListItem[],
     profileAccessList?: ProfileListItem[], //Leaders

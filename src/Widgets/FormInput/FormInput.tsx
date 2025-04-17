@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType, ENVIRONMENT_TYPE, InputRangeField } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
 import { RoleEnum, getDOBMaxDate, getDOBMinDate } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import theme, { COLORS } from "../../theme";
-import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider } from "../../widgets";
+import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider, Filler } from "../../widgets";
 import React, { forwardRef, useImperativeHandle } from "react";
 import { FormSubmit, FormInputProps } from "./form-input-types";
 import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
@@ -215,16 +215,25 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                     break;
                 case InputType.SELECT_LIST:
                     if (field instanceof InputSelectionField) {
-                        var selectListData:SelectListItem[] = [];
-                        for (var i=0; i<field.displayOptionList.length; i++) {
+                        const selectListData:SelectListItem[] = [];
+                        const displayOptionsList:SelectListItem[] = [];
+                        for (var i=0; i<field.selectOptionList.length; i++) {
                             selectListData.push({key: i, value: field.selectOptionList[i]})
+                        }
+                        if (field.displayOptionList !== undefined) {
+                            for (var i=0; i<field.displayOptionList.length; i++) {
+                                displayOptionsList.push({key: i, value: field.displayOptionList[i]})
+                            }
                         }
 
                         const getSelectListDefaultValue = (selectListValue:string | undefined) => {
                             if (selectListValue !== undefined) {
                                 const selectListValueString = selectListValue.toString();
                                 for (var i=0; i<selectListData.length; i++) {
-                                    if (selectListData[i].value == selectListValueString) return selectListData[i];
+                                    if (selectListData[i].value == selectListValueString) {
+                                        if (field.displayOptionList !== undefined) return displayOptionsList[i];
+                                        else return selectListData[i];
+                                    }
                                 }
                             }
                             return undefined;
@@ -241,9 +250,11 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
                                     {fieldValueIsString(field.type, value) &&                                
                                     <Dropdown_Select
                                         label={field.title}
-                                        setSelected={(val:string) => onChange(val)}
-                                        data={selectListData}
+                                        setSelected={(val:string) => onChange(val) }
+                                        selectOptionsList={selectListData}
                                         placeholder="Select"
+                                        displaySelectOptions={displayOptionsList.length !== 0 ? displayOptionsList : undefined}
+                                        displayOptionsList={displayOptionsList.length !== 0 ? field.displayOptionList : undefined}
                                         labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
                                         validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                                         validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
@@ -430,5 +441,6 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUnique
 
             })
         }
+        <Filler />
     </ScrollView>)
 });

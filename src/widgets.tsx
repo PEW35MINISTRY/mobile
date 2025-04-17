@@ -337,7 +337,11 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
     )
 }
 
-export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean, label?:string, setSelected:((val:string) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, labelStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
+export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean, label?:string, setSelected:((val:string) => void), selectOptionsList: SelectListItem[], displayOptionsList?:String[], displaySelectOptions?:SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, labelStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
+    
+    const [selectOptionsDataKeys] = useState<any>(props.selectOptionsList.map((selectListItem) => selectListItem.key));
+    const [selectOptionsDataValues] = useState<any>(props.selectOptionsList.map((selectListItem) => selectListItem.value));
+
     const styles = StyleSheet.create({
         dropdownText: {
             ...theme.text,
@@ -379,8 +383,8 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
         <View style={styles.containerStyle} >
             {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
             <SelectList 
-                setSelected={(val: string) => props.setSelected(val)}
-                data={props.data}
+                setSelected={(val: string) =>  props.displayOptionsList !== undefined ? props.saveKey ? props.setSelected(selectOptionsDataKeys[props.displayOptionsList.indexOf(val)]) : props.setSelected(selectOptionsDataValues[props.displayOptionsList.indexOf(val)]) : props.setSelected(val)}
+                data={props.displaySelectOptions !== undefined ? props.displaySelectOptions : props.selectOptionsList}
                 save={(props.saveKey !== undefined && props.saveKey == true) ? "key" : "value"}
                 boxStyles={styles.selectBoxStyle} 
                 dropdownTextStyles={styles.dropdownText}
@@ -594,6 +598,44 @@ export const BackButton = (props:{callback?:(() => void), navigation?:NativeStac
     )
 }
 
+export const EditButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>, buttonView?:ViewStyle}) => {
+    const styles = StyleSheet.create({
+        editButtonView: {
+            position: "absolute",
+            top: 1,
+            right: 1,
+            ...props.buttonView
+        },
+        editButton: {
+            justifyContent: "center",
+            alignItems: "center",
+            height: 55,
+            width: 55,
+            borderRadius: 15,
+        }
+    })
+    
+    return (
+        <SafeAreaView style={styles.editButtonView}>
+            <TouchableOpacity 
+                onPress={() => { 
+                    if(props.navigation) props.navigation.goBack();
+                    else if(props.callback) props.callback();
+                }}
+            >
+                <View style={styles.editButton}>
+                    <Ionicons 
+                        name="pencil-outline"
+                        color={COLORS.white}
+                        size={30}
+                    />
+                </View>
+            </TouchableOpacity>
+
+        </SafeAreaView>
+    )
+}
+
 export const XButton = (props:{callback?:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>, buttonView?:ViewStyle}):JSX.Element => {
     const styles = StyleSheet.create({
         xButton: {
@@ -664,6 +706,20 @@ export const DeleteButton = (props:{callback:(() => void),  buttonView?:ViewStyl
         </SafeAreaView>
     )
 }
+
+export const Filler = (props:{fillerStyle?:ViewStyle}):JSX.Element => {
+
+    const styles = StyleSheet.create({
+        fillerView: {
+            height: 90,
+            ...props.fillerStyle
+        }
+    })
+
+    return (
+        <SafeAreaView style={styles.fillerView} />
+    )
+} 
 
 export const Confirmation = (props:{callback:(() => void), onCancel:(() => void), promptText:string, buttonText:string}):JSX.Element => {
     const styles = StyleSheet.create({

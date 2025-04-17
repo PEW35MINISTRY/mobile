@@ -1,12 +1,13 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import React, { useState, useEffect } from "react";
+import { Buffer } from "buffer";
 import { View, TouchableOpacity, StyleSheet, Image, Text, GestureResponderEvent, ImageSourcePropType, ImageStyle, ViewStyle, ScrollView, NativeScrollEvent } from 'react-native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from "../TypesAndInterfaces/routes";
 import { CircleListItem, CircleAnnouncementListItem, CircleEventListItem, CircleLeaderResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { DOMAIN } from "@env";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import { Outline_Button } from "../widgets";
@@ -30,15 +31,15 @@ export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string,
             maxWidth: 100,
             borderRadius: 15,
             alignSelf: "center",
-            ...props.style
+            ...props.style,
+            //flex: 1,
         },
     })
 
     const fetchCircleImage = async () => {
-        await axios.get(`${DOMAIN}/api/circle/` + props.circleID + '/image', RequestAccountHeader).then(response => {
-            // Toast override: show default image on 404 instead of toast
+        await axios.get(`${DOMAIN}/api/circle/` + props.circleID + '/image', RequestAccountHeader).then((response:AxiosResponse) => {
             setRequestorImage({uri: response.data})
-        }).catch((error:AxiosError) => setRequestorImage(DEFAULT_CIRCLE_ICON))
+        }).catch((error:AxiosError) =>  setRequestorImage(DEFAULT_CIRCLE_ICON))
     }
 
     useEffect(() => {
@@ -46,7 +47,7 @@ export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string,
         else if (props.circleID !== undefined) fetchCircleImage();
     }, [])
 
-    return <Image source={requestorImage} style={styles.circleImage} resizeMode="contain" onError={() => setRequestorImage(DEFAULT_CIRCLE_ICON)} />;
+    return <Image source={ requestorImage} style={styles.circleImage} resizeMode="contain" onError={() => setRequestorImage(DEFAULT_CIRCLE_ICON)} />;
 }
 
 export const CircleTouchable = (props:{circleProps: CircleListItem, buttonText?:string, onButtonPress?:(id:number, item:CircleListItem) => void, onPress?:((id:number, item:CircleListItem) => void)}):JSX.Element => {
@@ -135,6 +136,7 @@ export const AnnouncementTouchable = (props:{announcement:CircleAnnouncementList
             height: theme.primary.fontSize + 5,
             maxWidth: theme.primary.fontSize + 5,
             margin: 0,
+            flex: 1,
         },
         date: {
             ...theme.primary,
@@ -243,7 +245,7 @@ export const EventTouchable = (props:{circleEvent:CircleEventListItem, onPress:(
                     <Image source={{uri: props.circleEvent.image}} style={styles.eventImage} resizeMode="contain"/>
                     <View style={styles.floating}>
                         <Text allowFontScaling={false} style={styles.titleText}>{props.circleEvent.name}</Text>
-                        <Text allowFontScaling={false} style={styles.timeText}>{new Date(props.circleEvent.startDate as unknown as string).toDateString()}</Text>
+                        <Text allowFontScaling={false} style={styles.timeText}>{new Date(props.circleEvent.startDate).toDateString()}</Text>
                     </View>
                     <View style={styles.descriptionView}>
                         <Text allowFontScaling={false} style={styles.descriptionText}>{props.circleEvent.description}</Text>
@@ -316,6 +318,7 @@ export const CircleContact = (props:{circleRecipientData:RecipientFormCircleList
         middleData: {
             flexDirection: "column",
             marginLeft: 10,
+            maxWidth: '65%'
         },
         prayerCountText: {
             ...theme.text,

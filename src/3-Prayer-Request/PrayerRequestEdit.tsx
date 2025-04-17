@@ -3,15 +3,15 @@ import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, Platform } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState } from '../redux-store';
+import { removeExpiringPrayerRequest, RootState, setOwnedPrayerRequests } from '../redux-store';
 import { PrayerRequestListItem, PrayerRequestPatchRequestBody, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS } from '../theme';
-import { EDIT_PRAYER_REQUEST_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
+import { EDIT_PRAYER_REQUEST_FIELDS, getDateDaysFuture } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import PrayerRequestList from './PrayerRequestList';
 import InputField, { InputType } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { FormInput } from '../Widgets/FormInput/FormInput';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
-import { Confirmation, Outline_Button, Raised_Button, XButton } from '../widgets';
+import { Confirmation, DeleteButton, Filler, Outline_Button, Raised_Button, XButton } from '../widgets';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
@@ -20,6 +20,7 @@ import Toast from 'react-native-toast-message';
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
+    const dispatch = useAppDispatch();
 
     const [addUserRecipientIDList, setAddUserRecipientIDList] = useState<number[]>([]);
     const [removeUserRecipientIDList, setRemoveAddUserRecipientIDList] = useState<number[]>([]);
@@ -48,7 +49,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
         const editedFields:PrayerRequestPatchRequestBody = {
             topic: props.prayerRequestResponseData.topic,
             description: props.prayerRequestResponseData.description,
-            expirationDate: props.prayerRequestResponseData.expirationDate
+            expirationDate: props.prayerRequestResponseData.expirationDate,
         };
 
         // Copy over the other fields that changed
@@ -56,7 +57,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
             //@ts-ignore
             if (value !== editedFields[key]) { editedFields[key] = value; fieldsChanged = true; }
         }
-        
+
         // Copy over recipient fields manually for each field
         if (addCircleRecipientIDList.length > 0) {
             editedFields.addCircleRecipientIDList = addCircleRecipientIDList; fieldsChanged = true;
@@ -76,10 +77,16 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                 const newPrayerRequest:PrayerRequestResponseBody = {...response.data};
 
                 const newPrayerRequestListItem:PrayerRequestListItem = {...props.prayerRequestListData};
+
                 newPrayerRequestListItem.topic = newPrayerRequest.topic;
-                newPrayerRequestListItem.tagList = newPrayerRequest.tagList
+                newPrayerRequestListItem.tagList = newPrayerRequest.tagList;
+                
 
                 ToastQueueManager.show({message: "Prayer Request saved"})
+
+                // remove from expiring list if Long Term is set and the prayer request was about to expire
+                if (editedFields.expirationDate !== undefined && newPrayerRequest.isOnGoing && new Date(editedFields.expirationDate) > new Date()) dispatch(removeExpiringPrayerRequest(newPrayerRequest.prayerRequestID))
+
                 props.callback(newPrayerRequest, newPrayerRequestListItem);
             }).catch((error:AxiosError<ServerErrorResponse>) => { setShowToastRef(true); ToastQueueManager.show({error, callback: setShowToastRef})});
         }
@@ -93,7 +100,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                 <View style={styles.background_view}>
                     <Text allowFontScaling={false} style={styles.header}>Edit Prayer Request</Text>
                     <FormInput 
-                        fields={EDIT_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST)}
+                        fields={EDIT_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST && field.field !== 'duration')}
                         ref={formInputRef}
                         defaultValues={props.prayerRequestResponseData}
                         onSubmit={onPrayerRequestEdit}
@@ -107,12 +114,19 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                         text='Save Changes'
                         onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
                     />
-                    <Outline_Button 
-                        text="Delete Prayer Request"
-                        onPress={() => setDeletePrayerRequestModalVisible(true)}
-                        buttonStyle={{borderColor: COLORS.primary}}
-                    />
-
+                    <Modal 
+                        visible={deletePrayerRequestModalVisible}
+                        onRequestClose={() => setDeletePrayerRequestModalVisible(false)}
+                        animationType='slide'
+                        transparent={true}
+                    >
+                        <Confirmation 
+                            callback={onPrayerRequestDelete}
+                            onCancel={() => setDeletePrayerRequestModalVisible(false)}
+                            promptText={'delete this Prayer Request?'}
+                            buttonText='Delete'
+                        />
+                    </Modal>
                     <Modal
                         visible={recipientFormModalVisible}
                         onRequestClose={() => setRecipientFormModalVisible(false)}
@@ -135,22 +149,10 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                             callback={() => setRecipientFormModalVisible(false)}
                         />
                     </Modal>
-                    <Modal
-                        visible={deletePrayerRequestModalVisible}
-                        onRequestClose={() => setDeletePrayerRequestModalVisible(false)}
-                        animationType='slide'
-                        transparent={true}
-                    >
-                        <Confirmation 
-                            callback={onPrayerRequestDelete}
-                            onCancel={() => setDeletePrayerRequestModalVisible(false)}
-                            promptText='delete this prayer request'
-                            buttonText='Delete'
-                        />
-                    </Modal>
-                    
                 </View>
+                <DeleteButton callback={() => setDeletePrayerRequestModalVisible(true)} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
                 <XButton callback={props.callback} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
+
                 {showToastRef && <Toast />}
             </SafeAreaView>  
     )
@@ -164,6 +166,9 @@ const styles = StyleSheet.create({
     },
     sign_in_button: {
         marginVertical: 15,
+    },
+    fillerStyle: {
+        height: 90,
     },
     deleteView: {
         backgroundColor: COLORS.black,
