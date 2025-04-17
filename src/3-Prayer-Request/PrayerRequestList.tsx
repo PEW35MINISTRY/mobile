@@ -24,7 +24,7 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const userOwnedPrayerRequests = useAppSelector((state:RootState) => state.account.userProfile.ownedPrayerRequestList);
-    const answeredPrayerRequests = useAppSelector((state:RootState) => state.account.userProfile.answeredPrayerRequestList)
+    const answeredPrayerRequests = useAppSelector((state:RootState) => state.account.answeredPrayerRequestList);
 
     const [receivingPrayerRequests, setReceivingPrayerRequests] = useState<PrayerRequestListItem[]>([]);
     const [viewMode, setViewMode] = useState<PrayerRequestListViewMode>(PrayerRequestListViewMode.RECIPIENT);
@@ -62,14 +62,17 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
     }
 
     const GET_ResolvedPrayerRequests = async () => {
-        await axios.get(`${DOMAIN}/api/user/` + userID + `/prayer-request-resolved-list`, RequestAccountHeader).then((response) => {
-            if (response.data !== undefined) {
-                const prayerRequestList:PrayerRequestListItem[] = response.data;
-                if (prayerRequestList.length !== answeredPrayerRequests?.length) {
-                    dispatch(setAnsweredPrayerRequestList(prayerRequestList));
+        if (answeredPrayerRequests?.length === 0) {
+            await axios.get(`${DOMAIN}/api/user/` + userID + `/prayer-request-resolved-list`, RequestAccountHeader).then((response) => {
+                if (response.data !== undefined) {
+                    const prayerRequestList:PrayerRequestListItem[] = response.data;
+                    if (prayerRequestList.length !== answeredPrayerRequests?.length) {
+                        dispatch(setAnsweredPrayerRequestList(prayerRequestList));
+                    }
                 }
-            }
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+        }
+       
     }
 
     useEffect(() => {

@@ -20,12 +20,14 @@ export type AccountState = {
   userID: number,
   jwt: string, 
   userProfile: ProfileResponse,
+  answeredPrayerRequestList: PrayerRequestListItem[],
 }
 
 const initialAccountState:AccountState = {
   userID: -1,
   jwt: '',
-  userProfile: {} as ProfileResponse
+  userProfile: {} as ProfileResponse,
+  answeredPrayerRequestList: [],
 }; 
 
 const accountSlice = createSlice({
@@ -62,7 +64,9 @@ const accountSlice = createSlice({
     removeOwnedPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'ownedPrayerRequestList', 'prayerRequestID'),
     setOwnedPrayerRequests: (state, action:PayloadAction<PrayerRequestListItem[]>) => state = {...state, userProfile: {...state.userProfile, ownedPrayerRequestList: action.payload}},
     removeExpiringPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'expiringPrayerRequestList', 'prayerRequestID'),
-    setAnsweredPrayerRequestList: (state, action:PayloadAction<PrayerRequestListItem[]>) => state = {...state, userProfile: {...state.userProfile, answeredPrayerRequestList: action.payload}},
+    
+    // Not part of userProfile, but rather at the top-level 'answeredPrayerRequestList'
+    setAnsweredPrayerRequestList: (state, action:PayloadAction<PrayerRequestListItem[]>) => state = {...state, answeredPrayerRequestList: action.payload},
     removeAnsweredPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'answeredPrayerRequestList', 'prayerRequestID'),
     addAnsweredPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = addListItem(state, action, 'answeredPrayerRequestList'),
   },

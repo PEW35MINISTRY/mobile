@@ -87,7 +87,6 @@ export interface ProfileResponse {
     newPrayerRequestList?: PrayerRequestListItem[], //Recipient for dashboard
     ownedPrayerRequestList?: PrayerRequestListItem[], //Not resolved (pending) for which user is the Requestor
     expiringPrayerRequestList?:PrayerRequestListItem[], // Owned prayer requests that are long term but past their set expiration date
-    answeredPrayerRequestList?:PrayerRequestListItem[], // Owned prayer requests that are answered (resolved)
     recommendedContentList?: ContentListItem[],
     contactList?: ProfileListItem[],
     profileAccessList?: ProfileListItem[], //Leaders
