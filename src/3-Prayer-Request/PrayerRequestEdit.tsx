@@ -49,7 +49,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
         const editedFields:PrayerRequestPatchRequestBody = {
             topic: props.prayerRequestResponseData.topic,
             description: props.prayerRequestResponseData.description,
-            expirationDate: '',
+            expirationDate: props.prayerRequestResponseData.expirationDate,
         };
 
         // Copy over the other fields that changed
@@ -78,10 +78,9 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
 
                 const newPrayerRequestListItem:PrayerRequestListItem = {...props.prayerRequestListData};
 
-                if (newPrayerRequest.topic !== props.prayerRequestListData.topic || newPrayerRequest.tagList !== props.prayerRequestListData.tagList) {
-                    newPrayerRequestListItem.topic = newPrayerRequest.topic;
-                    newPrayerRequestListItem.tagList = newPrayerRequest.tagList
-                }
+                newPrayerRequestListItem.topic = newPrayerRequest.topic;
+                newPrayerRequestListItem.tagList = newPrayerRequest.tagList;
+                
 
                 ToastQueueManager.show({message: "Prayer Request saved"})
 
@@ -124,7 +123,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                         <Confirmation 
                             callback={onPrayerRequestDelete}
                             onCancel={() => setDeletePrayerRequestModalVisible(false)}
-                            promptText={'delete this Prayer Request'}
+                            promptText={'delete this Prayer Request?'}
                             buttonText='Delete'
                         />
                     </Modal>
