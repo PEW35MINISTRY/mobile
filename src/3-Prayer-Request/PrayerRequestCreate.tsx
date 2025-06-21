@@ -16,6 +16,7 @@ import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Toast from 'react-native-toast-message';
 import { getDateDaysFuture } from '../TypesAndInterfaces/config-sync/input-config-sync/circle-field-config';
+import { InputTypesAllowed } from '../TypesAndInterfaces/config-sync/input-config-sync/inputValidation';
 
 const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListItem) => void)}):JSX.Element => {
     const dispatch = useAppDispatch();
@@ -33,7 +34,7 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
         }
     }
 
-    const onPrayerRequestCreate = (formValues:Record<string, string | string[]>) => {
+    const onPrayerRequestCreate = (formValues:Record<string, InputTypesAllowed>) => {
         // Convert `duration` mock field to `expirationDate`
 
         //@ts-ignore - implicit string[] index signature

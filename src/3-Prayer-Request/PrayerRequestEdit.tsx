@@ -16,6 +16,7 @@ import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Toast from 'react-native-toast-message';
+import { InputTypesAllowed } from '../TypesAndInterfaces/config-sync/input-config-sync/inputValidation';
 
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -44,7 +45,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
             }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
 
 
-    const onPrayerRequestEdit = (formValues:Record<string, string | string[]>) => {
+    const onPrayerRequestEdit = (formValues:Record<string, InputTypesAllowed>) => {
         var fieldsChanged = false;
         const editedFields:PrayerRequestPatchRequestBody = {
             topic: props.prayerRequestResponseData.topic,
@@ -102,6 +103,7 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                     <FormInput 
                         fields={EDIT_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST && field.field !== 'duration')}
                         ref={formInputRef}
+                        modelIDFieldDetails={({ modelIDField: 'prayerRequestID', modelID: props.prayerRequestListData.prayerRequestID })}
                         defaultValues={props.prayerRequestResponseData}
                         onSubmit={onPrayerRequestEdit}
                     />

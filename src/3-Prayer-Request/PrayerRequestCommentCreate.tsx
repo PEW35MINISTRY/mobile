@@ -15,6 +15,7 @@ import { useAppSelector } from '../TypesAndInterfaces/hooks';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Toast from 'react-native-toast-message';
+import { InputTypesAllowed } from '../TypesAndInterfaces/config-sync/input-config-sync/inputValidation';
 
 export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerRequestListItem, callback:((prayerRequestComment?:PrayerRequestCommentListItem) => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -27,10 +28,10 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
         }
     }
 
-    const onCommentCreate = (formValues:Record<string, string | string[]>) => {
+    const onCommentCreate = (formValues:Record<string, InputTypesAllowed>) => {
         
         const postComment:PrayerRequestCommentRequestBody = {
-            message: formValues.message.toString()
+            message: String(formValues.message)
         }
 
         axios.post(`${DOMAIN}/api/prayer-request/`+ props.prayerRequestItem.prayerRequestID + `/comment`, postComment, RequestAccountHeader).then((response:AxiosResponse) => {

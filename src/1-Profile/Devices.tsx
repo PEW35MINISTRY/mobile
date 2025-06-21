@@ -15,6 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Toast from 'react-native-toast-message';
+import { InputTypesAllowed } from '../TypesAndInterfaces/config-sync/input-config-sync/inputValidation';
 
 const Devices = (props:{callback?:(() => void)}):JSX.Element => {
     const formInputRef = useRef<FormSubmit>(null);
@@ -35,7 +36,7 @@ const Devices = (props:{callback?:(() => void)}):JSX.Element => {
         }
       }
 
-    const onNameSubmit = (formValues:Record<string, string | string[]>) => {
+    const onNameSubmit = (formValues:Record<string, InputTypesAllowed>) => {
         const deviceName = Object.values(formValues)[0];
         if (deviceName !== selectedDevice?.deviceName) axios.patch(`${DOMAIN}/api/user/${userID}/notification/device/${selectedDevice?.deviceID}/device-name`, {deviceName: Object.values(formValues)[0]}, RequestAccountHeader).then((response:AxiosResponse<string>) => {
             if (typeof deviceName === 'string' && selectedDevice !== undefined) {

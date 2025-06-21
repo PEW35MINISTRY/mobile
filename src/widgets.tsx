@@ -337,10 +337,8 @@ export const DatePicker = (props:{validationLabel?:string, buttonStyle?:ViewStyl
     )
 }
 
-export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean, label?:string, setSelected:((val:string) => void), selectOptionsList: SelectListItem[], displayOptionsList?:String[], displaySelectOptions?:SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, labelStyle?:TextStyle, defaultOption?:SelectListItem }):JSX.Element => {
-    
-    const [selectOptionsDataKeys] = useState<any>(props.selectOptionsList.map((selectListItem) => selectListItem.key));
-    const [selectOptionsDataValues] = useState<any>(props.selectOptionsList.map((selectListItem) => selectListItem.value));
+export const Dropdown_Select = (props:{options:SelectListItem[], setSelectedValue:((val:string) => void), defaultOption?:SelectListItem,
+                                        label?:string, labelStyle?:TextStyle, validationLabel?:string, validationStyle?:TextStyle, boxStyle?:ViewStyle }):JSX.Element => {
 
     const styles = StyleSheet.create({
         dropdownText: {
@@ -379,19 +377,21 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
         }
     });
     
+
     return (
         <View style={styles.containerStyle} >
             {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
             <SelectList 
-                setSelected={(val: string) =>  props.displayOptionsList !== undefined ? props.saveKey ? props.setSelected(selectOptionsDataKeys[props.displayOptionsList.indexOf(val)]) : props.setSelected(selectOptionsDataValues[props.displayOptionsList.indexOf(val)]) : props.setSelected(val)}
-                data={props.displaySelectOptions !== undefined ? props.displaySelectOptions : props.selectOptionsList}
-                save={(props.saveKey !== undefined && props.saveKey == true) ? "key" : "value"}
+                data={props.options}
+                defaultOption={props.defaultOption} 
+                setSelected={(val: string) => props.setSelectedValue(val)}
+                save='value'
+                placeholder='Select'
+                search={false}
+
                 boxStyles={styles.selectBoxStyle} 
                 dropdownTextStyles={styles.dropdownText}
                 inputStyles={styles.dropdownSelected}
-                placeholder={props.placeholder ?? props.defaultOption?.value}
-                defaultOption={props.defaultOption} 
-                search={false}
                 arrowicon={
                     <Ionicons
                         name={'chevron-down'}
@@ -409,7 +409,8 @@ export const Dropdown_Select = (props:{validationLabel?:string, saveKey?:boolean
    
 }
 
-export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelected:((val:string[]) => void), data: SelectListItem[], placeholder?:string, boxStyle?:ViewStyle, validationStyle?:TextStyle, defaultOptions?:SelectListItem[], label?:string, labelStyle?:TextStyle, checkBoxStyles?: ViewStyle}):JSX.Element => {
+export const Multi_Dropdown_Select = (props:{options:SelectListItem[], defaultOptions?:SelectListItem[], setSelectedValueList:((val:string[]) => void),
+                                            label?:string, labelStyle?:TextStyle, validationLabel?:string, validationStyle?:TextStyle, boxStyle?:ViewStyle, checkBoxStyles?:ViewStyle}):JSX.Element => {
 
     const styles = StyleSheet.create({
         dropdownText: {
@@ -449,13 +450,13 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
         <View style={styles.containerStyle}>
             {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
             <MultipleSelectList 
-                setSelected={(val: string[]) => props.setSelected(val)}
-                data={props.data}
+                setSelected={(val: string[]) => props.setSelectedValueList(val)}
+                data={props.options}
                 save="value"
                 boxStyles={props.boxStyle} 
                 dropdownTextStyles={styles.dropdownText}
                 inputStyles={styles.dropdownSelected}
-                placeholder={props.placeholder}
+                placeholder='Select'
                 defaultOptions={props.defaultOptions}
                 checkBoxStyles={props.checkBoxStyles}
                 search={false}
@@ -476,13 +477,158 @@ export const Multi_Dropdown_Select = (props:{validationLabel?:string, setSelecte
    
 }
 
-export const SelectSlider = (props:{minValue:number, maxValue:number, defaultValue: number, maxField?:string, onValueChange:((val:string) => void), label?:string, validationLabel?:string, labelStyle?:TextStyle, validationStyle?:TextStyle}):JSX.Element => {
+
+export const EditCustomStringList = (props: {valueList:string[], onChange: (val: string[]) => void, getCleanValue:(item:string) => string, getDisplayValue:(item:string) => string,
+                                            label?:string, labelStyle?:TextStyle, validationLabel?:string, validationStyle?:TextStyle }) => {
+    const [list, setList] = useState<string[]>(props.valueList || []);
+    const [newValue, setNewValue] = useState<string>('');
+
+    useEffect(() => {
+        setList(props.valueList || []);
+    }, [props.valueList]);
+
+    const onAdd = () => {
+        const value = props.getCleanValue(newValue);
+        if (value.length > 0 && !list.includes(value)) {
+            const updatedList = [...list, value];
+            setList(updatedList);
+            props.onChange(updatedList);
+        }
+        setNewValue('');
+    };
+
+    const onRemove = (item: string) => {
+        const newList = list.filter(i => i !== item);
+        setList(newList);
+        props.onChange(newList);
+    };
+
+const styles = StyleSheet.create({
+        dropdownText: {
+            ...theme.text,
+            textAlign: "center",
+        },
+        labelStyle: {
+            ...theme.accent,
+            color: COLORS.transparentWhite,
+            textAlign: 'left',
+            marginVertical: 5,
+            ...props.labelStyle,
+        },
+        dropdownSelected: {
+            ...theme.text,
+            textAlign: "center",
+            paddingLeft: 16,
+            flex: 1,
+        },
+        containerStyle: {
+            marginVertical: 5,
+        },
+        listContainer: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            marginBottom: 10,
+        },
+        listItem: {
+            backgroundColor: COLORS.accent,
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderRadius: 15,
+            marginRight: 6,
+            marginBottom: 6,
+        },
+        listItemText: {
+            ...theme.text,
+            color: COLORS.transparentWhite,
+        },
+        inputContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
+        input: {
+            ...theme.text,
+            flex: 1,
+            borderColor: COLORS.accent,
+            borderWidth: 1,
+            borderRadius: 5,
+            paddingHorizontal: 10,
+            height: 40,
+
+            color: COLORS.transparentWhite,
+        },
+        inputButtonStyle: {
+            backgroundColor: COLORS.accent,
+            marginLeft: 10,
+            paddingHorizontal: 15,
+            paddingVertical: 10,
+            borderRadius: 5,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        errorTextStyle: {
+            ...theme.accent,
+            color: COLORS.primary,
+            textAlign: "center",
+            marginBottom: 5,
+            ...props.validationStyle
+        }
+    });
+
+
+    return (
+        <View style={styles.containerStyle}>
+            {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
+
+            {list.length > 0 && (
+                <View style={styles.listContainer}>
+                    {list.map(item => (
+                        <TouchableOpacity key={item} onPress={() => onRemove(item)} style={styles.listItem}>
+                            <Text allowFontScaling={false} style={styles.listItemText}>{props.getDisplayValue(item)}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            )}
+
+            <View style={styles.inputContainer}>
+                <TextInput
+                    value={props.getDisplayValue(newValue)}
+                    onChangeText={setNewValue}
+                    onSubmitEditing={onAdd}
+
+                    style={styles.input}
+                    placeholder='New'
+                    placeholderTextColor={COLORS.transparentWhite}
+                    returnKeyType='done'
+                    autoCapitalize='none'
+                    autoCorrect={false}
+                />
+                <Raised_Button buttonStyle={styles.inputButtonStyle}
+                    text={'ADD'}
+                    onPress={onAdd}
+                />
+            </View>
+
+            {props.validationLabel && <Text allowFontScaling={false} style={styles.errorTextStyle}>{props.validationLabel}</Text>}
+        </View>
+    );
+};
+
+
+export const SelectSlider = (props:{minValue:number, maxValue:number, defaultValue: number, onValueChange:((val:string) => void), 
+    maxField?:string, defaultMaxValue?:number, onMaxValueChange?: (val:string) => void,
+    label?:string, validationLabel?:string, labelStyle?:TextStyle, validationStyle?:TextStyle}):JSX.Element => {
 
     const [sliderValue, setSliderValue] = useState<number>(isNaN(props.defaultValue) ? props.minValue : props.defaultValue);
+    const [maxSliderValue, setMaxSliderValue] = useState<number>((props.defaultMaxValue && isNaN(props.defaultMaxValue)) ? props.defaultMaxValue : props.maxValue);
 
     const onSliderValueChange = (value:number) => {
         setSliderValue(value);
         props.onValueChange(value.toString())
+    }
+
+    const onMaxSliderValueChange = (value: number) => {
+        setMaxSliderValue(value);
+        props.onMaxValueChange?.(value.toString());
     }
 
     const styles = StyleSheet.create({
@@ -518,7 +664,7 @@ export const SelectSlider = (props:{minValue:number, maxValue:number, defaultVal
     return (
         <View style={styles.containerStyle}>
             {props.label && <Text allowFontScaling={false} style={styles.labelStyle}>{props.label}</Text>}
-            <Text allowFontScaling={false} style={styles.sliderValueText}>{sliderValue}</Text>
+            <Text allowFontScaling={false} style={styles.sliderValueText}>{sliderValue}{(props.maxField) ? 'Min:' : ''}</Text>
             <Slider 
                 minimumValue={props.minValue}
                 maximumValue={props.maxValue}
@@ -529,6 +675,21 @@ export const SelectSlider = (props:{minValue:number, maxValue:number, defaultVal
                 minimumTrackTintColor={COLORS.accent}
                 maximumTrackTintColor={COLORS.accent}
             />
+            {(props.maxField) && (
+                <>
+                    <Text allowFontScaling={false} style={styles.sliderValueText}>{maxSliderValue} Max:</Text>
+                    <Slider
+                        minimumValue={props.minValue}
+                        maximumValue={props.maxValue}
+                        value={maxSliderValue}
+                        onValueChange={onMaxSliderValueChange}
+                        step={1}
+                        thumbTintColor={COLORS.accent}
+                        minimumTrackTintColor={COLORS.accent}
+                        maximumTrackTintColor={COLORS.accent}
+                    />
+                </>
+            )}
             {props.validationLabel && <Text allowFontScaling={false} style={styles.errorTextStyle}>{props.validationLabel}</Text>}
         </View>
     )

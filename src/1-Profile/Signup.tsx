@@ -19,6 +19,7 @@ import ToastQueueManager from '../utilities/ToastQueueManager';
 import { LoginResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/auth-types';
 import { ENVIRONMENT_TYPE } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { getEnvironment } from '../utilities/utilities';
+import { InputTypesAllowed } from '../TypesAndInterfaces/config-sync/input-config-sync/inputValidation';
 
 const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -27,7 +28,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const [populateDemoProfile, setPopulateDemoProfile] = useState<boolean>(false);
 
-    const onSignUp = (formValues:Record<string, string | string[]>) => {
+    const onSignUp = (formValues:Record<string, InputTypesAllowed>) => {
       // send data to server
       axios.post(`${DOMAIN}/signup${populateDemoProfile ? '?populate=true' : ''}`, formValues).then((response:AxiosResponse<LoginResponseBody>) => {
         dispatch(setAccount({
