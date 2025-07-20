@@ -26,6 +26,8 @@ import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Slider from '@react-native-community/slider';
 import { InputTypesAllowed } from '../TypesAndInterfaces/config-sync/input-config-sync/inputValidation';
+import InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import { getEnvironment } from '../utilities/utilities';
 
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
@@ -104,7 +106,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
           </TouchableOpacity>
           <Text allowFontScaling={false} style={styles.header}>Edit Profile</Text>
           <FormInput 
-            fields={EDIT_PROFILE_FIELDS}
+            fields={EDIT_PROFILE_FIELDS.filter((field:InputField)=>field.environmentList.includes(getEnvironment()))}
             modelIDFieldDetails={({ modelIDField: 'userID', modelID: userID })}
             defaultValues={userProfile}
             onSubmit={onEditProfile}

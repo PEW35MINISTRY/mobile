@@ -107,9 +107,8 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                 }
 
                 //Re-validate before submitting | Stops on first failed validation
-                if(props.fields.every((field:InputField) => {
+                if(props.fields.filter((field:InputField)=>field.environmentList.includes(getEnvironment())).every((field:InputField) => {
                         const result = validateInput({ field, value: formValues[field.field], getInputField: (f: string) => formValues[f], simpleValidationOnly: false });
-
                         if(!result.passed)
                             setError(field.field, { type: 'manual', message: result.message });
                         else
@@ -180,7 +179,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                 }}
                                 render={({ field: {onChange, onBlur, value}}) =>
                                     <Input_Field
-                                        value={String(value)}
+                                        value={String(value ?? '')}
                                         onChangeText={onChange}
                                         keyboardType={(field.type === InputType.NUMBER) ? 'numeric'
                                                     : (field.type === InputType.EMAIL) ? 'email-address' : 'default'}
@@ -196,7 +195,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                         label={field.title}
                                         labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
 
-                                        validationLabel={String(errors[field.field])}
+                                        validationLabel={(errors[field.field] && field.validationMessage) || undefined}
                                         validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
                                     />}
 
@@ -218,7 +217,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                         }}
                                     render={({ field: {onChange, onBlur, value}}) =>               
                                             <DatePicker 
-                                                date={String(value)}
+                                                date={String(value ?? new Date().toISOString())}
                                                 onConfirm={(date:Date) => onChange(date.toISOString())}
 
                                                 label={field.title}
@@ -250,7 +249,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                 }}
                                 render={({ field: { onChange, value } }) =>
                                     <SelectSlider
-                                        defaultValue={Number(value)}
+                                        defaultValue={Number(value ?? rangeField.minValue)}
                                         onValueChange={(val: string) => onChange(val)}
 
                                         maxField={rangeField.maxField}

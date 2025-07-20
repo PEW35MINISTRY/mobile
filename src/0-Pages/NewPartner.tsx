@@ -38,7 +38,11 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
         axios.post(`${DOMAIN}/api/user/` + userID + '/new-partner', {}, RequestAccountHeader).then((response:AxiosResponse<PartnerListItem>) => {
             setNewPartner(response.data);
             setRequestNewPartnerModalVisible(true);
-        }).catch((error:AxiosError<ServerErrorResponse>) => {setToastRefState !== undefined && setToastRefState(true); ToastQueueManager.show({error, callback: setToastRefState})});
+        }).catch((error:AxiosError<ServerErrorResponse>) => {
+            setToastRefState !== undefined && setToastRefState(true);
+            setRequestNewPartnerModalVisible(false);
+            ToastQueueManager.show({error, callback: setToastRefState});
+        });
     }
 
     const acceptPartnershipRequest = () => {

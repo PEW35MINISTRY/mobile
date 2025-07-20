@@ -17,7 +17,7 @@ import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { LoginResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/auth-types';
-import { ENVIRONMENT_TYPE } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import InputField, { ENVIRONMENT_TYPE } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
 import { getEnvironment } from '../utilities/utilities';
 import { InputTypesAllowed } from '../TypesAndInterfaces/config-sync/input-config-sync/inputValidation';
 
@@ -50,7 +50,8 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
         <View style={theme.background_view}>
             <Text allowFontScaling={false} style={styles.header}>Create Profile</Text>
               <FormInput 
-                fields={SIGNUP_PROFILE_FIELDS_USER}
+                fields={SIGNUP_PROFILE_FIELDS_USER.filter((field:InputField)=>field.environmentList.includes(getEnvironment()))}
+                modelIDFieldDetails={({ modelIDField: 'userID', modelID: -1 })}
                 onSubmit={onSignUp}
                 ref={formInputRef}
               />

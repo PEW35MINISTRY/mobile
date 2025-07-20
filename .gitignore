@@ -36,6 +36,7 @@ local.properties
 *.aab
 *.apk
 app/google-services.json
+android/app/google-services.json
 
 # node.js
 #

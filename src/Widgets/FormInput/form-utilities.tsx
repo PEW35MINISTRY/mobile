@@ -1,4 +1,4 @@
-import { DOMAIN, ENVIRONMENT } from "@env";
+import { DOMAIN } from "@env";
 import axios from 'axios';
 import ToastQueueManager from '../../utilities/ToastQueueManager';
 
