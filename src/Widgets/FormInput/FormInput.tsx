@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType, ENVIRONMENT_TYPE, InputRangeField } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
 import validateInput, { InputTypesAllowed, InputValidationResult } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputValidation";
 import theme, { COLORS } from "../../theme";
-import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider, Filler } from "../../widgets";
+import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider, Filler, EditCustomStringList } from "../../widgets";
 import { FormSubmit, FormInputProps } from "./form-input-types";
 import ToastQueueManager from "../../utilities/ToastQueueManager";
 import { SelectListItem } from "react-native-dropdown-select-list";
@@ -109,9 +109,10 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                 //Re-validate before submitting | Stops on first failed validation
                 if(props.fields.filter((field:InputField)=>field.environmentList.includes(getEnvironment())).every((field:InputField) => {
                         const result = validateInput({ field, value: formValues[field.field], getInputField: (f: string) => formValues[f], simpleValidationOnly: false });
-                        if(!result.passed)
+                        if(!result.passed) {
                             setError(field.field, { type: 'manual', message: result.message });
-                        else
+                            if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(field.field, formValues[field.field], result.description);
+                        } else
                             clearErrors(field.field);
                 
                         return result.passed;                        
@@ -124,27 +125,6 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
     },
 }));
 
-
-
-    const styles = StyleSheet.create({
-        ...theme,
-        centerInputStyle: {
-            alignSelf: "center"
-        },
-        validationStyle: {
-            color: COLORS.primary, 
-            borderColor: COLORS.primary,
-            maxWidth: '90%', 
-            alignSelf: "center",
-            textAlign: "center"
-        },
-        validationStyleDropdown: {
-            alignSelf: "center",
-            textAlign: "center",
-            color: COLORS.primary, 
-            borderColor: COLORS.primary,
-        }
-    })
 
     return (
         <ScrollView style={{maxWidth: '90%'}}>{
@@ -162,16 +142,10 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                 key={field.field}
                                 name={field.field}
                                 rules={{
-                                    required: field.required,
-                                    minLength: field.length?.min,
-                                    maxLength: field.length?.max,
                                     validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
-                                        const result:InputValidationResult = validateInput({
-                                                field,
-                                                value,
-                                                getInputField: (f:string) => formValues[f],
-                                                simpleValidationOnly: true
-                                            });
+                                        const result:InputValidationResult = validateInput({field, value, getInputField: (f:string) => formValues[f], simpleValidationOnly: true });
+
+                                        if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(field.field, value, result.description);
 
                                         //Return 'true' on success or 'validation message' on fail
                                         return result.passed || result.message;
@@ -179,24 +153,11 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                 }}
                                 render={({ field: {onChange, onBlur, value}}) =>
                                     <Input_Field
+                                        field={field}
                                         value={String(value ?? '')}
                                         onChangeText={onChange}
-                                        keyboardType={(field.type === InputType.NUMBER) ? 'numeric'
-                                                    : (field.type === InputType.EMAIL) ? 'email-address' : 'default'}
 
-                                        textContentType={(field.type === InputType.PASSWORD ? 'password' : undefined)}
-
-                                        multiline={(field.type === InputType.PARAGRAPH)}
-                                        autoCapitalize={false}
-
-                                        containerStyle={styles.centerInputStyle}
-                                        inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
-
-                                        label={field.title}
-                                        labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-
-                                        validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                        validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
+                                        validationLabel={errors[field.field]?.message}
                                     />}
 
                             />);
@@ -209,25 +170,21 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                     key={field.field}
                                     name={field.field}                        
                                     rules={{
-                                        required: field.required,
                                         validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
                                                     const result:InputValidationResult = validateInput({field, value, simpleValidationOnly: true, getInputField: (f:string) => formValues[f]});
+
+                                                    if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(field.field, value, result.description);
+
                                                     return result.passed || result.message;
                                                 }
                                         }}
                                     render={({ field: {onChange, onBlur, value}}) =>               
                                             <DatePicker 
+                                                field={field}
                                                 date={String(value ?? new Date().toISOString())}
                                                 onConfirm={(date:Date) => onChange(date.toISOString())}
 
-                                                label={field.title}
-                                                labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-
-                                                buttonText={field.title}
-                                                buttonStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-
-                                                validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                                validationStyle={(errors[field.field] && styles.validationStyleDropdown) || undefined}
+                                                validationLabel={errors[field.field]?.message}
                                             />}
                                     />);
                             break;
@@ -240,35 +197,31 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                 key={field.field}
                                 name={field.field}
                                 rules={{
-                                    required: field.required,
                                     validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
                                         const result:InputValidationResult = validateInput({field, value, simpleValidationOnly: true,
-                                                                                getInputField: (f:string) => formValues[f]});  //maxField also validated                                            
+                                                                                getInputField: (f:string) => formValues[f]});  //maxField also validated 
+
+                                        if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(rangeField.field, value, formValues[rangeField.maxField ?? -1], result.description);
+                              
                                         return result.passed || result.message;
                                     }
                                 }}
                                 render={({ field: { onChange, value } }) =>
                                     <SelectSlider
+                                        field={rangeField}
                                         defaultValue={Number(value ?? rangeField.minValue)}
                                         onValueChange={(val: string) => onChange(val)}
 
-                                        maxField={rangeField.maxField}
                                         defaultMaxValue={rangeField.maxField ? Number(getValues(rangeField.maxField) ?? rangeField.maxValue) : undefined}
                                         onMaxValueChange={(val: string) => { if(rangeField.maxField) setValue(rangeField.maxField, val, { shouldValidate: true }); }}
 
-                                        minValue={Number(rangeField.minValue)}
-                                        maxValue={Number(rangeField.maxValue)}
-
-                                        label={rangeField.title}
-                                        labelStyle={errors[rangeField.field] ? { color: COLORS.primary } : undefined}
-                                        validationLabel={errors[rangeField.field] ? field.validationMessage : undefined}
-                                        validationStyle={errors[rangeField.field] ? styles.validationStyle : undefined}
+                                        validationLabel={errors[rangeField.field]?.message}
                                     />}
                             />);
                         break;
 
                 case InputType.SELECT_LIST:
-                    const selectionField: InputSelectionField = field as InputSelectionField;
+                    const selectionField:InputSelectionField = field as InputSelectionField;
                     const selectionOptions:SelectListItem[] = selectionField.selectOptionList.map((val, i) => ({key: selectionField.displayOptionList?.[i] ?? val, value: val}));
                     return (
                         <Controller 
@@ -276,60 +229,85 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                             key={field.field}
                             name={field.field}
                             rules={{
-                                required: field.required,
                                 validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
                                     const result:InputValidationResult = validateInput({field, value, simpleValidationOnly: true, getInputField: (f:string) => formValues[f]});
+
+                                    if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(selectionField.field, value, formValues[rangeField.maxField ?? -1], result.description);
+
                                     return result.passed || result.message;
                                 }
                             }}
                             render={({ field: {onChange, onBlur, value}}) =>
                                 <Dropdown_Select
+                                    field={selectionField}
                                     options={selectionOptions}
                                     defaultOption={selectionOptions.find(opt => opt.value === value)}
                                     setSelectedValue={onChange}
 
-                                    boxStyle={errors[field.field] ? styles.validationStyleDropdown : { borderColor: COLORS.accent }}
-
-                                    label={selectionField.title}
-                                    labelStyle={errors[field.field] ? { color: COLORS.primary } : undefined}
-
-                                    validationLabel={errors[field.field] ? field.validationMessage : undefined}
-                                    validationStyle={errors[field.field] ? styles.validationStyle : undefined}
+                                    validationLabel={errors[field.field]?.message}
                                 />}
                         />);
                     break;
                     
                 case InputType.MULTI_SELECTION_LIST:
-                    const multiSelectionField: InputSelectionField = field as InputSelectionField;
+                    const multiSelectionField:InputSelectionField = field as InputSelectionField;
                     const multiSelectionOptions:SelectListItem[] = multiSelectionField.selectOptionList.map((val, i) => ({key: multiSelectionField.displayOptionList?.[i] ?? val, value: val}));
                         <Controller
                             control={control}
                             key={multiSelectionField.field}
                             name={multiSelectionField.field}
                             rules={{
-                                required: field.required,
                                 validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
                                     const result:InputValidationResult = validateInput({field, value, simpleValidationOnly: true, getInputField: (f:string) => formValues[f]});
+
+                                    if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(multiSelectionField.field, value, result.description);
+
                                     return result.passed || result.message;
                                 }
                             }}
                             render={({ field: { onChange, value } }) =>
                                 <Multi_Dropdown_Select
+                                    field={multiSelectionField}
                                     options={multiSelectionOptions}
                                     defaultOptions={Array.isArray(value) ? value.map(val => multiSelectionOptions.find(opt => opt.value === val)).filter((opt): opt is SelectListItem => opt !== undefined) : undefined}
                                     setSelectedValueList={onChange}
 
-                                    boxStyle={errors[multiSelectionField.field] ? styles.validationStyleDropdown : { borderColor: COLORS.accent }}
-
-                                    label={multiSelectionField.title}
-                                    labelStyle={errors[field.field] ? { color: COLORS.primary } : undefined}
-
-                                    validationLabel={errors[field.field] ? field.validationMessage : undefined}
-                                    validationStyle={errors[field.field] ? styles.validationStyle : undefined}
+                                    validationLabel={errors[field.field]?.message}
                                 />}
                         />;
                     break;                
                 
+                case InputType.CUSTOM_STRING_LIST:
+                    return (
+                        <Controller
+                            control={control}
+                            key={field.field}
+                            name={field.field}
+                            rules={{
+                                validate: (value: InputTypesAllowed, formValues: Record<string, InputTypesAllowed>) => {
+                                    const result:InputValidationResult = validateInput({field, value, getInputField: (f:string) => formValues[f], simpleValidationOnly: true });
+
+                                    if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(field.field, value, result.description);
+
+                                    return result.passed || result.message;
+                                }
+                            }}
+                            render={({ field:{ onChange, value } }) => (
+                                <EditCustomStringList
+                                    field={field}
+                                    valueList={Array.isArray(value) ? value.map(String) : []}
+                                    onChange={onChange}
+
+                                    getDisplayValue={(item: string = '') => item.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+                                    getCleanValue={(item: string = '') => item.replace(/[^a-zA-Z0-9 _-]/g, '').replace(/ /g, '_').toUpperCase()}
+
+                                    validationLabel={errors[field.field]?.message}
+                                />
+                            )}
+                        />
+                    );
+
+
                 // Default case will likely never happen, but its here to prevent undefined behavior per TS
                 case InputType.CUSTOM:
                 default:

@@ -104,7 +104,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             ...theme.text,
             fontSize: 12
         },
-        pfpStyle: {
+        profileImageStyle : {
             position: 'absolute',
             height: 30, 
             width: 30, 
@@ -118,8 +118,8 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             <TouchableOpacity onPress={() => props.onPress && props.onPress(props.prayerRequestProp.prayerRequestID, props.prayerRequestProp)}>
                 <View style={styles.prayerRequestDataColumn}>
                     <View style={styles.prayerRequestDataRowLeft}>
-                    <RequestorProfileImage imageUri={props.prayerRequestProp.requestorProfile.image} userID={props.prayerRequestProp.requestorProfile.userID} style={styles.pfpStyle}/>
-                        <Text allowFontScaling={false} style={styles.topicText}>{props.prayerRequestProp.topic}</Text>
+                    <RequestorProfileImage imageUri={props.prayerRequestProp.requestorProfile.image} userID={props.prayerRequestProp.requestorProfile.userID} style={styles.profileImageStyle }/>
+                        <Text allowFontScaling={false} numberOfLines={1} ellipsizeMode='tail' style={styles.topicText}>{props.prayerRequestProp.topic}</Text>
                         <View style={styles.listItemFooter}>
                             <View style={styles.tagsView}>
                                 {renderTags()}

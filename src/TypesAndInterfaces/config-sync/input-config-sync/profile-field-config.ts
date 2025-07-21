@@ -140,7 +140,7 @@ export const SIGNUP_PROFILE_FIELDS_USER:InputField[] = [
 
 //SIGNUP all other roles
 export const SIGNUP_PROFILE_FIELDS:InputField[] = [    
-    new InputSelectionField({title: 'Account Type', field: 'userRoleTokenList', type: InputType.CUSTOM, selectOptionList: Object.values(RoleEnum) }),
+    new InputSelectionField({title: 'Account Type', field: 'userRoleTokenList', type: InputType.CUSTOM, selectOptionList: GENERAL_USER_ROLES }),
     ...SIGNUP_PROFILE_FIELDS_USER,
 ];
 
