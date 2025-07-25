@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect, useMemo } from 'react';
 import axios, { AxiosError } from 'axios';
 import { ColorValue, GestureResponderEvent, Image, ImageSourcePropType, ImageStyle, KeyboardTypeOptions, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle, ScrollView, SafeAreaView, Keyboard } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -350,8 +350,14 @@ export const DatePicker = (props:{field:InputField, validationLabel?:string, onC
     )
 }
 
-export const Dropdown_Select = (props:{field:InputSelectionField, options:SelectListItem[], setSelectedValue:((val:string) => void), defaultOption?:SelectListItem,
+export const Dropdown_Select = (props:{field:InputSelectionField, setSelectedValue:((val:string|number) => void), defaultValue?:string|number,
                                         labelStyle?:TextStyle, validationLabel?:string, validationStyle?:TextStyle }):JSX.Element => {
+
+    const optionList:SelectListItem[] = useMemo(() => (props.field.selectOptionList || []).map((value, index) => ({
+            key: `${index}_${value}`,
+            value,
+            displayLabel: props.field.displayOptionList[index] ?? String(value),
+        })), [props.field.selectOptionList, props.field.displayOptionList]);
 
     const styles = StyleSheet.create({
         dropdownText: {
@@ -396,11 +402,9 @@ export const Dropdown_Select = (props:{field:InputSelectionField, options:Select
             <Text allowFontScaling={false} style={[styles.labelStyle, { color: props.validationLabel ? COLORS.primary : COLORS.transparentWhite }]}>
                 <Text style={{ color: props.validationLabel ? COLORS.primary : COLORS.accent }}>{props.field.required ? '* ' : '  '}</Text>{props.field.title}</Text>
             <SelectList 
-                data={props.options}
-                defaultOption={props.defaultOption} 
-                setSelected={(val: string) => props.setSelectedValue(val)}
-                save='value'
-                placeholder='Select'
+                optionList={optionList}
+                defaultOption={optionList.find(opt => opt.value === props.defaultValue)}
+                onSelectValue={(val:string|number) => props.setSelectedValue(val)}
                 search={false}
 
                 boxStyles={{ ...styles.selectBoxStyle, borderColor: props.validationLabel ? COLORS.primary : COLORS.accent }}
@@ -423,8 +427,14 @@ export const Dropdown_Select = (props:{field:InputSelectionField, options:Select
    
 }
 
-export const Multi_Dropdown_Select = (props:{field:InputSelectionField, options:SelectListItem[], defaultOptions?:SelectListItem[], setSelectedValueList:((val:string[]) => void),
-                                            label?:string, labelStyle?:TextStyle, validationLabel?:string, validationStyle?:TextStyle, boxStyle?:ViewStyle, checkBoxStyles?:ViewStyle}):JSX.Element => {
+export const Multi_Dropdown_Select = (props:{field:InputSelectionField, defaultValueList?:(string|number)[], setSelectedValueList:((val:(string|number)[]) => void),
+                                            label?:string, labelStyle?:TextStyle, validationLabel?:string, validationStyle?:TextStyle, boxStyle?:ViewStyle}):JSX.Element => {
+
+    const optionList:SelectListItem[] = useMemo(() => (props.field.selectOptionList || []).map((value, index) => ({
+            key: `${index}_${value}`,
+            value,
+            displayLabel: props.field.displayOptionList[index] ?? String(value),
+        })), [props.field.selectOptionList, props.field.displayOptionList]);
 
     const styles = StyleSheet.create({
         dropdownText: {
@@ -469,15 +479,12 @@ export const Multi_Dropdown_Select = (props:{field:InputSelectionField, options:
             <Text allowFontScaling={false} style={[styles.labelStyle, { color: props.validationLabel ? COLORS.primary : COLORS.transparentWhite }]}>
                 <Text style={{ color: props.validationLabel ? COLORS.primary : COLORS.accent }}>{props.field.required ? '* ' : '  '}</Text>{props.field.title}</Text>
                 <MultipleSelectList 
-                    setSelected={(val: string[]) => props.setSelectedValueList(val)}
-                    data={props.options}
-                    save="value"
+                    onSelectValueList={(list:(string|number)[]) => props.setSelectedValueList(list)}
+                    optionList={optionList}
+                    defaultOptions={ optionList.filter(option => props.defaultValueList?.includes(option.value))}
                     boxStyles={{ ...styles.selectBoxStyle, borderColor: props.validationLabel ? COLORS.primary : COLORS.accent }}
                     dropdownTextStyles={styles.dropdownText}
                     inputStyles={styles.dropdownSelected}
-                    placeholder='Select'
-                    defaultOptions={props.defaultOptions}
-                    checkBoxStyles={props.checkBoxStyles}
                     search={false}
                     arrowicon={
                         <Ionicons

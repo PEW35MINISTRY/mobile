@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, TextInput } from "react-native";
 import { StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { BackButton, Input_Field, Raised_Button } from "../widgets";
-import theme, { COLORS } from "../theme";
+import theme, { COLORS, FONT_SIZES } from "../theme";
 import React, { useState } from "react";
 import { CircleListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/circle-types";
 import { DOMAIN } from "@env";
@@ -50,10 +50,17 @@ export const CircleSearch = ({navigation}:StackNavigationProps):JSX.Element => {
     return (
         <SafeAreaView style={styles.modalView}>
             <Text allowFontScaling={false} style={styles.modalHeaderText}>Search Circles</Text>
-            <Input_Field
-                value={circleSearchText}
-                onChangeText={setCircleSearchText}
-            />
+            <View style={styles.containerFieldContainer}>
+                <TextInput
+                    value={circleSearchText}
+                    onChangeText={setCircleSearchText}
+
+                    style={styles.searchField}
+                    allowFontScaling={false}
+                    autoCapitalize='none'
+                    returnKeyType='done'
+                />
+            </View>
             <Raised_Button buttonStyle={styles.statusButton}
                 text={"Search"}
                 onPress={searchQuery}
@@ -91,4 +98,20 @@ const styles = StyleSheet.create({
     circleSelectScroller: {
         height: 650
     },
+    containerFieldContainer: {
+        marginVertical: 5,
+    },
+    searchField: {
+        ...theme.text,
+        fontSize: FONT_SIZES.L,
+        width: 275,
+        margin: 5,
+        paddingVertical: 5,
+        paddingHorizontal: 15,
+        color: COLORS.white,
+        borderBottomWidth: 1,
+        borderColor: COLORS.accent,
+        backgroundColor: COLORS.black,
+        maxHeight: 150
+    }
 })

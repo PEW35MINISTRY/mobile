@@ -92,7 +92,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                     [ENVIRONMENT_TYPE.LOCAL, ENVIRONMENT_TYPE.DEVELOPMENT].includes(getEnvironment()) && 
                     <>
                         <Outline_Button 
-                            text="Reset JWT"
+                            text="Update Authentication"
                             onPress={() => dispatch(resetJWT())}
                             buttonStyle={styles.settingsButton}
                         />
