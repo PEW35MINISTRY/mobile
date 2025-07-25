@@ -21,18 +21,19 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
 
         for(const field of props.fields) {
             const key = field.field;
-            const currentValue = props.defaultValues?.[key];
+            const value = props.defaultValues?.[key] ?? field.value;
 
-            if(currentValue !== undefined && currentValue !== null)
-                values[key] = currentValue;
-            else if(field.value !== undefined && field.value !== null)
-                values[key] = field.value;
-            else if(isListType(field.type))
+            if(value != null) { //Evaluates against both undefined and null
+                if(field.type === InputType.SELECT_LIST) {
+                    values[key] = String(value);
+                } else if(field.type === InputType.MULTI_SELECTION_LIST) {
+                    values[key] = (Array.isArray(value) && value.length > 0)
+                        ? value.map(v => String(v))
+                        : [];
+                } else
+                    values[key] = value;
+            } else if(isListType(field.type))
                 values[key] = [];
-            // else if(field.type === InputType.NUMBER)
-            //    values[key] = 0;
-            // else 
-            //    values[key] = "";
         }
 
         return values;
@@ -87,9 +88,9 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                     return isMissing;
                 });
 
-                //Test unique fields as combination
+//Test unique fields as combination
                 let incompleteIdentityProperty:string|undefined = undefined;
-                if(validateUniqueFields && uniqueFields.size > 1) {
+                if(!missingField &&validateUniqueFields && uniqueFields.size > 1) {
                     for(const [field, value] of uniqueFields.entries()) {
                         if(value === undefined || value.length === 0) {
                             incompleteIdentityProperty = field;
@@ -98,7 +99,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                         }
                     }
 
-                    if(await testAccountAvailable(uniqueFields) === false) {
+                    if(!incompleteIdentityProperty && await testAccountAvailable(uniqueFields) === false) {
                         ToastQueueManager.show({ message: 'Account Exists' });
                         [ENVIRONMENT_TYPE.LOCAL].includes(getEnvironment()) && console.error(`Account already exists:`, uniqueFields);
                         return;
@@ -258,14 +259,14 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                     return result.passed || result.message;
                                 }
                             }}
-                            render={({ field: { onChange, value } }) =>
-                                <Multi_Dropdown_Select
+                            render={({ field: { onChange, value } }) => 
+                                    <Multi_Dropdown_Select
                                     field={multiSelectionField}
                                     defaultValueList={Array.isArray(value) ? value : undefined}
                                     setSelectedValueList={onChange}
-
                                     validationLabel={errors[field.field]?.message}
-                                />}
+                                />
+                            }
                         />
                     );
                     break;                

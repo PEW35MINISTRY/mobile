@@ -39,7 +39,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.45.1",
     "react-native": "^0.73.9",
-    "react-native-dropdown-select-list": "github:PEW35MINISTRY/mobile-multi-select-dropdown",
+    "react-native-dropdown-select-list": "github:PEW35MINISTRY/mobile-multi-select-dropdown#main",
     "react-native-gesture-handler": "^2.14.0",
     "react-native-image-picker": "^7.1.0",
     "react-native-inappbrowser-reborn": "3.4.0",
