@@ -33,11 +33,6 @@ export const RecipientForm = (props:{userRecipientList?: ProfileListItem[], circ
     const [viewMode, setViewMode] = useState<RecipientFormViewMode>((props.removeCircleRecipientIDList !== undefined && props.removeUserRecipientIDList !== undefined) ? RecipientFormViewMode.EDITING : RecipientFormViewMode.CREATING)
     const [viewType, setViewType] = useState<RecipientFormViewType>(RecipientFormViewType.USER)
 
-    const selectListData:SelectListItem[] = [
-        {key:1, value: "Profiles"},
-        {key:2, value: "Circles"},
-    ]
-
     const getUserRecipientStatus = (recipientUserID:number):RecipientStatusEnum => {
         const addStatus = props.addUserRecipientIDList.find((id:number) => id == recipientUserID);
         const removeStatus = props.removeUserRecipientIDList !== undefined ? props.removeUserRecipientIDList.find((id:number) => id == recipientUserID) : undefined

@@ -53,6 +53,7 @@ const initializeNotificationCallbacks = () => {
     console.error(event);
   });
 
+  //@ts-ignore
   Notifications.events().registerNotificationReceivedForeground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
 
     //Notifications.postLocalNotification(notification, notification.payload["google.message_id"])
@@ -61,12 +62,14 @@ const initializeNotificationCallbacks = () => {
     completion({alert: true, sound: true, badge: true});
   });
 
+  //@ts-ignore
   Notifications.events().registerNotificationOpened((notification: Notification, completion: () => void, action: NotificationActionResponse) => {
 
     // TODO: when a user taps on the notification, navigate them to the relevant part of the app
     completion();
   });
-        
+
+  //@ts-ignore
   Notifications.events().registerNotificationReceivedBackground((notification: Notification, completion: (response: NotificationCompletion) => void) => {
 
     // Calling completion on iOS with `alert: true` will present the native iOS inApp notification.

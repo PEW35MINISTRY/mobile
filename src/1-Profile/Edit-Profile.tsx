@@ -25,6 +25,9 @@ import Partnerships from '../4-Partners/Partnerships';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Slider from '@react-native-community/slider';
+import { InputTypesAllowed } from '../TypesAndInterfaces/config-sync/input-config-sync/inputValidation';
+import InputField from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
+import { getEnvironment } from '../utilities/utilities';
 
 
 // valid password requrements: One uppercase, one lowercase, one digit, one special character, 8 chars in length
@@ -33,6 +36,7 @@ import Slider from '@react-native-community/slider';
 const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
     const formInputRef = useRef<FormSubmit>(null);
+    const userID = useAppSelector((state: RootState) => state.account.userID);
     const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     
@@ -45,7 +49,7 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
       }
     }
 
-    const onEditProfile = (formValues:Record<string, string | string[]>):void => {
+    const onEditProfile = (formValues:Record<string, InputTypesAllowed>):void => {
 
       // if no fields change, don't bother sending an empty update request to the server
       var fieldsChanged = false;
@@ -102,7 +106,8 @@ const EditProfile = ({navigation}:StackNavigationProps):JSX.Element => {
           </TouchableOpacity>
           <Text allowFontScaling={false} style={styles.header}>Edit Profile</Text>
           <FormInput 
-            fields={EDIT_PROFILE_FIELDS}
+            fields={EDIT_PROFILE_FIELDS.filter((field:InputField)=>field.environmentList.includes(getEnvironment()))}
+            modelIDFieldDetails={({ modelIDField: 'userID', modelID: userID })}
             defaultValues={userProfile}
             onSubmit={onEditProfile}
             ref={formInputRef}

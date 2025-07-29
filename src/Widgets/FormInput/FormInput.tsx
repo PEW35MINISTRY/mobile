@@ -1,446 +1,314 @@
 import { DOMAIN, ENVIRONMENT } from "@env";
-import axios, { AxiosError } from "axios";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType, ENVIRONMENT_TYPE, InputRangeField } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
-import { RoleEnum, getDOBMaxDate, getDOBMinDate } from "../../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
+import validateInput, { InputTypesAllowed, InputValidationResult } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputValidation";
 import theme, { COLORS } from "../../theme";
-import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider, Filler } from "../../widgets";
-import React, { forwardRef, useImperativeHandle } from "react";
+import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider, Filler, EditCustomStringList } from "../../widgets";
 import { FormSubmit, FormInputProps } from "./form-input-types";
-import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../../utilities/ToastQueueManager";
 import { SelectListItem } from "react-native-dropdown-select-list";
-import { useAppSelector } from "../../TypesAndInterfaces/hooks";
-import { RootState } from "../../redux-store";
+import { testAccountAvailable } from "./form-utilities";
+import { getEnvironment } from "../../utilities/utilities";
 
-export const FormInput = forwardRef<FormSubmit, FormInputProps>(({validateUniqueFields = true, ...props}, ref):JSX.Element => {
+export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDetails = {modelIDField:'modelID', modelID:-1}, validateUniqueFields = true, ...props}:FormInputProps, ref):JSX.Element => {
+    const [simpleValidationOnly, setSimpleValidationOnly] = useState<boolean>(true);
 
-    // Determine if the field value is a string or a list by defining a type guard
-    // documentation: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#the-in-operator-narrowing
-    const fieldValueIsString = (fieldType: InputType, value: string | string[]): value is string => {
-        return !isListType(fieldType);
-    }
+    /* Populate Current/Default Values */
+    const createCurrentValueMap = ():Record<string, InputTypesAllowed> => {
+        const values: Record<string, InputTypesAllowed> = {};
 
-    const createFormValues = ():Record<string, string | string[]> => {
-        const formValues: Record<string, string | string> = {};
-        props.fields.forEach((field:InputField) => {
-            if (!fieldValueIsString(field.type, field.value || "")) 
-                if (field instanceof InputSelectionField) {
-                    formValues[field.field] = (props.defaultValues !== undefined && props.defaultValues[field.field] !== undefined && props.defaultValues[field.field] !== null) ? props.defaultValues[field.field] : [];
-                }
-                else {
-                    formValues[field.field] = (props.defaultValues !== undefined && props.defaultValues[field.field] !== undefined && props.defaultValues[field.field] !== null) ? props.defaultValues[field.field] : field.value || "";
-                }
-            else {
-                formValues[field.field] = (props.defaultValues !== undefined && props.defaultValues[field.field] !== undefined && props.defaultValues[field.field] !== null) ? props.defaultValues[field.field] : field.value || "";
-            }
-               
-        });
-        return formValues;
-    }
+        for(const field of props.fields) {
+            const key = field.field;
+            const value = props.defaultValues?.[key] ?? field.value;
 
-    const validateUserAttribute = async (fieldName:string, fieldValue:any):Promise<boolean> => {
-        const fieldQuery = `${fieldName}=${fieldValue}`;
-        try {
-            const response = await axios.get(`${DOMAIN}/resources/available-account?${fieldQuery}`);
-            if (response.status == 204) return true;
-            else return false;
-        } catch (error) {
-            ToastQueueManager.show({error: error as unknown as AxiosError<ServerErrorResponse>});
-            return false;
+            if(value != null) { //Evaluates against both undefined and null
+                if(field.type === InputType.SELECT_LIST) {
+                    values[key] = String(value);
+                } else if(field.type === InputType.MULTI_SELECTION_LIST) {
+                    values[key] = (Array.isArray(value) && value.length > 0)
+                        ? value.map(v => String(v))
+                        : [];
+                } else
+                    values[key] = value;
+            } else if(isListType(field.type))
+                values[key] = [];
         }
-    }    
+
+        return values;
+    };
 
     const {
         control,
+        formState: { errors },
         handleSubmit,
-        formState: { errors, dirtyFields, isDirty },
+        getValues,
+        setValue,
+        setError,
         clearErrors,
-      } = useForm({
-        defaultValues: createFormValues()
-    }); 
+        trigger
+      } = useForm({  defaultValues: createCurrentValueMap() }); 
 
+
+    /* Form Submit & Final Validations */
     useImperativeHandle(ref, () => ({
-        onHandleSubmit() {
-            handleSubmit(props.onSubmit)();
-        }
-    }))
+        onHandleSubmit: async () => {
+            await handleSubmit(async() => {
+                let formValues = getValues();
 
-    const styles = StyleSheet.create({
-        ...theme,
-        centerInputStyle: {
-            alignSelf: "center"
-        },
-        validationStyle: {
-            color: COLORS.primary, 
-            borderColor: COLORS.primary,
-            maxWidth: '90%', 
-            alignSelf: "center",
-            textAlign: "center"
-        },
-        validationStyleDropdown: {
-            alignSelf: "center",
-            textAlign: "center",
-            color: COLORS.primary, 
-            borderColor: COLORS.primary,
-        }
-    })
+                const uniqueFields:Map<string, string> = new Map([[modelIDFieldDetails.modelIDField, modelIDFieldDetails.modelID.toString()]]);
+
+                props.fields.forEach((field:InputField) => {
+                    const currentValue = formValues[field.field];
+
+                    // Auto-fill required fields if undefined
+                    if(currentValue === undefined && field.required) {
+                        if(field instanceof InputSelectionField && field.type === InputType.SELECT_LIST)
+                            setValue(field.field, field.selectOptionList[0], { shouldValidate: true });
+                        else if(field.type === InputType.DATE)
+                            setValue(field.field, (!isNaN(Number(field.value)) && Number(field.value) > 0)
+                                                    ? new Date(Number(field.value)).toISOString()
+                                                    : new Date().toISOString(),
+                                    { shouldValidate: true });
+                        else
+                            setValue(field.field, field.value || '', { shouldValidate: true });
+                    }
+
+                    if(field.unique)
+                        uniqueFields.set(field.field, String(formValues[field.field] ?? ''));
+                });
+                formValues = getValues();
+
+                //Check required fields
+                const missingField:InputField|undefined = props.fields.find((field:InputField) => {
+                    const value:InputTypesAllowed = formValues[field.field];
+                    const isMissing:boolean = field.required && (!value || String(value).length === 0);
+                    if(isMissing && [ENVIRONMENT_TYPE.LOCAL].includes(getEnvironment())) console.error(`Required field is missing:`, field.field, value);
+                    return isMissing;
+                });
+
+//Test unique fields as combination
+                let incompleteIdentityProperty:string|undefined = undefined;
+                if(!missingField &&validateUniqueFields && uniqueFields.size > 1) {
+                    for(const [field, value] of uniqueFields.entries()) {
+                        if(value === undefined || value.length === 0) {
+                            incompleteIdentityProperty = field;
+                            [ENVIRONMENT_TYPE.LOCAL].includes(getEnvironment()) && console.error(`Identity field is incomplete:`, field, value, uniqueFields);
+                            break;
+                        }
+                    }
+
+                    if(!incompleteIdentityProperty && await testAccountAvailable(uniqueFields) === false) {
+                        ToastQueueManager.show({ message: 'Account Exists' });
+                        [ENVIRONMENT_TYPE.LOCAL].includes(getEnvironment()) && console.error(`Account already exists:`, uniqueFields);
+                        return;
+                    }
+                }
+
+                //Re-validate stricter before submitting
+                setSimpleValidationOnly(false);
+                if(!await trigger())
+                    ToastQueueManager.show({ message: 'Fix Validations' });
+                else if(missingField)
+                    ToastQueueManager.show({ message: `${missingField.title} Required` });
+                else if(incompleteIdentityProperty)
+                    ToastQueueManager.show({ message: `${incompleteIdentityProperty} Incomplete` });
+                else
+                    props.onSubmit(getValues());
+        })();
+    },
+}));
+
 
     return (
         <ScrollView style={{maxWidth: '90%'}}>{
-            (props.fields).filter((field:InputField)=>field.environmentList.includes(ENVIRONMENT_TYPE[(ENVIRONMENT ?? '') as ENVIRONMENT_TYPE]))
+            (props.fields).filter((field:InputField)=>field.environmentList.includes(getEnvironment()))
               .map((field:InputField, index:number) => {
                 switch(field.type) {
-                case InputType.TEXT || InputType.NUMBER:
-                    return (
-                    <Controller 
-                        control={control}
-                        rules={{
-                        required: field.required,
-                        pattern: field.validationRegex,
-                        validate: async (value, formValues) => {
-                            if (fieldValueIsString(field.type, value) && validateUniqueFields && field.unique && value.match(field.validationRegex) && dirtyFields[field.field]) {
-                                const result = await validateUserAttribute(field.field, value);
-                                return result;
-                            }
-                            return true;
-                        }
-
-                        }}
-                        render={({ field: {onChange, onBlur, value}}) => (
-                            <>
-                            {
-                                (fieldValueIsString(field.type, value)) && 
-                                <Input_Field 
-                                    label={field.title}
-                                    value={value}
-                                    onChangeText={onChange}
-                                    keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
-                                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                    validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                    inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                    containerStyle={styles.centerInputStyle}
-                                    autoCapitalize={false}
-                                />
-                            }
-                            
-                            </>
-   
-                        )}
-                        name={field.field}
-                        key={field.field}
-                    />
-                    );
-                    break;
-                case InputType.PASSWORD:
-                    return (
-                    <Controller 
-                        control={control}
-                        rules={{
-                        required: field.required,
-                        pattern: field.validationRegex,
-                        validate: (value, formValues) => {
-                            if (field.field === "passwordVerify") {
-                            if (value == formValues["password"]) return true;
-                            else return false;
-                            }
-                            else {
-                            return true;
-                            }
-                        }
-                        
-                        }}
-                        render={({ field: {onChange, onBlur, value}}) => (
-                            <>
-                                {fieldValueIsString(field.type, value) && 
-                                <Input_Field 
-                                    label={field.title}
-                                    value={value}
-                                    onChangeText={onChange}
-                                    keyboardType='default'
-                                    textContentType='password'
-                                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                    validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                    inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                    containerStyle={styles.centerInputStyle}
-                                />}
-                            </>
-                        
-                        )}
-                        name={field.field}
-                        key={field.field}
-                    />
-                    );
-                    break;
-                case InputType.EMAIL:
-                    return (
-                    <Controller 
-                        control={control}
-                        rules={{
-                        required: field.required,
-                        pattern: field.validationRegex,
-                        validate: async (value, formValues) => {
-                            if (fieldValueIsString(field.type, value) && validateUniqueFields && field.unique && value.match(field.validationRegex)) {
-                                const result = await validateUserAttribute(field.field, value);
-                                return result;
-                            }
-                            return true;
-                        }
-                        
-                        }}
-                        render={({ field: {onChange, onBlur, value}}) => (
-                        <>
-                            {fieldValueIsString(field.type, value) &&                         
-                                <Input_Field 
-                                    label={field.title}
-                                    value={value}
-                                    onChangeText={onChange}
-                                    keyboardType='email-address'
-                                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                    inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                    validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                    containerStyle={styles.centerInputStyle}
-                                />}
-                        </>
-
-                        )}
-                        name={field.field}
-                        key={field.field}
-                    />
-                    );
-                    break;
-                case InputType.SELECT_LIST:
-                    if (field instanceof InputSelectionField) {
-                        const selectListData:SelectListItem[] = [];
-                        const displayOptionsList:SelectListItem[] = [];
-                        for (var i=0; i<field.selectOptionList.length; i++) {
-                            selectListData.push({key: i, value: field.selectOptionList[i]})
-                        }
-                        if (field.displayOptionList !== undefined) {
-                            for (var i=0; i<field.displayOptionList.length; i++) {
-                                displayOptionsList.push({key: i, value: field.displayOptionList[i]})
-                            }
-                        }
-
-                        const getSelectListDefaultValue = (selectListValue:string | undefined) => {
-                            if (selectListValue !== undefined) {
-                                const selectListValueString = selectListValue.toString();
-                                for (var i=0; i<selectListData.length; i++) {
-                                    if (selectListData[i].value == selectListValueString) {
-                                        if (field.displayOptionList !== undefined) return displayOptionsList[i];
-                                        else return selectListData[i];
-                                    }
-                                }
-                            }
-                            return undefined;
-                        }
-
+                    case InputType.TEXT:
+                    case InputType.NUMBER:
+                    case InputType.EMAIL:
+                    case InputType.PASSWORD:
+                    case InputType.PARAGRAPH: 
                         return (
                             <Controller 
                                 control={control}
-                                rules={{
-                                required: field.required,
-                                }}
-                                render={({ field: {onChange, onBlur, value}}) => (
-                                <>
-                                    {fieldValueIsString(field.type, value) &&                                
-                                    <Dropdown_Select
-                                        label={field.title}
-                                        setSelected={(val:string) => onChange(val) }
-                                        selectOptionsList={selectListData}
-                                        placeholder="Select"
-                                        displaySelectOptions={displayOptionsList.length !== 0 ? displayOptionsList : undefined}
-                                        displayOptionsList={displayOptionsList.length !== 0 ? field.displayOptionList : undefined}
-                                        labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                        validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                        validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                        boxStyle={(errors[field.field] && styles.validationStyleDropdown) || {borderColor: COLORS.accent}}
-                                        defaultOption={getSelectListDefaultValue(value)}
-                                    />} 
-                                </>
- 
-                                )}
-                                name={field.field}
                                 key={field.field}
-                            />
-                        );
-                    }
-                    else return (<></>)
-                    break;
-                case InputType.DATE:
-                    const userRole = useAppSelector((state: RootState) => state.account.userProfile.userRole);
-                    return (
-                    <Controller 
-                        control={control}
-                        rules={{
-                        required: field.required,
-                        validate: (value, formValues) => {
-                            if (fieldValueIsString(field.type, value)) {
-                                if (field.field == 'dateOfBirth') {
-                                    const minAge:Date = getDOBMinDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER); //Oldest
-                                    const maxAge:Date = getDOBMaxDate(RoleEnum[userRole as keyof typeof RoleEnum] || RoleEnum.USER); //Youngest
-                                    const currAge = new Date(value);
-                                    if(isNaN(currAge.valueOf()) || currAge < minAge || currAge > maxAge)
-                                        return false;
-                                }
-                                else {
-                                    if (value.match(field.validationRegex)) return true;
-                                }
- 
-                            }
-                        }
-                        }}
-                        render={({ field: {onChange, onBlur, value}}) => (
-                        <>
-                            {fieldValueIsString(field.type, value) &&                         
-                                <DatePicker 
-                                    buttonText={field.title}
-                                    label={field.title}
-                                    buttonStyle={(errors[field.field] && {borderColor: COLORS.primary}) || undefined}
-                                    onConfirm={(date:Date) => onChange(date.toISOString())}
-                                    labelStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                    validationStyle={(errors[field.field] && styles.validationStyleDropdown) || undefined}
-                                    date={value}
-                                />}
-                        </>
+                                name={field.field}
+                                rules={{
+                                    validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
+                                        const result:InputValidationResult = validateInput({field, value, getInputField: (f:string) => formValues[f], simpleValidationOnly });
 
-                        )}
-                        name={field.field}
-                        key={field.field}
-                    />
+                                        if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(field.field, value, result.description);
+
+                                        //Return 'true' on success or 'validation message' on fail
+                                        return result.passed || result.message;
+                                    }
+                                }}
+                                render={({ field: {onChange, onBlur, value}}) =>
+                                    <Input_Field
+                                        field={field}
+                                        value={String(value ?? '')}
+                                        onChangeText={onChange}
+
+                                        validationLabel={errors[field.field]?.message}
+                                    />}
+
+                            />);
+                            break;
+
+                        case InputType.DATE:
+                            return (
+                                <Controller 
+                                    control={control}
+                                    key={field.field}
+                                    name={field.field}                        
+                                    rules={{
+                                        validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
+                                                    const result:InputValidationResult = validateInput({field, value, simpleValidationOnly, getInputField: (f:string) => formValues[f]});
+
+                                                    if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(field.field, value, result.description);
+
+                                                    return result.passed || result.message;
+                                                }
+                                        }}
+                                    render={({ field: {onChange, onBlur, value}}) =>               
+                                            <DatePicker 
+                                                field={field}
+                                                date={String(value ?? new Date().toISOString())}
+                                                onConfirm={(date:Date) => onChange(date.toISOString())}
+
+                                                validationLabel={errors[field.field]?.message}
+                                            />}
+                                    />);
+                            break;
+
+                    case InputType.RANGE_SLIDER:
+                        const rangeField:InputRangeField = field as InputRangeField;
+                        return (
+                            <Controller 
+                                control={control}
+                                key={field.field}
+                                name={field.field}
+                                rules={{
+                                    validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
+                                        const result:InputValidationResult = validateInput({field, value, simpleValidationOnly,
+                                                                                getInputField: (f:string) => formValues[f]});  //maxField also validated 
+
+                                        if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(rangeField.field, value, formValues[rangeField.maxField ?? -1], result.description);
+                              
+                                        return result.passed || result.message;
+                                    }
+                                }}
+                                render={({ field: { onChange, value } }) =>
+                                    <SelectSlider
+                                        field={rangeField}
+                                        defaultValue={Number(value ?? rangeField.minValue)}
+                                        onValueChange={(val: string) => onChange(val)}
+
+                                        defaultMaxValue={rangeField.maxField ? Number(getValues(rangeField.maxField) ?? rangeField.maxValue) : undefined}
+                                        onMaxValueChange={(val: string) => { if(rangeField.maxField) setValue(rangeField.maxField, val, { shouldValidate: true }); }}
+
+                                        validationLabel={errors[rangeField.field]?.message}
+                                    />}
+                            />);
+                        break;
+
+                case InputType.SELECT_LIST:
+                    const selectionField:InputSelectionField = field as InputSelectionField;
+                    return (
+                        <Controller 
+                            control={control}
+                            key={field.field}
+                            name={field.field}
+                            rules={{
+                                validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
+                                    const result:InputValidationResult = validateInput({ field, value, simpleValidationOnly, getInputField: (f:string) => formValues[f] });
+
+                                    if (!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(selectionField.field, value, result.description);
+
+                                    return result.passed || result.message;
+                                }
+                            }}
+                            render={({ field: { onChange, onBlur, value } }) =>
+                                <Dropdown_Select
+                                    field={selectionField}
+                                    defaultValue={Array.isArray(value) ? value[0] : value}
+                                    setSelectedValue={onChange}
+
+                                    validationLabel={errors[field.field]?.message}
+                                />}
+                        />
                     );
                     break;
                     
-                case InputType.MULTI_SELECTION_LIST || InputType.CUSTOM_STRING_LIST:
-                    if (field instanceof InputSelectionField) {
-                        var selectListData:SelectListItem[] = [];
-                        for (var i=0; i<field.displayOptionList.length; i++) {
-                            selectListData.push({key: i, value: field.selectOptionList[i]})
-                        }
+                case InputType.MULTI_SELECTION_LIST:
+                    const multiSelectionField:InputSelectionField = field as InputSelectionField;
+                    return (
+                        <Controller
+                            control={control}
+                            key={multiSelectionField.field}
+                            name={multiSelectionField.field}
+                            rules={{
+                                validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
+                                    const result:InputValidationResult = validateInput({field, value, simpleValidationOnly, getInputField: (f:string) => formValues[f]});
 
-                        const getSelectListDefaultValues = (selectListValues:string[] | undefined) => {
-                            var selected:SelectListItem[] = [];
-                            if (selectListValues !== undefined) {
-                                selectListValues.forEach((value:string) => {
-                                    const valueString = value.toString();
-                                    for (var i=0; i<selectListData.length; i++) {
-                                        if (selectListData[i].value == valueString) {
-                                            selected.push(selectListData[i]);
-                                            break;
-                                        }
-                                    }
-                                });
-                                return selected;
-                            }
-                            return undefined;
-                        }
+                                    if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(multiSelectionField.field, value, result.description);
 
-                        return (
-                            <Controller 
-                                control={control}
-                                rules={{
-                                required: field.required,
-                                }}
-                                render={({ field: {onChange, onBlur, value}}) => (
-                                <>
-                                    {!fieldValueIsString(field.type, value) &&                                
+                                    return result.passed || result.message;
+                                }
+                            }}
+                            render={({ field: { onChange, value } }) => 
                                     <Multi_Dropdown_Select
-                                        setSelected={(val:string[]) => onChange(val)}
-                                        data={selectListData}
-                                        label={field.title}
-                                        labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                        validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                        validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                        boxStyle={(errors[field.field] && styles.validationStyleDropdown) || {borderColor: COLORS.accent}}
-                                        defaultOptions={getSelectListDefaultValues(value)}
-                                    />} 
-                                </>
- 
-                                )}
-                                name={field.field}
-                                key={field.field}
-                            />
-                        );
-                    }
-                    else return (<></>)
-                    break;
-
-                case InputType.PARAGRAPH: 
-                return (
-                    <Controller 
-                        control={control}
-                        rules={{
-                        required: field.required,
-                        pattern: field.validationRegex
-                        }}
-                        render={({ field: {onChange, onBlur, value}}) => (
-                            <>
-                            {
-                                (fieldValueIsString(field.type, value)) && 
-                                <Input_Field 
-                                    label={field.title}
-                                    value={value}
-                                    onChangeText={onChange}
-                                    multiline={true}
-                                    keyboardType={(field.type === InputType.NUMBER && "numeric") || "default"}
-                                    labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                    validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                    inputStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                    validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                    containerStyle={styles.centerInputStyle}
+                                    field={multiSelectionField}
+                                    defaultValueList={Array.isArray(value) ? value : undefined}
+                                    setSelectedValueList={onChange}
+                                    validationLabel={errors[field.field]?.message}
                                 />
                             }
-                            
-                            </>
-   
-                        )}
-                        name={field.field}
-                        key={field.field}
-                    />
+                        />
+                    );
+                    break;                
+                
+                case InputType.CUSTOM_STRING_LIST:
+                    return (
+                        <Controller
+                            control={control}
+                            key={field.field}
+                            name={field.field}
+                            rules={{
+                                validate: (value: InputTypesAllowed, formValues: Record<string, InputTypesAllowed>) => {
+                                    const result:InputValidationResult = validateInput({field, value, getInputField: (f:string) => formValues[f], simpleValidationOnly });
+
+                                    if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(field.field, value, result.description);
+
+                                    return result.passed || result.message;
+                                }
+                            }}
+                            render={({ field:{ onChange, value } }) => (
+                                <EditCustomStringList
+                                    field={field}
+                                    valueList={Array.isArray(value) ? value.map(String) : []}
+                                    onChange={onChange}
+
+                                    getDisplayValue={(item: string = '') => item.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+                                    getCleanValue={(item: string = '') => item.replace(/[^a-zA-Z0-9 _-]/g, '').replace(/ /g, '_').toUpperCase()}
+
+                                    validationLabel={errors[field.field]?.message}
+                                />
+                            )}
+                        />
                     );
                     break;
-                case InputType.RANGE_SLIDER:
-                    if (field instanceof InputRangeField) {                        
-                        return (
-                            <Controller 
-                                control={control}
-                                rules={{
-                                required: field.required,
-                                }}
-                                render={({ field: {onChange, onBlur, value}}) => (
-                                <>
-                                    {fieldValueIsString(field.type, value) &&                                
-                                    <SelectSlider
-                                        minValue={parseInt(field.minValue.toString())}
-                                        maxValue={parseInt(field.maxValue.toString())}
-                                        maxField={field.maxField}
-                                        label={field.title}
-                                        onValueChange={(val:string) => onChange(val)}
-                                        labelStyle={(errors[field.field] && {color: COLORS.primary}) || undefined}
-                                        validationLabel={(errors[field.field] && field.validationMessage) || undefined}
-                                        validationStyle={(errors[field.field] && styles.validationStyle) || undefined}
-                                        defaultValue={parseInt(value.toString())}
-                                    />} 
-                                </>
- 
-                                )}
-                                name={field.field}
-                                key={field.field}
-                            />
-                        );
-                    } else return <></>; 
-                // Default case will likely never happen, but its here to prevent undefined behavior per TS
-                default:
-                    return <></>
-                }
 
-            })
-        }
+
+                // Default case will likely never happen, but its here to prevent undefined behavior per TS
+                case InputType.CUSTOM:
+                default:
+                    return <></>;
+            }})}
         <Filler />
-    </ScrollView>)
+    </ScrollView>
+    );
 });
