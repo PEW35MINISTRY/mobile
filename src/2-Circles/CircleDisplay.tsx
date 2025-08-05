@@ -208,12 +208,14 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                             </View>
                         }
 
-                        <View style={styles.PRSection}>
-                            <Text allowFontScaling={false} style={styles.PRHeaderText}>Prayer Requests</Text>
-                            <ScrollView style={styles.PRScroll}>
-                                {renderPrayerRequests()}
-                            </ScrollView>
-                        </View>
+                        { prayerRequestsData?.length > 0 && 
+                            <View style={styles.PRSection}>
+                                <Text allowFontScaling={false} style={styles.PRHeaderText}>Prayer Requests</Text>
+                                <ScrollView style={styles.PRScroll}>
+                                    {renderPrayerRequests()}
+                                </ScrollView>
+                            </View>
+                    }
                     </>
                 );
                 break;
@@ -250,14 +252,19 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                             style={styles.circleImageMainPage}
                         />
                     </View>
-                    <View style={ eventsVisible ? styles.eventSectionVisible : styles.eventSectionHidden}>
-                        <TouchableOpacity onPress={() => setEventsVisible(!eventsVisible)}>
-                            <Text allowFontScaling={false} style={styles.PRHeaderText}>Events</Text>
-                        </TouchableOpacity>
-                        <ScrollView horizontal={true} contentContainerStyle={styles.eventScroll}>
-                            {renderEvents()}
-                        </ScrollView>
+                    <View style={styles.circleNameHeader}> 
+                        <Text allowFontScaling={false} style={styles.circleNameText}>{currCircleState.name}</Text>
                     </View>
+                    {eventsData?.length > 0 &&
+                        <View style={ eventsVisible ? styles.eventSectionVisible : styles.eventSectionHidden}>
+                            <TouchableOpacity onPress={() => setEventsVisible(!eventsVisible)}>
+                                <Text allowFontScaling={false} style={styles.PRHeaderText}>Events</Text>
+                            </TouchableOpacity>
+                            <ScrollView horizontal={true} contentContainerStyle={styles.eventScroll}>
+                                {renderEvents()}
+                            </ScrollView>
+                        </View>
+                    }
                     <Modal
                         visible={circleInfoModalVisible}
                         animationType='slide'
