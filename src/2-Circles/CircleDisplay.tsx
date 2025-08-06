@@ -252,9 +252,6 @@ export const CircleDisplay = ({navigation, route}:CircleDisplayProps):JSX.Elemen
                             style={styles.circleImageMainPage}
                         />
                     </View>
-                    <View style={styles.circleNameHeader}> 
-                        <Text allowFontScaling={false} style={styles.circleNameText}>{currCircleState.name}</Text>
-                    </View>
                     {eventsData?.length > 0 &&
                         <View style={ eventsVisible ? styles.eventSectionVisible : styles.eventSectionHidden}>
                             <TouchableOpacity onPress={() => setEventsVisible(!eventsVisible)}>
