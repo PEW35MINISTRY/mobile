@@ -60,6 +60,15 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                 showMultiListFilter={false}
                 displayMap={new Map([
                         [
+                            new SearchListKey({displayTitle:'Announcements'}),
+                            [...circleAnnouncementList].map((announcement) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcement,
+                                onPress: (id, announcementItem) => (announcement.circleID > 0) && navigation.navigate(ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME, { 
+                                    params: {CircleProps: {circleID: announcement.circleID, name: '', image: ''}},
+                                    screen: ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME
+                                })
+                             }))
+                        ],
+                        [
                             new SearchListKey({displayTitle:'Partner Requests'}),
                             [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partner,
                                 primaryButtonText:'View Contract', onPrimaryButtonCallback:(id:number, item) => setNewPartner(item as PartnerListItem)}))
@@ -92,15 +101,6 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                                 onPress: (id, item) => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, {
                                     PrayerRequestProps: item}
                                 )}))
-                        ],
-                        [
-                            new SearchListKey({displayTitle:'Announcements'}),
-                            [...circleAnnouncementList].map((announcement) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcement,
-                                onPress: (id, announcementItem) => navigation.navigate(ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME, { 
-                                    params: {CircleProps: {circleID: announcement.circleID, name: '', image: ''}},
-                                    screen: ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME
-                                })
-                             }))
                         ],
                         [
                             new SearchListKey({displayTitle:'Recommended'}),

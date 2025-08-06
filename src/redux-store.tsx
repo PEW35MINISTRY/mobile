@@ -23,7 +23,7 @@ interface AccountStateRequired {
   userProfile: ProfileResponse,
 }
 
-interface AccountState extends AccountStateRequired {
+export interface AccountState extends AccountStateRequired {
   answeredPrayerRequestList: PrayerRequestListItem[],
 }
 

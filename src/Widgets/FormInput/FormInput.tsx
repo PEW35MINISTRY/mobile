@@ -90,7 +90,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
 
 //Test unique fields as combination
                 let incompleteIdentityProperty:string|undefined = undefined;
-                if(!missingField &&validateUniqueFields && uniqueFields.size > 1) {
+                if(!missingField && validateUniqueFields && uniqueFields.size > 1) {
                     for(const [field, value] of uniqueFields.entries()) {
                         if(value === undefined || value.length === 0) {
                             incompleteIdentityProperty = field;
@@ -259,11 +259,11 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                     return result.passed || result.message;
                                 }
                             }}
-                            render={({ field: { onChange, value } }) => 
-                                    <Multi_Dropdown_Select
+                            render={({ field: { onChange, value } }) =>
+                                <Multi_Dropdown_Select
                                     field={multiSelectionField}
                                     defaultValueList={Array.isArray(value) ? value : undefined}
-                                    setSelectedValueList={onChange}
+                                    setSelectedValueList={(list:(string | number)[]) => onChange(list.every(v => typeof v === 'number') ? list : list.map(String))}
                                     validationLabel={errors[field.field]?.message}
                                 />
                             }
