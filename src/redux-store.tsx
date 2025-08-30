@@ -247,8 +247,10 @@ export const registerNotificationDevice = async(dispatch: (arg0: { payload: numb
     if (responseDeviceID !== deviceID) dispatch(setDeviceID(responseDeviceID));
   } else {
       await axios.post(`${DOMAIN}/api/user/${userID}/notification/device/${deviceID}/verify`, {deviceToken: deviceToken}, { headers: { jwt }}).catch((error:AxiosError<ServerErrorResponse>) => {
-        dispatch(setDeviceID(-1));
-        if (error.response?.data.notification === DeviceVerificationResponseType.DELETED) store.dispatch(registerNotificationDevice);
+        if (error.response?.data.notification === DeviceVerificationResponseType.DELETED) { 
+          dispatch(setDeviceID(-1));
+          store.dispatch(registerNotificationDevice);
+        }
       })
   }
 }
