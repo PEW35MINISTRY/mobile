@@ -15,6 +15,14 @@ export interface CallbackParam {
     callback:(() => void)
 }
 
+export enum CALLBACK_STATE {
+    SUCCESS = 'SUCCESS',
+    FAILURE = 'FAILURE',
+    EXIT = 'EXIT',
+    BACK = 'BACK'
+
+}
+
 export interface StackNavigationProps extends NativeStackScreenProps<any> {};
 export interface TabNavigationProps extends BottomTabScreenProps<any> {};
 

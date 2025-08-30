@@ -7,11 +7,12 @@ import { DOMAIN } from "@env";
 import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
 import { RootState, updateProfile, updateWalkLevel } from "../../redux-store";
 import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
-import { BackButton, Raised_Button } from "../../widgets";
+import { BackButton, Raised_Button, XButton } from "../../widgets";
 import theme, { COLORS } from "../../theme";
 import Toast from "react-native-toast-message";
+import { CALLBACK_STATE } from "../../TypesAndInterfaces/custom-types";
 
-const WalkLevelQuiz = (props:{callback?:((val:number, setToastRefState?:((value:any) => void)) => void)}):JSX.Element => {
+const WalkLevelQuiz = (props:{callback?:((state:CALLBACK_STATE, setToastRefState?:((value:any) => void)) => void)}):JSX.Element => {
 
     const dispatch = useAppDispatch();
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
@@ -25,7 +26,7 @@ const WalkLevelQuiz = (props:{callback?:((val:number, setToastRefState?:((value:
         dispatch(updateWalkLevel(walkLevel));
         
         axios.patch(`${DOMAIN}/api/user/${userID}/walk-level`, { walkLevel }, {headers: {"jwt": jwt}}).then((response:AxiosResponse) => {
-            props.callback !== undefined && props.callback(1, setShowToastRef)
+            props.callback !== undefined && props.callback(CALLBACK_STATE.SUCCESS, setShowToastRef)
         }).catch((error:AxiosError<ServerErrorResponse>) => {setShowToastRef(true); ToastQueueManager.show({error, callback: setShowToastRef}) });
     }
 
@@ -57,7 +58,8 @@ const WalkLevelQuiz = (props:{callback?:((val:number, setToastRefState?:((value:
                             onPress={() => onSaveWalkLevel()} 
                         />
                     </View>
-                <BackButton callback={() => props.callback !== undefined && props.callback(-1)} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
+                <BackButton callback={() => props.callback !== undefined && props.callback(CALLBACK_STATE.BACK)}/>
+                <XButton buttonView={{ right: 1, left: undefined, }} callback={() => props.callback !== undefined && props.callback(CALLBACK_STATE.EXIT)}/>    
                 {showToastRef && <Toast />}
             </SafeAreaView>
     )
