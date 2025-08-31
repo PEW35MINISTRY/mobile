@@ -41,7 +41,7 @@ const accountSlice = createSlice({
     setAccount: (state, action:PayloadAction<AccountStateRequired>) => state = {...initialAccountState, ...action.payload},
     resetAccount: () => initialAccountState,
     updateJWT: (state, action:PayloadAction<string>) => state = {...state, jwt: action.payload},
-    resetJWT: (state) => state = {...state, jwt: ''},
+    clearJWT: (state) => state = {...state, jwt: ''},
     updateProfile: (state, action:PayloadAction<ProfileResponse>) => state = {...state, userProfile: action.payload},
     updateProfileImage: (state, action:PayloadAction<string|undefined>) => state = {...state, userProfile: {...state.userProfile, image: action.payload}},
     updateWalkLevel: (state, action:PayloadAction<number>) => state = {...state, userProfile: {...state.userProfile, walkLevel: action.payload}},
@@ -78,7 +78,7 @@ const accountSlice = createSlice({
 
 // Export action functions to use in app with dispatch
 // How to use in component: https://redux-toolkit.js.org/tutorials/quick-start#use-redux-state-and-actions-in-react-components
-export const { setAccount, resetAccount, updateJWT, resetJWT, updateProfile, updateProfileImage, updateWalkLevel,
+export const { setAccount, resetAccount, updateJWT, clearJWT, updateProfile, updateProfileImage, updateWalkLevel,
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, removeExpiringPrayerRequest,
       addOwnedPrayerRequest, removeOwnedPrayerRequest, setOwnedPrayerRequests,
@@ -93,7 +93,7 @@ export const { setAccount, resetAccount, updateJWT, resetJWT, updateProfile, upd
     if(action.type === setAccount.type || action.type === updateJWT.type) {
       keychain.setGenericPassword('jwt', store.getState().account.jwt, {service: "jwt"});
     }
-    else if (action.type === resetJWT.type) {
+    else if(action.type === clearJWT.type) {
       keychain.setGenericPassword('jwt', "12345", {service: "jwt"});
     }
 

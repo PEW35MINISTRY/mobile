@@ -7,7 +7,7 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Partnerships from '../4-Partners/Partnerships';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { AccountState, clearSettings, resetAccount, resetJWT, resetSettings, RootState, setAccount, setContacts, setSettings, SettingsState, updateProfile } from '../redux-store';
+import { AccountState, clearSettings, resetAccount, clearJWT, resetSettings, RootState, setAccount, setContacts, setSettings, SettingsState, updateJWT, updateProfile } from '../redux-store';
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
@@ -33,7 +33,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const onLogout = () => {
         dispatch(resetAccount());
-        dispatch(resetJWT());
+        dispatch(clearJWT());
         dispatch(clearSettings());
         navigation.popToTop();
         navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME);
@@ -47,7 +47,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 onPress={() => Linking.openURL(
                     `mailto:support@encouragingprayer.org`
                         + `?subject=${encodeURIComponent(`#${account.userID} | EP Mobile App Help`)}`
-                        + `&body=${encodeURIComponent(`User: ${account.userID} | ${account.userProfile.displayName} | ${account.userProfile.email}\nDate: ${new Date().toISOString()}\n\nEP Support,\n\n`)}`
+                        + `&body=${encodeURIComponent(`User: ${account.userID} | ${account.userProfile.displayName} | ${account.userProfile.email}\nDate: ${new Date().toUTCString()}\n\nEP Support,\n\n`)}`
                 )}
                 buttonStyle={styles.settingsButton}
             />
@@ -74,7 +74,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 <Text style={styles.sectionHeaderText}>Ministry</Text>
                 <Outline_Button 
                     text={'Portal Login'}
-                    onPress={() => Linking.openURL('https://encouragingprayer.org/login')}
+                    onPress={() => Linking.openURL(`${DOMAIN}/login`)}
                     buttonStyle={styles.settingsButton}
                 />
                 <Outline_Button 
@@ -111,7 +111,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                 />
                 <Outline_Button 
                     text='Delete Account'
-                    onPress={() => Linking.openURL('https://encouragingprayer.org/delete-account')}
+                     onPress={() => Linking.openURL(`${DOMAIN}/delete-account`)}
                     buttonStyle={styles.settingsButton}
                 />
 
@@ -132,7 +132,11 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                         />
                         <Outline_Button 
                             text='Update Authentication'
-                            onPress={() => dispatch(resetJWT())}
+                            onPress={async () => {
+                                const response: AxiosResponse = await axios.post(`${DOMAIN}/api/authenticate`, {}, RequestAccountHeader);
+                                if(response.status === 202) updateJWT(response.data.jwt); 
+                                else onLogout();
+                            }}                            
                             buttonStyle={styles.settingsButton}
                         />
                         <Outline_Button 
