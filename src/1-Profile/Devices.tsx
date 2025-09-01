@@ -3,7 +3,7 @@ import { StyleSheet, View, TextStyle, Text, Modal, Linking, SafeAreaView, Platfo
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import { BackButton, CheckBox, DeleteButton, Confirmation, Outline_Button, Raised_Button, XButton } from '../widgets';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { clearSettings, resetAccount, resetJWT, resetSettings, RootState, setAccount, setContacts, setSettings, updateProfile } from '../redux-store';
+import { clearSettings, resetAccount, clearJWT, resetSettings, RootState } from '../redux-store';
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 

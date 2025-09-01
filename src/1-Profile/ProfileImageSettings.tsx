@@ -4,7 +4,7 @@ import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Image, ImageSourcePropType, ImageRequireSource, SafeAreaView, Platform } from "react-native";
 import { ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } from "react-native-image-picker";
-import { CallbackParam, PROFILE_IMAGE_MIME_TYPES, StackNavigationProps } from "../TypesAndInterfaces/custom-types";
+import { CALLBACK_STATE, CallbackParam, PROFILE_IMAGE_MIME_TYPES, StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState, updateProfileImage } from "../redux-store";
 import theme, { COLORS } from "../theme";
@@ -13,7 +13,7 @@ import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import Toast from "react-native-toast-message";
 
-const ProfileImageSettings = (props:{callback:(val:number) => void, continueNavigation?:boolean}):JSX.Element => {
+const ProfileImageSettings = (props:{callback:(state:CALLBACK_STATE) => void, continueNavigation?:boolean}):JSX.Element => {
     const dispatch = useAppDispatch();
     const DEFAULT_PROFILE_ICON = require("../../assets/profile-icon-blue.png");
 
@@ -107,7 +107,7 @@ const ProfileImageSettings = (props:{callback:(val:number) => void, continueNavi
               <Raised_Button buttonStyle={styles.doneButton}
               text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
               // since we don't know if we want to pop the screen off the stack or not, let the parent screen decide, not the component.
-              onPress={() => props.callback(1)}
+              onPress={() => props.callback !== undefined && props.callback(CALLBACK_STATE.SUCCESS)}
           />
 
           <Toast />

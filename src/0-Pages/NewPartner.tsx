@@ -10,8 +10,10 @@ import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import { PartnershipContractModal } from "../4-Partners/partnership-widgets";
 import WalkLevelQuiz from "../Widgets/WalkLevelQuiz/WalkLevelQuiz";
+import { CALLBACK_STATE } from "../TypesAndInterfaces/custom-types";
+import { CALLBACK_TYPE } from "react-native-gesture-handler/lib/typescript/handlers/gestures/gesture";
 
-const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?:boolean}):JSX.Element => {
+const NewPartner = (props:{callback?:((val:CALLBACK_STATE) => void), continueNavigation?:boolean}):JSX.Element => {
 
     const dispatch = useAppDispatch();
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
@@ -32,8 +34,8 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
         }
     }
 
-    const POST_NewPartner = (callbackState:number, setToastRefState?:((value:any) => void)) => {
-        if (callbackState < 0 && props.callback !== undefined) {props.callback(-1); return} 
+    const POST_NewPartner = (callbackState:CALLBACK_STATE, setToastRefState?:((value:any) => void)) => {
+        if (callbackState !== CALLBACK_STATE.SUCCESS) {props.callback !== undefined && props.callback(callbackState); return} 
         
         axios.post(`${DOMAIN}/api/user/` + userID + '/new-partner', {}, RequestAccountHeader).then((response:AxiosResponse<PartnerListItem>) => {
             setNewPartner(response.data);
@@ -41,7 +43,7 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
         }).catch((error:AxiosError<ServerErrorResponse>) => {
             setToastRefState !== undefined && setToastRefState(true);
             setRequestNewPartnerModalVisible(false);
-            ToastQueueManager.show({error, callback: setToastRefState});
+            ToastQueueManager.show({error, 'callback': setToastRefState});
         });
     }
 
@@ -51,14 +53,14 @@ const NewPartner = (props:{callback?:((val:number) => void), continueNavigation?
             dispatch(setLastNewPartnerRequest());
 
             setRequestNewPartnerModalVisible(false);
-            props.callback !== undefined && props.callback(1);
+            props.callback !== undefined && props.callback(CALLBACK_STATE.SUCCESS);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const declinePartnershipRequest = () => {
         axios.delete(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/decline', RequestAccountHeader).then((response:AxiosResponse) => {
             setRequestNewPartnerModalVisible(false);
-            props.callback !== undefined && props.callback(1);
+            props.callback !== undefined && props.callback(CALLBACK_STATE.SUCCESS);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
