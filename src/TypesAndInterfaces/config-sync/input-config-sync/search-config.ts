@@ -45,6 +45,7 @@ export enum SearchType {
     CONTACT = 'CONTACT',
     CIRCLE = 'CIRCLE',
     CONTENT_ARCHIVE = 'CONTENT_ARCHIVE',
+    PRAYER_REQUEST = 'PRAYER_REQUEST'
   }
   
 
@@ -106,6 +107,9 @@ export enum SearchType {
                                                   getID:(item:ContentListItem) => item.contentID, IDProperty:'contentID', 
                                                   searchRefineList: [...Object.values(ContentSearchRefineEnum)], 
                                                 }),
+    [SearchType.PRAYER_REQUEST]: new SearchTypeInfo<PrayerRequestListItem>({ searchType:SearchType.PRAYER_REQUEST, displayTitle: 'Prayer Request Search', roleList:Object.values(RoleEnum), itemType: ListItemTypesEnum.PRAYER_REQUEST, 
+                                                  getID:(item:PrayerRequestListItem) => item.prayerRequestID, IDProperty: 'prayerRequestID', 
+                                                })
   };
   
 export default SearchDetail;

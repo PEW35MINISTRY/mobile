@@ -894,6 +894,42 @@ export const DeleteButton = (props:{callback:(() => void),  buttonView?:ViewStyl
     )
 }
 
+export const FolderButton = (props:{callback?:(() => void), buttonView?:ViewStyle}):JSX.Element => {
+    const styles = StyleSheet.create({
+        folderButton: {
+            justifyContent: "center",
+            alignItems: "center",
+            height: 55,
+            width: 55,
+            borderRadius: 15,
+          },
+          folderButtonView: {
+            position: "absolute",
+            top: 1,
+            right: 1,
+            ...props.buttonView
+          },
+    })
+
+    return (
+        <SafeAreaView style={styles.folderButtonView}>
+            <TouchableOpacity
+                onPress={() => {
+                    props.callback && props.callback()
+                }}
+            >
+                <View style={styles.folderButton}>
+                <Ionicons 
+                    name="folder-outline"
+                    color={COLORS.accent}
+                    size={30}
+                />
+                </View>
+            </TouchableOpacity>
+        </SafeAreaView>
+    )
+}
+
 export const Filler = (props:{fillerStyle?:ViewStyle}):JSX.Element => {
 
     const styles = StyleSheet.create({

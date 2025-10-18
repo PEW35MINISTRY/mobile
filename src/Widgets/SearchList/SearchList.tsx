@@ -93,14 +93,17 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
         Array.from(props.displayMap.entries())
             .forEach(([key, itemList]) => {
                 if(itemList.length > 0) {
-                    if(props.displayMap.size > 1) defaultList.push(new SearchListValue({displayType: ListItemTypesEnum.LABEL, displayItem: key.displayTitle}))
+                    if(props.displayMap.size > 1 && key.showDisplayTitle) defaultList.push(new SearchListValue({displayType: ListItemTypesEnum.LABEL, displayItem: key.displayTitle}))
                     defaultList.push(...itemList);
                 }
             });
         setDisplayList(defaultList);
 
         /* Identify Search Key */
-        if(props.displayMap.size === 1)
+        if (props.showMultiListFilter && selectedKey.displayTitle !== 'Default')
+            // the key is already selected, but display list needs to be filtered
+            setDisplayList(getList(selectedKey.displayTitle));
+        else if(props.displayMap.size === 1)
             setSelectedKey(Array.from(props.displayMap.keys())[0]);
         else
             setSelectedKey(new SearchListKey({displayTitle: 'Default'}));
@@ -284,7 +287,7 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
                             onSubmitEditing={() => executeSearch()}
                         />
                     : (props.pageTitle !== undefined) &&
-                        <Page_Title title={props.pageTitle} containerStyle={styles.titleContainer} />
+                        <Page_Title title={props.pageTitle} containerStyle={(Platform.OS === 'ios' && {top: 40, ...styles.titleContainer} || {...styles.titleContainer})} />
                     }
                     {(props.showMultiListFilter && getListTitles().length > 1) &&
                         <Tab_Selector
@@ -314,10 +317,10 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
                             onPress={() => setSearchTerm((searchTerm === undefined) ? '' : undefined)}
                         />
                      : (props.backButtonNavigation) && 
-                        <BackButton navigation={props.backButtonNavigation} />
+                        <BackButton navigation={props.backButtonNavigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
                     }
                     {(props.backButtonNavigation) && 
-                        <BackButton navigation={props.backButtonNavigation} />
+                        <BackButton navigation={props.backButtonNavigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
                     }
                     {(props.additionalHeaderRows !== undefined) &&
                         props.additionalHeaderRows.map((item:JSX.Element, index) => (
