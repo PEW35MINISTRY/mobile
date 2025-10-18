@@ -52,15 +52,16 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
             <SearchList
                 key='prayer-request-main-page'
                 name='prayer-request-main-page'
+                defaultDisplayKey='Received'
                 showMultiListFilter={true}
                 footerItems={[<Filler />]}
                 displayMap={new Map([
                         [
-                            new SearchListKey({displayTitle:'Received', searchType: SearchType.NONE, showDisplayTitle: false }),
+                            new SearchListKey({displayTitle:'Received', searchType: SearchType.NONE }),
                             receivingPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} ))
                         ],
                         [
-                            new SearchListKey({displayTitle:'Owned', searchType: SearchType.NONE, showDisplayTitle: false }),
+                            new SearchListKey({displayTitle:'Owned', searchType: SearchType.NONE }),
                             userOwnedPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest }) }))
                         ],
                     ])}

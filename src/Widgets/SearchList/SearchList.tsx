@@ -28,7 +28,7 @@ import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-s
  *  Handles Relevant Searching, Filtering, toggling multi List Display           *
  *  Callbacks available of onPress, action buttons, and filter by sub properties *
  *********************************************************************************/
-const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, backButtonNavigation?:NativeStackNavigationProp<any, string, undefined>, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, additionalHeaderRows?:JSX.Element[], headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
+const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, backButtonNavigation?:NativeStackNavigationProp<any, string, undefined>, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, additionalHeaderRows?:JSX.Element[], headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
     const jwt:string = useAppSelector((state) => state.account.jwt);
     /* Style property for headerContainerStyle since it references the key prop */
     const headerContainerStyle = StyleSheet.create({
@@ -60,7 +60,7 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
 
     /* Search List State */
     const [displayList, setDisplayList] = useState<SearchListValue[]>([]);
-    const [selectedKey, setSelectedKey] = useState<SearchListKey>(new SearchListKey({displayTitle: 'Default'}));
+    const [selectedKey, setSelectedKey] = useState<SearchListKey>(new SearchListKey(Array.from(props.displayMap.keys()).find((element:SearchListKey) => element.displayTitle === props.defaultDisplayKey) || {displayTitle: 'Default'}));
     const [searchCacheMap, setSearchCacheMap] = useState<Map<string, SearchListValue>|undefined>(undefined); //Quick pairing for accurate button options
     const [appliedFilter, setAppliedFilter] = useState<SearchFilterIdentifiable | undefined>(undefined);
     const [searchTerm, setSearchTerm] = useState<string|undefined>(undefined);
@@ -93,7 +93,7 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
         Array.from(props.displayMap.entries())
             .forEach(([key, itemList]) => {
                 if(itemList.length > 0) {
-                    if(props.displayMap.size > 1 && key.showDisplayTitle) defaultList.push(new SearchListValue({displayType: ListItemTypesEnum.LABEL, displayItem: key.displayTitle}))
+                    if(props.displayMap.size > 1) defaultList.push(new SearchListValue({displayType: ListItemTypesEnum.LABEL, displayItem: key.displayTitle}))
                     defaultList.push(...itemList);
                 }
             });
