@@ -24,6 +24,7 @@ import DashboardDisplay from './10-Dashboard/DashboardDisplay';
 import OfflineWarning from './0-Pages/OfflineWarning';
 import { initializeAppUtils } from './utilities/utilities';
 import Toast from 'react-native-toast-message';
+import PrayerRequestAnsweredPage from './3-Prayer-Request/PrayerRequestAnswered';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -66,6 +67,7 @@ const PrayerRequestStackNavigatorProp = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_LIST_ROUTE_NAME} component={PrayerRequestList} />
+        <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_ANSWERED_ROUTE_NAME} component={PrayerRequestAnsweredPage} />
         <Stack.Screen name={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME} component={PrayerRequestDisplay} key={ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME + "PrayerRequestStack"}/>
     </Stack.Navigator>
   )

@@ -28,7 +28,7 @@ import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-s
  *  Handles Relevant Searching, Filtering, toggling multi List Display           *
  *  Callbacks available of onPress, action buttons, and filter by sub properties *
  *********************************************************************************/
-const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, backButtonNavigation?:NativeStackNavigationProp<any, string, undefined>, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, additionalHeaderRows?:JSX.Element[], headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
+const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string, pageTitle?:string, displayMap:Map<SearchListKey, SearchListValue[]>, backButtonNavigation?:NativeStackNavigationProp<any, string, undefined>, showMultiListFilter?:boolean, filterOptions?:string[], onFilter?:(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => boolean, additionalHeaderRows?:JSX.Element[], headerItems?:JSX.Element[], footerItems?:JSX.Element[]}) => {
     const jwt:string = useAppSelector((state) => state.account.jwt);
     /* Style property for headerContainerStyle since it references the key prop */
     const headerContainerStyle = StyleSheet.create({
@@ -60,7 +60,7 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
 
     /* Search List State */
     const [displayList, setDisplayList] = useState<SearchListValue[]>([]);
-    const [selectedKey, setSelectedKey] = useState<SearchListKey>(new SearchListKey({displayTitle: 'Default'}));
+    const [selectedKey, setSelectedKey] = useState<SearchListKey>(new SearchListKey(Array.from(props.displayMap.keys()).find((element:SearchListKey) => element.displayTitle === props.defaultDisplayKey) || {displayTitle: 'Default'}));
     const [searchCacheMap, setSearchCacheMap] = useState<Map<string, SearchListValue>|undefined>(undefined); //Quick pairing for accurate button options
     const [appliedFilter, setAppliedFilter] = useState<SearchFilterIdentifiable | undefined>(undefined);
     const [searchTerm, setSearchTerm] = useState<string|undefined>(undefined);
@@ -99,8 +99,13 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
             });
         setDisplayList(defaultList);
 
+        if (!Array.from(props.displayMap.keys()).find((element:SearchListKey) => element.displayTitle === props.defaultDisplayKey)) console.warn("Provided key for defaultDisplayKey not in displayMap")
+
         /* Identify Search Key */
-        if(props.displayMap.size === 1)
+        if (props.showMultiListFilter && selectedKey.displayTitle !== 'Default')
+            // the key is already selected, but display list needs to be filtered
+            setDisplayList(getList(selectedKey.displayTitle));
+        else if(props.displayMap.size === 1)
             setSelectedKey(Array.from(props.displayMap.keys())[0]);
         else
             setSelectedKey(new SearchListKey({displayTitle: 'Default'}));
@@ -284,7 +289,7 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
                             onSubmitEditing={() => executeSearch()}
                         />
                     : (props.pageTitle !== undefined) &&
-                        <Page_Title title={props.pageTitle} containerStyle={styles.titleContainer} />
+                        <Page_Title title={props.pageTitle} containerStyle={(Platform.OS === 'ios' && {top: 40, ...styles.titleContainer} || {...styles.titleContainer})} />
                     }
                     {(props.showMultiListFilter && getListTitles().length > 1) &&
                         <Tab_Selector
@@ -314,10 +319,10 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
                             onPress={() => setSearchTerm((searchTerm === undefined) ? '' : undefined)}
                         />
                      : (props.backButtonNavigation) && 
-                        <BackButton navigation={props.backButtonNavigation} />
+                        <BackButton navigation={props.backButtonNavigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
                     }
                     {(props.backButtonNavigation) && 
-                        <BackButton navigation={props.backButtonNavigation} />
+                        <BackButton navigation={props.backButtonNavigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
                     }
                     {(props.additionalHeaderRows !== undefined) &&
                         props.additionalHeaderRows.map((item:JSX.Element, index) => (
@@ -333,7 +338,7 @@ const SearchList = ({...props}:{key:any, name:string, pageTitle?:string, display
                     { appliedFilter ? 
                         <Raised_Button 
                             text={`Reset Page`}
-                            onPress={() => resetPage()}
+                            onPress={() => resetPage(props.defaultDisplayKey)}
                         />
                       : <Text allowFontScaling={false} style={styles.accent} >Loading . . . </Text>
                     }

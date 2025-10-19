@@ -22,7 +22,7 @@ export class SearchListKey {
 
     constructor({...props}:{displayTitle:string, searchType?:SearchType, searchFilter?:string, onSearchPress?:(id:number, item:DisplayItemType)=>void, 
         searchPrimaryButtonText?:string, onSearchPrimaryButtonCallback?:(id:number, item:DisplayItemType)=>void, searchAlternativeButtonText?:string, onSearchAlternativeButtonCallback?:(id:number, item:DisplayItemType)=>void}) {
-        this.displayTitle = props.displayTitle;
+        this.displayTitle = props.displayTitle
         this.searchType = props.searchType || SearchType.NONE;
         this.searchFilter = props.searchFilter;
         this.onSearchPress = props.onSearchPress;

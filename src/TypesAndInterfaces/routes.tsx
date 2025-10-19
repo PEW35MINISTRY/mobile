@@ -25,7 +25,8 @@ export enum ROUTE_NAMES {
     CONTENT_ROUTE_NAME = 'ContentRouteName',
     DASHBOARD_ROUTE_NAME = 'DashboardRoute',
     DASHBOARD_NAVIGATOR_ROUTE_NAME = 'DashboardRoutes',
-    OFFLINE_WARNING_ROUTE_NAME = "OfflineWarning"
+    OFFLINE_WARNING_ROUTE_NAME = "OfflineWarning",
+    PRAYER_REQUEST_ANSWERED_ROUTE_NAME = "AnsweredPrayerRequest"
 }
 
 export enum BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES {

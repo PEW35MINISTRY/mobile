@@ -157,6 +157,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         else if (deletePrayerRequest === true) {
             dispatch(removeOwnedPrayerRequest(appPrayerRequestListItem.prayerRequestID));
             dispatch(removeExpiringPrayerRequest(appPrayerRequestListItem.prayerRequestID));
+            dispatch(removeAnsweredPrayerRequest(appPrayerRequestListItem.prayerRequestID));
             navigation.goBack();
         }
     }
