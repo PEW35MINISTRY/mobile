@@ -99,6 +99,8 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
             });
         setDisplayList(defaultList);
 
+        if (!Array.from(props.displayMap.keys()).find((element:SearchListKey) => element.displayTitle === props.defaultDisplayKey)) console.warn("Provided key for defaultDisplayKey not in displayMap")
+
         /* Identify Search Key */
         if (props.showMultiListFilter && selectedKey.displayTitle !== 'Default')
             // the key is already selected, but display list needs to be filtered
@@ -336,7 +338,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                     { appliedFilter ? 
                         <Raised_Button 
                             text={`Reset Page`}
-                            onPress={() => resetPage()}
+                            onPress={() => resetPage(props.defaultDisplayKey)}
                         />
                       : <Text allowFontScaling={false} style={styles.accent} >Loading . . . </Text>
                     }
