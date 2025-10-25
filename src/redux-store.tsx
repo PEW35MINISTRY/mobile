@@ -55,10 +55,13 @@ const accountSlice = createSlice({
 
     addPartner: (state, action: PayloadAction<PartnerListItem>) => state = addListItem(state, action, 'partnerList'),
     removePartner: (state, action: PayloadAction<number>) => state = removeListItem(state, action, 'partnerList', 'userID'),
+    setPartners: (state, action: PayloadAction<PartnerListItem[]>) => state = { ...state, userProfile: {...state.userProfile, partnerList: action.payload}},
     addPartnerPendingUser: (state, action: PayloadAction<PartnerListItem>) => state = addListItem(state, action, 'partnerPendingUserList'),
     removePartnerPendingUser: (state, action: PayloadAction<number>) => state = removeListItem(state, action, 'partnerPendingUserList', 'userID'),
+    setPartnerPendingUsers: (state, action: PayloadAction<PartnerListItem[]>) => state = { ...state, userProfile: {...state.userProfile, partnerPendingUserList: action.payload}},
     addPartnerPendingPartner: (state, action: PayloadAction<PartnerListItem>) => state = addListItem(state, action, 'partnerPendingPartnerList'),
     removePartnerPendingPartner: (state, action: PayloadAction<number>) => state = removeListItem(state, action, 'partnerPendingPartnerList', 'userID'),
+    setPartnerPendingPartners: (state, action: PayloadAction<PartnerListItem[]>) => state = { ...state, userProfile: {...state.userProfile, partnerPendingPartnerList: action.payload}},
 
     addContact: (state, action: PayloadAction<ProfileListItem>) => state = addListItem(state, action, 'contactList'),
     removeContact: (state, action: PayloadAction<number>) => state = removeListItem(state, action, 'contactList', 'userID'),
@@ -80,10 +83,9 @@ const accountSlice = createSlice({
 // How to use in component: https://redux-toolkit.js.org/tutorials/quick-start#use-redux-state-and-actions-in-react-components
 export const { setAccount, resetAccount, updateJWT, clearJWT, updateProfile, updateProfileImage, updateWalkLevel,
       addMemberCircle, removeMemberCircle, addInviteCircle, removeInviteCircle, addRequestedCircle, removeRequestedCircle,
-      addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, removeExpiringPrayerRequest,
-      addOwnedPrayerRequest, removeOwnedPrayerRequest, setOwnedPrayerRequests,
-      addContact, removeContact, setContacts, 
-
+      addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
+      setPartnerPendingPartners, setPartnerPendingUsers, setPartners, removeExpiringPrayerRequest, addOwnedPrayerRequest, 
+      removeOwnedPrayerRequest, setOwnedPrayerRequests, addContact, removeContact, setContacts, 
       setAnsweredPrayerRequestList, addAnsweredPrayerRequest, removeAnsweredPrayerRequest
     } = accountSlice.actions;
 
