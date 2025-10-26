@@ -3,9 +3,9 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { RootState, setSettings } from "../redux-store";
+import { addPartner, addPartnerPendingPartner, removePartner, removePartnerPendingPartner, removePartnerPendingUser, RootState, setPartnerPendingPartners, setPartnerPendingUsers, setPartners, setSettings } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
-import { BackButton, Dropdown_Select, Outline_Button, Raised_Button } from "../widgets";
+import { BackButton, Dropdown_Select, Filler, Outline_Button, Raised_Button } from "../widgets";
 import { PartnershipContractModal, PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partnership-widgets";
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
 import { PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
@@ -13,14 +13,13 @@ import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import NewPartner from "../0-Pages/NewPartner";
 import Toast from "react-native-toast-message";
+import SearchList from "../Widgets/SearchList/SearchList";
+import { SearchListKey, SearchListValue } from "../Widgets/SearchList/searchList-types";
+import { DisplayItemType, ListItemTypesEnum, SearchType } from "../TypesAndInterfaces/config-sync/input-config-sync/search-config";
+import { CALLBACK_STATE } from "../TypesAndInterfaces/custom-types";
 
-// pending partner acceptance, full partner, pending user
-const enum PartnerViewMode {
-  PARTNER_LIST = "PARTNER_LIST",
-  PENDING_PARTNERS = "PENDING_BOTH",
-}
 
-const Partnerships = (props:{callback?:((val:number) => void), continueNavigation?:boolean}):JSX.Element => {
+const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continueNavigation?:boolean}):JSX.Element => {
 
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -31,9 +30,6 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
     const settingsRef = useAppSelector((state:RootState) => state.settings);
     const dispatch = useAppDispatch();
 
-    const [prayerPartnersList, setPrayerPartnersList] = useState<PartnerListItem[]>([]);
-    const [pendingPrayerPartners, setPendingPrayerPartners] =  useState<PartnerListItem[]>([]);
-    const [pendingPrayerPartnerUsers, setPendingPrayerPartnerUsers] = useState<PartnerListItem[]>([]);
     const [newPartner, setNewPartner] = useState<PartnerListItem>({
         status: PartnerStatusEnum.FAILED,
         userID: -1,
@@ -41,7 +37,6 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
         displayName: ""
     } as PartnerListItem);
 
-    const [partnerSettingsViewMode, setPartnerSettingsViewMode] = useState<PartnerViewMode>(PartnerViewMode.PARTNER_LIST);
     const [requestNewPartnerModalVisible, setRequestNewPartnerModalVisible] = useState(false);
     const [prayerContractModalVisible, setPrayerContractModalVisible] = useState(false);
 
@@ -50,18 +45,6 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
           "jwt": jwt,
         }
     }
-
-    const renderPartners = ():JSX.Element[] => 
-        (prayerPartnersList || []).map((partner:PartnerListItem, index:number) => 
-            <PrayerPartnerListItem partner={partner} key={index} leavePartnership={leavePartnership} />
-    );
-
-    const renderPendingPartners = (partnerList:PartnerListItem[] | undefined, pendingContract:boolean):JSX.Element[] => 
-        (partnerList || []).map((partner:PartnerListItem, index:number) => 
-            <PendingPrayerPartnerListItem partner={partner} key={index} buttonText={pendingContract ? 'View Contract' : 'Decline'}
-                onButtonPress={(id, partnerItem) => { pendingContract ? (() => {setNewPartner(partner); setPrayerContractModalVisible(true)})() : declinePartnershipRequest(partnerItem) }} />
-               
-    );
 
     const acceptPartnershipRequest = (partner:PartnerListItem) => {
         axios.post(`${DOMAIN}/api/partner-pending/`+ partner.userID + '/accept', {}, RequestAccountHeader).then((response:AxiosResponse) => {
@@ -72,10 +55,10 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
                 status: responsePartnerListItem.status
             }
 
-            setPendingPrayerPartnerUsers([...pendingPrayerPartnerUsers].filter((partnerItem:PartnerListItem) => partner.userID !== partnerItem.userID));
+            dispatch(removePartnerPendingUser(partner.userID));
 
-            if (newPartner.status == PartnerStatusEnum.PENDING_CONTRACT_PARTNER) setPendingPrayerPartners([...pendingPrayerPartners, partner]);
-            else if (newPartner.status == PartnerStatusEnum.PARTNER) setPrayerPartnersList([...prayerPartnersList, partner]);
+            if (newPartner.status == PartnerStatusEnum.PENDING_CONTRACT_PARTNER) dispatch(addPartnerPendingPartner(partner));
+            else if (newPartner.status == PartnerStatusEnum.PARTNER) dispatch(addPartner(partner));
             else console.warn("unexpected new partner state");
 
             const newStorageState = {...settingsRef, lastNewPartnerRequest: Date.now()}
@@ -87,13 +70,13 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
 
     const declinePartnershipRequest = (partner:PartnerListItem) => {
         axios.delete(`${DOMAIN}/api/partner-pending/`+ partner.userID + '/decline', RequestAccountHeader).then((response:AxiosResponse) => {
-            (partner.status == PartnerStatusEnum.PENDING_CONTRACT_PARTNER) ? setPendingPrayerPartners([...pendingPrayerPartners].filter((partnerItem:PartnerListItem) => partnerItem.userID !== partner.userID)) : setPendingPrayerPartnerUsers([...pendingPrayerPartnerUsers].filter((partnerItem:PartnerListItem) => partnerItem.userID !== partner.userID));
+            (partner.status == PartnerStatusEnum.PENDING_CONTRACT_PARTNER) ? dispatch(removePartnerPendingPartner(partner.userID)) : dispatch(removePartnerPendingUser(partner.userID));
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
-    const leavePartnership = (partner:PartnerListItem) => {
-        axios.delete(`${DOMAIN}/api/partner/` + partner.userID + '/leave', RequestAccountHeader).then((response:AxiosResponse) => {
-            setPrayerPartnersList([...prayerPartnersList].filter((partnerItem:PartnerListItem) => partnerItem.userID !== partner.userID));
+    const leavePartnership = (id: number, partner:DisplayItemType) => {
+        axios.delete(`${DOMAIN}/api/partner/` + id + '/leave', RequestAccountHeader).then((response:AxiosResponse) => {
+            dispatch(removePartner(id));
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
@@ -103,20 +86,20 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
             const pendingPartners:PartnerListItem[] = [];
             const newPendingPartners:PartnerListItem[] = response.data;
             newPendingPartners.forEach((partner:PartnerListItem) => (partner.status == PartnerStatusEnum.PENDING_CONTRACT_BOTH || partner.status == PartnerStatusEnum.PENDING_CONTRACT_USER) ? pendingUsers.push(partner) : pendingPartners.push(partner));
-            setPendingPrayerPartnerUsers(pendingUsers);
-            setPendingPrayerPartners(pendingPartners);
+            dispatch(setPartnerPendingUsers(pendingUsers));
+            dispatch(setPartnerPendingPartners(pendingPartners))
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const GET_PrayerPartners = () => {
         axios.get(`${DOMAIN}/api/user/`+ userID + '/partner-list?status=PARTNER', RequestAccountHeader).then((response:AxiosResponse) => {
             const prayerPartners:PartnerListItem[] = response.data;
-            setPrayerPartnersList(prayerPartners);
+            dispatch(setPartners(prayerPartners))
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const requestNewPartner = async () => {
-        if (!(maxPartners > (prayerPartnersList.length + pendingPrayerPartnerUsers.length + pendingPrayerPartners.length))) {
+        if (!(maxPartners > ((userProfilePartners || []).length + (userProfilePendingPartners || []).length + (userProfilePendingUsers || []).length))) {
             ToastQueueManager.show({message: "Max Partners Reached"});
             return;
         }
@@ -129,113 +112,79 @@ const Partnerships = (props:{callback?:((val:number) => void), continueNavigatio
         setRequestNewPartnerModalVisible(true);
     }
 
-    const renderPendingPage = ():JSX.Element => {
-        return (
-            <View style={{flex: 1}}>
-                {
-                    pendingPrayerPartnerUsers.length > 0 && (
-                        <View style={styles.partnerListSpacing}>
-                            <Text allowFontScaling={false} style={styles.partnerStatusViewModeTitle}>Pending Partners</Text>
-                            <ScrollView style={styles.partnerList} >
-                                {renderPendingPartners(pendingPrayerPartnerUsers, true)}
-                            </ScrollView>
-                        </View>
-                    )
-                }
-                {
-                    pendingPrayerPartners.length > 0 && (
-                        <View style={styles.partnerListSpacing}>
-                            <Text allowFontScaling={false} style={styles.partnerStatusViewModeTitle}>Pending Acceptance</Text>
-                            <ScrollView style={styles.partnerList} >
-                                {renderPendingPartners(pendingPrayerPartners, false)}
-                            </ScrollView>
-                        </View>
-                    )
-                }
-            </View>
-
-        )
-    }
-
     useEffect(() => {
         GET_PrayerPartners();
-    }, [userProfilePartners])
+    }, [])
 
     useEffect(() => {
         GET_PendingPartners();
-    }, [userProfilePendingPartners, userProfilePendingUsers])
+    }, [])
 
     return (
-            <SafeAreaView style={styles.backgroundColor}>
-                <View style={styles.container}>
-                    <View style={styles.viewModeView}>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    if (partnerSettingsViewMode !== PartnerViewMode.PARTNER_LIST) {
-                                        setPartnerSettingsViewMode(PartnerViewMode.PARTNER_LIST);
-                                    }
-                                }}
-                            >
-                                <Text allowFontScaling={false} style={(partnerSettingsViewMode == PartnerViewMode.PARTNER_LIST && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Partners</Text>
-                            </TouchableOpacity>
-                            <Text allowFontScaling={false} style={styles.viewModeTextSelected}>|</Text>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    if (partnerSettingsViewMode !== PartnerViewMode.PENDING_PARTNERS) {
-                                        setPartnerSettingsViewMode(PartnerViewMode.PENDING_PARTNERS);
-                                    }
-                                }}
-                            >
-                                <Text allowFontScaling={false} style={(partnerSettingsViewMode == PartnerViewMode.PENDING_PARTNERS && styles.viewModeTextSelected) || styles.viewModeTextNotSelected}>Pending</Text>
-                            </TouchableOpacity>
-
-                        
-                    </View>
-                </View>
-                { partnerSettingsViewMode == PartnerViewMode.PARTNER_LIST ? renderPartners() : renderPendingPage()}
-                <View style={styles.bottomView}> 
+        <SafeAreaView style={styles.container}>
+            <SearchList
+                key='partner-main-page'
+                name='partner-main-page'
+                footerItems={[<Filler />]}
+                displayMap={new Map([
+                        [
+                            new SearchListKey({displayTitle:'Partners', searchType: SearchType.NONE }),
+                            (userProfilePartners || []).map((partnerItem) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partnerItem, onPrimaryButtonCallback: leavePartnership }))
+                        ],
+                        [
+                            new SearchListKey({displayTitle:'Pending Acceptance', searchType: SearchType.NONE }),
+                            (userProfilePendingUsers || []).map((partnerItem) => new SearchListValue({displayType: ListItemTypesEnum.PENDING_PARTNER, displayItem: partnerItem, primaryButtonText: 'View Contract', onPrimaryButtonCallback: ((id, partnerItem) => { setNewPartner(partnerItem as PartnerListItem); setPrayerContractModalVisible(true)}) }))
+                        ],
+                        [
+                            new SearchListKey({displayTitle:'Pending Partners', searchType: SearchType.NONE }),
+                            (userProfilePendingPartners || []).map((partnerItem) => new SearchListValue({displayType: ListItemTypesEnum.PENDING_PARTNER, displayItem: partnerItem,  primaryButtonText: 'Decline', onPrimaryButtonCallback: ((id, partnerItem) => declinePartnershipRequest(partnerItem as PartnerListItem)) }))
+                        ],
+                    ])}
+            />
+        
+            <View style={styles.bottomView}> 
+                
+                <Outline_Button 
+                    text='New Partner'
+                    onPress={() => requestNewPartner()} 
+                />   
                     
-                    <Outline_Button 
-                        text='New Partner'
-                        onPress={() => requestNewPartner()} 
-                    />   
-                       
-                    {
-                        (props.continueNavigation !== undefined) &&                     
-                        <Raised_Button buttonStyle={{marginVertical: 15}}
-                            text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
-                            onPress={() => props.callback !== undefined && props.callback(1)} 
-                        />
-                    }
+                {
+                    (props.continueNavigation !== undefined) &&                     
+                    <Raised_Button buttonStyle={{marginVertical: 15}}
+                        text={props.continueNavigation && props.continueNavigation ? "Next" : "Done"}
+                        onPress={() => props.callback && props.callback(CALLBACK_STATE.SUCCESS)} 
+                    />
+                }
 
-                </View>   
-                <Modal 
-                    visible={requestNewPartnerModalVisible}
-                    onRequestClose={() => setRequestNewPartnerModalVisible(false)}
-                    animationType='slide'
-                    transparent={true}
-                >
-                    <NewPartner callback={() => setRequestNewPartnerModalVisible(false)} />
-                </Modal>
-                <PartnershipContractModal
-                    visible={prayerContractModalVisible}
-                    partner={newPartner}
-                    acceptPartnershipRequest={() => {acceptPartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
-                    declinePartnershipRequest={() => {declinePartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
-                    onClose={() => setPrayerContractModalVisible(false)}
-                />
+            </View>   
+            <Modal 
+                visible={requestNewPartnerModalVisible}
+                onRequestClose={() => setRequestNewPartnerModalVisible(false)}
+                animationType='slide'
+                transparent={true}
+            >
+                <NewPartner callback={() => setRequestNewPartnerModalVisible(false)} />
+            </Modal>
+            <PartnershipContractModal
+                visible={prayerContractModalVisible}
+                partner={newPartner}
+                acceptPartnershipRequest={() => {acceptPartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
+                declinePartnershipRequest={() => {declinePartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
+                onClose={() => setPrayerContractModalVisible(false)}
+            />
 
-                <BackButton callback={() => props.callback !== undefined && props.callback(-1)} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
-                <Toast />
-            </SafeAreaView>   
+            <BackButton callback={() => props.callback && props.callback(CALLBACK_STATE.BACK)} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
+            <Toast />
+        </SafeAreaView>  
   );
 
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: COLORS.black,
-    alignItems: "center",
   },
   dropdownContainer: {
     backgroundColor: COLORS.black,

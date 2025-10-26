@@ -10,7 +10,7 @@ import { PARTNERSHIP_CONTRACT } from "../TypesAndInterfaces/config-sync/input-co
 import { Outline_Button, Raised_Button } from "../widgets";
 import Toast from "react-native-toast-message";
 
-export const PrayerPartnerListItem = (props:{partner:PartnerListItem, leavePartnership:((partner:PartnerListItem) => void)}):JSX.Element => {
+export const PrayerPartnerListItem = (props:{partner:PartnerListItem, onButtonPress?:(id:number, partner:PartnerListItem) => void}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
 
     const RequestAccountHeader = {
@@ -64,7 +64,7 @@ export const PrayerPartnerListItem = (props:{partner:PartnerListItem, leavePartn
                 </View>
                 <View style={styles.ShareButtonTopLevelView}>
                     <TouchableOpacity 
-                        onPress={() => props.leavePartnership(props.partner)}
+                        onPress={() => props.onButtonPress && props.onButtonPress(props.partner.userID, props.partner)}
                     >  
                         <View style={styles.shareButtonView}>
                             <Text allowFontScaling={false} style={styles.textStyle}>Leave Partnership</Text>

@@ -19,7 +19,7 @@ import { PrayerRequestTouchable } from '../../3-Prayer-Request/prayer-request-wi
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
 import { AnnouncementTouchable, CircleTouchable } from '../../2-Circles/circle-widgets';
 import { CircleAnnouncementListItem, CircleListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
-import { PendingPrayerPartnerListItem } from '../../4-Partners/partnership-widgets';
+import { PendingPrayerPartnerListItem, PrayerPartnerListItem } from '../../4-Partners/partnership-widgets';
 import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 
 /*********************************************************************************
@@ -99,7 +99,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
             });
         setDisplayList(defaultList);
 
-        if (!Array.from(props.displayMap.keys()).find((element:SearchListKey) => element.displayTitle === props.defaultDisplayKey)) console.warn("Provided key for defaultDisplayKey not in displayMap")
+        if (props.defaultDisplayKey && !Array.from(props.displayMap.keys()).find((element:SearchListKey) => element.displayTitle === props.defaultDisplayKey)) console.warn("Provided key for defaultDisplayKey not in displayMap")
 
         /* Identify Search Key */
         if (props.showMultiListFilter && selectedKey.displayTitle !== 'Default')
@@ -366,9 +366,14 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                                     prayerRequestProp={item.displayItem as PrayerRequestListItem} onPress={item.onPress} />
 
                             : item.displayType === ListItemTypesEnum.PARTNER ? 
+                                <PrayerPartnerListItem {...item} key={`partner-${props.key}-${index}`}
+                                    partner={item.displayItem as PartnerListItem} onButtonPress={item.onPrimaryButtonCallback}
+                                />
+
+                            : item.displayType === ListItemTypesEnum.PENDING_PARTNER ? 
                                 <PendingPrayerPartnerListItem {...item} key={`partner-${props.key}-${index}`}
                                     partner={item.displayItem as PartnerListItem} onPress={item.onPress}
-                                    buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback}
+                                    buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback} 
                                 />
 
                             : item.displayType === ListItemTypesEnum.CIRCLE ? 
