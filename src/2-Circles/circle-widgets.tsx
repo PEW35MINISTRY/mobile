@@ -54,10 +54,8 @@ export const CircleTouchable = (props:{circleProps: CircleListItem, buttonText?:
     const styles = StyleSheet.create({
         ...theme,
         container: {
-            height: 100,
             width: '100%',
-            minWidth: 250,
-            borderRadius: 10,
+            marginTop: 15
         },
         header: {
             flexDirection: 'row',
@@ -86,8 +84,8 @@ export const CircleTouchable = (props:{circleProps: CircleListItem, buttonText?:
     });
 
     return (
+        <View style={styles.container}>
             <TouchableOpacity onPress={() => props.onPress && props.onPress(props.circleProps.circleID, props.circleProps)} >
-                <View style={styles.container}>
                     <View style={styles.header}>
                         <RequestorCircleImage 
                             imageUri={props.circleProps.image}
@@ -104,8 +102,8 @@ export const CircleTouchable = (props:{circleProps: CircleListItem, buttonText?:
                             />
                         }
                     </View>              
-                </View>  
-            </TouchableOpacity>
+                </TouchableOpacity>
+             </View>  
     );
 }
 

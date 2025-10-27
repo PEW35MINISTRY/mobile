@@ -1,13 +1,16 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView } from 'react-native';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
-import { Raised_Button } from '../widgets';
+import { Filler, Raised_Button } from '../widgets';
 import theme, { COLORS } from '../theme';
 import { CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { CircleTouchable } from './circle-widgets';
+import SearchList from '../Widgets/SearchList/SearchList';
+import { ListItemTypesEnum, SearchType } from '../TypesAndInterfaces/config-sync/input-config-sync/search-config';
+import { SearchListKey, SearchListValue } from '../Widgets/SearchList/searchList-types';
 
 
 export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
@@ -43,34 +46,31 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
   
 
     return (
-        <SafeAreaView style={styles.modalView}>
-            <Text allowFontScaling={false} style={styles.modalHeaderText}>Circles</Text>
-            <ScrollView contentContainerStyle={styles.circleSelectScroller}>
-                {renderCircleModals()}
-            </ScrollView>
+        <View style={styles.backgroundColor}>
+            <SearchList
+                key='circle-list-page'
+                name='circle-list-page'
+                pageTitle="Circles"
+                displayMap={new Map([
+                        [
+                            new SearchListKey({displayTitle:'Circles', searchType: SearchType.NONE }),
+                            circleModals.map((circle) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE, displayItem: circle, onPress: () => navigation.navigate(ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME, { CircleProps: circle }) }))
+                        ]
+                    ])}
+                />
+           
             <Raised_Button buttonStyle={styles.statusButton}
                 text={"Browse Circles"}
                 onPress={() => navigation.navigate(ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME)}
             />
-        </SafeAreaView>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
-    modalView: {
-        ...theme.background_view,
+    backgroundColor: {
+        backgroundColor: COLORS.black,
         flex: 1,
-        justifyContent: "flex-start"
-    },
-    circleSelectScroller: {
-        height: 650
-    },
-    modalHeaderText: {
-        ...theme.title,
-        color: COLORS.white,
-        fontSize: 32,
-        margin: 25
-
     },
     statusButton: {
         height: 50,
@@ -78,6 +78,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        //marginTop: 30,
     },
 })
