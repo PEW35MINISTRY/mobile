@@ -281,7 +281,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
 
                     {(searchTerm !== undefined) ?
                         <TextInput allowFontScaling={false}
-                            style={styles.searchInput}
+                            style={{...styles.searchInput}}
                             placeholder={'Search...'}
                             placeholderTextColor={COLORS.accent}
                             value={searchTerm}
@@ -315,7 +315,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                             name='search-outline'
                             color={COLORS.accent}
                             size={theme.title.fontSize}
-                            style={(props.backButtonNavigation) ? styles.headerIconRight : styles.headerIconLeft}
+                            style={ {...(props.backButtonNavigation) ? styles.headerIconRight : styles.headerIconLeft, ...(Platform.OS === 'ios' && {top: 55})}}
                             onPress={() => setSearchTerm((searchTerm === undefined) ? '' : undefined)}
                         />
                      : (props.backButtonNavigation) && 

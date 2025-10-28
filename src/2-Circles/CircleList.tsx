@@ -53,7 +53,7 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
                 pageTitle="Circles"
                 displayMap={new Map([
                         [
-                            new SearchListKey({displayTitle:'Circles', searchType: SearchType.NONE }),
+                            new SearchListKey({displayTitle:'Circles', searchType: SearchType.CIRCLE }),
                             circleModals.map((circle) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE, displayItem: circle, onPress: () => navigation.navigate(ROUTE_NAMES.CIRCLE_DISPLAY_ROUTE_NAME, { CircleProps: circle }) }))
                         ]
                     ])}
