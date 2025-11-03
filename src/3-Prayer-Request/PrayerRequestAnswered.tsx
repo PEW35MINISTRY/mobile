@@ -1,5 +1,6 @@
 import { DOMAIN } from "@env";
 import { RootState, setAnsweredPrayerRequestList } from "../redux-store";
+import {  SafeAreaView, StyleSheet } from 'react-native';
 import { PrayerRequestListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types";
 import { StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
@@ -12,6 +13,7 @@ import { SearchListKey, SearchListValue } from "../Widgets/SearchList/searchList
 import { ListItemTypesEnum, SearchType } from "../TypesAndInterfaces/config-sync/input-config-sync/search-config";
 import { ROUTE_NAMES } from "../TypesAndInterfaces/routes";
 import { Filler } from "../widgets";
+import { COLORS } from "../theme";
 
 const PrayerRequestAnsweredPage =  ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -45,7 +47,8 @@ const PrayerRequestAnsweredPage =  ({navigation}:StackNavigationProps):JSX.Eleme
     }, []);
 
     return (
-         <SearchList
+        <SafeAreaView style={styles.backgroundColor}>
+             <SearchList
                 key='prayer-request-answered-page'
                 name='prayer-request-answered-page'
                 pageTitle="Answered Prayer Requests"
@@ -58,7 +61,16 @@ const PrayerRequestAnsweredPage =  ({navigation}:StackNavigationProps):JSX.Eleme
                         ]
                     ])}
             />
+        </SafeAreaView>
+        
     )
 }
+
+const styles = StyleSheet.create({
+    backgroundColor: {
+        backgroundColor: COLORS.black,
+        flex: 1,
+    }
+})
 
 export default PrayerRequestAnsweredPage;

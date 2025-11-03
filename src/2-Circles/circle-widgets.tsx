@@ -78,8 +78,9 @@ export const CircleTouchable = (props:{circleProps: CircleListItem, buttonText?:
         },
         actionButton: {
             backgroundColor: COLORS.white,
-            padding: 5,
+            borderRadius: 5,
             height: FONT_SIZES.L + 10,
+            minWidth: 35
         },
     });
 

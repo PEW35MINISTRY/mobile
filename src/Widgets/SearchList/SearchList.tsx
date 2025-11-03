@@ -236,7 +236,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
         setAppliedFilter(undefined);
         setSearchTerm(undefined);
         setSearchCacheMap(undefined);
-        ToastQueueManager.show({message: 'Page Reset'});
+        //ToastQueueManager.show({message: 'Page Reset'});
     };
 
 
@@ -289,7 +289,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                             onSubmitEditing={() => executeSearch()}
                         />
                     : (props.pageTitle !== undefined) &&
-                        <Page_Title title={props.pageTitle} containerStyle={(Platform.OS === 'ios' && {top: 40, ...styles.titleContainer} || {...styles.titleContainer})} />
+                        <Page_Title title={props.pageTitle} containerStyle={styles.titleContainer} />
                     }
                     {(props.showMultiListFilter && getListTitles().length > 1) &&
                         <Tab_Selector
@@ -315,14 +315,14 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                             name='search-outline'
                             color={COLORS.accent}
                             size={theme.title.fontSize}
-                            style={ {...(props.backButtonNavigation) ? styles.headerIconRight : styles.headerIconLeft, ...(Platform.OS === 'ios' && {top: 55})}}
-                            onPress={() => setSearchTerm((searchTerm === undefined) ? '' : undefined)}
+                            style={ {...(props.backButtonNavigation) ? styles.headerIconRight : styles.headerIconLeft }}
+                            onPress={() => { setSearchTerm((searchTerm === undefined) ? '' : undefined); searchTerm !== undefined && resetPage() } }
                         />
                      : (props.backButtonNavigation) && 
-                        <BackButton navigation={props.backButtonNavigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
+                        <BackButton navigation={props.backButtonNavigation}  />
                     }
                     {(props.backButtonNavigation) && 
-                        <BackButton navigation={props.backButtonNavigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
+                        <BackButton navigation={props.backButtonNavigation}  />
                     }
                     {(props.additionalHeaderRows !== undefined) &&
                         props.additionalHeaderRows.map((item:JSX.Element, index) => (
