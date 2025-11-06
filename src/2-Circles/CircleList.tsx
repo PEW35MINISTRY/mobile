@@ -41,10 +41,8 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
     const requestCircleJoin = async (id:number, item:DisplayItemType) => {
         await axios.post(`${DOMAIN}/api/circle/` + id + "/request", {}, RequestAccountHeader).then(response => {
             const newListItem:CircleListItem = {...item as CircleListItem, status: CircleStatusEnum.REQUEST};
-            //@ts-ignore
-            item.status = CircleStatusEnum.REQUEST
             dispatch(addRequestedCircle(newListItem));
-            ToastQueueManager.show({message: "Membership request received"});    
+            ToastQueueManager.show({message: "Circle Request Sent"});    
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 

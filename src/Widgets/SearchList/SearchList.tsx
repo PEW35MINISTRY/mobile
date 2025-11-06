@@ -150,7 +150,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
 
                 Array.from(response.data).forEach((displayItem) => {
                     const itemID:number = selectedDetail.getID(displayItem);
-                    let listValueItem:SearchListValue|undefined = cacheMap.get(`${selectedKey.searchType}-${itemID}`); //First attempt local cache
+                    let listValueItem:SearchListValue|undefined = cacheMap.get(`${selectedDetail.itemType}-${itemID}`); //First attempt local cache
 
                     if(listValueItem === undefined) {
                         listValueItem = new SearchListValue({displayType, displayItem: displayItem, 
