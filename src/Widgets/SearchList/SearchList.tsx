@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent, SafeAreaView, Platform } from 'react-native';
 import { SearchFilterIdentifiable, SearchListKey, SearchListValue} from './searchList-types';
 import { ContentListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/content-types';
@@ -61,7 +61,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
     /* Search List State */
     const [displayList, setDisplayList] = useState<SearchListValue[]>([]);
     const [selectedKey, setSelectedKey] = useState<SearchListKey>(new SearchListKey(Array.from(props.displayMap.keys()).find((element:SearchListKey) => element.displayTitle === props.defaultDisplayKey) || {displayTitle: 'Default'}));
-    const [searchCacheMap, setSearchCacheMap] = useState<Map<string, SearchListValue>|undefined>(undefined); //Quick pairing for accurate button options
+    const searchButtonCache = useMemo(() => assembleSearchButtonCache(), [props.displayMap]); //Quick pairing for accurate button options
     const [appliedFilter, setAppliedFilter] = useState<SearchFilterIdentifiable | undefined>(undefined);
     const [searchTerm, setSearchTerm] = useState<string|undefined>(undefined);
     const [lastEmptySearchTerm, setLastEmptySearchTerm] = useState<string|undefined>(undefined); //Efficiently detect failed sequential searches
@@ -69,7 +69,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
     /* Utility displayMap Accessors */
     const getKey = (keyTitle:string = selectedKey.displayTitle):SearchListKey => Array.from(props.displayMap.keys()).find((k) => k.displayTitle === keyTitle) || new SearchListKey({displayTitle: 'Default'});
     const getList = (keyTitle:string = selectedKey.displayTitle):SearchListValue[] => props.displayMap.get(getKey(keyTitle)) || [];
-    const getSearchDetail = (searchType:SearchType = selectedKey.searchType):SearchTypeInfo<DisplayItemType> => SearchDetail[selectedKey.searchType];
+    const getSearchDetail = (searchType:SearchType = selectedKey.searchType):SearchTypeInfo<DisplayItemType> => SearchDetail[searchType] || SearchDetail[SearchType.NONE];
 
     const getListTitles = (filterEmptyLists:boolean = false):string[] => Array.from(props.displayMap.entries())
         .filter(([key, valueList]:[SearchListKey, SearchListValue[]]) => !filterEmptyLists || valueList.length > 0)
@@ -144,13 +144,11 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                     return;
                 }
 
-                const cacheMap:Map<string, SearchListValue> = searchCacheMap || assembleSearchButtonCache();
                 const resultList:SearchListValue[] = [];  
                 const displayType:ListItemTypesEnum = selectedDetail.itemType;
 
                 Array.from(response.data).forEach((displayItem) => {
-                    const itemID:number = selectedDetail.getID(displayItem);
-                    let listValueItem:SearchListValue|undefined = cacheMap.get(`${selectedKey.searchType}-${itemID}`); //First attempt local cache
+                    let listValueItem:SearchListValue|undefined = searchButtonCache.get(getSearchButtonCacheKey(selectedDetail, selectedDetail.itemType, displayItem)); //First attempt local cache
 
                     if(listValueItem === undefined) {
                         listValueItem = new SearchListValue({displayType, displayItem: displayItem, 
@@ -179,16 +177,18 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
     }
 
     
-    //Save Map as: 'type-id' : SearchListValue = CIRCLE-1 : {...}
+    //Save Map as: 'displayType-id' : SearchListValue = CIRCLE-1 : {...}
+    const getSearchButtonCacheKey = (searchKey:SearchTypeInfo<DisplayItemType>, displayType:ListItemTypesEnum, item:DisplayItemType) => `${displayType}-${searchKey.getID(item)}`;
+
     const assembleSearchButtonCache = ():Map<string, SearchListValue> => { 
-        const selectedDetail:SearchTypeInfo<DisplayItemType> = getSearchDetail();
         const cacheMap = new Map();
-        Array.from(props.displayMap.values()).reverse().flatMap(list => list).forEach((item:SearchListValue) => {
-            const itemID:number = selectedDetail.getID(item.displayItem);
-            if(itemID > 0)
-                cacheMap.set(`${item.displayType}-${selectedDetail.getID(item.displayItem)}`, item);
+        Array.from(props.displayMap.entries()).forEach(([key, list]:[SearchListKey, SearchListValue[]]) => {
+            const detail = getSearchDetail(key.searchType);
+            list.forEach((item: SearchListValue) => {
+                if(detail.getID(item.displayItem) > 0)
+                    cacheMap.set(getSearchButtonCacheKey(SearchDetail[key.searchType], item.displayType, item.displayItem), item);
+            });
         });
-        setSearchCacheMap(cacheMap);
         return cacheMap;
     }
 
@@ -235,8 +235,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
         else setDisplayList(getList(keyTitle));
         setAppliedFilter(undefined);
         setSearchTerm(undefined);
-        setSearchCacheMap(undefined);
-        ToastQueueManager.show({message: 'Page Reset'});
+        //ToastQueueManager.show({message: 'Page Reset'});
     };
 
 
@@ -281,7 +280,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
 
                     {(searchTerm !== undefined) ?
                         <TextInput allowFontScaling={false}
-                            style={styles.searchInput}
+                            style={{...styles.searchInput}}
                             placeholder={'Search...'}
                             placeholderTextColor={COLORS.accent}
                             value={searchTerm}
@@ -289,7 +288,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                             onSubmitEditing={() => executeSearch()}
                         />
                     : (props.pageTitle !== undefined) &&
-                        <Page_Title title={props.pageTitle} containerStyle={(Platform.OS === 'ios' && {top: 40, ...styles.titleContainer} || {...styles.titleContainer})} />
+                        <Page_Title title={props.pageTitle} containerStyle={styles.titleContainer} />
                     }
                     {(props.showMultiListFilter && getListTitles().length > 1) &&
                         <Tab_Selector
@@ -315,14 +314,14 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                             name='search-outline'
                             color={COLORS.accent}
                             size={theme.title.fontSize}
-                            style={(props.backButtonNavigation) ? styles.headerIconRight : styles.headerIconLeft}
-                            onPress={() => setSearchTerm((searchTerm === undefined) ? '' : undefined)}
+                            style={ {...(props.backButtonNavigation) ? styles.headerIconRight : styles.headerIconLeft }}
+                            onPress={() => { setSearchTerm((searchTerm === undefined) ? '' : undefined); searchTerm !== undefined && resetPage() } }
                         />
                      : (props.backButtonNavigation) && 
-                        <BackButton navigation={props.backButtonNavigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
+                        <BackButton navigation={props.backButtonNavigation}  />
                     }
                     {(props.backButtonNavigation) && 
-                        <BackButton navigation={props.backButtonNavigation} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined} />
+                        <BackButton navigation={props.backButtonNavigation}  />
                     }
                     {(props.additionalHeaderRows !== undefined) &&
                         props.additionalHeaderRows.map((item:JSX.Element, index) => (
