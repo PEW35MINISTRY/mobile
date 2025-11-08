@@ -1,32 +1,25 @@
-import { DOMAIN } from "@env";
-import axios from "axios";
-import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Modal, SafeAreaView } from "react-native";
 import { CALLBACK_STATE, StackNavigationProps } from "../../TypesAndInterfaces/custom-types";
-import NewPartner from "../../0-Pages/NewPartner";
-import { useAppSelector } from "../../TypesAndInterfaces/hooks";
-import { RootState } from "../../redux-store";
-import { ROUTE_NAMES } from "../../TypesAndInterfaces/routes";
 import { COLORS } from "../../theme";
 
-
-const ComponentFlow = (props:{components:JSX.Element[], onCompleteArgs:any, onComplete: (args:any) => void}):JSX.Element => {
-
-    const jwt = useAppSelector((state: RootState) => state.account.jwt);
+const ComponentFlow = (props:{components:JSX.Element[], onCompleteArgs?:any, onComplete: (args:any) => void}):JSX.Element => {
 
     const [componentIndex, setComponentIndex] = useState<number>(0);
-    
-    const [accountInitComponents, setAccountInitComponents] = useState<JSX.Element[]>(props.components);
-
-    const [componentsLength, setComponentsLength] = useState<number>(accountInitComponents.length);
+    const [context, setContext] = useState<any>({});
+    const [components, setComponents] = useState<JSX.Element[]>([]);
 
     useEffect(() => {
-      if (componentIndex >= componentsLength) props.onComplete(props.onCompleteArgs)
-
+      if (components.length && componentIndex >= components.length) props.onComplete(props.onCompleteArgs)
     }, [componentIndex])
 
-    const changeAccountComponentIndex = (newState:CALLBACK_STATE) => {
+    useEffect(() => {
+      setComponents(props.components.map((element, index) => 
+        React.cloneElement(element, { callback: (state:CALLBACK_STATE) => onCallbackTrigger(state), continueNavigation: index !== props.components.length-1, context: context, setContext: setContext } )
+      ))
+    }, [])
+
+    const onCallbackTrigger = (newState:CALLBACK_STATE) => {
       let change = 0;
       switch(newState) {
         case CALLBACK_STATE.SUCCESS:
@@ -45,12 +38,12 @@ const ComponentFlow = (props:{components:JSX.Element[], onCompleteArgs:any, onCo
         <SafeAreaView style={styles.backgroundView}>
             <View style={styles.backgroundView}>
                 <Modal 
-                    visible={componentIndex < componentsLength}
+                    visible={componentIndex < components.length}
                     onRequestClose={() => setComponentIndex((val) => val+1)}
                     animationType='slide'
                     transparent={true}
                 >
-                    {componentIndex < componentsLength && accountInitComponents[componentIndex]}
+                    {componentIndex < components.length && components[componentIndex]}
                 </Modal>
              </View>
         </SafeAreaView>

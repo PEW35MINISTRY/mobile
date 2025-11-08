@@ -13,7 +13,7 @@ import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from "../utilities/ToastQueueManager";
 import Toast from "react-native-toast-message";
 
-const ProfileImageSettings = (props:{callback:(state:CALLBACK_STATE) => void, continueNavigation?:boolean}):JSX.Element => {
+const ProfileImageSettings = (props:{callback?:(state:CALLBACK_STATE) => void, continueNavigation?:boolean}):JSX.Element => {
     const dispatch = useAppDispatch();
     const DEFAULT_PROFILE_ICON = require("../../assets/profile-icon-blue.png");
 
@@ -107,7 +107,7 @@ const ProfileImageSettings = (props:{callback:(state:CALLBACK_STATE) => void, co
               <Raised_Button buttonStyle={styles.doneButton}
               text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
               // since we don't know if we want to pop the screen off the stack or not, let the parent screen decide, not the component.
-              onPress={() => props.callback !== undefined && props.callback(CALLBACK_STATE.SUCCESS)}
+              onPress={() => props.callback && props.callback(CALLBACK_STATE.SUCCESS)}
           />
 
           <Toast />
