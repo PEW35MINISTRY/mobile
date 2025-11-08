@@ -3,14 +3,14 @@ import { StyleSheet, Text, View, Modal, SafeAreaView } from "react-native";
 import { CALLBACK_STATE, StackNavigationProps } from "../../TypesAndInterfaces/custom-types";
 import { COLORS } from "../../theme";
 
-const ComponentFlow = (props:{components:JSX.Element[], onCompleteArgs?:any, onComplete: (args:any) => void}):JSX.Element => {
+const ComponentFlow = (props:{components:JSX.Element[], onComplete: (args?:any) => void}):JSX.Element => {
 
     const [componentIndex, setComponentIndex] = useState<number>(0);
     const [context, setContext] = useState<any>({});
     const [components, setComponents] = useState<JSX.Element[]>([]);
 
     useEffect(() => {
-      if (components.length && componentIndex >= components.length) props.onComplete(props.onCompleteArgs)
+      if (components.length && componentIndex >= components.length) props.onComplete()
     }, [componentIndex])
 
     useEffect(() => {
