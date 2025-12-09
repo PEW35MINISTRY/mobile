@@ -5,8 +5,8 @@ import { CircleListItem, CircleResponse } from './config-sync/api-type-sync/circ
 import React from 'react';
 import { ParamListBase } from '@react-navigation/native';
 import InputField, { SUPPORTED_IMAGE_EXTENSION_LIST } from './config-sync/input-config-sync/inputField';
-import { ProfileResponse } from './config-sync/api-type-sync/profile-types';
-import { PrayerRequestListItem, PrayerRequestResponseBody } from './config-sync/api-type-sync/prayer-request-types';
+import { ProfileListItem, ProfileResponse } from './config-sync/api-type-sync/profile-types';
+import { PrayerRequestListItem, PrayerRequestPatchRequestBody, PrayerRequestPostRequestBody, PrayerRequestResponseBody } from './config-sync/api-type-sync/prayer-request-types';
 import { PrayerRequestTagEnum } from './config-sync/input-config-sync/prayer-request-field-config';
 
 export const PROFILE_IMAGE_MIME_TYPES = SUPPORTED_IMAGE_EXTENSION_LIST.map((extension) => "image/" + extension);
@@ -19,8 +19,35 @@ export enum CALLBACK_STATE {
     SUCCESS = 'SUCCESS',
     FAILURE = 'FAILURE',
     EXIT = 'EXIT',
-    BACK = 'BACK'
+    BACK = 'BACK',
+    DELETE = 'DELETE',
+    NONE = 'NONE'
+}
 
+export interface PrayerRequestEditContext {
+    userRecipientList?: ProfileListItem[], 
+    circleRecipientList?: CircleListItem[], 
+    addUserRecipientIDList:number[],  
+    addCircleRecipientIDList:number[],
+    removeUserRecipientIDList:number[], 
+    removeCircleRecipientIDList:number[], 
+    prayerRequestFields: PrayerRequestResponseBody,
+    fieldsChanged: boolean
+}
+
+export interface PrayerRequestCreateContext {
+    addUserRecipientIDList:number[],  
+    addCircleRecipientIDList:number[],
+    prayerRequestFields: PrayerRequestPostRequestBody,
+}
+
+export interface PrayerRequestFormContext {
+    userRecipientList?: ProfileListItem[], 
+    circleRecipientList?: CircleListItem[], 
+    addUserRecipientIDList:number[],  
+    addCircleRecipientIDList:number[],
+    removeUserRecipientIDList?:number[], 
+    removeCircleRecipientIDList?:number[],
 }
 
 export interface StackNavigationProps extends NativeStackScreenProps<any> {};

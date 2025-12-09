@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, setAnsweredPrayerRequestList } from '../redux-store';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONT_SIZES } from '../theme';
-import PrayerRequestCreate from './PrayerRequestCreate';
+import PrayerRequestCreate from './PrayerRequestCreateForm';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { PrayerRequestTouchable } from './prayer-request-widgets';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
@@ -72,7 +72,7 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                     animationType='slide'
                     transparent={true}
                 >
-                    <PrayerRequestCreate callback={() => {setPrayerRequestCreateModalVisible(false); ToastQueueManager.show({message: "Sucessfully created Prayer Request"}); }}/>
+                    <PrayerRequestCreate callback={() => {setPrayerRequestCreateModalVisible(false) }}/>
                 </Modal>
             </View>
 

@@ -10,9 +10,10 @@ import { DOMAIN } from "@env";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
-import { Outline_Button } from "../widgets";
+import { CheckBox, Outline_Button } from "../widgets";
 import { RecipientFormCircleListItem, RecipientFormViewMode, RecipientStatusEnum } from "../Widgets/RecipientIDList/recipient-types";
 import formatRelativeDate from "../utilities/dateFormat";
+import { DisplayItemType } from "../TypesAndInterfaces/config-sync/input-config-sync/search-config";
 
 export const RequestorCircleImage = (props:{style?:ImageStyle, imageUri?:string, circleID?:number}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
@@ -258,41 +259,18 @@ export const EventTouchable = (props:{circleEvent:CircleEventListItem, onPress:(
     );
 }
 
-export const CircleContact = (props:{circleRecipientData:RecipientFormCircleListItem, addCircleRecipient:((id:number) => void), removeCircleRecipient:((id:number) => void), addRemoveCircleRecipient:((id:number) => void), removeRemoveCircleRecipient:((id:number) => void)}):JSX.Element => {
+export const CircleContact = (props:{ circleRecipientData:RecipientFormCircleListItem, onButtonPress?: (id: number, item: DisplayItemType) => void}):JSX.Element => {
 
-    const [shareButtonText, setShareButtonText] = useState<RecipientStatusEnum>(props.circleRecipientData.recipientStatus);
+    const [selected, setSelected] = useState<boolean>([RecipientStatusEnum.CONFIRMED, RecipientStatusEnum.UNCONFIRMED_ADD].includes(props.circleRecipientData.recipientStatus) ? true : false)
+    const [unconfirmed, setUnconfirmed] = useState<boolean>([RecipientStatusEnum.UNCONFIRMED_ADD, RecipientStatusEnum.UNCONFIRMED_REMOVE].includes(props.circleRecipientData.recipientStatus) ? true : false)
     
     const handlePress = () => {
-        switch(props.circleRecipientData.viewMode) {
-            case RecipientFormViewMode.CREATING:
-                if (shareButtonText == RecipientStatusEnum.NOT_SELECTED) {
-                    props.addCircleRecipient(props.circleRecipientData.circleID);
-                    setShareButtonText(RecipientStatusEnum.UNCONFIRMED_ADD);
-                }
-                else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_ADD) {
-                    props.removeCircleRecipient(props.circleRecipientData.circleID);
-                    setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
-                }
-                break;
-            case RecipientFormViewMode.EDITING:
-                if (shareButtonText == RecipientStatusEnum.NOT_SELECTED) {
-                    props.addCircleRecipient(props.circleRecipientData.circleID);
-                    setShareButtonText(RecipientStatusEnum.UNCONFIRMED_ADD);
-                }
-                else if (shareButtonText == RecipientStatusEnum.CONFIRMED) {
-                    props.addRemoveCircleRecipient(props.circleRecipientData.circleID);
-                    setShareButtonText(RecipientStatusEnum.UNCONFIRMED_REMOVE);
-                }
-                else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_ADD) {
-                    props.removeCircleRecipient(props.circleRecipientData.circleID);
-                    setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
-                }
-                else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_REMOVE) {
-                    props.removeRemoveCircleRecipient(props.circleRecipientData.circleID);
-                    setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
-                }
-                break;
-        }
+        
+        if (selected) props.onButtonPress && props.onButtonPress(props.circleRecipientData.circleID, { ...props.circleRecipientData, selectionStatus: RecipientStatusEnum.NOT_SELECTED });
+        else if (!selected) props.onButtonPress && props.onButtonPress(props.circleRecipientData.circleID, { ...props.circleRecipientData, selectionStatus: RecipientStatusEnum.SELECTED });
+
+        setSelected(!selected)
+        setUnconfirmed(!unconfirmed)
     }
 
     const styles = StyleSheet.create({
@@ -370,13 +348,13 @@ export const CircleContact = (props:{circleRecipientData:RecipientFormCircleList
                     <Text allowFontScaling={false} style={styles.nameText}>{props.circleRecipientData.name}</Text>
                 </View>
                 <View style={styles.centerView}>
-                    <TouchableOpacity 
-                        onPress={handlePress}
-                    >  
-                        <View style={styles.shareButtonView}>
-                            <Text allowFontScaling={false} style={styles.textStyle}>{shareButtonText}</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <CheckBox 
+                        onChange={handlePress}
+                        //label={unconfirmed ? 'Pending' : ''}
+                        //labelStyle={selected && { color: COLORS.primary } || undefined}
+                        checkboxStyle={ unconfirmed ? [RecipientStatusEnum.NOT_SELECTED, RecipientStatusEnum.UNCONFIRMED_ADD].includes(props.circleRecipientData.recipientStatus)  ? { backgroundColor: COLORS.accent} : {backgroundColor: COLORS.primary} : undefined}
+                        initialState={selected}
+                    />
                 </View>
             </View>
         </View>

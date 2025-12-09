@@ -7,6 +7,9 @@ import { RootState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusEnum } from "../Widgets/RecipientIDList/recipient-types";
 import { render } from 'react-dom';
+import { CheckBox } from "../widgets";
+import { DisplayItemType } from "../TypesAndInterfaces/config-sync/input-config-sync/search-config";
+import { getTimeMeasureUtils } from "@reduxjs/toolkit/dist/utils";
 
 export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string, userID?:number}):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -51,41 +54,18 @@ export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string
     return <Image source={requestorImage} style={styles.profileImage} resizeMode="contain"></Image> 
 }
 
-export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileListItem, addUserRecipient:((id:number) => void), removeUserRecipient:((id:number) => void), addRemoveUserRecipient:((id:number) => void), removeRemoveUserRecipient:((id:number) => void)}):JSX.Element => {
+export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileListItem, onButtonPress?: (id: number, item: DisplayItemType) => void}):JSX.Element => {
 
-    const [shareButtonText, setShareButtonText] = useState<RecipientStatusEnum>(props.profileRecipientData.recipientStatus);
+    const [selected, setSelected] = useState<boolean>([RecipientStatusEnum.CONFIRMED, RecipientStatusEnum.UNCONFIRMED_ADD].includes(props.profileRecipientData.recipientStatus) ? true : false)
+    const [unconfirmed, setUnconfirmed] = useState<boolean>([RecipientStatusEnum.UNCONFIRMED_ADD, RecipientStatusEnum.UNCONFIRMED_REMOVE].includes(props.profileRecipientData.recipientStatus) ? true : false)
 
     const handlePress = () => {
-        switch(props.profileRecipientData.viewMode) {
-            case RecipientFormViewMode.CREATING:
-                if (shareButtonText == RecipientStatusEnum.NOT_SELECTED) {
-                    props.addUserRecipient(props.profileRecipientData.userID);
-                    setShareButtonText(RecipientStatusEnum.UNCONFIRMED_ADD);
-                }
-                else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_ADD) {
-                    props.removeUserRecipient(props.profileRecipientData.userID);
-                    setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
-                }
-                break;
-            case RecipientFormViewMode.EDITING:
-                if (shareButtonText == RecipientStatusEnum.NOT_SELECTED) {
-                    props.addUserRecipient(props.profileRecipientData.userID);
-                    setShareButtonText(RecipientStatusEnum.UNCONFIRMED_ADD);
-                }
-                else if (shareButtonText == RecipientStatusEnum.CONFIRMED) {
-                    props.addRemoveUserRecipient(props.profileRecipientData.userID);
-                    setShareButtonText(RecipientStatusEnum.UNCONFIRMED_REMOVE);
-                }
-                else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_ADD) {
-                    props.removeUserRecipient(props.profileRecipientData.userID);
-                    setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
-                }
-                else if (shareButtonText == RecipientStatusEnum.UNCONFIRMED_REMOVE) {
-                    props.removeRemoveUserRecipient(props.profileRecipientData.userID);
-                    setShareButtonText(RecipientStatusEnum.NOT_SELECTED);
-                }
-                break;
-        }
+       
+        if (selected) props.onButtonPress && props.onButtonPress(props.profileRecipientData.userID, { ...props.profileRecipientData, selectionStatus: RecipientStatusEnum.NOT_SELECTED });
+        else if (!selected) props.onButtonPress && props.onButtonPress(props.profileRecipientData.userID, { ...props.profileRecipientData, selectionStatus: RecipientStatusEnum.SELECTED });
+
+        setSelected(!selected)
+        setUnconfirmed(!unconfirmed)
     }
 
     const styles = StyleSheet.create({
@@ -160,17 +140,15 @@ export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileL
                     <Text allowFontScaling={false} style={styles.nameText}>{props.profileRecipientData.displayName}</Text>
                 </View>
                 <View style={styles.ShareButtonTopLevelView}>
-                    <TouchableOpacity 
-                        onPress={handlePress}
-                    >  
-                        <View style={styles.shareButtonView}>
-                            <Text allowFontScaling={false} style={styles.textStyle}>{shareButtonText}</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <CheckBox 
+                        onChange={handlePress}
+                        //label={unconfirmed ? 'Pending' : ''}
+                        //labelStyle={unconfirmed && { color: COLORS.primary, top: 25, left: 40} || undefined}
+                        checkboxStyle={ unconfirmed ? [RecipientStatusEnum.NOT_SELECTED, RecipientStatusEnum.UNCONFIRMED_ADD].includes(props.profileRecipientData.recipientStatus)  ? { backgroundColor: COLORS.accent} : {backgroundColor: COLORS.primary} : undefined}
+                        initialState={selected}
+                    />
                 </View>
             </View>
-           
-
         </View>
     )
 }
