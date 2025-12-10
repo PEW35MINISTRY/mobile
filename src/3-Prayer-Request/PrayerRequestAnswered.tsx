@@ -48,18 +48,18 @@ const PrayerRequestAnsweredPage =  ({navigation}:StackNavigationProps):JSX.Eleme
 
     return (
         <SafeAreaView style={styles.backgroundColor}>
-             <SearchList
+            <SearchList
                 key='prayer-request-answered-page'
                 name='prayer-request-answered-page'
                 pageTitle="Answered Prayer Requests"
                 backButtonNavigation={navigation}
                 footerItems={[<Filler />]}
                 displayMap={new Map([
-                        [
-                            new SearchListKey({displayTitle:'Answered', searchType: SearchType.NONE }),
-                            [...answeredPrayerRequests].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} ))
-                        ]
-                    ])}
+                    [
+                        new SearchListKey({displayTitle:'Answered', searchType: SearchType.NONE }),
+                        [...answeredPrayerRequests].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} ))
+                    ]
+                ])}
             />
         </SafeAreaView>
         

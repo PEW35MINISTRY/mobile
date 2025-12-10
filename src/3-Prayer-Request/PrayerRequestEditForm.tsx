@@ -16,7 +16,6 @@ import PrayerRequestEditData from './PrayerRequestEditData';
 import { CALLBACK_STATE, PrayerRequestEditContext } from '../TypesAndInterfaces/custom-types';
 
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
-    const formInputRef = useRef<FormSubmit>(null);
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const dispatch = useAppDispatch();
 

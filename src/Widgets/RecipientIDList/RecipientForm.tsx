@@ -150,7 +150,6 @@ export const RecipientForm = (props:{callback: (state:CALLBACK_STATE) => void, c
         const removeStatus = props.context.removeUserRecipientIDList !== undefined ? props.context.removeUserRecipientIDList.some((id:number) => id == recipientUserID) : undefined
         const confirmedStatus = props.context.userRecipientList !== undefined ? props.context.userRecipientList.some((item) => item.userID === recipientUserID) : undefined
 
-        //if (mutatedUser) return mutatedUser
         if (addStatus) return RecipientStatusEnum.UNCONFIRMED_ADD;
         else if (removeStatus) return RecipientStatusEnum.UNCONFIRMED_REMOVE;
         else if (confirmedStatus) return RecipientStatusEnum.CONFIRMED;
@@ -289,7 +288,6 @@ const styles = StyleSheet.create({
     },
     viewTypeView: {
         flexDirection: "row",
-        //top: 5,
         marginBottom: 25
     },
     viewTypeTextSelected: {

@@ -82,8 +82,6 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             alignItems: "center",
             flexDirection: "row",
             paddingRight: 3,
-            
-            //marginVertical: 6,
         },
         socialDataColumn: {
             flexDirection: "column"
@@ -242,10 +240,7 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
     return (
         <View style={styles.container}>
             <View style={styles.prayerRequestDataTopView}>
-
-                    <RequestorProfileImage style={{height: 30, width: 30}} imageUri={props.commentProp.commenterProfile.image}/>
-
-  
+                <RequestorProfileImage style={{height: 30, width: 30}} imageUri={props.commentProp.commenterProfile.image}/>
                 <View style={styles.middleData}>
                     <Text allowFontScaling={false} style={styles.nameText}>{props.commentProp.commenterProfile.displayName}</Text>
                     <Text allowFontScaling={false} style={styles.bodyText}>{props.commentProp.message}</Text>

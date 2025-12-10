@@ -9,7 +9,6 @@ import { RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusEnu
 import { render } from 'react-dom';
 import { CheckBox } from "../widgets";
 import { DisplayItemType } from "../TypesAndInterfaces/config-sync/input-config-sync/search-config";
-import { getTimeMeasureUtils } from "@reduxjs/toolkit/dist/utils";
 
 export const RequestorProfileImage = (props:{style?:ImageStyle, imageUri?:string, userID?:number}):JSX.Element => {
     const userID = useAppSelector((state: RootState) => state.account.userID);
@@ -142,8 +141,6 @@ export const ProfileContact = (props:{profileRecipientData:RecipientFormProfileL
                 <View style={styles.ShareButtonTopLevelView}>
                     <CheckBox 
                         onChange={handlePress}
-                        //label={unconfirmed ? 'Pending' : ''}
-                        //labelStyle={unconfirmed && { color: COLORS.primary, top: 25, left: 40} || undefined}
                         checkboxStyle={ unconfirmed ? [RecipientStatusEnum.NOT_SELECTED, RecipientStatusEnum.UNCONFIRMED_ADD].includes(props.profileRecipientData.recipientStatus)  ? { backgroundColor: COLORS.accent} : {backgroundColor: COLORS.primary} : undefined}
                         initialState={selected}
                     />

@@ -68,7 +68,7 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
             dispatch(addOwnedPrayerRequest(newPrayerRequestListItem));
             ToastQueueManager.show({message: "Sucessfully created Prayer Request"}); 
             props.callback();
-            }).catch((error:AxiosError<ServerErrorResponse>) => { setShowToastRef(true); ToastQueueManager.show({error})});
+        }).catch((error:AxiosError<ServerErrorResponse>) => { setShowToastRef(true); ToastQueueManager.show({error})});
     }
 
     return (

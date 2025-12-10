@@ -350,8 +350,6 @@ export const CircleContact = (props:{ circleRecipientData:RecipientFormCircleLis
                 <View style={styles.centerView}>
                     <CheckBox 
                         onChange={handlePress}
-                        //label={unconfirmed ? 'Pending' : ''}
-                        //labelStyle={selected && { color: COLORS.primary } || undefined}
                         checkboxStyle={ unconfirmed ? [RecipientStatusEnum.NOT_SELECTED, RecipientStatusEnum.UNCONFIRMED_ADD].includes(props.circleRecipientData.recipientStatus)  ? { backgroundColor: COLORS.accent} : {backgroundColor: COLORS.primary} : undefined}
                         initialState={selected}
                     />
