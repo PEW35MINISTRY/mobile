@@ -2,10 +2,26 @@ import { CircleListItem } from "../../TypesAndInterfaces/config-sync/api-type-sy
 import { ProfileListItem } from "../../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
 
 export enum RecipientStatusEnum {
-    NOT_SELECTED = "Share",
-    CONFIRMED = "Remove",
-    UNCONFIRMED_ADD = "Pending",
-    UNCONFIRMED_REMOVE = "Pending"
+    NOT_SELECTED = "NOT_SELECTED",
+    CONFIRMED = "CONFIRMED",
+    UNCONFIRMED_ADD = "UNCONFIRMED_ADD",
+    UNCONFIRMED_REMOVE = "UNCONFIRMED_REMOVE",
+    
+    SELECTED = "SELECTED",
+    UNSELECTED = "UNSELECTED"
+}
+
+export interface RecipientStatusMap {
+    [id: number]: RecipientStatusEnum
+}
+
+export interface RecipientStatusContext {
+    userRecipientList?: ProfileListItem[], 
+    circleRecipientList?: CircleListItem[], 
+    addUserRecipientIDList:number[],  
+    addCircleRecipientIDList:number[],
+    removeUserRecipientIDList?:number[], 
+    removeCircleRecipientIDList?:number[], 
 }
 
 export enum RecipientFormViewMode {
@@ -15,10 +31,10 @@ export enum RecipientFormViewMode {
 
 export interface RecipientFormCircleListItem extends CircleListItem {
     recipientStatus: RecipientStatusEnum, // flag for displaying the list item at the top of selection list
-    viewMode: RecipientFormViewMode, // differentiating between editing and creating; helps determine what functions to call to add/remove user/circle to correct list
+    selectionStatus?: RecipientStatusEnum
 }
 
 export interface RecipientFormProfileListItem extends ProfileListItem {
     recipientStatus: RecipientStatusEnum, // flag for displaying the list item at the top of selection list
-    viewMode: RecipientFormViewMode, // differentiating between editing and creating; helps determine what functions to call to add/remove user/circle to correct list
+    selectionStatus?: RecipientStatusEnum
 }

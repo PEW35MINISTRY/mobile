@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, setAnsweredPrayerRequestList } from '../redux-store';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONT_SIZES } from '../theme';
-import PrayerRequestCreate from './PrayerRequestCreate';
+import PrayerRequestCreate from './PrayerRequestCreateForm';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { PrayerRequestTouchable } from './prayer-request-widgets';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
@@ -49,30 +49,30 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
  return (
         <SafeAreaView style={styles.backgroundColor}>
             <View style={styles.container}>
-            <SearchList
-                key='prayer-request-main-page'
-                name='prayer-request-main-page'
-                defaultDisplayKey='Received'
-                showMultiListFilter={true}
-                footerItems={[<Filler />]}
-                displayMap={new Map([
-                        [
-                            new SearchListKey({displayTitle:'Received', searchType: SearchType.NONE }),
-                            receivingPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} ))
-                        ],
-                        [
-                            new SearchListKey({displayTitle:'Owned', searchType: SearchType.NONE }),
-                            userOwnedPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest }) }))
-                        ],
-                    ])}
-            />
+                <SearchList
+                    key='prayer-request-main-page'
+                    name='prayer-request-main-page'
+                    defaultDisplayKey='Received'
+                    showMultiListFilter={true}
+                    footerItems={[<Filler />]}
+                    displayMap={new Map([
+                            [
+                                new SearchListKey({displayTitle:'Received', searchType: SearchType.NONE }),
+                                receivingPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} ))
+                            ],
+                            [
+                                new SearchListKey({displayTitle:'Owned', searchType: SearchType.NONE }),
+                                userOwnedPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest }) }))
+                            ],
+                        ])}
+                />
                 <Modal 
                     visible={prayerRequestCreateModalVisible}
                     onRequestClose={() => setPrayerRequestCreateModalVisible(false)}
                     animationType='slide'
                     transparent={true}
                 >
-                    <PrayerRequestCreate callback={() => {setPrayerRequestCreateModalVisible(false); ToastQueueManager.show({message: "Sucessfully created Prayer Request"}); }}/>
+                    <PrayerRequestCreate callback={() => {setPrayerRequestCreateModalVisible(false) }}/>
                 </Modal>
             </View>
 

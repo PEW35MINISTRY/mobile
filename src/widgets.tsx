@@ -45,10 +45,9 @@ export const Flat_Button = (props:{text:string|JSX.Element, buttonStyle?:ViewSty
              </TouchableOpacity> );
 }
 
-export const CheckBox = (props:{ label?: string, labelStyle?: object, iconColor?: string, onChange: (value:boolean) => void, initialState?:boolean}):JSX.Element => {
+export const CheckBox = (props:{ label?: string, labelStyle?: object, checkboxStyle?:ViewStyle, iconColor?: string, onChange: (value:boolean) => void, initialState?:boolean}):JSX.Element => {
     
     const [checked, setChecked] = useState<boolean>(props.initialState === undefined ? false : props.initialState);
-    
     const onChange = () => {
         setChecked(!checked);
         props.onChange(!checked);
@@ -56,10 +55,11 @@ export const CheckBox = (props:{ label?: string, labelStyle?: object, iconColor?
 
     const styles = StyleSheet.create({
         checkBox: {
+          ...props.checkboxStyle,
           width: 25,
           height: 25,
           borderWidth: 1,
-          borderColor: '#000',
+          borderColor: COLORS.white,
           justifyContent: "center",
           alignItems: "center"
         },
@@ -76,16 +76,16 @@ export const CheckBox = (props:{ label?: string, labelStyle?: object, iconColor?
     
       return (
         <View style={styles.wrapperCheckBox}>
-          <Text allowFontScaling={false} style={[styles.labelCheck, props.labelStyle]}>
+          <Text allowFontScaling={false} style={props.labelStyle ?? styles.labelCheck }>
             {props.label}
           </Text>
           <TouchableOpacity onPress={onChange} style={[
-            styles.checkBox, {borderColor: COLORS.white}
+            styles.checkBox
           ]}>
             {
               checked ? <Ionicons name="checkmark-outline"
                 color={COLORS.white}
-                size={30}
+                size={24}
               /> : null
             }
           </TouchableOpacity>
@@ -982,6 +982,27 @@ export const Confirmation = (props:{callback:(() => void), onCancel:(() => void)
                 />
             </View>
             <Toast />
+        </SafeAreaView>
+    )
+}
+
+export const ProcessingFiller = (props:{callback:((args?:any) => void)}) => {
+    const styles = StyleSheet.create({
+        default: {
+            backgroundColor: COLORS.black,
+            flex: 1
+        },
+        text: {
+            ...theme.title,
+            fontSize: 32,
+            textAlign: "center"
+        }
+    })
+
+    return (
+        <SafeAreaView style={styles.default}>
+            <Text style={styles.text}>Please wait</Text>
+            <BackButton callback={props.callback} />
         </SafeAreaView>
     )
 }
