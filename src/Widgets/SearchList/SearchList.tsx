@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent, SafeAreaView, Platform } from 'react-native';
 import { SearchFilterIdentifiable, SearchListKey, SearchListValue} from './searchList-types';
 import { ContentListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/content-types';
@@ -63,7 +63,6 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
     /* Search List State */
     const [displayList, setDisplayList] = useState<SearchListValue[]>([]);
     const [selectedKey, setSelectedKey] = useState<SearchListKey>(new SearchListKey(Array.from(props.displayMap.keys()).find((element:SearchListKey) => element.displayTitle === props.defaultDisplayKey) || {displayTitle: 'Default'}));
-    //const searchButtonCache = useMemo(() => assembleSearchButtonCache(), [props.displayMap]); //Quick pairing for accurate button options
     const [searchButtonCache, setSearchButtonCache] = useState<Map<string, SearchListValue>|undefined>(undefined);
     const [appliedFilter, setAppliedFilter] = useState<SearchFilterIdentifiable | undefined>(undefined);
     const [searchTerm, setSearchTerm] = useState<string|undefined>(undefined);
@@ -120,6 +119,9 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
         resetDefaultDisplayList();
     },[props.displayMap]);
 
+    useEffect(() => {
+        assembleSearchButtonCache();
+    }, [props.displayMap]);
 
     /**************************************************************
      *                          SERVER SEARCH
@@ -238,7 +240,6 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
         else setDisplayList(getList(keyTitle));
         setAppliedFilter(undefined);
         setSearchTerm(undefined);
-        //ToastQueueManager.show({message: 'Page Reset'});
     };
 
 

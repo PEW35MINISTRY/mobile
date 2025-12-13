@@ -218,14 +218,8 @@ export const RecipientForm = (props:{callback: (state:CALLBACK_STATE) => void, c
 
     useEffect(() => {
         constructUserRecipientList();
-    }, [])
-
-    useEffect(() => {
         constructCircleRecipientList();
-    }, [])
-
-    useEffect(() => {
-        setShowToastRef(true)
+        setShowToastRef(true);
     }, [])
 
     return (
