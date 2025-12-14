@@ -1,4 +1,5 @@
 /***** ONLY DEPENDENCY:./inputField - Define all other types locally *****/
+import { RecipientFormCircleListItem, RecipientFormProfileListItem } from '../../../Widgets/RecipientIDList/recipient-types';
 import { CircleListItem, CircleAnnouncementListItem, CircleEventListItem } from '../api-type-sync/circle-types';
 import { ContentListItem } from '../api-type-sync/content-types';
 import { PrayerRequestListItem, PrayerRequestCommentListItem } from '../api-type-sync/prayer-request-types';
@@ -19,7 +20,7 @@ import { RoleEnum, UserSearchRefineEnum } from './profile-field-config';
 
 export type LabelListItem = string;
 
-export type DisplayItemType = LabelListItem | ProfileListItem | CircleListItem | CircleAnnouncementListItem | CircleEventListItem | PrayerRequestListItem | PrayerRequestCommentListItem | ContentListItem;
+export type DisplayItemType = LabelListItem | ProfileListItem | CircleListItem | CircleAnnouncementListItem | CircleEventListItem | PrayerRequestListItem | PrayerRequestCommentListItem | ContentListItem | RecipientFormProfileListItem | RecipientFormCircleListItem;
 
 /* Used for Mapping UI Components */
 export enum ListItemTypesEnum {
@@ -33,6 +34,8 @@ export enum ListItemTypesEnum {
     PRAYER_REQUEST = 'PRAYER_REQUEST',
     PRAYER_REQUEST_COMMENT = 'PRAYER_REQUEST_COMMENT',
     CONTENT_ARCHIVE = 'CONTENT_ARCHIVE',
+    PROFILE_CONTACT = 'PROFILE_CONTACT',
+    CIRCLE_CONTACT = 'CIRCLE_CONTACT'
 }
 
 /* SEARCH CONFIGURATION */

@@ -8,7 +8,7 @@ import { addAnsweredPrayerRequest, addOwnedPrayerRequest, removeAnsweredPrayerRe
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
-import PrayerRequestEditForm from './PrayerRequestEdit';
+import PrayerRequestEditForm from './PrayerRequestEditForm';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
 import { BackButton, EditButton, Filler } from '../widgets';
@@ -20,6 +20,7 @@ import { ProfileListItem } from '../TypesAndInterfaces/config-sync/api-type-sync
 import { CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
+import Toast from 'react-native-toast-message';
 
 export interface PrayerRequestDisplayParamList{
     PrayerRequestProps: PrayerRequestListItem,
@@ -269,7 +270,6 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                     </View>
                     {appPrayerRequestListItem.requestorProfile.userID === userID && <EditButton callback={() => setPrayerRequestEditModalVisible(true)} /> }
                     <BackButton navigation={navigation} />
-                    
                 </View>    
             )
         }

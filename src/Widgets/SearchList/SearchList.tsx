@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent, SafeAreaView, Platform } from 'react-native';
 import { SearchFilterIdentifiable, SearchListKey, SearchListValue} from './searchList-types';
 import { ContentListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/content-types';
@@ -17,10 +17,12 @@ import debounce from '../../utilities/debounceHook';
 import { PrayerRequestListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { PrayerRequestTouchable } from '../../3-Prayer-Request/prayer-request-widgets';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack/lib/typescript/src/types';
-import { AnnouncementTouchable, CircleTouchable } from '../../2-Circles/circle-widgets';
+import { AnnouncementTouchable, CircleContact, CircleTouchable } from '../../2-Circles/circle-widgets';
 import { CircleAnnouncementListItem, CircleListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PendingPrayerPartnerListItem, PrayerPartnerListItem } from '../../4-Partners/partnership-widgets';
 import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
+import { ProfileContact } from '../../1-Profile/profile-widgets';
+import { RecipientFormCircleListItem, RecipientFormProfileListItem } from '../RecipientIDList/recipient-types';
 
 /*********************************************************************************
  *                DYNAMIC SEARCH & DISPLAY LIST                                  *
@@ -61,7 +63,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
     /* Search List State */
     const [displayList, setDisplayList] = useState<SearchListValue[]>([]);
     const [selectedKey, setSelectedKey] = useState<SearchListKey>(new SearchListKey(Array.from(props.displayMap.keys()).find((element:SearchListKey) => element.displayTitle === props.defaultDisplayKey) || {displayTitle: 'Default'}));
-    const searchButtonCache = useMemo(() => assembleSearchButtonCache(), [props.displayMap]); //Quick pairing for accurate button options
+    const [searchButtonCache, setSearchButtonCache] = useState<Map<string, SearchListValue>|undefined>(undefined);
     const [appliedFilter, setAppliedFilter] = useState<SearchFilterIdentifiable | undefined>(undefined);
     const [searchTerm, setSearchTerm] = useState<string|undefined>(undefined);
     const [lastEmptySearchTerm, setLastEmptySearchTerm] = useState<string|undefined>(undefined); //Efficiently detect failed sequential searches
@@ -117,6 +119,9 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
         resetDefaultDisplayList();
     },[props.displayMap]);
 
+    useEffect(() => {
+        assembleSearchButtonCache();
+    }, [props.displayMap]);
 
     /**************************************************************
      *                          SERVER SEARCH
@@ -148,7 +153,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                 const displayType:ListItemTypesEnum = selectedDetail.itemType;
 
                 Array.from(response.data).forEach((displayItem) => {
-                    let listValueItem:SearchListValue|undefined = searchButtonCache.get(getSearchButtonCacheKey(selectedDetail, selectedDetail.itemType, displayItem)); //First attempt local cache
+                    let listValueItem:SearchListValue|undefined = searchButtonCache ? searchButtonCache.get(getSearchButtonCacheKey(selectedDetail, selectedDetail.itemType, displayItem)) : undefined; //First attempt local cache
 
                     if(listValueItem === undefined) {
                         listValueItem = new SearchListValue({displayType, displayItem: displayItem, 
@@ -180,7 +185,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
     //Save Map as: 'displayType-id' : SearchListValue = CIRCLE-1 : {...}
     const getSearchButtonCacheKey = (searchKey:SearchTypeInfo<DisplayItemType>, displayType:ListItemTypesEnum, item:DisplayItemType) => `${displayType}-${searchKey.getID(item)}`;
 
-    const assembleSearchButtonCache = ():Map<string, SearchListValue> => { 
+    const assembleSearchButtonCache = () => { 
         const cacheMap = new Map();
         Array.from(props.displayMap.entries()).forEach(([key, list]:[SearchListKey, SearchListValue[]]) => {
             const detail = getSearchDetail(key.searchType);
@@ -189,7 +194,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                     cacheMap.set(getSearchButtonCacheKey(SearchDetail[key.searchType], item.displayType, item.displayItem), item);
             });
         });
-        return cacheMap;
+        setSearchButtonCache(cacheMap);
     }
 
 
@@ -235,7 +240,6 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
         else setDisplayList(getList(keyTitle));
         setAppliedFilter(undefined);
         setSearchTerm(undefined);
-        //ToastQueueManager.show({message: 'Page Reset'});
     };
 
 
@@ -374,7 +378,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                                     partner={item.displayItem as PartnerListItem} onPress={item.onPress}
                                     buttonText={item.primaryButtonText} onButtonPress={item.onPrimaryButtonCallback} 
                                 />
-
+                            
                             : item.displayType === ListItemTypesEnum.CIRCLE ? 
                                 <CircleTouchable {...item} key={`circle-${props.key}-${index}`}
                                     circleProps={item.displayItem as CircleListItem} onPress={item.onPress} 
@@ -385,7 +389,15 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                                 <AnnouncementTouchable {...item} key={`circle-announcement-${props.key}-${index}`}
                                     announcement={item.displayItem as CircleAnnouncementListItem} onPress={item.onPress} showCircleImage={true}
                                 />
-                                
+                            : item.displayType === ListItemTypesEnum.PROFILE_CONTACT ? 
+                                <ProfileContact {...item} key={`profile-contact-${props.key}-${index}`}
+                                    profileRecipientData={item.displayItem as RecipientFormProfileListItem} onButtonPress={item.onPrimaryButtonCallback}
+                                />
+                            : item.displayType === ListItemTypesEnum.CIRCLE_CONTACT ? 
+                                <CircleContact { ...item} key={`circle-contact-${props.key}-${index}`}
+                                    circleRecipientData={item.displayItem as RecipientFormCircleListItem} onButtonPress={item.onPrimaryButtonCallback}
+                                />
+
                             : <Text allowFontScaling={false}>ERROR</Text> }
                         </React.Fragment>
                     ))}
