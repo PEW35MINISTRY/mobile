@@ -126,6 +126,7 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
                 key='partner-main-page'
                 name='partner-main-page'
                 footerItems={[<Filler />]}
+                headerItems={[<Filler fillerStyle={Platform.OS === 'android' ? styles.fillerHeightAndroid : styles.fillerHeightIos}/>]}
                 displayMap={new Map([
                         [
                             new SearchListKey({displayTitle:'Partners', searchType: SearchType.NONE }),
@@ -228,7 +229,12 @@ const styles = StyleSheet.create({
     height: '40%',
     marginTop: 'auto',
   },
-
+  fillerHeightAndroid: {
+    height: 35
+  },
+  fillerHeightIos: {
+    height: 15
+  }
 })
 
 export default Partnerships;
