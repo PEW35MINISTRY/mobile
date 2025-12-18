@@ -59,8 +59,8 @@ const PrayerRequestEditData = (props:{callback: (state:CALLBACK_STATE) => void, 
                     />
                 </Modal>
             </View>
-            <DeleteButton callback={() => setDeletePrayerRequestModalVisible(true)} buttonView={ (Platform.OS === 'ios' && {top: 25}) || undefined}/>
-            <XButton callback={() => props.callback(CALLBACK_STATE.EXIT)} buttonView={ (Platform.OS === 'ios' && {top: 25 }) || undefined} />
+            <DeleteButton callback={() => setDeletePrayerRequestModalVisible(true)} buttonView={ styles.fillerHeight}/>
+            <XButton callback={() => props.callback(CALLBACK_STATE.EXIT)} buttonView={ styles.fillerHeight } />
         </SafeAreaView>  
     )
               
@@ -99,6 +99,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         alignSelf: "center"
+    },
+    fillerHeight: {
+        top: 25
     }
 })
 
