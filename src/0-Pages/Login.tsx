@@ -94,7 +94,10 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
             text='Sign In'
             onPress={() => formInputRef.current !== null  && formInputRef.current.onHandleSubmit()}
         />
-        <View style={theme.horizontal_row}>
+        { 
+          //minHeight: 20, top: -5
+        }
+        <View style={{...theme.horizontal_row, minHeight: 20, top: -5}}>
             <Outline_Button text='Forgot Password' onPress={onForgotPassword} />
             <View style={theme.vertical_divider} ></View>
             <Flat_Button text='Create Account' onPress={onSignUp} />
