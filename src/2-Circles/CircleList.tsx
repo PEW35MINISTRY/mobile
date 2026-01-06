@@ -46,12 +46,6 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
-    useEffect(() => {
-        if(circleModals.length == 0) {
-            navigation.navigate(ROUTE_NAMES.CIRCLE_SEARCH_ROUTE_NAME);
-        }   
-    }, []);
-
     // Update circle list and re-render if a user joins or leaves a circle
     useEffect(() => {
         setCircleModals([...userCircles || [], ...userInviteCircles || [], ...userRequestCircles || []]);
