@@ -94,10 +94,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
             text='Sign In'
             onPress={() => formInputRef.current !== null  && formInputRef.current.onHandleSubmit()}
         />
-        { 
-          //minHeight: 20, top: -5
-        }
-        <View style={{...theme.horizontal_row, minHeight: 20, top: -5}}>
+        <View style={styles.buttonsView}>
             <Outline_Button text='Forgot Password' onPress={onForgotPassword} />
             <View style={theme.vertical_divider} ></View>
             <Flat_Button text='Create Account' onPress={onSignUp} />
@@ -142,6 +139,11 @@ const styles = StyleSheet.create({
   },
   sign_in_button: {
     marginVertical: 15,
+  },
+  buttonsView: {
+    ...theme.horizontal_row,
+    minHeight: 20,
+    top: -5
   }
 });
 
