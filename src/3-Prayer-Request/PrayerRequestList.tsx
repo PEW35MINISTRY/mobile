@@ -48,34 +48,32 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
 
  return (
         <SafeAreaView style={styles.backgroundColor}>
-            <View style={styles.container}>
-                <SearchList
-                    key='prayer-request-main-page'
-                    name='prayer-request-main-page'
-                    defaultDisplayKey='Received'
-                    showMultiListFilter={true}
-                    footerItems={[<Filler />]}
-                    displayMap={new Map([
-                            [
-                                new SearchListKey({displayTitle:'Received', searchType: SearchType.NONE }),
-                                receivingPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} ))
-                            ],
-                            [
-                                new SearchListKey({displayTitle:'Owned', searchType: SearchType.NONE }),
-                                userOwnedPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest }) }))
-                            ],
-                        ])}
-                />
-                <Modal 
-                    visible={prayerRequestCreateModalVisible}
-                    onRequestClose={() => setPrayerRequestCreateModalVisible(false)}
-                    animationType='slide'
-                    transparent={true}
-                >
-                    <PrayerRequestCreate callback={() => {setPrayerRequestCreateModalVisible(false) }}/>
-                </Modal>
-            </View>
-
+            <SearchList
+                key='prayer-request-main-page'
+                name='prayer-request-main-page'
+                defaultDisplayKey='Received'
+                emptyListPlaceholderText='Create your first prayer request'
+                showMultiListFilter={true}
+                footerItems={[<Filler />]}
+                displayMap={new Map([
+                        [
+                            new SearchListKey({displayTitle:'Received', searchType: SearchType.NONE }),
+                            receivingPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} ))
+                        ],
+                        [
+                            new SearchListKey({displayTitle:'Owned', searchType: SearchType.NONE }),
+                            userOwnedPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest }) }))
+                        ],
+                    ])}
+            />
+            <Modal 
+                visible={prayerRequestCreateModalVisible}
+                onRequestClose={() => setPrayerRequestCreateModalVisible(false)}
+                animationType='slide'
+                transparent={true}
+            >
+                <PrayerRequestCreate callback={() => {setPrayerRequestCreateModalVisible(false) }}/>
+            </Modal>
             <View style={styles.prayerRequestCreateButton}>
                 <TouchableOpacity
                         onPress={() => setPrayerRequestCreateModalVisible(true)}
