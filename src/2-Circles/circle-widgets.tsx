@@ -11,7 +11,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import { CheckBox, Outline_Button } from "../widgets";
-import { RecipientFormCircleListItem, RecipientFormViewMode, RecipientStatusEnum } from "../Widgets/RecipientIDList/recipient-types";
+import { RecipientFormCircleListItem, RecipientFormViewMode, RecipientStatusEnum } from "../TypesAndInterfaces/config-sync/api-type-sync/recipient-types";
 import formatRelativeDate from "../utilities/dateFormat";
 import { DisplayItemType } from "../TypesAndInterfaces/config-sync/input-config-sync/search-config";
 

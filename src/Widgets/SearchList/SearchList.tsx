@@ -22,7 +22,7 @@ import { CircleAnnouncementListItem, CircleListItem } from '../../TypesAndInterf
 import { PendingPrayerPartnerListItem, PrayerPartnerListItem } from '../../4-Partners/partnership-widgets';
 import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { ProfileContact } from '../../1-Profile/profile-widgets';
-import { RecipientFormCircleListItem, RecipientFormProfileListItem } from '../RecipientIDList/recipient-types';
+import { RecipientFormCircleListItem, RecipientFormProfileListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/recipient-types';
 import EMPTY_LIST from "../../../assets/empty-list.png";
 
 /*********************************************************************************

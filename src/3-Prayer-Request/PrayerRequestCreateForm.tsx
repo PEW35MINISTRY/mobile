@@ -62,8 +62,12 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
                     image: userProfile.image,
                 },
                 topic: prayerRequest.topic,
-                prayerCount: 0,
-                tagList: newPrayerRequest.tagList
+                description: prayerRequest.description,
+                tagList: newPrayerRequest.tagList ?? [],
+                prayerCount: newPrayerRequest.prayerCount,
+                prayerCountRecipient: 0,
+                createdDT: newPrayerRequest.createdDT,
+                modifiedDT: newPrayerRequest.modifiedDT                
             }
             dispatch(addOwnedPrayerRequest(newPrayerRequestListItem));
             ToastQueueManager.show({message: "Sucessfully created Prayer Request"}); 

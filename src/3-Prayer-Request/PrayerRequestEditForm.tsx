@@ -70,7 +70,8 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
                 const newPrayerRequestListItem:PrayerRequestListItem = {...props.prayerRequestListData};
 
                 newPrayerRequestListItem.topic = newPrayerRequest.topic;
-                newPrayerRequestListItem.tagList = newPrayerRequest.tagList;
+                newPrayerRequestListItem.description = newPrayerRequest.description;
+                newPrayerRequestListItem.tagList = newPrayerRequest.tagList ?? [];
 
                 ToastQueueManager.show({message: "Prayer Request saved"})
 

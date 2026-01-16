@@ -5,7 +5,7 @@ import { RootState } from "../../redux-store";
 import { ProfileListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { CircleListItem } from "../../TypesAndInterfaces/config-sync/api-type-sync/circle-types";
 import { BackButton, Dropdown_Select, Filler, Input_Field, Raised_Button } from "../../widgets";
-import { RecipientFormCircleListItem, RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusContext, RecipientStatusEnum } from "./recipient-types";
+import { RecipientFormCircleListItem, RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusEnum } from "../../TypesAndInterfaces/config-sync/api-type-sync/recipient-types";
 import theme, { COLORS } from "../../theme";
 import SearchList from "../SearchList/SearchList";
 import { SearchListKey, SearchListValue } from "../SearchList/searchList-types";
