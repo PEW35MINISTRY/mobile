@@ -5,7 +5,7 @@ import { ImageStyle, ImageSourcePropType, StyleSheet, Image, Text, View, Touchab
 import { useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
-import { RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusEnum } from "../Widgets/RecipientIDList/recipient-types";
+import { RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusEnum } from "../TypesAndInterfaces/config-sync/api-type-sync/recipient-types";
 import { render } from 'react-dom';
 import { CheckBox } from "../widgets";
 import { DisplayItemType } from "../TypesAndInterfaces/config-sync/input-config-sync/search-config";

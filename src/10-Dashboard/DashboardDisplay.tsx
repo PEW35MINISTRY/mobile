@@ -60,7 +60,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                 showMultiListFilter={false}
                 displayMap={new Map([
                         [
-                            new SearchListKey({displayTitle:'Announcements'}),
+                            new SearchListKey({displayTitle:'Notifications'}),
                             [...circleAnnouncementList].map((announcement) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcement,
                                 onPress: (id, announcementItem) => (announcement.circleID > 0) && navigation.navigate(ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME, { 
                                     params: {CircleProps: {circleID: announcement.circleID, name: '', image: ''}},

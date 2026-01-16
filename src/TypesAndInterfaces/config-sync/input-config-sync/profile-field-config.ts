@@ -113,7 +113,6 @@ export const EDIT_PROFILE_FIELDS_ADMIN:InputField[] = [
     new InputSelectionField({title: 'Account Type', field: 'userRoleTokenList', type: InputType.CUSTOM, selectOptionList: Object.values(RoleEnum) }),
     new InputSelectionField({title: 'Source Environment', field: 'modelSourceEnvironment', required: true, type: InputType.SELECT_LIST, selectOptionList: Object.values(ModelSourceEnvironmentEnum), environmentList:[ENVIRONMENT_TYPE.DEVELOPMENT]}),
     new InputField({title: 'Email Address', field: 'email', type: InputType.EMAIL, required: true, unique: true,  validationRegex: EMAIL_REGEX }),
-    new InputSelectionField({title: 'Email Verified', field: 'emailVerified', required: true, type: InputType.SELECT_LIST, selectOptionList: ['true', 'false']}),
     ...EDIT_PROFILE_FIELDS,
     new InputSelectionField({title: 'Gender', field: 'gender', type: InputType.SELECT_LIST, required: true, selectOptionList: Object.values(GenderEnum)}),
     new InputField({title: 'Date of Birth', field: 'dateOfBirth', type: InputType.DATE, required: true, value: getDOBMaxDate(RoleEnum.USER).toISOString(), validationRegex: DATE_REGEX, validationMessage: 'Must be age 13 or older.'  }),
@@ -124,7 +123,6 @@ export const EDIT_PROFILE_FIELDS_ADMIN:InputField[] = [
 ];
 
 export const SIGNUP_PROFILE_FIELDS_USER:InputField[] = [
-    new InputField({title: 'Beta Token', field: 'betaToken', type: InputType.TEXT, required: true, length:{min:1, max:15}, validationRegex: new RegExp(/PAT/, 'i') }),
     new InputField({title: 'First Name', field: 'firstName', type: InputType.TEXT, required: true, length:{min:1, max:30} }),
     new InputField({title: 'Last Name', field: 'lastName', type: InputType.TEXT, required: true, length:{min:1, max:30} }),
     new InputField({title: 'Public Name', field: 'displayName', type: InputType.TEXT, required: true, unique: true, length:{min:5, max:15}, validationRegex: PLAIN_TEXT_REGEX }),
@@ -144,4 +142,4 @@ export const SIGNUP_PROFILE_FIELDS:InputField[] = [
     ...SIGNUP_PROFILE_FIELDS_USER,
 ];
 
-export const PARTNERSHIP_CONTRACT = (userName:string, partnerName:string):string => `I ${userName} promise to pray for ${partnerName} every day, as agreed upon in this contract, while ensuring our conversations remain private. This daily commitment remains in place until our partnership ends. By signing this agreement, I confirm my dedication to our prayer partnership and look forward to the positive impact it will have on both of us.`;
+export const PARTNERSHIP_CONTRACT = (userName:string, partnerName:string):string => `I ${userName} promise to do my best to pray for ${partnerName} every day, as agreed upon in this contract, and to keep our conversations private. This daily commitment remains in place until our partnership ends. By signing this agreement, I confirm my dedication to our prayer partnership and look forward to the positive impact it will have on both of us.`;
