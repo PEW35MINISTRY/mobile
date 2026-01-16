@@ -1,10 +1,10 @@
-import { DOMAIN } from '@env';
+import { DOMAIN, PRAYER_REQUEST_TIME_COUNT_MAX } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, KeyboardAvoidingView } from 'react-native';
 import { PrayerRequestCommentListItem, PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { addAnsweredPrayerRequest, addOwnedPrayerRequest, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeOwnedPrayerRequest, RootState, setOwnedPrayerRequests } from '../redux-store';
+import { addAnsweredPrayerRequest, addOwnedPrayerRequest, addPrayerRequestTimeItem, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeOwnedPrayerRequest, removePrayerRequestTimeItem, RootState, setOwnedPrayerRequests, setPrayerRequestTimeState } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
@@ -24,7 +24,9 @@ import Toast from 'react-native-toast-message';
 
 export interface PrayerRequestDisplayParamList{
     PrayerRequestProps: PrayerRequestListItem,
-    navigateToEdit?: boolean
+    navigateToEdit?: boolean,
+    wasEdited?: boolean,
+    wasNew?: boolean
 }
 type PrayerRequestDisplayProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME>;
 
@@ -34,16 +36,22 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const ownedPrayerRequests = useAppSelector((state:RootState) => state.account.userProfile.ownedPrayerRequestList);
+    const prayerRequestQueue = useAppSelector((state: RootState) => state.prayerRequestTime.prayerRequestQueue);
     
     const [appPrayerRequestListItem, setAppPrayerRequestListItem] = useState<PrayerRequestListItem>({
         prayerRequestID: -1,
+        description: "",
+        tagList: [],
+        prayerCountRecipient: 0,
         requestorProfile: {
             userID: -1,
             firstName: "",
             displayName: ""
         }, 
         topic: "",
-        prayerCount: -1
+        prayerCount: -1,
+        createdDT: '0',
+        modifiedDT: '0'
     });
     const [currPrayerRequestState, setCurrPrayerRequestState] = useState<PrayerRequestResponseBody | undefined>(undefined);
     const [dataFetchComplete, setDataFetchComplete] = useState(false); // toggles wait screen 
@@ -162,6 +170,29 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
             navigation.goBack();
         }
     }
+
+    useEffect(() => {
+        const prayerRequestItem = route.params.PrayerRequestProps;
+
+        const wasNew = prayerRequestItem.requestorProfile.userID !== userID && !prayerRequestQueue.some((item) => item.id === prayerRequestItem.prayerRequestID);
+        const wasEdited = prayerRequestItem.requestorProfile.userID !== userID && prayerRequestQueue.some((item) => { item.id === prayerRequestItem.prayerRequestID ? new Date(item.lastViewedTime) < new Date(prayerRequestItem.modifiedDT) : false });
+        
+        if (wasEdited) {
+            dispatch(removePrayerRequestTimeItem(prayerRequestItem.prayerRequestID))
+            dispatch(addPrayerRequestTimeItem({ id: prayerRequestItem.prayerRequestID, lastViewedTime: new Date().toISOString()}))
+        } else if (wasNew) {
+            if (prayerRequestQueue.length >= parseInt(PRAYER_REQUEST_TIME_COUNT_MAX)) {
+                const newQueue = [...prayerRequestQueue];
+                newQueue.shift();
+                newQueue.push({ id: prayerRequestItem.prayerRequestID, lastViewedTime: new Date().toISOString()})
+                dispatch(setPrayerRequestTimeState({ prayerRequestQueue: newQueue} ))
+            }
+            else {
+                dispatch(addPrayerRequestTimeItem({ id: prayerRequestItem.prayerRequestID, lastViewedTime: new Date().toISOString()}))
+            }
+        }
+
+    }, []) 
 
     useEffect(() => {
         if (route.params.PrayerRequestProps !== undefined) renderPrayerRequest(route.params.PrayerRequestProps);

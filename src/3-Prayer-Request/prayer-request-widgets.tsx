@@ -1,6 +1,6 @@
 import { DOMAIN } from "@env";
 import axios, { AxiosError } from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
 import { PrayerRequestCommentListItem, PrayerRequestListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types";
 import { PrayerRequestTagEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config";
@@ -15,9 +15,14 @@ import ToastQueueManager from "../utilities/ToastQueueManager";
 export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestListItem, onPress?:((id:number, item:PrayerRequestListItem) => void), callback?:(() => void)}):JSX.Element => {
     const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
+    const userID = useAppSelector((state: RootState) => state.account.userID);
     
-    const [prayerCount, setPrayerCount] = useState(props.prayerRequestProp.prayerCount);
-    const [hasPrayed, setHasPrayed] = useState(false); // Because the server doesn't have a dislike route, and there is no limit on how many times the same user likes, prevent the user from sending a like request when they have previously liked the PR
+    const prayerRequestQueue = useAppSelector((state: RootState) => state.prayerRequestTime.prayerRequestQueue);
+
+    const [prayerCount, setPrayerCount] = useState(props.prayerRequestProp.prayerCountRecipient);
+    const [hasPrayed, setHasPrayed] = useState(false); // Because the server doesn't have a dislike route, and there is no limit on how many times the same user likes, prevent the user from sending a like request when they have previously liked the P
+    const [isNew, setIsNew] = useState(props.prayerRequestProp.requestorProfile.userID !== userID && !prayerRequestQueue.some((item) => item.id === props.prayerRequestProp.prayerRequestID));
+    const [isEdited, setIsEdited] = useState(props.prayerRequestProp.requestorProfile.userID !== userID && prayerRequestQueue.some((item) => { item.id === props.prayerRequestProp.prayerRequestID ? new Date(item.lastViewedTime) < new Date(props.prayerRequestProp.modifiedDT) : false }));
 
     const RequestAccountHeader = {
         headers: {
@@ -45,6 +50,13 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         }
     }
+
+    useEffect(() => {
+        if (isNew)
+            setIsNew(props.prayerRequestProp.requestorProfile.userID !== userID && !prayerRequestQueue.some((item) => item.id === props.prayerRequestProp.prayerRequestID));
+        else if (isEdited)
+            setIsEdited(props.prayerRequestProp.requestorProfile.userID !== userID && prayerRequestQueue.some((item) => { item.id === props.prayerRequestProp.prayerRequestID ? new Date(item.lastViewedTime) < new Date(props.prayerRequestProp.modifiedDT) : false }));
+    }, [prayerRequestQueue])
 
     const styles = StyleSheet.create({
         prayerRequestListCard: {
@@ -116,6 +128,20 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             <TouchableOpacity onPress={() => props.onPress && props.onPress(props.prayerRequestProp.prayerRequestID, props.prayerRequestProp)}>
                 <View style={styles.prayerRequestDataColumn}>
                     <View style={styles.prayerRequestDataRowLeft}>
+                    { 
+                        isNew &&  <>
+                            <View style={{borderWidth: 1, borderRadius: 15, borderColor: COLORS.accent, width: 40, marginBottom: -2, marginTop: 6}}>
+                                <Text allowFontScaling={false} style={{...theme.detailText, color: COLORS.accent, textAlign: 'center'}}>New</Text>
+                            </View>
+                        </>
+                    }
+                    { 
+                        isEdited &&  <>
+                            <View style={{borderWidth: 1, borderRadius: 15, borderColor: COLORS.white, width: 40, marginBottom: -2, marginTop: 6}}>
+                                <Text allowFontScaling={false} style={{...theme.detailText, color: COLORS.white, textAlign: 'center'}}>Edited</Text>
+                            </View>
+                        </>
+                    }
                     <RequestorProfileImage imageUri={props.prayerRequestProp.requestorProfile.image} userID={props.prayerRequestProp.requestorProfile.userID} style={styles.profileImageStyle }/>
                         <Text allowFontScaling={false} numberOfLines={1} ellipsizeMode='tail' style={styles.topicText}>{props.prayerRequestProp.topic}</Text>
                         <View style={styles.listItemFooter}>
@@ -143,8 +169,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
 export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentListItem, callback:((commentID:number) => void), visible?:boolean}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userProfile.userID);
-    const [likeCount, setLikeCount] = useState(props.commentProp.likeCount);
-    const [isLiked, setIsLiked] = useState(false);
+    const [isLiked, setIsLiked] = useState(props.commentProp.likedByRecipient);
     const [hasBeenLiked, setHasBeenLiked] = useState(false); // Because the server doesn't have a dislike route, and there is no limit on how many times the same user likes, prevent the user from sending a like request when they have previously liked the comment
 
     const RequestAccountHeader = {
@@ -155,19 +180,16 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
 
     const onLikePress = async () => {
         if (isLiked) {
-            setLikeCount(likeCount-1);
             setIsLiked(false);
         } else {
             // like
             if (!hasBeenLiked) {
                 await axios.post(`${DOMAIN}/api/prayer-request/` + props.commentProp.prayerRequestID + '/comment/' + props.commentProp.commentID + '/like', {}, RequestAccountHeader).then((response) => {
-                    setLikeCount(likeCount+1);
                     setIsLiked(true);
                     setHasBeenLiked(true);
                 }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
             }
             else {
-                setLikeCount(likeCount+1);
                 setIsLiked(true);
             }
            
@@ -254,7 +276,7 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
                                     color={COLORS.white}
                                     size={15}
                                 />
-                                    <Text allowFontScaling={false} style={styles.likeCountText}>{likeCount}</Text>
+                                    <Text allowFontScaling={false} style={styles.likeCountText}>{isLiked}</Text>
                             </View>
                         </TouchableOpacity>
                     </View>

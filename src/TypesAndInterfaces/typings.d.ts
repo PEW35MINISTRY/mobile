@@ -9,4 +9,5 @@ declare module '@env' {
     export const ENVIRONMENT: string;
     export const NEW_PARTNER_REQUEST_TIMEOUT: string;
     export const SETTINGS_VERSION: string;
+    export const PRAYER_REQUEST_TIME_COUNT_MAX: string
 }

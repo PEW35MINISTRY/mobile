@@ -11,8 +11,6 @@ import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-s
 import { DeviceVerificationResponseType } from './TypesAndInterfaces/config-sync/api-type-sync/notification-types';
 import { generateDefaultDeviceName } from './utilities/notifications';
 
-
-
 /******************************
    Account | Credentials Redux Reducer
 *******************************/
@@ -218,7 +216,7 @@ export const { setSettings, resetSettings, setSkipAnimation,
 export const initializeSettingsState = async(dispatch: (arg0: { payload: SettingsState; type: 'settings/setSettings'; }|{type: 'settings/resetSettings'; }) => void, getState: () => any):Promise<boolean> => {
     try {
         const userID = store.getState().account.userID.toString();
-        const localStorageSettings:boolean | UserCredentials = await keychain.getGenericPassword({service: userID});
+        const localStorageSettings:boolean | UserCredentials = await keychain.getGenericPassword({service: `${userID}-settings`});
         const savedSettings:SettingsState = localStorageSettings ? JSON.parse(localStorageSettings.password) : initialSettingsState;
         if(!isNaN(savedSettings.version) && (savedSettings.version == parseInt(SETTINGS_VERSION ?? '1'))) {
           dispatch(setSettings(savedSettings));
@@ -263,11 +261,11 @@ export const saveSettingsMiddleware:Middleware = store => next => action => {
   if(Object.values(settingsSlice.actions).map(action => action.type).includes(action.type) && action.type !== resetSettings.type) {
     const storeRef = store.getState();
     const settingsState: RootState['settings'] = storeRef.settings;
-    keychain.setGenericPassword('settings', JSON.stringify(settingsState), {service: storeRef.account.userID.toString()});
+    keychain.setGenericPassword('settings', JSON.stringify(settingsState), {service: `${storeRef.account.userID.toString()}-settings`});
 
   } else if(action.type === resetSettings.type) {
     const storeRef = store.getState();
-    keychain.setGenericPassword('settings', JSON.stringify(initialSettingsState), {service: storeRef.account.userID.toString()});
+    keychain.setGenericPassword('settings', JSON.stringify(initialSettingsState), {service: `${storeRef.account.userID.toString()}-settings`});
   }
   return result;
 };
@@ -282,14 +280,76 @@ const deviceTokenSlice = createSlice({
 
 export const { setDeviceToken } = deviceTokenSlice.actions;
 
+/*****************************************
+   Prayer Request | Redux Reducer
+   Keep track of prayer requests 
+******************************************/
+
+export type PrayerRequestTimeListItem = {
+  id: number,
+  lastViewedTime: string
+}
+
+export type PrayerRequestTimeState = {
+  prayerRequestQueue: PrayerRequestTimeListItem[]
+}
+
+const initialPrayerRequestTimeState:PrayerRequestTimeState = {
+  prayerRequestQueue: []
+}
+
+const prayerRequestTimeSlice = createSlice({
+  name: 'prayerRequestTime',
+  initialState: initialPrayerRequestTimeState, 
+  reducers: {
+    setPrayerRequestTimeState: (state, action:PayloadAction<PrayerRequestTimeState>) => state = action.payload,
+    addPrayerRequestTimeItem: (state, action:PayloadAction<PrayerRequestTimeListItem>) => state = { prayerRequestQueue: [...state.prayerRequestQueue, action.payload]},
+    removePrayerRequestTimeItem: (state, action:PayloadAction<number>) => state = { prayerRequestQueue: [...state.prayerRequestQueue ?? []].filter((item) => item.id !== action.payload)},
+    resetPrayerRequestTimeState: (state) => state = initialPrayerRequestTimeState
+  }
+})
+
+export const { setPrayerRequestTimeState, addPrayerRequestTimeItem, removePrayerRequestTimeItem, resetPrayerRequestTimeState } = prayerRequestTimeSlice.actions;
+
+export const initializePrayerRequestTimeState = async(dispatch: (arg0: { payload: PrayerRequestTimeState; type: 'prayerRequestTime/setPrayerRequestTimeState'; }|{type: 'prayerRequestTime/addPrayerRequestTimeState'; }|{type: 'prayerRequestTime/removePrayerRequestTimeState'; }) => void, getState: () => any):Promise<boolean> => {
+    try {
+        const userID = store.getState().account.userID.toString();
+        const localStoragePrayerRequestTime:boolean | UserCredentials = await keychain.getGenericPassword({service: `${userID}-prayerRequestTime`});
+        const savedPrayerRequestTime:PrayerRequestTimeState = localStoragePrayerRequestTime ? JSON.parse(localStoragePrayerRequestTime.password) : initialPrayerRequestTimeState;
+        
+        dispatch(setPrayerRequestTimeState(savedPrayerRequestTime));
+
+        return true;
+    } catch (error) {
+        console.error('REDUX PrayerRequestTime | localStorage initialization failed: ', error);
+        dispatch(setPrayerRequestTimeState(initialPrayerRequestTimeState));
+        return false;
+    }
+};
+
+export const savePrayerRequestTimeMiddleware:Middleware = store => next => action => {
+  const result = next(action);
+
+  console.log("middleware")
+  if([setPrayerRequestTimeState.type, addPrayerRequestTimeItem.type, removePrayerRequestTimeItem.type, resetPrayerRequestTimeState.type].includes(action.type)) {
+    const storeRef = store.getState();
+    const prayerRequestTimeState: RootState['prayerRequestTime'] = storeRef.prayerRequestTime;
+    console.log(prayerRequestTimeState)
+    keychain.setGenericPassword('prayerRequestTime', JSON.stringify(prayerRequestTimeState), {service: `${storeRef.account.userID.toString()}-prayerRequestTime`});
+  }
+
+  return result;
+};
+
 const store = configureStore({
     reducer: {
       account: accountSlice.reducer,
       navigationTab: tabSlice.reducer,
       settings: settingsSlice.reducer,
-      deviceToken: deviceTokenSlice.reducer
+      deviceToken: deviceTokenSlice.reducer,
+      prayerRequestTime: prayerRequestTimeSlice.reducer
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(saveJWTMiddleware, saveSettingsMiddleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(saveJWTMiddleware, saveSettingsMiddleware, savePrayerRequestTimeMiddleware),
 });
 
 export default store;

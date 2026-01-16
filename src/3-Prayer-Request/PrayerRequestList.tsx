@@ -25,7 +25,6 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
     const [receivingPrayerRequests, setReceivingPrayerRequests] = useState<PrayerRequestListItem[]>([]);
     const [prayerRequestCreateModalVisible, setPrayerRequestCreateModalVisible] = useState(false);
 
-
     const RequestAccountHeader = {
         headers: {
           "jwt": jwt, 
@@ -51,17 +50,20 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
             <SearchList
                 key='prayer-request-main-page'
                 name='prayer-request-main-page'
-                defaultDisplayKey='Received'
-                emptyListPlaceholderText='Create your first prayer request'
+                defaultDisplayKey='All'
                 showMultiListFilter={true}
                 footerItems={[<Filler />]}
                 displayMap={new Map([
                         [
-                            new SearchListKey({displayTitle:'Received', searchType: SearchType.NONE }),
+                            new SearchListKey({displayTitle:'All', searchType: SearchType.NONE }),
+                            [...receivingPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} )), ...userOwnedPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest }) })) ].sort((a, b) => new Date((a.displayItem as PrayerRequestListItem ).createdDT) as any < (new Date((b.displayItem as PrayerRequestListItem).createdDT) as any) ? 1 : -1)
+                        ],
+                        [
+                            new SearchListKey({displayTitle:'Others', searchType: SearchType.NONE }),
                             receivingPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} ))
                         ],
                         [
-                            new SearchListKey({displayTitle:'Owned', searchType: SearchType.NONE }),
+                            new SearchListKey({displayTitle:'Mine', searchType: SearchType.NONE }),
                             userOwnedPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest }) }))
                         ],
                     ])}
@@ -82,7 +84,10 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
 
                 </TouchableOpacity>
                     </View>
-        <FolderButton callback={() => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_ANSWERED_ROUTE_NAME)} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
+        { 
+            // sunset answered prayer requests for now
+            //<FolderButton callback={() => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_ANSWERED_ROUTE_NAME)} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/> 
+        }
         </SafeAreaView>
        
     )
