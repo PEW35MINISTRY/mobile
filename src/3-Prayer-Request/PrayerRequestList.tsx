@@ -52,7 +52,6 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
                 key='prayer-request-main-page'
                 name='prayer-request-main-page'
                 defaultDisplayKey='Received'
-                emptyListPlaceholderText='Create your first prayer request'
                 showMultiListFilter={true}
                 footerItems={[<Filler />]}
                 displayMap={new Map([

@@ -4,7 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType, ENVIRONMENT_TYPE, InputRangeField } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
 import validateInput, { InputTypesAllowed, InputValidationResult } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputValidation";
-import theme, { COLORS } from "../../theme";
+import theme, { COLORS, FONT_SIZES } from "../../theme";
 import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider, Filler, EditCustomStringList } from "../../widgets";
 import { FormSubmit, FormInputProps } from "./form-input-types";
 import ToastQueueManager from "../../utilities/ToastQueueManager";
@@ -130,7 +130,6 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                     case InputType.NUMBER:
                     case InputType.EMAIL:
                     case InputType.PASSWORD:
-                    case InputType.PARAGRAPH: 
                         return (
                             <Controller 
                                 control={control}
@@ -152,6 +151,32 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                         value={String(value ?? '')}
                                         onChangeText={onChange}
 
+                                        validationLabel={errors[field.field]?.message}
+                                    />}
+                            />);
+                            break;
+                    case InputType.PARAGRAPH: 
+                        return (
+                            <Controller 
+                                control={control}
+                                key={field.field}
+                                name={field.field}
+                                rules={{
+                                    validate: (value:InputTypesAllowed, formValues:Record<string, InputTypesAllowed>) => {
+                                        const result:InputValidationResult = validateInput({field, value, getInputField: (f:string) => formValues[f], simpleValidationOnly });
+
+                                        if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment()) console.log(field.field, value, result.description);
+
+                                        //Return 'true' on success or 'validation message' on fail
+                                        return result.passed || result.message;
+                                    }
+                                }}
+                                render={({ field: {onChange, onBlur, value}}) =>
+                                    <Input_Field
+                                        field={field}
+                                        value={String(value ?? '')}
+                                        onChangeText={onChange}
+                                        inputStyle={{fontSize: FONT_SIZES.M}}
                                         validationLabel={errors[field.field]?.message}
                                     />}
 

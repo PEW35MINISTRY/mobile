@@ -33,7 +33,6 @@ const PrayerRequestEditData = (props:{callback: (state:CALLBACK_STATE) => void, 
     return (
         <SafeAreaView style={styles.center}>
             <View style={styles.background_view}>
-                <Text allowFontScaling={false} style={styles.header}>Edit Prayer Request</Text>
                 <FormInput 
                     fields={EDIT_PRAYER_REQUEST_FIELDS.filter((field:InputField) => field.type !== InputType.CIRCLE_ID_LIST && field.type !== InputType.USER_ID_LIST && field.field !== 'duration' && field.environmentList.includes(getEnvironment()))}
                     ref={formInputRef}
@@ -59,8 +58,8 @@ const PrayerRequestEditData = (props:{callback: (state:CALLBACK_STATE) => void, 
                     />
                 </Modal>
             </View>
-            <DeleteButton callback={() => setDeletePrayerRequestModalVisible(true)} buttonView={ styles.fillerHeight}/>
-            <XButton callback={() => props.callback(CALLBACK_STATE.EXIT)} buttonView={ styles.fillerHeight } />
+            <DeleteButton callback={() => setDeletePrayerRequestModalVisible(true)} />
+            <XButton callback={() => props.callback(CALLBACK_STATE.EXIT)} />
         </SafeAreaView>  
     )
               
