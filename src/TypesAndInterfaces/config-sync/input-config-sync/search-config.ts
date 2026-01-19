@@ -1,5 +1,5 @@
 /***** ONLY DEPENDENCY:./inputField - Define all other types locally *****/
-import { RecipientFormCircleListItem, RecipientFormProfileListItem } from '../../../Widgets/RecipientIDList/recipient-types';
+import { RecipientFormProfileListItem, RecipientFormCircleListItem } from '../api-type-sync/recipient-types';
 import { CircleListItem, CircleAnnouncementListItem, CircleEventListItem } from '../api-type-sync/circle-types';
 import { ContentListItem } from '../api-type-sync/content-types';
 import { PrayerRequestListItem, PrayerRequestCommentListItem } from '../api-type-sync/prayer-request-types';
@@ -49,7 +49,6 @@ export enum SearchType {
     CONTACT = 'CONTACT',
     CIRCLE = 'CIRCLE',
     CONTENT_ARCHIVE = 'CONTENT_ARCHIVE',
-    PRAYER_REQUEST = 'PRAYER_REQUEST'
   }
   
 
@@ -111,9 +110,6 @@ export enum SearchType {
                                                   getID:(item:ContentListItem) => item.contentID, IDProperty:'contentID', 
                                                   searchRefineList: [...Object.values(ContentSearchRefineEnum)], 
                                                 }),
-    [SearchType.PRAYER_REQUEST]: new SearchTypeInfo<PrayerRequestListItem>({ searchType:SearchType.PRAYER_REQUEST, displayTitle: 'Prayer Request Search', roleList:Object.values(RoleEnum), itemType: ListItemTypesEnum.PRAYER_REQUEST, 
-                                                  getID:(item:PrayerRequestListItem) => item.prayerRequestID, IDProperty: 'prayerRequestID', 
-                                                })
   };
   
 export default SearchDetail;

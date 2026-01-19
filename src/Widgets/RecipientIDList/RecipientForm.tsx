@@ -5,7 +5,7 @@ import { RootState } from "../../redux-store";
 import { ProfileListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { CircleListItem } from "../../TypesAndInterfaces/config-sync/api-type-sync/circle-types";
 import { BackButton, Dropdown_Select, Filler, Input_Field, Raised_Button } from "../../widgets";
-import { RecipientFormCircleListItem, RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusContext, RecipientStatusEnum } from "./recipient-types";
+import { RecipientFormCircleListItem, RecipientFormProfileListItem, RecipientFormViewMode, RecipientStatusEnum } from "../../TypesAndInterfaces/config-sync/api-type-sync/recipient-types";
 import theme, { COLORS } from "../../theme";
 import SearchList from "../SearchList/SearchList";
 import { SearchListKey, SearchListValue } from "../SearchList/searchList-types";
@@ -224,11 +224,11 @@ export const RecipientForm = (props:{callback: (state:CALLBACK_STATE) => void, c
 
     return (
         <SafeAreaView style={styles.backgroundContainer}>
+            <Filler fillerStyle={{ height: Platform.OS === 'ios' ? 20 : 40}}/>
             <SearchList 
                 key='recipient-form-page'
                 name='recipient-form-page'
                 defaultDisplayKey='Profiles'
-                showMultiListFilter={true}
                 footerItems={[<Filler />]}
                 displayMap={new Map([
                         [
@@ -248,7 +248,7 @@ export const RecipientForm = (props:{callback: (state:CALLBACK_STATE) => void, c
                     onPress={() => onActionButtonPress(CALLBACK_STATE.SUCCESS)}
                 />
             </View>             
-            <BackButton callback={() => onActionButtonPress(CALLBACK_STATE.BACK)} />
+            <BackButton callback={() => onActionButtonPress(CALLBACK_STATE.BACK)} buttonView={Platform.OS === 'ios' && {top: -20} || undefined} />
         </SafeAreaView>
         
     )
