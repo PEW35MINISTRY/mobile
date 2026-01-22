@@ -224,11 +224,11 @@ export const RecipientForm = (props:{callback: (state:CALLBACK_STATE) => void, c
 
     return (
         <SafeAreaView style={styles.backgroundContainer}>
+            <Filler fillerStyle={{ height: Platform.OS === 'ios' ? 20 : 40}}/>
             <SearchList 
                 key='recipient-form-page'
                 name='recipient-form-page'
                 defaultDisplayKey='Profiles'
-                showMultiListFilter={true}
                 footerItems={[<Filler />]}
                 displayMap={new Map([
                         [
@@ -248,7 +248,7 @@ export const RecipientForm = (props:{callback: (state:CALLBACK_STATE) => void, c
                     onPress={() => onActionButtonPress(CALLBACK_STATE.SUCCESS)}
                 />
             </View>             
-            <BackButton callback={() => onActionButtonPress(CALLBACK_STATE.BACK)} />
+            <BackButton callback={() => onActionButtonPress(CALLBACK_STATE.BACK)} buttonView={Platform.OS === 'ios' && {top: -20} || undefined} />
         </SafeAreaView>
         
     )
