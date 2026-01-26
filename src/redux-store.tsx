@@ -258,6 +258,8 @@ export const registerNotificationDevice = async(dispatch: (arg0: { payload: numb
 export const saveSettingsMiddleware:Middleware = store => next => action => {
   const result = next(action);
 
+  console.log(action.type)
+
   if(Object.values(settingsSlice.actions).map(action => action.type).includes(action.type) && action.type !== resetSettings.type) {
     const storeRef = store.getState();
     const settingsState: RootState['settings'] = storeRef.settings;
@@ -285,31 +287,22 @@ export const { setDeviceToken } = deviceTokenSlice.actions;
    Keep track of prayer requests 
 ******************************************/
 
-export type PrayerRequestTimeListItem = {
-  id: number,
-  lastViewedTime: string
-}
-
 export type PrayerRequestTimeState = {
-  prayerRequestQueue: PrayerRequestTimeListItem[]
+  [key: string]: number
 }
 
-const initialPrayerRequestTimeState:PrayerRequestTimeState = {
-  prayerRequestQueue: []
-}
+const initialPrayerRequestTimeState:PrayerRequestTimeState = {}
 
 const prayerRequestTimeSlice = createSlice({
   name: 'prayerRequestTime',
   initialState: initialPrayerRequestTimeState, 
   reducers: {
     setPrayerRequestTimeState: (state, action:PayloadAction<PrayerRequestTimeState>) => state = action.payload,
-    addPrayerRequestTimeItem: (state, action:PayloadAction<PrayerRequestTimeListItem>) => state = { prayerRequestQueue: [...state.prayerRequestQueue, action.payload]},
-    removePrayerRequestTimeItem: (state, action:PayloadAction<number>) => state = { prayerRequestQueue: [...state.prayerRequestQueue ?? []].filter((item) => item.id !== action.payload)},
     resetPrayerRequestTimeState: (state) => state = initialPrayerRequestTimeState
   }
 })
 
-export const { setPrayerRequestTimeState, addPrayerRequestTimeItem, removePrayerRequestTimeItem, resetPrayerRequestTimeState } = prayerRequestTimeSlice.actions;
+export const { setPrayerRequestTimeState, resetPrayerRequestTimeState } = prayerRequestTimeSlice.actions;
 
 export const initializePrayerRequestTimeState = async(dispatch: (arg0: { payload: PrayerRequestTimeState; type: 'prayerRequestTime/setPrayerRequestTimeState'; }|{type: 'prayerRequestTime/addPrayerRequestTimeState'; }|{type: 'prayerRequestTime/removePrayerRequestTimeState'; }) => void, getState: () => any):Promise<boolean> => {
     try {
@@ -330,12 +323,12 @@ export const initializePrayerRequestTimeState = async(dispatch: (arg0: { payload
 export const savePrayerRequestTimeMiddleware:Middleware = store => next => action => {
   const result = next(action);
 
-  console.log("middleware")
-  if([setPrayerRequestTimeState.type, addPrayerRequestTimeItem.type, removePrayerRequestTimeItem.type, resetPrayerRequestTimeState.type].includes(action.type)) {
+  if([setPrayerRequestTimeState.type, resetPrayerRequestTimeState.type].includes(action.type)) {
     const storeRef = store.getState();
+    const userID = storeRef.account.userID.toString();
     const prayerRequestTimeState: RootState['prayerRequestTime'] = storeRef.prayerRequestTime;
     console.log(prayerRequestTimeState)
-    keychain.setGenericPassword('prayerRequestTime', JSON.stringify(prayerRequestTimeState), {service: `${storeRef.account.userID.toString()}-prayerRequestTime`});
+    keychain.setGenericPassword(`${userID}-prayerRequestTime`, JSON.stringify(prayerRequestTimeState), {service: `${storeRef.account.userID.toString()}-prayerRequestTime`});
   }
 
   return result;

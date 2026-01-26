@@ -38,15 +38,8 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
     }
 
     const onSuccess = (context:PrayerRequestCreateContext) => {
-        // Convert `duration` mock field to `expirationDate`
 
         const prayerRequest:PrayerRequestPostRequestBody = {...context.prayerRequestFields}
-
-        //@ts-ignore
-        prayerRequest.expirationDate = getDateDaysFuture(parseInt(prayerRequest.duration)).toISOString();
-
-        //@ts-ignore
-        delete prayerRequest.duration; // avoid server warning "non model recognized field"
 
         prayerRequest.addCircleRecipientIDList = context.addCircleRecipientIDList;
         prayerRequest.addUserRecipientIDList = context.addUserRecipientIDList;

@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, KeyboardAvoidingView } from 'react-native';
 import { PrayerRequestCommentListItem, PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { addAnsweredPrayerRequest, addOwnedPrayerRequest, addPrayerRequestTimeItem, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeOwnedPrayerRequest, removePrayerRequestTimeItem, RootState, setOwnedPrayerRequests, setPrayerRequestTimeState } from '../redux-store';
+import { addAnsweredPrayerRequest, addOwnedPrayerRequest, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeOwnedPrayerRequest, RootState, setOwnedPrayerRequests, setPrayerRequestTimeState } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
@@ -36,7 +36,8 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const ownedPrayerRequests = useAppSelector((state:RootState) => state.account.userProfile.ownedPrayerRequestList);
-    const prayerRequestQueue = useAppSelector((state: RootState) => state.prayerRequestTime.prayerRequestQueue);
+    const prayerRequestTimeMap = useAppSelector((state: RootState) => state.prayerRequestTime);
+   
     
     const [appPrayerRequestListItem, setAppPrayerRequestListItem] = useState<PrayerRequestListItem>({
         prayerRequestID: -1,
@@ -140,15 +141,6 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         const navigateToEdit = route.params.navigateToEdit !== undefined && route.params.navigateToEdit;
 
         if (prayerRequestData !== undefined && prayerRequestListData !== undefined) {
-        
-            // if a prayer request is on the expiring dashboard and the user modified the expiration date, remove it from the dashboard
-            if (navigateToEdit && currPrayerRequestState !== undefined) {
-                if (new Date(prayerRequestData.expirationDate) > new Date(currPrayerRequestState.expirationDate)) {
-                    dispatch(removeExpiringPrayerRequest(appPrayerRequestListItem.prayerRequestID));
-
-                    if (prayerRequestData?.isResolved === currPrayerRequestState.isResolved) dispatch(addOwnedPrayerRequest(prayerRequestListData))
-                }
-            }
 
             if (currPrayerRequestState !== undefined && prayerRequestData?.isResolved !== currPrayerRequestState.isResolved) {
                 navigateToEdit && dispatch(removeExpiringPrayerRequest(appPrayerRequestListItem.prayerRequestID));
@@ -172,26 +164,12 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     }
 
     useEffect(() => {
+       // console.log(route.params.PrayerRequestProps.prayerRequestID);
         const prayerRequestItem = route.params.PrayerRequestProps;
-
-        const wasNew = prayerRequestItem.requestorProfile.userID !== userID && !prayerRequestQueue.some((item) => item.id === prayerRequestItem.prayerRequestID);
-        const wasEdited = prayerRequestItem.requestorProfile.userID !== userID && prayerRequestQueue.some((item) => { item.id === prayerRequestItem.prayerRequestID ? new Date(item.lastViewedTime) < new Date(prayerRequestItem.modifiedDT) : false });
         
-        if (wasEdited) {
-            dispatch(removePrayerRequestTimeItem(prayerRequestItem.prayerRequestID))
-            dispatch(addPrayerRequestTimeItem({ id: prayerRequestItem.prayerRequestID, lastViewedTime: new Date().toISOString()}))
-        } else if (wasNew) {
-            if (prayerRequestQueue.length >= parseInt(PRAYER_REQUEST_TIME_COUNT_MAX)) {
-                const newQueue = [...prayerRequestQueue];
-                newQueue.shift();
-                newQueue.push({ id: prayerRequestItem.prayerRequestID, lastViewedTime: new Date().toISOString()})
-                dispatch(setPrayerRequestTimeState({ prayerRequestQueue: newQueue} ))
-            }
-            else {
-                dispatch(addPrayerRequestTimeItem({ id: prayerRequestItem.prayerRequestID, lastViewedTime: new Date().toISOString()}))
-            }
-        }
-
+        if (prayerRequestItem.requestorProfile.userID !== userID) {
+            dispatch(setPrayerRequestTimeState({ ...prayerRequestTimeMap, [prayerRequestItem.prayerRequestID]: new Date().getTime()}))
+        } 
     }, []) 
 
     useEffect(() => {

@@ -36,7 +36,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
     const onInitializeAccount = async () => {
       if (await dispatch(initializeAccountState)) {
         const skipAnimation = await dispatch(initializeSettingsState);
-        await dispatch(initializePrayerRequestTimeState)
+        await dispatch(initializePrayerRequestTimeState);
 
         navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
       }

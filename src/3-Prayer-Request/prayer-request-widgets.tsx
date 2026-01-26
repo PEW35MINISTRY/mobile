@@ -1,6 +1,6 @@
 import { DOMAIN } from "@env";
 import axios, { AxiosError } from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
 import { PrayerRequestCommentListItem, PrayerRequestListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types";
 import { PrayerRequestTagEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config";
@@ -11,18 +11,41 @@ import { RequestorProfileImage } from "../1-Profile/profile-widgets";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
+import { useNavigation } from "@react-navigation/native";
 
 export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestListItem, onPress?:((id:number, item:PrayerRequestListItem) => void), callback?:(() => void)}):JSX.Element => {
     const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
-    
-    const prayerRequestQueue = useAppSelector((state: RootState) => state.prayerRequestTime.prayerRequestQueue);
+    const prayerRequestTimeMap = useAppSelector((state: RootState) => state.prayerRequestTime);
+
+    const tmp = useNavigation();
 
     const [prayerCount, setPrayerCount] = useState(props.prayerRequestProp.prayerCountRecipient);
     const [hasPrayed, setHasPrayed] = useState(false); // Because the server doesn't have a dislike route, and there is no limit on how many times the same user likes, prevent the user from sending a like request when they have previously liked the P
-    const [isNew, setIsNew] = useState(props.prayerRequestProp.requestorProfile.userID !== userID && !prayerRequestQueue.some((item) => item.id === props.prayerRequestProp.prayerRequestID));
-    const [isEdited, setIsEdited] = useState(props.prayerRequestProp.requestorProfile.userID !== userID && prayerRequestQueue.some((item) => { item.id === props.prayerRequestProp.prayerRequestID ? new Date(item.lastViewedTime) < new Date(props.prayerRequestProp.modifiedDT) : false }));
+    const [isNew, setIsNew] = useState<boolean | undefined>(props.prayerRequestProp.requestorProfile.userID !== userID && !prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]);
+    const [isEdited, setIsEdited] = useState<boolean | undefined>(props.prayerRequestProp.requestorProfile.userID !== userID && new Date(prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]) < new Date(props.prayerRequestProp.modifiedDT) );
+
+    // TODO: for the life of me I cannot figure out why 411 is not showing up in the console.log. Its visible in the UI
+    if (tmp.getState()?.routeNames.includes('PrayerRequestList')) {
+        const s = prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]
+        const v = s ? new Date(s).toISOString() : "undefined"
+
+/*
+        console.log(props.prayerRequestProp.prayerRequestID);
+        console.log(`Is it new components - ${props.prayerRequestProp.requestorProfile.userID !== userID} && ${!prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]}`)
+        console.log(`Is it edited components - ${props.prayerRequestProp.requestorProfile.userID !== userID} && ${new Date(prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()] ?? 0)} < ${new Date(props.prayerRequestProp.modifiedDT)} :: ${new Date(prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]) < new Date(props.prayerRequestProp.modifiedDT)}`)
+        console.log(`but isEdited is ${isEdited}`)
+        console.log(props.prayerRequestProp);
+        console.log("")
+        */
+
+        /*
+        const yus = props.prayerRequestProp.topic.includes("YUS");
+        if (yus) console.log(props.prayerRequestProp);
+        props.prayerRequestProp.requestorProfile.userID !== userID && console.log(`${props.prayerRequestProp.topic} ${new Date(prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()])} vs ${new Date(props.prayerRequestProp.modifiedDT)}`)
+        */
+    }
 
     const RequestAccountHeader = {
         headers: {
@@ -36,6 +59,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={tag + "|" + index}>{tag}</Text>);
             textProps.push(<Text allowFontScaling={false} style={styles.tagsText} key={index + "|" + tag}>{" | "}</Text>);
         })
+
         textProps.pop();
 
         return textProps;
@@ -51,12 +75,15 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
         }
     }
 
-    useEffect(() => {
+    
+    useLayoutEffect(() => {
+        console.log(props.prayerRequestProp.prayerRequestID, isNew, isEdited,props.prayerRequestProp);
         if (isNew)
-            setIsNew(props.prayerRequestProp.requestorProfile.userID !== userID && !prayerRequestQueue.some((item) => item.id === props.prayerRequestProp.prayerRequestID));
+            setIsNew(!prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]);
         else if (isEdited)
-            setIsEdited(props.prayerRequestProp.requestorProfile.userID !== userID && prayerRequestQueue.some((item) => { item.id === props.prayerRequestProp.prayerRequestID ? new Date(item.lastViewedTime) < new Date(props.prayerRequestProp.modifiedDT) : false }));
-    }, [prayerRequestQueue])
+            setIsEdited(new Date(prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]) < new Date(props.prayerRequestProp.modifiedDT));
+    }, [prayerRequestTimeMap])
+    
 
     const styles = StyleSheet.create({
         prayerRequestListCard: {
@@ -135,6 +162,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
                             </View>
                         </>
                     }
+
                     { 
                         isEdited &&  <>
                             <View style={{borderWidth: 1, borderRadius: 15, borderColor: COLORS.white, width: 40, marginBottom: -2, marginTop: 6}}>

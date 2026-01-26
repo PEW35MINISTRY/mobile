@@ -1,9 +1,9 @@
 import { DOMAIN } from '@env';
-import axios, { AxiosError } from 'axios';
-import React, { useEffect, useRef, useState } from 'react';
+import axios, { all, AxiosError } from 'axios';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, Platform } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, setAnsweredPrayerRequestList } from '../redux-store';
+import { RootState, setAnsweredPrayerRequestList, setOwnedPrayerRequests } from '../redux-store';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import PrayerRequestCreate from './PrayerRequestCreateForm';
@@ -14,15 +14,19 @@ import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { Filler, FolderButton } from '../widgets';
 import SearchList from '../Widgets/SearchList/SearchList';
-import { SearchListKey, SearchListValue } from '../Widgets/SearchList/searchList-types';
+import { SearchFilterIdentifiable, SearchListKey, SearchListValue } from '../Widgets/SearchList/searchList-types';
 import { ListItemTypesEnum, SearchType } from '../TypesAndInterfaces/config-sync/input-config-sync/search-config';
+
+const MOBILE_SUPPORTED_PRAYER_REQUEST_FILTERS = ['Friends', 'Mine'];
 
 const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element => {
 
     const jwt:string = useAppSelector((state: RootState) => state.account.jwt);
-    const userOwnedPrayerRequests:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.ownedPrayerRequestList ?? []);
+    const userID = useAppSelector((state: RootState) => state.account.userID);
+    const ownedPrayerRequestList = useAppSelector((state: RootState) => state.account.userProfile.ownedPrayerRequestList);
 
-    const [receivingPrayerRequests, setReceivingPrayerRequests] = useState<PrayerRequestListItem[]>([]);
+    const [aggregatePrayerRequests, setAggregatePrayerRequests] = useState<PrayerRequestListItem[]>([]);
+    const [recipientPrayerRequests, setRecipientPrayerRequests] = useState<PrayerRequestListItem[]>([]);
     const [prayerRequestCreateModalVisible, setPrayerRequestCreateModalVisible] = useState(false);
 
     const RequestAccountHeader = {
@@ -31,40 +35,56 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
         }
     }
 
-    const GET_UserIsRecipientPrayerRequests = async () => {
-        await axios.get(`${DOMAIN}/api/prayer-request/user-list`, RequestAccountHeader).then((response) => {
-            if (response.data !== undefined) {
-                const prayerRequestList:PrayerRequestListItem[] = response.data;
-                setReceivingPrayerRequests(prayerRequestList);
-            } 
+    const dispatch = useAppDispatch();
 
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+    // contains all prayer requests where the user is a recipient, including circles
+    const GET_UserIsRecipientPrayerRequests = async ():Promise<PrayerRequestListItem[]> => 
+        await axios.get(`${DOMAIN}/api/user/${userID}/prayer-request-recipient-list`, RequestAccountHeader).then((response) => {
+            if (response.data !== undefined) {
+                setRecipientPrayerRequests(response.data);
+                return response.data;
+            } return [];
+        }).catch((error:AxiosError<ServerErrorResponse>) => { ToastQueueManager.show({error});  return []});
+    
+
+    const assembleAggregatedPrayerRequestList = async () => {
+        const recipientPrayerRequests = await GET_UserIsRecipientPrayerRequests();
+
+        // sort both lists by edited date
+        const allPrayerRequests = [...(ownedPrayerRequestList || []), ...recipientPrayerRequests].sort((a, b) => new Date(a.modifiedDT) > new Date(b.modifiedDT) ? -1 : 1 );
+
+
+        //allPrayerRequests.forEach((tmp) => tmp.prayerRequestID === 411 ? console.log(tmp) : undefined);
+
+        setAggregatePrayerRequests(allPrayerRequests);
+    };
+
+    const updateAggregatedPrayerRequestList = () => {
+        const allPrayerRequests = [...recipientPrayerRequests, ...(ownedPrayerRequestList || [])].sort((a, b) => new Date(a.modifiedDT) > new Date(b.modifiedDT) ? -1 : 1 );
+        setAggregatePrayerRequests(allPrayerRequests);
     }
 
     useEffect(() => {
-        GET_UserIsRecipientPrayerRequests();
+        console.log("List Page\n\n")
+        assembleAggregatedPrayerRequestList();
     }, []);
+
+    useEffect(() => {
+        updateAggregatedPrayerRequestList();
+    }, [ownedPrayerRequestList]);
 
  return (
         <SafeAreaView style={styles.backgroundColor}>
             <SearchList
                 key='prayer-request-main-page'
                 name='prayer-request-main-page'
-                defaultDisplayKey='All'
-                showMultiListFilter={true}
+                filterOptions={MOBILE_SUPPORTED_PRAYER_REQUEST_FILTERS}
+                onFilter={(listValue:SearchListValue, appliedFilter?:SearchFilterIdentifiable) => (appliedFilter?.filterOption === 'Mine' ? ((listValue.displayItem as PrayerRequestListItem).requestorProfile.userID === userID) :  ((listValue.displayItem as PrayerRequestListItem).requestorProfile.userID !== userID))}
                 footerItems={[<Filler />]}
                 displayMap={new Map([
                         [
                             new SearchListKey({displayTitle:'All', searchType: SearchType.NONE }),
-                            [...receivingPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} )), ...userOwnedPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest }) })) ].sort((a, b) => new Date((a.displayItem as PrayerRequestListItem ).createdDT) as any < (new Date((b.displayItem as PrayerRequestListItem).createdDT) as any) ? 1 : -1)
-                        ],
-                        [
-                            new SearchListKey({displayTitle:'Others', searchType: SearchType.NONE }),
-                            receivingPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} ))
-                        ],
-                        [
-                            new SearchListKey({displayTitle:'Mine', searchType: SearchType.NONE }),
-                            userOwnedPrayerRequests.map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest }) }))
+                            [...aggregatePrayerRequests].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest, onPress: () => navigation.navigate(ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME, { PrayerRequestProps: prayerRequest })} )),
                         ],
                     ])}
             />
