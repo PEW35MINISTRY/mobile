@@ -53,24 +53,17 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
         // sort both lists by edited date
         const allPrayerRequests = [...(ownedPrayerRequestList || []), ...recipientPrayerRequests].sort((a, b) => new Date(a.modifiedDT) > new Date(b.modifiedDT) ? -1 : 1 );
 
-
-        //allPrayerRequests.forEach((tmp) => tmp.prayerRequestID === 411 ? console.log(tmp) : undefined);
-
         setAggregatePrayerRequests(allPrayerRequests);
     };
 
     const updateAggregatedPrayerRequestList = () => {
-        const allPrayerRequests = [...recipientPrayerRequests, ...(ownedPrayerRequestList || [])].sort((a, b) => new Date(a.modifiedDT) > new Date(b.modifiedDT) ? -1 : 1 );
+        const allPrayerRequests = [...(ownedPrayerRequestList || []), ...recipientPrayerRequests].sort((a, b) => new Date(a.modifiedDT) > new Date(b.modifiedDT) ? -1 : 1 );
         setAggregatePrayerRequests(allPrayerRequests);
     }
 
     useEffect(() => {
-        console.log("List Page\n\n")
-        assembleAggregatedPrayerRequestList();
-    }, []);
-
-    useEffect(() => {
-        updateAggregatedPrayerRequestList();
+        if (recipientPrayerRequests.length === 0) assembleAggregatedPrayerRequestList();
+        else updateAggregatedPrayerRequestList();
     }, [ownedPrayerRequestList]);
 
  return (

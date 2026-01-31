@@ -31,7 +31,7 @@ export interface PrayerRequestCommentListItem {
     commenterProfile: ProfileListItem, 
     message: string,
     likeCount: number,
-    likedByRecipient: boolean,
+    isLikedByRecipient: boolean,
     createdDT:string,
 }
 
@@ -44,11 +44,13 @@ export interface PrayerRequestResponseBody {
     isOnGoing: boolean,
     isResolved: boolean,
     tagList: PrayerRequestTagEnum[],
+    prayerCountRecipient: number,
     expirationDate: string,
     createdDT: string,
     modifiedDT: string,
 
     commentList?: PrayerRequestCommentListItem[],
+    userLikedList?: ProfileListItem[],
     userRecipientList?: ProfileListItem[],
     circleRecipientList?: CircleListItem[],
 }

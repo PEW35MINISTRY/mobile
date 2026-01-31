@@ -65,7 +65,6 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
             if (dirtyField) { 
                 //@ts-ignore
                 editedFields[key] = value; fieldsChanged = true;
-                console.log(`Field changed: ${key}`); 
             }
         }
 
@@ -75,14 +74,11 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
 
                 const newPrayerRequestListItem:PrayerRequestListItem = {...props.prayerRequestListData};
 
-                //console.log("Previous modifiedDT: " + props.prayerRequestListData.modifiedDT + ", New modifiedDT: " + newPrayerRequest.modifiedDT);
 
                 newPrayerRequestListItem.topic = newPrayerRequest.topic;
                 newPrayerRequestListItem.description = newPrayerRequest.description;
                 newPrayerRequestListItem.tagList = newPrayerRequest.tagList ?? [];
 
-                // TOOD: uncomment once server-side bug is fixed for modifiedDT
-                //newPrayerRequestListItem.modifiedDT = newPrayerRequest.modifiedDT; 
                 newPrayerRequestListItem.modifiedDT = new Date().toISOString(); //temp fix
 
                 ToastQueueManager.show({message: "Prayer Request saved"})

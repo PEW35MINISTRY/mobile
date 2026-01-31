@@ -258,8 +258,6 @@ export const registerNotificationDevice = async(dispatch: (arg0: { payload: numb
 export const saveSettingsMiddleware:Middleware = store => next => action => {
   const result = next(action);
 
-  console.log(action.type)
-
   if(Object.values(settingsSlice.actions).map(action => action.type).includes(action.type) && action.type !== resetSettings.type) {
     const storeRef = store.getState();
     const settingsState: RootState['settings'] = storeRef.settings;
@@ -327,12 +325,33 @@ export const savePrayerRequestTimeMiddleware:Middleware = store => next => actio
     const storeRef = store.getState();
     const userID = storeRef.account.userID.toString();
     const prayerRequestTimeState: RootState['prayerRequestTime'] = storeRef.prayerRequestTime;
-    console.log(prayerRequestTimeState)
     keychain.setGenericPassword(`${userID}-prayerRequestTime`, JSON.stringify(prayerRequestTimeState), {service: `${storeRef.account.userID.toString()}-prayerRequestTime`});
   }
 
   return result;
 };
+
+/*****************************************
+   Volatile Cache | Redux Reducer
+   Keep track of misc volatile data
+******************************************/
+
+export type PrayerRequestPrayed = {
+  [key: string]: number
+}
+
+const prayerRequestPrayedState:PrayerRequestPrayed = {}
+
+const prayerRequestPrayedSlice = createSlice({
+  name: 'prayerRequestPrayed',
+  initialState: prayerRequestPrayedState, 
+  reducers: {
+    setPrayerRequestPrayedState: (state, action:PayloadAction<PrayerRequestPrayed>) => state = action.payload,
+    resetPrayerRequestPrayedState: (state) => state = prayerRequestPrayedState
+  }
+})
+
+export const { setPrayerRequestPrayedState } = prayerRequestPrayedSlice.actions;
 
 const store = configureStore({
     reducer: {
@@ -340,7 +359,8 @@ const store = configureStore({
       navigationTab: tabSlice.reducer,
       settings: settingsSlice.reducer,
       deviceToken: deviceTokenSlice.reducer,
-      prayerRequestTime: prayerRequestTimeSlice.reducer
+      prayerRequestTime: prayerRequestTimeSlice.reducer,
+      prayerRequestPrayed: prayerRequestPrayedSlice.reducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(saveJWTMiddleware, saveSettingsMiddleware, savePrayerRequestTimeMiddleware),
 });
