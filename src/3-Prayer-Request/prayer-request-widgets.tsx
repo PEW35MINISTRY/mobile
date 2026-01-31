@@ -59,7 +59,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
             setIsNew(!prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]);
         else if (isEdited)
             setIsEdited(new Date(prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]) < new Date(props.prayerRequestProp.modifiedDT));
-    }, [prayerRequestTimeMap])
+    }, [prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]])
 
     useEffect(() => {
         setHasPrayed(prayerRequestPrayedState[props.prayerRequestProp.prayerRequestID.toString()] !== undefined);
