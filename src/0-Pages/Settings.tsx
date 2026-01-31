@@ -7,14 +7,12 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Partnerships from '../4-Partners/Partnerships';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { AccountState, clearSettings, resetAccount, clearJWT, resetSettings, RootState, setAccount, setContacts, setSettings, SettingsState, updateJWT, updateProfile } from '../redux-store';
+import { AccountState, clearSettings, resetAccount, clearJWT, resetSettings, RootState, setAccount, setContacts, setSettings, SettingsState, updateJWT, updateProfile, resetPrayerRequestTimeState } from '../redux-store';
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Devices from '../1-Profile/Devices';
-import { ENVIRONMENT_TYPE } from '../TypesAndInterfaces/config-sync/input-config-sync/inputField';
-import { getEnvironment } from '../utilities/utilities';
 
 const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
@@ -142,6 +140,11 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                         <Outline_Button 
                             text='Reset Local Settings'
                             onPress={() => dispatch(resetSettings())}
+                            buttonStyle={styles.settingsButton}
+                        />
+                        <Outline_Button 
+                            text='Reset Prayer Request Cache'
+                            onPress={() => dispatch(resetPrayerRequestTimeState())}
                             buttonStyle={styles.settingsButton}
                         />
                     </>

@@ -38,15 +38,8 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
     }
 
     const onSuccess = (context:PrayerRequestCreateContext) => {
-        // Convert `duration` mock field to `expirationDate`
 
         const prayerRequest:PrayerRequestPostRequestBody = {...context.prayerRequestFields}
-
-        //@ts-ignore
-        prayerRequest.expirationDate = getDateDaysFuture(parseInt(prayerRequest.duration)).toISOString();
-
-        //@ts-ignore
-        delete prayerRequest.duration; // avoid server warning "non model recognized field"
 
         prayerRequest.addCircleRecipientIDList = context.addCircleRecipientIDList;
         prayerRequest.addUserRecipientIDList = context.addUserRecipientIDList;
@@ -55,6 +48,7 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
             const newPrayerRequest:PrayerRequestResponseBody = response.data;
             const newPrayerRequestListItem:PrayerRequestListItem = {
                 prayerRequestID: newPrayerRequest.prayerRequestID,
+                requestorID: newPrayerRequest.requestorID,
                 requestorProfile: {
                     userID: userProfile.userID,
                     firstName: userProfile.firstName,
@@ -62,8 +56,12 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
                     image: userProfile.image,
                 },
                 topic: prayerRequest.topic,
-                prayerCount: 0,
-                tagList: newPrayerRequest.tagList
+                description: prayerRequest.description,
+                tagList: newPrayerRequest.tagList ?? [],
+                prayerCount: newPrayerRequest.prayerCount,
+                prayerCountRecipient: 0,
+                createdDT: newPrayerRequest.createdDT,
+                modifiedDT: newPrayerRequest.modifiedDT                
             }
             dispatch(addOwnedPrayerRequest(newPrayerRequestListItem));
             ToastQueueManager.show({message: "Sucessfully created Prayer Request"}); 

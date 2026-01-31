@@ -1,12 +1,11 @@
-import { DOMAIN } from '@env';
+import { DOMAIN, PRAYER_REQUEST_TIME_COUNT_MAX } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, KeyboardAvoidingView } from 'react-native';
 import { PrayerRequestCommentListItem, PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { addAnsweredPrayerRequest, addOwnedPrayerRequest, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeOwnedPrayerRequest, RootState, setOwnedPrayerRequests } from '../redux-store';
+import { addAnsweredPrayerRequest, addOwnedPrayerRequest, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeOwnedPrayerRequest, RootState, setOwnedPrayerRequests, setPrayerRequestPrayedState, setPrayerRequestTimeState } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import PrayerRequestEditForm from './PrayerRequestEditForm';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -20,11 +19,12 @@ import { ProfileListItem } from '../TypesAndInterfaces/config-sync/api-type-sync
 import { CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
-import Toast from 'react-native-toast-message';
 
 export interface PrayerRequestDisplayParamList{
     PrayerRequestProps: PrayerRequestListItem,
-    navigateToEdit?: boolean
+    navigateToEdit?: boolean,
+    wasEdited?: boolean,
+    wasNew?: boolean
 }
 type PrayerRequestDisplayProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.PRAYER_REQUEST_DISPLAY_ROUTE_NAME>;
 
@@ -34,16 +34,24 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const ownedPrayerRequests = useAppSelector((state:RootState) => state.account.userProfile.ownedPrayerRequestList);
+    const prayerRequestTimeMap = useAppSelector((state: RootState) => state.prayerRequestTime);
+    const prayerRequestPrayedState = useAppSelector((state: RootState) => state.prayerRequestPrayed);
     
     const [appPrayerRequestListItem, setAppPrayerRequestListItem] = useState<PrayerRequestListItem>({
         prayerRequestID: -1,
+        description: "",
+        tagList: [],
+        prayerCountRecipient: 0,
+        requestorID: -1,
         requestorProfile: {
             userID: -1,
             firstName: "",
             displayName: ""
         }, 
         topic: "",
-        prayerCount: -1
+        prayerCount: -1,
+        createdDT: '0',
+        modifiedDT: '0'
     });
     const [currPrayerRequestState, setCurrPrayerRequestState] = useState<PrayerRequestResponseBody | undefined>(undefined);
     const [dataFetchComplete, setDataFetchComplete] = useState(false); // toggles wait screen 
@@ -51,8 +59,8 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const [userRecipientData, setUserRecipientData] = useState<ProfileListItem[]>([]);
     const [circleRecipientData, setCircleRecipientData] = useState<CircleListItem[]>([]);
     const [tags, setTags] = useState<PrayerRequestTagEnum[]>([]);
-    const [prayerCount, setPrayerCount] = useState(-1);
     const [hasPrayed, setHasPrayed] = useState(false); // TODO: change based on upcoming change where this is static in the PR body
+    const [prayerCount, setPrayerCount] = useState(-1);
     const [prayerRequestEditModalVisible, setPrayerRequestEditModalVisible] = useState(false);
     const [commentCreateModalVisible, setCommentCreateModalVisible] = useState(false);
     const [userHasOpenedEditModal, setUserHasOpenedEditModal] = useState(false); // prevent recursive loading of the edit modal
@@ -93,25 +101,38 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     }
 
     const onPrayPress = async () => {
-        if (!hasPrayed) {
+        if (!hasPrayed && currPrayerRequestState !== undefined && currPrayerRequestState.requestorID !== userID) {
             await axios.post(`${DOMAIN}/api/prayer-request/` + currPrayerRequestState?.prayerRequestID + '/like', {}, RequestAccountHeader).then((response) => {
-                setPrayerCount(prayerCount+1);
+                dispatch(setPrayerRequestPrayedState({ ...prayerRequestPrayedState, [currPrayerRequestState.prayerRequestID.toString()]: prayerCount+ 1 }));
                 setHasPrayed(true);
+                setPrayerCount(prayerCount + 1);
+                
             }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         }
     }
 
     const setPrayerRequestState = (prayerRequestData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem) => {
         setDataFetchComplete(false);
-        const prayerRequestItem:PrayerRequestListItem = { ...prayerRequestListData, prayerCount: prayerRequestData.prayerCount };
-
+        const prayerRequestItem:PrayerRequestListItem = {
+            ...prayerRequestListData,
+            prayerRequestID: prayerRequestData.prayerRequestID,
+            description: prayerRequestData.description,
+            tagList: prayerRequestData.tagList,
+            prayerCountRecipient: prayerRequestData.prayerCountRecipient,
+            topic: prayerRequestData.topic,
+            prayerCount: prayerRequestData.prayerCount,
+            createdDT: prayerRequestData.createdDT,
+            modifiedDT: prayerRequestData.modifiedDT
+        }
+        
         setCurrPrayerRequestState(prayerRequestData);
         setAppPrayerRequestListItem(prayerRequestItem);
         setCommentsData(prayerRequestData.commentList || [])
         setUserRecipientData(prayerRequestData.userRecipientList || []);
         setCircleRecipientData(prayerRequestData.circleRecipientList || []);
         setTags(prayerRequestData.tagList || []);
-        setPrayerCount(prayerRequestData.prayerCount)
+        setPrayerCount(prayerRequestPrayedState[prayerRequestData.prayerRequestID.toString()] ?? prayerRequestItem.prayerCountRecipient);
+        setHasPrayed(prayerRequestPrayedState[prayerRequestData.prayerRequestID.toString()] !== undefined);
 
         setDataFetchComplete(true);
     }
@@ -132,15 +153,6 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         const navigateToEdit = route.params.navigateToEdit !== undefined && route.params.navigateToEdit;
 
         if (prayerRequestData !== undefined && prayerRequestListData !== undefined) {
-        
-            // if a prayer request is on the expiring dashboard and the user modified the expiration date, remove it from the dashboard
-            if (navigateToEdit && currPrayerRequestState !== undefined) {
-                if (new Date(prayerRequestData.expirationDate) > new Date(currPrayerRequestState.expirationDate)) {
-                    dispatch(removeExpiringPrayerRequest(appPrayerRequestListItem.prayerRequestID));
-
-                    if (prayerRequestData?.isResolved === currPrayerRequestState.isResolved) dispatch(addOwnedPrayerRequest(prayerRequestListData))
-                }
-            }
 
             if (currPrayerRequestState !== undefined && prayerRequestData?.isResolved !== currPrayerRequestState.isResolved) {
                 navigateToEdit && dispatch(removeExpiringPrayerRequest(appPrayerRequestListItem.prayerRequestID));
@@ -164,8 +176,15 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     }
 
     useEffect(() => {
-        if (route.params.PrayerRequestProps !== undefined) renderPrayerRequest(route.params.PrayerRequestProps);
+        const prayerRequestItem = route.params.PrayerRequestProps;
         
+        if (prayerRequestItem.requestorProfile.userID !== userID) {
+            dispatch(setPrayerRequestTimeState({ ...prayerRequestTimeMap, [prayerRequestItem.prayerRequestID]: new Date().getTime()}))
+        } 
+    }, []) 
+
+    useEffect(() => {
+        if (route.params.PrayerRequestProps !== undefined) renderPrayerRequest(route.params.PrayerRequestProps);
     }, [route.params])
 
     useEffect(() => {
@@ -207,7 +226,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                             <TouchableOpacity onPress={onPrayPress}>
                                 <View style={styles.socialDataView}>
                                 <Image source={PRAYER_ICON} style={{height: 15, width: 15}} />
-                                    <Text allowFontScaling={false} style={styles.prayerCountText}>{prayerCount}</Text>
+                                    <Text allowFontScaling={false} style={styles.prayerCountText}>{currPrayerRequestState.requestorID !== userID ? prayerCount : appPrayerRequestListItem.prayerCount}</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
