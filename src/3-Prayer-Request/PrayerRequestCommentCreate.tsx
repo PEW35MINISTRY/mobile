@@ -48,7 +48,7 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
                 },
                 message: postComment.message,
                 likeCount: 0,
-                likedByRecipient: false,
+                isLikedByRecipient: false,
                 createdDT: new Date().toISOString()
             }
             props.callback(prayerRequestCommentItem);

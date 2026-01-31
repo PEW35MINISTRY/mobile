@@ -48,6 +48,7 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
             const newPrayerRequest:PrayerRequestResponseBody = response.data;
             const newPrayerRequestListItem:PrayerRequestListItem = {
                 prayerRequestID: newPrayerRequest.prayerRequestID,
+                requestorID: newPrayerRequest.requestorID,
                 requestorProfile: {
                     userID: userProfile.userID,
                     firstName: userProfile.firstName,

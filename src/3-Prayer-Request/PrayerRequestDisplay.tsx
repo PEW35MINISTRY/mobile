@@ -42,6 +42,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         description: "",
         tagList: [],
         prayerCountRecipient: 0,
+        requestorID: -1,
         requestorProfile: {
             userID: -1,
             firstName: "",
