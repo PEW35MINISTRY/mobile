@@ -276,7 +276,7 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
                             <View style={styles.socialDataView}>
                                 <Ionicons 
                                     name="thumbs-up-outline"
-                                    color={COLORS.white}
+                                    color={ isLiked ? COLORS.accent : COLORS.white}
                                     size={15}
                                 />
                                     <Text allowFontScaling={false} style={styles.likeCountText}>{props.commentProp.commenterProfile.userID !== userID ? isLiked ? 1 : 0 : props.commentProp.likeCount}</Text>

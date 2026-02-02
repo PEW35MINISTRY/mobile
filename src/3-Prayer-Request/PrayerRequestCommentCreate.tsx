@@ -34,24 +34,9 @@ export const PrayerRequestCommentCreate = (props:{prayerRequestItem:PrayerReques
             message: String(formValues.message)
         }
 
-        axios.post(`${DOMAIN}/api/prayer-request/`+ props.prayerRequestItem.prayerRequestID + `/comment`, postComment, RequestAccountHeader).then((response:AxiosResponse) => {
-            const prayerRequestResponse:PrayerRequestCommentListItem = response.data;
+        axios.post(`${DOMAIN}/api/prayer-request/`+ props.prayerRequestItem.prayerRequestID + `/comment`, postComment, RequestAccountHeader).then(({data:newComment}:AxiosResponse<PrayerRequestCommentListItem>) => {
             
-            const prayerRequestCommentItem:PrayerRequestCommentListItem = {
-                commentID: prayerRequestResponse.commentID,
-                prayerRequestID: props.prayerRequestItem.prayerRequestID,
-                commenterProfile: {
-                    userID: userProfile.userID,
-                    firstName: userProfile.firstName,
-                    displayName: userProfile.displayName,
-                    image: userProfile.image
-                },
-                message: postComment.message,
-                likeCount: 0,
-                isLikedByRecipient: false,
-                createdDT: new Date().toISOString()
-            }
-            props.callback(prayerRequestCommentItem);
+            props.callback(newComment);
 
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
