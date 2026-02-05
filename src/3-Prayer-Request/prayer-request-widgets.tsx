@@ -5,7 +5,7 @@ import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
 import { PrayerRequestCommentListItem, PrayerRequestListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types";
 import { PrayerRequestTagEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { RootState, setPrayerRequestPrayedState } from "../redux-store";
+import { RootState, setPrayerRequestPrayedState, updatePrayerRequestPrayedState } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { RequestorProfileImage } from "../1-Profile/profile-widgets";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -13,16 +13,16 @@ import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from "../utilities/ToastQueueManager";
 
 export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestListItem, onPress?:((id:number, item:PrayerRequestListItem) => void), callback?:(() => void)}):JSX.Element => {
-    const PRAYER_ICON = require('../../assets/prayer-icon-blue.png');
+    const PRAYER_ICON_ACCENT = require('../../assets/prayer-icon-blue.png');
+    const PRAYER_ICON_TRANSPARENT = require('../../assets/prayer-icon-white-transparent.png');
+
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const prayerRequestTimeMap = useAppSelector((state: RootState) => state.prayerRequestTime);
-    const prayerRequestPrayedState = useAppSelector((state: RootState) => state.prayerRequestPrayed);
+    const prayerRequestGlobalState = useAppSelector((state: RootState) => state.prayerRequestPrayed[props.prayerRequestProp.prayerRequestID.toString()]);
 
     const dispatch = useAppDispatch();
     
-    const [hasPrayed, setHasPrayed] = useState(prayerRequestPrayedState[props.prayerRequestProp.prayerRequestID.toString()] !== undefined); 
-    const [prayerCount, setPrayerCount] = useState<number>(prayerRequestPrayedState[props.prayerRequestProp.prayerRequestID.toString()] ?? props.prayerRequestProp.prayerCountRecipient);
     const [isNew, setIsNew] = useState<boolean>(props.prayerRequestProp.requestorProfile.userID !== userID && !prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]);
     const [isEdited, setIsEdited] = useState<boolean>(props.prayerRequestProp.requestorProfile.userID !== userID && new Date(prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]) < new Date(props.prayerRequestProp.modifiedDT) );
 
@@ -45,13 +45,10 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
     }
 
     const onPrayedPress = async () => {
-        if (!hasPrayed && props.prayerRequestProp.requestorProfile.userID !== userID) {
-            await axios.post(`${DOMAIN}/api/prayer-request/` + props.prayerRequestProp.prayerRequestID + '/like', {}, RequestAccountHeader).then((response) => {
-                dispatch(setPrayerRequestPrayedState({ ...prayerRequestPrayedState , [props.prayerRequestProp.prayerRequestID.toString()]: props.prayerRequestProp.prayerCountRecipient + 1}));
-                setHasPrayed(true);
-                setPrayerCount(prayerCount + 1);
-            }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
-        }
+        await axios.post(`${DOMAIN}/api/prayer-request/` + props.prayerRequestProp.prayerRequestID + '/like', {}, RequestAccountHeader).then((response) => {
+            dispatch(updatePrayerRequestPrayedState({ prayerRequestID: props.prayerRequestProp.prayerRequestID.toString(), prayerCount: prayerRequestGlobalState?.prayerCount + 1, hasPrayed: true }));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+        
     }
 
     useEffect(() => {
@@ -62,9 +59,11 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
     }, [prayerRequestTimeMap[props.prayerRequestProp.prayerRequestID.toString()]])
 
     useEffect(() => {
-        setHasPrayed(prayerRequestPrayedState[props.prayerRequestProp.prayerRequestID.toString()] !== undefined);
-        setPrayerCount(prayerRequestPrayedState[props.prayerRequestProp.prayerRequestID.toString()] ?? props.prayerRequestProp.prayerCountRecipient);
-    }, [prayerRequestPrayedState[props.prayerRequestProp.prayerRequestID.toString()]])
+        // if we haven't tracked the prayer count yet, set it now
+        if (prayerRequestGlobalState === undefined) {
+            dispatch(updatePrayerRequestPrayedState({ prayerRequestID: props.prayerRequestProp.prayerRequestID.toString(), prayerCount: props.prayerRequestProp.prayerCount, hasPrayed: false }));
+        }
+    }, [])
     
     const styles = StyleSheet.create({
         prayerRequestListCard: {
@@ -160,8 +159,8 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
                             <View style={{flexDirection: "column"}}>
                                 <TouchableOpacity onPress={onPrayedPress}>
                                     <View style={styles.socialDataView}>
-                                        <Image source={PRAYER_ICON} style={{height: 15, width: 15}} />
-                                        <Text allowFontScaling={false} style={styles.prayerCountText}>{ props.prayerRequestProp.requestorProfile.userID !== userID ? prayerCount : props.prayerRequestProp.prayerCount}</Text>
+                                        <Image source={ prayerRequestGlobalState?.hasPrayed ? PRAYER_ICON_ACCENT : PRAYER_ICON_TRANSPARENT} style={{height: 15, width: 15}} />
+                                        <Text allowFontScaling={false} style={styles.prayerCountText}>{ prayerRequestGlobalState?.prayerCount ?? props.prayerRequestProp.prayerCount}</Text>
                                     </View>
                                 </TouchableOpacity>
                             </View>

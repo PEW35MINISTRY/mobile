@@ -258,6 +258,8 @@ export const registerNotificationDevice = async(dispatch: (arg0: { payload: numb
 export const saveSettingsMiddleware:Middleware = store => next => action => {
   const result = next(action);
 
+  const storeRef = store.getState();
+
   if(Object.values(settingsSlice.actions).map(action => action.type).includes(action.type) && action.type !== resetSettings.type) {
     const storeRef = store.getState();
     const settingsState: RootState['settings'] = storeRef.settings;
@@ -337,7 +339,7 @@ export const savePrayerRequestTimeMiddleware:Middleware = store => next => actio
 ******************************************/
 
 export type PrayerRequestPrayed = {
-  [key: string]: number
+  [key: string]: { prayerCount: number, hasPrayed: boolean }
 }
 
 const prayerRequestPrayedState:PrayerRequestPrayed = {}
@@ -347,11 +349,12 @@ const prayerRequestPrayedSlice = createSlice({
   initialState: prayerRequestPrayedState, 
   reducers: {
     setPrayerRequestPrayedState: (state, action:PayloadAction<PrayerRequestPrayed>) => state = action.payload,
+    updatePrayerRequestPrayedState: (state, action:PayloadAction<{prayerRequestID:string, prayerCount:number, hasPrayed:boolean}>) => { state[action.payload.prayerRequestID] = { prayerCount: action.payload.prayerCount, hasPrayed: action.payload.hasPrayed }; return state; },
     resetPrayerRequestPrayedState: (state) => state = prayerRequestPrayedState
   }
 })
 
-export const { setPrayerRequestPrayedState } = prayerRequestPrayedSlice.actions;
+export const { setPrayerRequestPrayedState, updatePrayerRequestPrayedState } = prayerRequestPrayedSlice.actions;
 
 const store = configureStore({
     reducer: {
