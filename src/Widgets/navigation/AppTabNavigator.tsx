@@ -9,9 +9,9 @@ import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
 
 export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
     const CIRCLE_NAVIGATOR_ICON_SELECTED = require('../../../assets/circle-icon-red.png')
-    const CIRCLE_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/circle-icon-gray.png');
+    const CIRCLE_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/circle-icon-white-transparent.png');
     const PRAYER_REQUEST_NAVIGATOR_ICON_SELECTED = require('../../../assets/prayer-request-icon-red.png')
-    const PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/prayer-request-icon-gray.png');
+    const PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/prayer-request-icon-white-transparent.png');
     const ICON_SIZE = 28;
 
     const dispatch = useAppDispatch();
