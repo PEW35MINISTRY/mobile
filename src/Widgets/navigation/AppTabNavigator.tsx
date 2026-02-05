@@ -9,9 +9,10 @@ import { useAppDispatch, useAppSelector } from "../../TypesAndInterfaces/hooks";
 
 export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
     const CIRCLE_NAVIGATOR_ICON_SELECTED = require('../../../assets/circle-icon-red.png')
-    const CIRCLE_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/circle-icon-gray.png');
+    const CIRCLE_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/circle-icon-white-transparent.png');
     const PRAYER_REQUEST_NAVIGATOR_ICON_SELECTED = require('../../../assets/prayer-request-icon-red.png')
-    const PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/prayer-request-icon-gray.png');
+    const PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED = require('../../../assets/prayer-request-icon-white-transparent.png');
+    const ICON_SIZE = 28;
 
     const dispatch = useAppDispatch();
     const focusedTab = useAppSelector((state: RootState) => state.navigationTab.focusedTab);
@@ -33,7 +34,8 @@ export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
         padding: {
             justifyContent: "space-evenly",
             flexDirection: "row",
-            marginBottom: 15, 
+            paddingTop: 8,
+            paddingBottom: 3 
         },
         navTouchable: {
             backgroundColor: COLORS.black,
@@ -53,8 +55,8 @@ export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
                     
                     <Ionicons
                         name="home"
-                        color={(focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.DASHBOARD_NAVIGATOR_ROUTE_NAME && COLORS.primary) || COLORS.grayDark}
-                        size={55}
+                        color={(focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.DASHBOARD_NAVIGATOR_ROUTE_NAME && COLORS.primary) || COLORS.transparentWhite}
+                        size={ICON_SIZE}
                     />
                         
                 </TouchableOpacity>
@@ -63,7 +65,7 @@ export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
                     onPress={() => changeTab(BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME)}
                 >
                     {
-                        focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME ? <Image source={CIRCLE_NAVIGATOR_ICON_SELECTED} style={{height: 55, width: 55}}/> : <Image source={CIRCLE_NAVIGATOR_ICON_NOT_SELECTED} style={{height: 55, width: 55}}/>
+                        focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CIRCLE_NAVIGATOR_ROUTE_NAME ? <Image source={CIRCLE_NAVIGATOR_ICON_SELECTED} style={{height: ICON_SIZE, width: ICON_SIZE}}/> : <Image source={CIRCLE_NAVIGATOR_ICON_NOT_SELECTED} style={{height: ICON_SIZE, width: ICON_SIZE}}/>
                     }
                     
                         
@@ -73,7 +75,7 @@ export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
                     onPress={() => changeTab(BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME)}
                 >
                     {
-                        focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME ? <Image source={PRAYER_REQUEST_NAVIGATOR_ICON_SELECTED} style={{height: 55, width: 55}}/> : <Image source={PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED} style={{height: 55, width: 55}}/>
+                        focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.PRAYER_REQUEST_NAVIGATOR_ROUTE_NAME ? <Image source={PRAYER_REQUEST_NAVIGATOR_ICON_SELECTED} style={{height: ICON_SIZE, width: ICON_SIZE}}/> : <Image source={PRAYER_REQUEST_NAVIGATOR_ICON_NOT_SELECTED} style={{height: ICON_SIZE, width: ICON_SIZE}}/>
                     }
                     
                         
@@ -84,8 +86,8 @@ export const AppTabNavigator = (props:BottomTabBarProps):JSX.Element => {
                 >
                     <Ionicons
                         name="library"
-                        color={(focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME && COLORS.primary) || COLORS.grayDark}
-                        size={55}
+                        color={(focusedTab === BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES.CONTENT_NAVIGATOR_ROUTE_NAME && COLORS.primary) || COLORS.transparentWhite}
+                        size={ICON_SIZE}
                     />
                         
                 </TouchableOpacity>
