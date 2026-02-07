@@ -108,6 +108,9 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
         if (props.showMultiListFilter && selectedKey.displayTitle !== 'Default')
             // the key is already selected, but display list needs to be filtered
             setDisplayList(getList(selectedKey.displayTitle));
+        else if (appliedFilter !== undefined && selectedKey.displayTitle !== 'Default') 
+            // a filter is selected but the display list needs to be updated
+            onApplyFilter(appliedFilter.filterOption);
         else if(props.displayMap.size === 1)
             setSelectedKey(Array.from(props.displayMap.keys())[0]);
         else

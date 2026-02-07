@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { addOwnedPrayerRequest, RootState } from '../redux-store';
+import { addOwnedPrayerRequest, RootState, updatePrayerRequestPrayedState } from '../redux-store';
 import { PrayerRequestListItem, PrayerRequestPostRequestBody, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS } from '../theme';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
@@ -38,15 +38,8 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
     }
 
     const onSuccess = (context:PrayerRequestCreateContext) => {
-        // Convert `duration` mock field to `expirationDate`
 
         const prayerRequest:PrayerRequestPostRequestBody = {...context.prayerRequestFields}
-
-        //@ts-ignore
-        prayerRequest.expirationDate = getDateDaysFuture(parseInt(prayerRequest.duration)).toISOString();
-
-        //@ts-ignore
-        delete prayerRequest.duration; // avoid server warning "non model recognized field"
 
         prayerRequest.addCircleRecipientIDList = context.addCircleRecipientIDList;
         prayerRequest.addUserRecipientIDList = context.addUserRecipientIDList;
@@ -55,6 +48,7 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
             const newPrayerRequest:PrayerRequestResponseBody = response.data;
             const newPrayerRequestListItem:PrayerRequestListItem = {
                 prayerRequestID: newPrayerRequest.prayerRequestID,
+                requestorID: newPrayerRequest.requestorID,
                 requestorProfile: {
                     userID: userProfile.userID,
                     firstName: userProfile.firstName,
@@ -62,10 +56,15 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
                     image: userProfile.image,
                 },
                 topic: prayerRequest.topic,
-                prayerCount: 0,
-                tagList: newPrayerRequest.tagList
+                description: prayerRequest.description,
+                tagList: newPrayerRequest.tagList ?? [],
+                prayerCount: newPrayerRequest.prayerCount,
+                prayerCountRecipient: 0,
+                createdDT: newPrayerRequest.createdDT,
+                modifiedDT: newPrayerRequest.modifiedDT                
             }
             dispatch(addOwnedPrayerRequest(newPrayerRequestListItem));
+            dispatch(updatePrayerRequestPrayedState({prayerRequestID: newPrayerRequest.prayerRequestID.toString(), prayerCount: 0, hasPrayed: false}));
             ToastQueueManager.show({message: "Sucessfully created Prayer Request"}); 
             props.callback();
         }).catch((error:AxiosError<ServerErrorResponse>) => { setShowToastRef(true); ToastQueueManager.show({error})});

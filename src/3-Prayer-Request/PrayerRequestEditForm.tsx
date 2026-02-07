@@ -17,7 +17,6 @@ import { CALLBACK_STATE, PrayerRequestEditContext } from '../TypesAndInterfaces/
 
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
-    const dispatch = useAppDispatch();
 
     const [showToastRef, setShowToastRef] = useState(true);
 
@@ -59,8 +58,13 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
 
         // Copy over the other fields that changed
         for (const [key, value] of Object.entries(context.prayerRequestFields)) {
-            //@ts-ignore
-            if (value !== props.prayerRequestResponseData[key]) { editedFields[key] = value; fieldsChanged = true;}
+            //@ts-ignore - arrays are considered objects in JS, which cannot be compared directly. Thus, we need to stringify for comparison
+            const dirtyField = Array.isArray(value) ? value.toString() !== props.prayerRequestResponseData[key].toString() : value !== props.prayerRequestResponseData[key];
+
+            if (dirtyField) { 
+                //@ts-ignore
+                editedFields[key] = value; fieldsChanged = true;
+            }
         }
 
         if (fieldsChanged) {
@@ -69,13 +73,14 @@ const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestRes
 
                 const newPrayerRequestListItem:PrayerRequestListItem = {...props.prayerRequestListData};
 
+
                 newPrayerRequestListItem.topic = newPrayerRequest.topic;
-                newPrayerRequestListItem.tagList = newPrayerRequest.tagList;
+                newPrayerRequestListItem.description = newPrayerRequest.description;
+                newPrayerRequestListItem.tagList = newPrayerRequest.tagList ?? [];
+
+                newPrayerRequestListItem.modifiedDT = new Date().toISOString(); //temp fix
 
                 ToastQueueManager.show({message: "Prayer Request saved"})
-
-                // remove from expiring list if Long Term is set and the prayer request was about to expire
-                if (editedFields.expirationDate !== undefined && newPrayerRequest.isOnGoing && new Date(editedFields.expirationDate) > new Date()) dispatch(removeExpiringPrayerRequest(newPrayerRequest.prayerRequestID))
 
                 props.callback(newPrayerRequest, newPrayerRequestListItem);
             }).catch((error:AxiosError<ServerErrorResponse>) => { setShowToastRef(true); ToastQueueManager.show({error})});

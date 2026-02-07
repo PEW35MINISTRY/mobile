@@ -279,7 +279,7 @@ export const Input_Field = (props:{field:InputField, labelStyle?:TextStyle, inpu
                     textContentType={(props.field.type === InputType.PASSWORD ? 'password' : undefined)}
                     secureTextEntry={(props.field.type === InputType.PASSWORD)}
                     editable={props.editable}
-                    multiline={(props.field.type === InputType.PARAGRAPH)}
+                    multiline={([InputType.PARAGRAPH, InputType.TEXT].includes(props.field.type))}
                     textAlignVertical='top'
                     autoCapitalize='none'
                     returnKeyType='done'

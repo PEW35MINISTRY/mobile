@@ -12,7 +12,6 @@ import { SearchListKey, SearchListValue } from "../SearchList/searchList-types";
 import { DisplayItemType, ListItemTypesEnum, SearchType } from "../../TypesAndInterfaces/config-sync/input-config-sync/search-config";
 import { CALLBACK_STATE, PrayerRequestFormContext } from "../../TypesAndInterfaces/custom-types";
 import ToastQueueManager from "../../utilities/ToastQueueManager";
-import Toast from "react-native-toast-message";
 
 export const RecipientForm = (props:{callback: (state:CALLBACK_STATE) => void, continueNavigation:boolean, context:PrayerRequestFormContext, setContext:React.Dispatch<PrayerRequestFormContext>}) => {
 
@@ -25,8 +24,6 @@ export const RecipientForm = (props:{callback: (state:CALLBACK_STATE) => void, c
     const [mutatedCircleRecipients, setMutatedCircleRecipients] = useState<Map<number, RecipientStatusEnum>>(new Map());
     const [viewMode, setViewMode] = useState<RecipientFormViewMode>((props.context.removeCircleRecipientIDList !== undefined && props.context.removeUserRecipientIDList !== undefined ) ? RecipientFormViewMode.EDITING : RecipientFormViewMode.CREATING)
     const [showToastRef, setShowToastRef] = useState(false);
-    
-
 
     const onActionButtonPress = (callbackState:CALLBACK_STATE) => {
         let { 
