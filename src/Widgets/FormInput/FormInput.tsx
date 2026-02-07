@@ -45,8 +45,6 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
         handleSubmit,
         getValues,
         setValue,
-        setError,
-        clearErrors,
         trigger
       } = useForm({  defaultValues: createCurrentValueMap() }); 
 
@@ -150,7 +148,6 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                         field={field}
                                         value={String(value ?? '')}
                                         onChangeText={onChange}
-
                                         validationLabel={errors[field.field]?.message}
                                     />}
                             />);
@@ -176,7 +173,7 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                                         field={field}
                                         value={String(value ?? '')}
                                         onChangeText={onChange}
-                                        inputStyle={{fontSize: FONT_SIZES.M}}
+                                        inputStyle={{fontSize: FONT_SIZES.M, minHeight: '40%'}}
                                         validationLabel={errors[field.field]?.message}
                                     />}
 

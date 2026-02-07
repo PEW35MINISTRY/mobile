@@ -106,15 +106,17 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         if (currPrayerRequestState !== undefined ) {
             await axios.post(`${DOMAIN}/api/prayer-request/` + currPrayerRequestState?.prayerRequestID + '/like', {}, RequestAccountHeader).then((response) => {
                 dispatch(updatePrayerRequestPrayedState({ prayerRequestID: currPrayerRequestState.prayerRequestID.toString(), prayerCount: prayerRequestGlobalState?.prayerCount + 1, hasPrayed: true }));                
-                setRecipientPrayerCount(recipientPrayerCount + 1);
+                setRecipientPrayerCount((count) => count + 1);
             }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         }
     }
 
-    const setPrayerRequestState = (prayerRequestData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem) => {
+    const setPrayerRequestState = (prayerRequestData:PrayerRequestResponseBody) => {
         setDataFetchComplete(false);
+
         const prayerRequestItem:PrayerRequestListItem = {
-            ...prayerRequestListData,
+            requestorID: prayerRequestData.requestorID,
+            requestorProfile: prayerRequestData.requestorProfile,
             prayerRequestID: prayerRequestData.prayerRequestID,
             description: prayerRequestData.description,
             tagList: prayerRequestData.tagList,
@@ -124,7 +126,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
             createdDT: prayerRequestData.createdDT,
             modifiedDT: prayerRequestData.modifiedDT
         }
-        
+
         setCurrPrayerRequestState(prayerRequestData);
         setAppPrayerRequestListItem(prayerRequestItem);
         setCommentsData(prayerRequestData.commentList || [])
@@ -132,6 +134,9 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         setCircleRecipientData(prayerRequestData.circleRecipientList || []);
         setTags(prayerRequestData.tagList || []);
         setRecipientPrayerCount(prayerRequestData.prayerCountRecipient || 0);
+
+        // keep global prayer count in sync
+        dispatch(updatePrayerRequestPrayedState({ prayerRequestID: prayerRequestData.prayerRequestID.toString(), prayerCount: prayerRequestData.prayerCount, hasPrayed: prayerRequestGlobalState?.hasPrayed || false }));
 
         setDataFetchComplete(true);
     }
@@ -142,7 +147,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         setDataFetchComplete(false);
         await axios.get(`${DOMAIN}/api/prayer-request/` + prayerRequestProps.prayerRequestID, RequestAccountHeader).then(response => {
             const prayerRequestResponseData:PrayerRequestResponseBody = response.data;
-            setPrayerRequestState(prayerRequestResponseData, prayerRequestProps)
+            setPrayerRequestState(prayerRequestResponseData)
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
@@ -164,7 +169,7 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                     dispatch(removeAnsweredPrayerRequest(prayerRequestListData.prayerRequestID)) 
                 }
             } else dispatch(setOwnedPrayerRequests((ownedPrayerRequests || []).map((prayerRequestItem:PrayerRequestListItem) => prayerRequestItem.prayerRequestID === prayerRequestListData.prayerRequestID ? prayerRequestListData : prayerRequestItem)));
-            setPrayerRequestState(prayerRequestData, prayerRequestListData);
+            setPrayerRequestState(prayerRequestData);
         }  
         else if (deletePrayerRequest === true) {
             dispatch(removeOwnedPrayerRequest(appPrayerRequestListItem.prayerRequestID));
@@ -220,8 +225,13 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                         <View style={styles.prayerDescriptionView}>
                             <Text allowFontScaling={false} style={styles.prayerDescriptionText}>{currPrayerRequestState.description}</Text>
                         </View>
+                        {
+                            tags.length !== 0 && 
+                                <View style={styles.prayerRequestTagsView}>
+                                    {renderTags()}
+                                </View>
+                        }
                         <View style={styles.prayerRequestMetricsView}>
-                            {renderTags()}
                                 <View style={styles.globalPrayerView}>
                                     <Ionicons 
                                         name='earth-outline'
@@ -347,12 +357,17 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         top: 20,
     },
+    prayerRequestTagsView: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 10,
+        justifyContent: "center",
+    },
     prayerRequestMetricsView: {
         flexDirection: "row",
         alignItems: "center",
         marginVertical: 10,
         justifyContent: "center",
-        //flex: 1
     },
     prayerDescriptionText: {
         ...theme.text,
@@ -387,7 +402,6 @@ const styles = StyleSheet.create({
     },
     tagsText: {
         ...theme.text,
-
         marginHorizontal: 2,
         fontSize: 12
     },

@@ -17,7 +17,6 @@ import { CALLBACK_STATE, PrayerRequestEditContext } from '../TypesAndInterfaces/
 
 const PrayerRequestEditForm = (props:{prayerRequestResponseData:PrayerRequestResponseBody, prayerRequestListData:PrayerRequestListItem, callback:((prayerRequestData?:PrayerRequestResponseBody, prayerRequestListData?:PrayerRequestListItem, deletePrayerRequest?:boolean) => void)}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
-    const dispatch = useAppDispatch();
 
     const [showToastRef, setShowToastRef] = useState(true);
 

@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { addOwnedPrayerRequest, RootState } from '../redux-store';
+import { addOwnedPrayerRequest, RootState, updatePrayerRequestPrayedState } from '../redux-store';
 import { PrayerRequestListItem, PrayerRequestPostRequestBody, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS } from '../theme';
 import { RecipientForm } from '../Widgets/RecipientIDList/RecipientForm';
@@ -64,6 +64,7 @@ const PrayerRequestCreateForm = (props:{callback:((listItem?:PrayerRequestListIt
                 modifiedDT: newPrayerRequest.modifiedDT                
             }
             dispatch(addOwnedPrayerRequest(newPrayerRequestListItem));
+            dispatch(updatePrayerRequestPrayedState({prayerRequestID: newPrayerRequest.prayerRequestID.toString(), prayerCount: 0, hasPrayed: false}));
             ToastQueueManager.show({message: "Sucessfully created Prayer Request"}); 
             props.callback();
         }).catch((error:AxiosError<ServerErrorResponse>) => { setShowToastRef(true); ToastQueueManager.show({error})});
