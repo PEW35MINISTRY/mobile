@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent, SafeAreaView, Platform } from 'react-native';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Animated, NativeSyntheticEvent, NativeScrollEvent, SafeAreaView, Platform, Image } from 'react-native';
 import { SearchFilterIdentifiable, SearchListKey, SearchListValue} from './searchList-types';
 import { ContentListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/content-types';
 import SearchDetail, { SearchTypeInfo, DisplayItemType, SearchType, ListItemTypesEnum, SEARCH_MIN_CHARS, LabelListItem } from '../../TypesAndInterfaces/config-sync/input-config-sync/search-config';
@@ -23,6 +23,7 @@ import { PendingPrayerPartnerListItem, PrayerPartnerListItem } from '../../4-Par
 import { PartnerListItem } from '../../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { ProfileContact } from '../../1-Profile/profile-widgets';
 import { RecipientFormCircleListItem, RecipientFormProfileListItem } from '../RecipientIDList/recipient-types';
+import EMPTY_LIST from "../../../assets/empty-list.png";
 
 /*********************************************************************************
  *                DYNAMIC SEARCH & DISPLAY LIST                                  *
@@ -343,7 +344,9 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                             text={`Reset Page`}
                             onPress={() => resetPage(props.defaultDisplayKey)}
                         />
-                      : <Text allowFontScaling={false} style={styles.accent} >Loading . . . </Text>
+                      : <View>
+                            <Image source={EMPTY_LIST} resizeMode={"contain"} style={{maxHeight: '90%', maxWidth: '90%'}}/>
+                      </View>
                     }
                 </View>
 
