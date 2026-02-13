@@ -92,7 +92,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
  * CONTENT UTILITIES *
  *********************/
 
-const openInAppBrowser = async (url: string): Promise<void> => {
+export const openInAppBrowser = async (url: string): Promise<void> => {
   try {
     const isAvailable = await InAppBrowser.isAvailable();
     if (!isAvailable) throw new Error('InAppBrowser Unavailable');

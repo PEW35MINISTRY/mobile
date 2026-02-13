@@ -1,19 +1,15 @@
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import keychain from 'react-native-keychain'
-import { render } from 'react-dom';
-import { Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { SIGNUP_PROFILE_FIELDS_USER } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, registerNotificationDevice, resetAccount, setAccount, setDeviceID } from '../redux-store';
 import theme, { COLORS } from '../theme';
 import { Raised_Button, BackButton, CheckBox } from '../widgets';
-import ProfileImageSettings from './ProfileImageSettings';
 import { FormSubmit } from '../Widgets/FormInput/form-input-types';
 import { FormInput } from '../Widgets/FormInput/FormInput';
-import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
+import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { LoginResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/auth-types';
@@ -31,16 +27,8 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
     const onSignUp = (formValues:Record<string, InputTypesAllowed>) => {
       // send data to server
       axios.post(`${DOMAIN}/signup${populateDemoProfile ? '?populate=true' : ''}`, formValues).then((response:AxiosResponse<LoginResponseBody>) => {
-        dispatch(setAccount({
-          jwt: response.data.jwt,
-          userID: response.data.userID,
-          userProfile: response.data.userProfile,
-        }));
 
-        dispatch(registerNotificationDevice);
-
-        // call callback via route
-        navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true})
+        navigation.navigate((ENVIRONMENT == ENVIRONMENT_TYPE.PRODUCTION) ? ROUTE_NAMES.EMAIL_VERIFY_ROUTE_NAME : ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true, email:String(formValues.email ?? '')});
       }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       
     }

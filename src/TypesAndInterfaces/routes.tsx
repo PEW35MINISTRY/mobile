@@ -8,6 +8,7 @@ import { LoginParamList } from "../0-Pages/Login"
 export enum ROUTE_NAMES {
     LOGIN_ROUTE_NAME = "LOGIN",
     SIGNUP_ROUTE_NAME = "SIGN_UP",
+    EMAIL_VERIFY_ROUTE_NAME = "EMAIL_VERIFY",
     EDIT_PROFILE_ROUTE_NAME = "EDIT_PROFILE",
     CIRCLE_SEARCH_ROUTE_NAME = "CircleSearch",
     CIRCLE_LIST_ROUTE_NAME = "CircleList",

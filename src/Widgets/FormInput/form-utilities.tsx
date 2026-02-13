@@ -1,6 +1,7 @@
 import { DOMAIN } from "@env";
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import ToastQueueManager from '../../utilities/ToastQueueManager';
+import { ServerErrorResponse } from "../../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 
 
 /* General Utilities used in abstract FormInput.tsx rendering of InputField Lists */
@@ -11,8 +12,8 @@ export const testAccountAvailable = async(fields:Map<string, string>):Promise<bo
 
     axios.get(`${DOMAIN}/resources/available-account?${fieldQuery}`)
         .then(response => resolve(true)) //notification handled in FormInput.tsx
-        .catch(error => {
-            if(error.response.status === 403) {
+        .catch((error:AxiosError<ServerErrorResponse>) => {
+            if(error.response?.status === 403) {
                 resolve(false); 
             } else {
                 ToastQueueManager.show({message: 'Unable to verify account availability'});

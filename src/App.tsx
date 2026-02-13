@@ -27,6 +27,7 @@ import Toast from 'react-native-toast-message';
 import PrayerRequestAnsweredPage from './3-Prayer-Request/PrayerRequestAnswered';
 import { COLORS } from './theme';
 import { ColorValue, StatusBar } from 'react-native';
+import EmailVerifyPage from './1-Profile/EmailVerifyPage';
 
 const Stack = createStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -114,6 +115,7 @@ const App = ():JSX.Element => {
             <Stack.Navigator screenOptions={{headerShown: false}}>
                 <Stack.Screen name={ROUTE_NAMES.LOGIN_ROUTE_NAME} component={Login} />
                 <Stack.Screen name={ROUTE_NAMES.SIGNUP_ROUTE_NAME} component={Signup} />
+                <Stack.Screen name={ROUTE_NAMES.EMAIL_VERIFY_ROUTE_NAME} component={EmailVerifyPage} />
                 <Stack.Screen name={ROUTE_NAMES.INITIAL_ACCOUNT_FLOW_ROUTE_NAME} component={InitialAccountFlow} />
                 <Stack.Screen name={ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME} component={AnimatedLogo} />
                 <Stack.Screen name={ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME} component={BottomTabNavigator} options={{cardStyleInterpolator: forFade}}/>

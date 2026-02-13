@@ -20,13 +20,16 @@ import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { LoginResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/auth-types';
 import { InputTypesAllowed } from '../TypesAndInterfaces/config-sync/input-config-sync/inputValidation';
+import { openInAppBrowser } from '../5-Content/ContentCard';
 
 export interface LoginParamList {
   newAccount?:boolean
   tryJWTLogin?:boolean
+  email?:string
 }
 
-type LoginProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.LOGIN_ROUTE_NAME>;
+
+export type LoginProps = NativeStackScreenProps<AppStackParamList, typeof ROUTE_NAMES.LOGIN_ROUTE_NAME>;
 
 
 const Login = ({navigation, route}:LoginProps):JSX.Element => {
@@ -58,7 +61,10 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
           dispatch(registerNotificationDevice); // asynchronous, don't need to wait
 
           navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})); // ServerErrorResponse is in response. Check for network errors with axios error code "ERR_NETWORK"
+        }).catch((error:AxiosError<ServerErrorResponse>) => {
+          if(error.response?.status === 403) navigation.navigate(ROUTE_NAMES.EMAIL_VERIFY_ROUTE_NAME, { email:String(formValues.email ?? '')});
+          ToastQueueManager.show({error}); 
+        });
     }
     
     const onGoogle = (event:GestureResponderEvent) => console.log(`Logging in via Google`);
@@ -67,7 +73,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
 
     const onApple = (event:GestureResponderEvent) => console.log(`Logging in via APPLE`);
 
-    const onForgotPassword = (event:GestureResponderEvent) => console.log("Forgot Password");
+    const onForgotPassword = (event:GestureResponderEvent) => { openInAppBrowser(`${DOMAIN}/password-forgot`); } //TODO add email query for autofill
 
     const onSignUp = (event:GestureResponderEvent) => navigation.navigate(ROUTE_NAMES.SIGNUP_ROUTE_NAME);
 
