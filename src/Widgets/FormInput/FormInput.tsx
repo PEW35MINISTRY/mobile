@@ -5,12 +5,15 @@ import { ScrollView, StyleSheet } from "react-native";
 import InputField, { InputType, InputSelectionField, isListType, ENVIRONMENT_TYPE, InputRangeField } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputField";
 import validateInput, { InputTypesAllowed, InputValidationResult } from "../../TypesAndInterfaces/config-sync/input-config-sync/inputValidation";
 import theme, { COLORS, FONT_SIZES } from "../../theme";
-import { Input_Field, Dropdown_Select, DatePicker, Multi_Dropdown_Select, SelectSlider, Filler, EditCustomStringList } from "../../widgets";
+import { Input_Field, Dropdown_Select, Filler } from "../../widgets";
+import { DatePicker, SelectSlider, Multi_Dropdown_Select, EditCustomStringList, ReadOnlyInput } from "./form-input-widgets";
 import { FormSubmit, FormInputProps } from "./form-input-types";
 import ToastQueueManager from "../../utilities/ToastQueueManager";
-import { SelectListItem } from "react-native-dropdown-select-list";
 import { testAccountAvailable } from "./form-utilities";
 import { getEnvironment } from "../../utilities/utilities";
+import { FormInputTokenEntry } from "./FormInputTokenEntry";
+
+
 
 export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDetails = {modelIDField:'modelID', modelID:-1}, validateUniqueFields = true, ...props}:FormInputProps, ref):JSX.Element => {
     const [simpleValidationOnly, setSimpleValidationOnly] = useState<boolean>(true);
@@ -124,6 +127,9 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
             (props.fields).filter((field:InputField)=>field.environmentList.includes(getEnvironment()))
               .map((field:InputField, index:number) => {
                 switch(field.type) {
+                    case InputType.READ_ONLY:
+                        return ReadOnlyInput(field, String(getValues(field.field) ?? ''));
+
                     case InputType.TEXT:
                     case InputType.NUMBER:
                     case InputType.EMAIL:
@@ -323,6 +329,35 @@ export const FormInput = forwardRef<FormSubmit, FormInputProps>(({modelIDFieldDe
                         />
                     );
                     break;
+
+                case InputType.TOKEN:
+                    return (
+                        <Controller
+                            control={control}
+                            key={field.field}
+                            name={field.field}
+                            rules={{
+                                validate: (value: InputTypesAllowed, formValues: Record<string, InputTypesAllowed>) => {
+                                    const result: InputValidationResult = validateInput({field, value,
+                                        getInputField: (f: string) => formValues[f], simpleValidationOnly});
+
+                                    if(!result.passed && ENVIRONMENT_TYPE.LOCAL === getEnvironment())
+                                        console.log(field.field, value, result.description);
+
+                                    return result.passed || result.message;
+                                }
+                            }}
+                            render={({ field: { onChange, value } }) => (
+                                <FormInputTokenEntry
+                                    field={field}
+                                    value={String(value ?? '')}
+                                    onChangeText={onChange}
+                                    validationLabel={errors[field.field]?.message}
+                                    charType='NUMERIC'
+                                />
+                            )}
+                        />
+                    );
 
 
                 // Default case will likely never happen, but its here to prevent undefined behavior per TS
