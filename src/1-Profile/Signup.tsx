@@ -28,7 +28,7 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
       // send data to server
       axios.post(`${DOMAIN}/signup${populateDemoProfile ? '?populate=true' : ''}`, formValues).then((response:AxiosResponse<LoginResponseBody>) => {
 
-        navigation.navigate((ENVIRONMENT == ENVIRONMENT_TYPE.PRODUCTION) ? ROUTE_NAMES.EMAIL_VERIFY_ROUTE_NAME : ROUTE_NAMES.LOGIN_ROUTE_NAME, {newAccount: true, email:String(formValues.email ?? '')});
+        navigation.navigate(ROUTE_NAMES.EMAIL_VERIFY_ROUTE_NAME, {newAccount: true, email:String(formValues.email ?? '')});
       }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
       
     }
