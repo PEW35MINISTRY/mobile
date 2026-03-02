@@ -2,7 +2,6 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
-import RNNotifications
 
 @main
 class AppDelegate: RCTAppDelegate {
@@ -13,21 +12,8 @@ class AppDelegate: RCTAppDelegate {
     // You can add your custom initial props in the dictionary below.
     // They will be passed down to the ViewController used by React Native.
     self.initialProps = [:]
-    RNNotifications.startMonitorNotifications()
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-
-  override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    RNNotifications.didRegisterForRemoteNotifications(withDeviceToken: deviceToken)
-  }
-
-  override func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-    RNNotifications.didFailToRegisterForRemoteNotificationsWithError(error)
-  }
-
-  override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-    RNNotifications.didReceiveBackgroundNotification(userInfo, withCompletionHandler: completionHandler)
   }
 
   override func sourceURL(for bridge: RCTBridge) -> URL? {
