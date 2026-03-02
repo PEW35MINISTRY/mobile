@@ -3,7 +3,7 @@ import axios, { AxiosError } from "axios";
 import { Buffer } from "buffer";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Image, ImageSourcePropType, ImageRequireSource, SafeAreaView, Platform } from "react-native";
-import { ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } from "react-native-image-picker";
+// import { ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } from "react-native-image-picker";
 import { CALLBACK_STATE, CallbackParam, PROFILE_IMAGE_MIME_TYPES, StackNavigationProps } from "../TypesAndInterfaces/custom-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
 import { RootState, updateProfileImage } from "../redux-store";
@@ -60,32 +60,32 @@ const ProfileImageSettings = (props:{callback?:(state:CALLBACK_STATE) => void, c
         }
       }
 
-    const onOpenImagePicker = () => {
-        const options = {
-          mediaType: 'photo',
-          includeBase64: true,
-        } as ImageLibraryOptions;
-  
-         
-        launchImageLibrary(options, (response:ImagePickerResponse) => {
-
-          if (response.errorCode) {
-            ToastQueueManager.show({message: "An unknown error occurred"})
-          } else if (response.assets === undefined || response.assets[0].base64 === undefined || response.assets[0].type === undefined || response.assets[0].uri === undefined) {
-            ToastQueueManager.show({message: "No image selected for upload"})
-          } 
-          else {
-            // allowed mime types: 'image/png', 'image/jpg', 'image/jpeg'. Configurable in inputfield.ts
-            if (!PROFILE_IMAGE_MIME_TYPES.includes(response.assets[0].type)) {
-                ToastQueueManager.show({message: "Invalid image mime type. Valid choices are " + PROFILE_IMAGE_MIME_TYPES});
-            }
-            else {
-              setProfileImageUri({uri: response.assets[0].uri});
-              postProfileImage(response.assets[0].base64, response.assets[0].type)
-            }
-          }
-        });
-      }
+    // const onOpenImagePicker = () => {
+    //     const options = {
+    //       mediaType: 'photo',
+    //       includeBase64: true,
+    //     } as ImageLibraryOptions;
+    //
+    //
+    //     launchImageLibrary(options, (response:ImagePickerResponse) => {
+    //
+    //       if (response.errorCode) {
+    //         ToastQueueManager.show({message: "An unknown error occurred"})
+    //       } else if (response.assets === undefined || response.assets[0].base64 === undefined || response.assets[0].type === undefined || response.assets[0].uri === undefined) {
+    //         ToastQueueManager.show({message: "No image selected for upload"})
+    //       }
+    //       else {
+    //         // allowed mime types: 'image/png', 'image/jpg', 'image/jpeg'. Configurable in inputfield.ts
+    //         if (!PROFILE_IMAGE_MIME_TYPES.includes(response.assets[0].type)) {
+    //             ToastQueueManager.show({message: "Invalid image mime type. Valid choices are " + PROFILE_IMAGE_MIME_TYPES});
+    //         }
+    //         else {
+    //           setProfileImageUri({uri: response.assets[0].uri});
+    //           postProfileImage(response.assets[0].base64, response.assets[0].type)
+    //         }
+    //       }
+    //     });
+    //   }
 
       useEffect(() => {
         // set user's profile picture if its defined
@@ -102,7 +102,7 @@ const ProfileImageSettings = (props:{callback?:(state:CALLBACK_STATE) => void, c
           </View>
           <Outline_Button 
               text={"Select Image"}
-              onPress={onOpenImagePicker}
+              // onPress={onOpenImagePicker}
           />
               <Raised_Button buttonStyle={styles.doneButton}
               text={props.continueNavigation !== undefined && props.continueNavigation ? "Next" : "Done"}
