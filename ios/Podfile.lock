@@ -1334,7 +1334,7 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-notifications (5.1.0):
     - React-Core
-  - react-native-safe-area-context (5.2.0):
+  - react-native-safe-area-context (5.4.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1349,8 +1349,8 @@ PODS:
     - React-hermes
     - React-ImageManager
     - React-jsi
-    - react-native-safe-area-context/common (= 5.2.0)
-    - react-native-safe-area-context/fabric (= 5.2.0)
+    - react-native-safe-area-context/common (= 5.4.1)
+    - react-native-safe-area-context/fabric (= 5.4.1)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1360,7 +1360,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/common (5.2.0):
+  - react-native-safe-area-context/common (5.4.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1384,7 +1384,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/fabric (5.2.0):
+  - react-native-safe-area-context/fabric (5.4.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1804,7 +1804,7 @@ PODS:
     - React-logger (= 0.79.7)
     - React-perflogger (= 0.79.7)
     - React-utils (= 0.79.7)
-  - RNDateTimePicker (8.0.1):
+  - RNDateTimePicker (8.4.7):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1828,7 +1828,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNGestureHandler (2.24.0):
+  - RNGestureHandler (2.26.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2002,7 +2002,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.13.1):
+  - RNScreens (4.18.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2026,9 +2026,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.13.1)
+    - RNScreens/common (= 4.18.0)
     - Yoga
-  - RNScreens/common (4.13.1):
+  - RNScreens/common (4.18.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2374,7 +2374,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: b47a3289a3fe38e665347e48579f67a37be42bb3
   React-microtasksnativemodule: c1a3d5195c3985a2246f130ad3f3cad587b79b03
   react-native-notifications: 4601a5a8db4ced6ae7cfc43b44d35fe437ac50c4
-  react-native-safe-area-context: fb22a3043ce75c3145da87a74254a2ec527267b0
+  react-native-safe-area-context: dc279397abf103b0577f48c548630b7e639646a7
   react-native-slider: c57011b1447edac8ddcc4d61cbd54172f378b7a0
   react-native-webview: 719376838ed2b5a3aa32aea360c52ae04de4dc7b
   React-NativeModulesApple: 1ed1401e841d89df68c9a429c785d51272fc21a5
@@ -2408,12 +2408,12 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 65c525dfdca3ae0cea9af8421314a9d3ff3ef75d
   ReactCodegen: e61df93a81081dc282796fa3c62b89725f4a009a
   ReactCommon: 6297fb8da56a0e1b493f8793563fde011b87591d
-  RNDateTimePicker: 3ba6c014d7bc578f0acd08de1bd98f29ec0d2ea0
-  RNGestureHandler: ccf4105b125002bd88e39d2a1f2b7e6001bcdf34
+  RNDateTimePicker: 91a012880e54d502dd47d943b896f4e3909419ef
+  RNGestureHandler: 970902e9f2f6308b2a2519ce93108fbc65460933
   RNInAppBrowser: c1a0dad2734458d79bcb6c8f4297ba8658a1da9f
   RNKeychain: 9d183190625267c665a5ad37c97e18deb77bb085
   RNReanimated: 8b24b49fc13fce9a6e1729ccff645a63d2b7a6d1
-  RNScreens: fd709d812885ccf4fac5cb35389147c399c0f164
+  RNScreens: ff9b889ead6100d019d236599741efc1c4586128
   RNVectorIcons: f6868e40844409a5de6dae5a0038d16c75af1d04
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 7ec3c34208133557b95850966446f48c6b3fa468
