@@ -31,12 +31,14 @@
     "react-test-renderer"
   ],
   "include": [
-    "src"
+    "**/*.ts",
+    "**/*.tsx"
  ],
   "exclude": [
     "build",
     "coverage",
-    "node_modules",
+    "**/node_modules",
+    "**/Pods",
     "android",
     "ios",
     "babel.config.js",
