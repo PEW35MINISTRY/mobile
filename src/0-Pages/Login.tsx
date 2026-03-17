@@ -9,7 +9,7 @@ import HANDS from '../../assets/hands.png';
 import LOGO from '../../assets/logo.png';
 import PEW35 from '../../assets/pew35-logo.png';
 import TRANSPARENT from '../../assets/transparent.png';
-import store, { initializeAccountState, registerNotificationDevice, initializeSettingsState, RootState, setAccount, initializePrayerRequestTimeState } from '../redux-store';
+import store, { initializeAccountState, registerNotificationDevice, RootState, setAccount, initializePrayerRequestTimeState, initializeLocalSettingsState } from '../redux-store';
 import { Flat_Button, Icon_Button, Input_Field, Outline_Button, Raised_Button } from '../widgets';
 import { LOGIN_PROFILE_FIELDS } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
@@ -38,7 +38,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
 
     const onInitializeAccount = async () => {
       if (await dispatch(initializeAccountState)) {
-        const skipAnimation = await dispatch(initializeSettingsState);
+        const skipAnimation = await dispatch(initializeLocalSettingsState);
         await dispatch(initializePrayerRequestTimeState);
 
         navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
@@ -55,12 +55,12 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
           }));
 
           // load settings for the logged-in user
-          const skipAnimation = await dispatch(initializeSettingsState); 
+          const skipAnimation = await dispatch(initializeLocalSettingsState); 
           await dispatch(initializePrayerRequestTimeState)
 
           dispatch(registerNotificationDevice); // asynchronous, don't need to wait
 
-          navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
+          navigation.navigate(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
         }).catch((error:AxiosError<ServerErrorResponse>) => {
           if(error.response?.status === 403) navigation.navigate(ROUTE_NAMES.EMAIL_VERIFY_ROUTE_NAME, { email:String(formValues.email ?? '')});
           ToastQueueManager.show({error}); 

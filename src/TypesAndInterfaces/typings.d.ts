@@ -8,6 +8,7 @@ declare module '@env' {
     export const DOMAIN: string;
     export const ENVIRONMENT: string;
     export const NEW_PARTNER_REQUEST_TIMEOUT: string;
-    export const SETTINGS_VERSION: string;
+    export const LOCAL_SETTINGS_VERSION: string;
+    export const GLOBAL_SETTINGS_VERSION: string;
     export const PRAYER_REQUEST_TIME_COUNT_MAX: string
 }

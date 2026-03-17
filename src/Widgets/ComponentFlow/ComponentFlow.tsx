@@ -16,6 +16,7 @@ const ComponentFlow = (props:{components:JSX.Element[], onComplete: (args?:any, 
 
       let change = 0;
       switch(newState) {
+        case CALLBACK_STATE.SKIP:
         case CALLBACK_STATE.EXIT: 
           break;
         case CALLBACK_STATE.SUCCESS:
@@ -33,6 +34,9 @@ const ComponentFlow = (props:{components:JSX.Element[], onComplete: (args?:any, 
       // use state variable to check for exit to avoid stale reference to componentIndex. See https://medium.com/@anandsimmy7/stale-closures-and-react-hooks-ea60689a3544
       if (latestState === CALLBACK_STATE.EXIT && props.backAction) {
         props.onComplete(context, latestState);
+      } else if (latestState === CALLBACK_STATE.SKIP) {
+        props.onComplete(context, latestState)
+        setLatestState(CALLBACK_STATE.NONE)
       }
     }, [latestState])
 

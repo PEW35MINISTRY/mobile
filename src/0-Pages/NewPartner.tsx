@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { addPartnerPendingPartner, RootState, setLastNewPartnerRequest, setSettings } from "../redux-store";
+import { addPartnerPendingPartner, RootState, setLastNewPartnerRequest } from "../redux-store";
 import { PartnerStatusEnum } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { DOMAIN } from "@env";

@@ -21,7 +21,8 @@ export enum CALLBACK_STATE {
     EXIT = 'EXIT',
     BACK = 'BACK',
     DELETE = 'DELETE',
-    NONE = 'NONE'
+    NONE = 'NONE',
+    SKIP = 'SKIP'
 }
 
 export interface PrayerRequestEditContext {

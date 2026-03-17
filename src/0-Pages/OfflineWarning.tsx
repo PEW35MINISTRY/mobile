@@ -19,7 +19,7 @@ import ToastQueueManager from "../utilities/ToastQueueManager";
 
 const OfflineWarning = (props:StackNavigationProps):JSX.Element => {
 
-    const skipAnimation = useAppSelector((state:RootState) => state.settings.skipAnimation);
+    const skipAnimation = useAppSelector((state:RootState) => state.localSettings.skipAnimation);
     const dispatch = useAppDispatch();
 
     const connectionCheckAuthenticate = async () => {

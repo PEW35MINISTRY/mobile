@@ -9,10 +9,6 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import theme, { COLORS } from '../theme';
 
-import HANDS from '../../assets/hands.png';
-import PEW35 from '../../assets/pew35-logo.png';
-import store, { setSettings } from '../redux-store';
-
 import { Controller, useForm } from "react-hook-form";
 import { RootState, updateProfile } from '../redux-store';
 import { BackButton, CheckBox, Flat_Button, Icon_Button, Input_Field, Outline_Button, ProfileImage, Raised_Button } from '../widgets';
