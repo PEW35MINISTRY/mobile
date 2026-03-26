@@ -38,10 +38,10 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
 
     const onInitializeAccount = async () => {
       if (await dispatch(initializeAccountState)) {
-        const skipAnimation = await dispatch(initializeLocalSettingsState);
+         await dispatch(initializeLocalSettingsState);
         await dispatch(initializePrayerRequestTimeState);
 
-        navigation.navigate(skipAnimation ? ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME : ROUTE_NAMES.LOGO_ANIMATION_ROUTE_NAME);
+        navigation.navigate(ROUTE_NAMES.BOTTOM_TAB_NAVIGATOR_ROUTE_NAME);
       }
     }
 
@@ -55,7 +55,7 @@ const Login = ({navigation, route}:LoginProps):JSX.Element => {
           }));
 
           // load settings for the logged-in user
-          const skipAnimation = await dispatch(initializeLocalSettingsState); 
+          await dispatch(initializeLocalSettingsState); 
           await dispatch(initializePrayerRequestTimeState)
 
           dispatch(registerNotificationDevice); // asynchronous, don't need to wait

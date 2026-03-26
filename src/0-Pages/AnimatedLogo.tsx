@@ -10,30 +10,30 @@ import { initializeGlobalSettingsState } from "../redux-store";
 
 const AnimatedLogo = (props:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
+
     const [destinationRoute, setDestinationRoute] = useState<ROUTE_NAMES | undefined>(undefined);
-    const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout | undefined>();
+    const timeoutID = useRef<NodeJS.Timeout | undefined>(undefined);
 
     useEffect(() => {
         // async functions cannot be called directly in useEffect
         (async () => {
             // check if the default setting state is set
-
             const hasReadIntroduction = await dispatch(initializeGlobalSettingsState);
 
-            if (hasReadIntroduction) 
-                setDestinationRoute(ROUTE_NAMES.LOGIN_ROUTE_NAME);
-            else 
-                setDestinationRoute(ROUTE_NAMES.INTRODUCTION_FLOW_ROUTE_NAME);
+            setDestinationRoute(hasReadIntroduction ? ROUTE_NAMES.LOGIN_ROUTE_NAME : ROUTE_NAMES.INTRODUCTION_FLOW_ROUTE_NAME);
         })();
-
-        const timerID = setTimeout(() => destinationRoute && props.navigation.dispatch(StackActions.replace(destinationRoute)), 7000)
-        setTimeoutID(timerID);
     }, [])
+
+    useEffect(() => {
+        if (!destinationRoute) return;
+        timeoutID.current = setTimeout(() => props.navigation.dispatch(StackActions.replace(destinationRoute)), 7000);
+        return () => clearTimeout(timeoutID.current);
+    }, [destinationRoute]);
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: "black"}}>
             <TouchableOpacity
-                onPress={() => {clearTimeout(timeoutID); destinationRoute && props.navigation.dispatch(StackActions.replace(destinationRoute))}} // cancel the timeout and navigate
+                onPress={() => { clearTimeout(timeoutID.current); destinationRoute && props.navigation.dispatch(StackActions.replace(destinationRoute)); }}
                 style={{justifyContent: "center", alignSelf: "center", alignContent: "center", top: 30}}
             >
                 <Image source={PEW_35_ANIMATED_LOGO} resizeMode={"contain"} style={{maxHeight: '90%', maxWidth: '90%'}}/>

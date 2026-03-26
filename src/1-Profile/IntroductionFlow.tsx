@@ -14,10 +14,15 @@ import { setReadIntroductionFlow } from '../redux-store';
 
 const IntroductionFlow = ({navigation}:StackNavigationProps):JSX.Element => {
     const dispatch = useAppDispatch();
-    const PRAYER_ICON_ACCENT = require('../../assets/prayer-icon-blue.png');
+    const PRAYER_ICON = require('../../assets/prayer-icon-512-blue.png');
+    const HANDSHAKE = require('../../assets/handshake-512-blue.png');
+    const PRAYER_PARTNERS = require('../../assets/prayer-partners-512-blue.png'); // also 512 option
+    const MAP_ICON = require('../../assets/map-512-blue.png');
+
     const { width, height } = useWindowDimensions();
     const scrollX = useRef(new Animated.Value(0)).current;
     const animatedCurrent = useRef(Animated.divide(scrollX, width)).current;
+    const iconSlideshowList = [PRAYER_PARTNERS, MAP_ICON, HANDSHAKE, PRAYER_ICON];
 
     return (
         <SafeAreaView style={styles.backgroundView}>
@@ -33,15 +38,18 @@ const IntroductionFlow = ({navigation}:StackNavigationProps):JSX.Element => {
                 })}
             >
                 {IntroductionFlowSlideTextList.map((text, index) => (
-                     <View key={index} style={[styles.page, { width, flex: 1 }]}>
-                        { index === IntroductionFlowSlideTextList.length - 1 && <Image source={PRAYER_ICON_ACCENT} style={{ height: 100, width: 100, marginVertical: 20, alignSelf: "center"}} /> }
+                     <View key={index} style={{ width, flex: 1 }}>
+                        <Image source={iconSlideshowList[index]} style={styles.imageSlideShowStyle} />
                         <Text style={styles.slideText}>{text}</Text>
-                        <View style={{flex: 1, justifyContent: 'flex-end', bottom: 20}}>
-                            <Outline_Button 
-                                text='Skip'
-                                onPress={() => { dispatch(setReadIntroductionFlow()); navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME) }} buttonStyle={{ bottom: 1}}
-                                buttonStyle={{ width: 5, alignSelf: 'center'}}
-                            />
+                        <View style={styles.buttonContextView}>
+                            { index === 0 && 
+                                <Outline_Button 
+                                    text='Skip'
+                                    onPress={() => { dispatch(setReadIntroductionFlow()); navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME) }}
+                                    buttonStyle={styles.skipbutton}
+                                />
+                                }
+
                             { index === IntroductionFlowSlideTextList.length - 1 && 
                                 <Raised_Button text='Continue' onPress={() => { dispatch(setReadIntroductionFlow()); navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME) }} buttonStyle={{ bottom: 1}}/>
                             }
@@ -50,7 +58,7 @@ const IntroductionFlow = ({navigation}:StackNavigationProps):JSX.Element => {
                      </View>
                 ))}
             </Animated.ScrollView>
-            <PageIndicator variant='beads' count={4} current={animatedCurrent} color={COLORS.white} />
+            <PageIndicator variant='beads' count={4} current={animatedCurrent} color={COLORS.white} size={10} />
         </SafeAreaView>
     )
 }
@@ -66,11 +74,22 @@ const styles = StyleSheet.create({
         height: 175,
         marginBottom: 10,
     },
-    page: {
-        //maxHeight: '40%',
-        //backgroundColor: 'blue',
-        //alignItems: 'center',
-        //justifyContent: 'center',
+    imageSlideShowStyle: { 
+        height: 100, 
+        width: 100, 
+        marginVertical: 20, 
+        alignSelf: "center"
+    },
+    buttonContextView: {
+        flex: 1, 
+        justifyContent: 'flex-end', 
+        bottom: 2
+    },
+    skipbutton: { 
+        width: 5, 
+        alignSelf: 
+        'center', 
+        bottom: 1
     },
     slideText: {
         fontFamily: FONTS.text,
