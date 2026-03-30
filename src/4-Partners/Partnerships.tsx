@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { addPartner, addPartnerPendingPartner, removePartner, removePartnerPendingPartner, removePartnerPendingUser, RootState, setPartnerPendingPartners, setPartnerPendingUsers, setPartners, setSettings } from "../redux-store";
+import { addPartner, addPartnerPendingPartner, removePartner, removePartnerPendingPartner, removePartnerPendingUser, RootState, setPartnerPendingPartners, setPartnerPendingUsers, setPartners, setLocalSettings } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { BackButton, Dropdown_Select, Filler, Outline_Button, Raised_Button } from "../widgets";
 import { PartnershipContractModal, PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partnership-widgets";
@@ -27,7 +27,7 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
     const userProfilePendingPartners = useAppSelector((state: RootState) => state.account.userProfile.partnerPendingPartnerList);
     const userProfilePendingUsers = useAppSelector((state: RootState) => state.account.userProfile.partnerPendingUserList);
     const maxPartners = useAppSelector((state: RootState) => state.account.userProfile.maxPartners);
-    const settingsRef = useAppSelector((state:RootState) => state.settings);
+    const settingsRef = useAppSelector((state:RootState) => state.localSettings);
     const dispatch = useAppDispatch();
 
     const [newPartner, setNewPartner] = useState<PartnerListItem>({
@@ -63,7 +63,7 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
 
             const newStorageState = {...settingsRef, lastNewPartnerRequest: Date.now()}
 
-            dispatch(setSettings(newStorageState));
+            dispatch(setLocalSettings(newStorageState));
 
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }

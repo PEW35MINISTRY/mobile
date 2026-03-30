@@ -81,6 +81,12 @@ export const walkLevelOptions:Map<number, [string, string]> = new Map<number, [s
     [1, ['😟', 'Distant and Disconnected']]
 ]);
 
+export const IntroductionFlowSlideTextList:String[] = [
+    'Encouraging Prayer establishes partnerships between two unknown users to “practice” prayer to help build confidence in prayer.',
+    'You will be paired with someone who lives in a different place than you based on your age, gender, and relationship with Jesus.',
+    'Why unknown parternships?  Well, because that’s what God asked us to do.  We also believe it will lead to deeper, more authentic prayer.',
+    'By using this app, your commitment is to do your best to pray for your partner each day, and to let your partner know you are praying.'
+];
 
 //HTML date input supports: 'YYYY-MM-DD'
 export const getShortDate = (dateISO:string):string => dateISO.split('T')[0];

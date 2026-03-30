@@ -33,7 +33,7 @@ const ComponentFlow = (props:{components:JSX.Element[], onComplete: (args?:any, 
       // use state variable to check for exit to avoid stale reference to componentIndex. See https://medium.com/@anandsimmy7/stale-closures-and-react-hooks-ea60689a3544
       if (latestState === CALLBACK_STATE.EXIT && props.backAction) {
         props.onComplete(context, latestState);
-      }
+      } 
     }, [latestState])
 
     useEffect(() => {

@@ -7,7 +7,7 @@ import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Partnerships from '../4-Partners/Partnerships';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { AccountState, clearSettings, resetAccount, clearJWT, resetSettings, RootState, setAccount, setContacts, setSettings, SettingsState, updateJWT, updateProfile, resetPrayerRequestTimeState } from '../redux-store';
+import { AccountState, resetAccount, clearJWT, RootState, setAccount, setContacts, updateJWT, updateProfile, resetPrayerRequestTimeState, LocalSettingsState, resetLocalSettings, resetGlobalSettings, clearLocalSettings, setLocalSettings } from '../redux-store';
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
@@ -17,7 +17,7 @@ import Devices from '../1-Profile/Devices';
 const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
 
     const dispatch = useAppDispatch();
-    const settingsRef:SettingsState = useAppSelector((state: RootState) => state.settings);
+    const settingsRef:LocalSettingsState = useAppSelector((state: RootState) => state.localSettings);
     const account:AccountState = useAppSelector((state: RootState) => state.account);
 
     const [partnerModalVisible, setPartnerModalVisible] = useState(false);
@@ -32,7 +32,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
     const onLogout = () => {
         dispatch(resetAccount());
         dispatch(clearJWT());
-        dispatch(clearSettings());
+        dispatch(clearLocalSettings());
         navigation.popToTop();
         navigation.navigate(ROUTE_NAMES.LOGIN_ROUTE_NAME);
     }
@@ -139,7 +139,12 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
                         />
                         <Outline_Button 
                             text='Reset Local Settings'
-                            onPress={() => dispatch(resetSettings())}
+                            onPress={() => dispatch(resetLocalSettings())}
+                            buttonStyle={styles.settingsButton}
+                        />
+                        <Outline_Button 
+                            text='Reset Global Settings'
+                            onPress={() => dispatch(resetGlobalSettings())}
                             buttonStyle={styles.settingsButton}
                         />
                         <Outline_Button 
@@ -152,7 +157,7 @@ const ProfileSettings = ({navigation}:StackNavigationProps):JSX.Element => {
             </ScrollView>
             <View style={styles.settingsButtonsView}>
                 <View style={{marginVertical: 10}}>
-                    <CheckBox onChange={(value) => dispatch(setSettings({...settingsRef, skipAnimation: value}))} label='Skip logo animation on login' initialState={settingsRef.skipAnimation} />
+                    <CheckBox onChange={(value) => dispatch(setLocalSettings({...settingsRef, skipAnimation: value}))} label='Skip logo animation on login' initialState={settingsRef.skipAnimation} />
                 </View>
                 <Raised_Button 
                     text='Logout'

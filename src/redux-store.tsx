@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import keychain, { UserCredentials } from 'react-native-keychain';
 import { configureStore, createSlice, type Middleware, type PayloadAction } from '@reduxjs/toolkit';
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import { DOMAIN, SETTINGS_VERSION } from '@env';
+import { DOMAIN, LOCAL_SETTINGS_VERSION, GLOBAL_SETTINGS_VERSION } from '@env';
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES } from './TypesAndInterfaces/routes';
 import { PartnerListItem, ProfileListItem, ProfileResponse } from './TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { PrayerRequestListItem } from './TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
@@ -176,15 +176,15 @@ export const initializeAccountState = async(dispatch:(arg0: { payload:AccountSta
    Temporary - for current session only
 ******************************************/
 
-export type SettingsState = {
+export type LocalSettingsState = {
   version:number, //Settings version to indicate local storage reset
   skipAnimation:boolean,
   deviceID: number,
   lastNewPartnerRequest:number|undefined, //timestamp
 }
 
-const initialSettingsState:SettingsState = {
-  version: parseInt(SETTINGS_VERSION ?? '1', 10),
+const initialLocalSettingsState:LocalSettingsState = {
+  version: parseInt(LOCAL_SETTINGS_VERSION ?? '1', 10),
   skipAnimation: false,
   deviceID: -1,
   lastNewPartnerRequest: undefined,
@@ -193,13 +193,13 @@ const initialSettingsState:SettingsState = {
 //Use as default; but don't save to local storage
 export const DEFAULT_LAST_NEW_PARTNER_REQUEST:number = Date.now() - parseInt(process.env.REACT_APP_NEW_PARTNER_TIMEOUT ?? '3600000', 10);  //1 hour ago
  
-const settingsSlice = createSlice({
-  name: 'settings',
-  initialState: initialSettingsState,
+const localSettingsSlice = createSlice({
+  name: 'localSettings',
+  initialState: initialLocalSettingsState,
   reducers: {
-    setSettings: (state, action:PayloadAction<SettingsState>) => state = {...action.payload},
-    resetSettings: () => initialSettingsState,
-    clearSettings: () => initialSettingsState,
+    setLocalSettings: (state, action:PayloadAction<LocalSettingsState>) => state = {...action.payload},
+    resetLocalSettings: () => initialLocalSettingsState,
+    clearLocalSettings: () => initialLocalSettingsState,
     setSkipAnimation: (state, action:PayloadAction<boolean>) => state = {...state, skipAnimation: action.payload},
     setLastNewPartnerRequest: (state) => state = {...state, lastNewPartnerRequest: Date.now()},
     setDeviceID: (state, action:PayloadAction<number>) => state = {...state, deviceID: action.payload},
@@ -208,36 +208,35 @@ const settingsSlice = createSlice({
 });
 
 //Export Dispatch Actions
-export const { setSettings, resetSettings, setSkipAnimation, 
-    setLastNewPartnerRequest, resetLastNewPartnerRequest, clearSettings, setDeviceID
-} = settingsSlice.actions;
+export const { setLocalSettings, resetLocalSettings, setSkipAnimation, 
+    setLastNewPartnerRequest, resetLastNewPartnerRequest, clearLocalSettings, setDeviceID
+} = localSettingsSlice.actions;
 
-
-export const initializeSettingsState = async(dispatch: (arg0: { payload: SettingsState; type: 'settings/setSettings'; }|{type: 'settings/resetSettings'; }) => void, getState: () => any):Promise<boolean> => {
+export const initializeLocalSettingsState = async(dispatch: (arg0: { payload: LocalSettingsState; type: 'localSettings/setLocalSettings'; }|{type: 'localSettings/resetLocalSettings'; }) => void, getState: () => any):Promise<boolean> => {
     try {
-        const userID = store.getState().account.userID.toString();
-        const localStorageSettings:boolean | UserCredentials = await keychain.getGenericPassword({service: `${userID}-settings`});
-        const savedSettings:SettingsState = localStorageSettings ? JSON.parse(localStorageSettings.password) : initialSettingsState;
-        if(!isNaN(savedSettings.version) && (savedSettings.version == parseInt(SETTINGS_VERSION ?? '1'))) {
-          dispatch(setSettings(savedSettings));
+        const localStorageSettings:boolean | UserCredentials = await keychain.getGenericPassword({service: `${store.getState().account.userID}-settings`});
+        const savedSettings:LocalSettingsState = localStorageSettings ? JSON.parse(localStorageSettings.password) : initialLocalSettingsState;
+        if(!isNaN(savedSettings.version) && (savedSettings.version == parseInt(LOCAL_SETTINGS_VERSION ?? '1'))) {
+          dispatch(setLocalSettings(savedSettings));
+
           return savedSettings.skipAnimation;
         }
         else {
-          console.warn("Invalid settings configuration, or settings version changed.");
-          dispatch(setSettings({...initialSettingsState, ...savedSettings, version: parseInt(SETTINGS_VERSION ?? '1')}));
+          console.warn("Invalid local settings configuration, or settings version changed.");
+          dispatch(setLocalSettings({...initialLocalSettingsState, ...savedSettings, version: parseInt(LOCAL_SETTINGS_VERSION ?? '1')}));
           return false;
         }
     } catch (error) {
-        console.error('REDUX Settings | localStorage initialization failed: ', error);
-        dispatch(resetSettings());
+        console.error('REDUX Settings | localSettings initialization failed: ', error);
+        dispatch(resetLocalSettings());
         return false;
     }
 };
 
-export const registerNotificationDevice = async(dispatch: (arg0: { payload: number, type: 'settings/setDeviceID'; }) => void, getState: () => any):Promise<void> => {
+export const registerNotificationDevice = async(dispatch: (arg0: { payload: number, type: 'localSettings/setDeviceID'; }) => void, getState: () => any):Promise<void> => {
   const reduxState = getState();
   const userID = reduxState.account.userID;
-  const deviceID = reduxState.settings.deviceID;
+  const deviceID = reduxState.localSettings.deviceID;
   const jwt = reduxState.account.jwt;
   const deviceToken = reduxState.deviceToken;
 
@@ -255,19 +254,77 @@ export const registerNotificationDevice = async(dispatch: (arg0: { payload: numb
   }
 }
 
-export const saveSettingsMiddleware:Middleware = store => next => action => {
+export const saveLocalSettingsMiddleware:Middleware = store => next => action => {
   const result = next(action);
 
-  const storeRef = store.getState();
-
-  if(Object.values(settingsSlice.actions).map(action => action.type).includes(action.type) && action.type !== resetSettings.type) {
+  if(Object.values(localSettingsSlice.actions).map(action => action.type).includes(action.type) && action.type !== resetLocalSettings.type) {
     const storeRef = store.getState();
-    const settingsState: RootState['settings'] = storeRef.settings;
+    const settingsState: RootState['localSettings'] = storeRef.localSettings;
+
     keychain.setGenericPassword('settings', JSON.stringify(settingsState), {service: `${storeRef.account.userID.toString()}-settings`});
 
-  } else if(action.type === resetSettings.type) {
+  } else if(action.type === resetLocalSettings.type) {
     const storeRef = store.getState();
-    keychain.setGenericPassword('settings', JSON.stringify(initialSettingsState), {service: `${storeRef.account.userID.toString()}-settings`});
+    keychain.setGenericPassword('settings', JSON.stringify(initialLocalSettingsState), {service: `${storeRef.account.userID.toString()}-settings`});
+  }
+  return result;
+};
+
+export type GlobalSettingsState = {
+  readIntroductionFlow: boolean,
+  version:number, //Settings version to indicate local storage reset
+}
+
+const initialGlobalSettingsState:GlobalSettingsState = {
+  readIntroductionFlow: false,
+  version: parseInt(GLOBAL_SETTINGS_VERSION ?? '1'),
+};
+
+// GLOBAL SETTINGS - Settings agnostic of any given user
+const globalSettingsSlice = createSlice({
+  name: 'globalSettings',
+  initialState: initialGlobalSettingsState,
+  reducers: {
+    setReadIntroductionFlow: (state) => state = {...state, readIntroductionFlow: true},
+    setGlobalSettings: (state, action:PayloadAction<GlobalSettingsState>) => state = action.payload,
+    resetGlobalSettings: () => initialGlobalSettingsState,
+  },
+});
+
+export const { setReadIntroductionFlow, setGlobalSettings, resetGlobalSettings } = globalSettingsSlice.actions;
+
+export const initializeGlobalSettingsState = async(dispatch: (arg0: { payload: GlobalSettingsState; type: 'globalSettings/setGlobalSettings'; }|{type: 'globalSettings/resetGlobalSettings'; }) => void, getState: () => any):Promise<boolean> => {
+    try {
+      const globalStorageSettings:boolean | UserCredentials = await keychain.getGenericPassword({service: 'default-settings'});
+      const savedSettings:GlobalSettingsState = globalStorageSettings ? JSON.parse(globalStorageSettings.password) : initialGlobalSettingsState;
+      if(!isNaN(savedSettings.version) && (savedSettings.version == parseInt(GLOBAL_SETTINGS_VERSION ?? '1'))) {
+        dispatch(setGlobalSettings(savedSettings));
+
+        return savedSettings.readIntroductionFlow;
+      }
+      else {
+        console.warn("Invalid global settings configuration, or settings version changed.");
+        dispatch(setGlobalSettings({...initialGlobalSettingsState, ...savedSettings, version: parseInt(GLOBAL_SETTINGS_VERSION ?? '1')}));
+        return false;
+      }
+  } catch (error) {
+      console.error('REDUX Settings | localStorage initialization failed: ', error);
+      dispatch(resetGlobalSettings());
+      return false;
+  }
+}
+
+export const saveGlobalSettingsMiddleware:Middleware = store => next => action => {
+  const result = next(action);
+
+  if(Object.values(globalSettingsSlice.actions).map(action => action.type).includes(action.type) && action.type !== resetGlobalSettings.type) {
+    const storeRef = store.getState();
+    const settingsState: RootState['globalSettings'] = storeRef.globalSettings;
+
+    keychain.setGenericPassword('settings', JSON.stringify(settingsState), {service: `default-settings`});
+
+  } else if(action.type === resetGlobalSettings.type) {
+    keychain.setGenericPassword('settings', JSON.stringify(initialGlobalSettingsState), {service: `default-settings`});
   }
   return result;
 };
@@ -360,12 +417,13 @@ const store = configureStore({
     reducer: {
       account: accountSlice.reducer,
       navigationTab: tabSlice.reducer,
-      settings: settingsSlice.reducer,
+      localSettings: localSettingsSlice.reducer,
+      globalSettings: globalSettingsSlice.reducer,
       deviceToken: deviceTokenSlice.reducer,
       prayerRequestTime: prayerRequestTimeSlice.reducer,
       prayerRequestPrayed: prayerRequestPrayedSlice.reducer,
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(saveJWTMiddleware, saveSettingsMiddleware, savePrayerRequestTimeMiddleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(saveJWTMiddleware, saveLocalSettingsMiddleware, saveGlobalSettingsMiddleware, savePrayerRequestTimeMiddleware),
 });
 
 export default store;

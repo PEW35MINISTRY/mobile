@@ -2,12 +2,9 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
 
 import { CircleListItem, CircleResponse } from './config-sync/api-type-sync/circle-types';
-import React from 'react';
-import { ParamListBase } from '@react-navigation/native';
 import InputField, { SUPPORTED_IMAGE_EXTENSION_LIST } from './config-sync/input-config-sync/inputField';
 import { ProfileListItem, ProfileResponse } from './config-sync/api-type-sync/profile-types';
-import { PrayerRequestListItem, PrayerRequestPatchRequestBody, PrayerRequestPostRequestBody, PrayerRequestResponseBody } from './config-sync/api-type-sync/prayer-request-types';
-import { PrayerRequestTagEnum } from './config-sync/input-config-sync/prayer-request-field-config';
+import { PrayerRequestPostRequestBody, PrayerRequestResponseBody } from './config-sync/api-type-sync/prayer-request-types';
 
 export const PROFILE_IMAGE_MIME_TYPES = SUPPORTED_IMAGE_EXTENSION_LIST.map((extension) => "image/" + extension);
 
@@ -21,7 +18,7 @@ export enum CALLBACK_STATE {
     EXIT = 'EXIT',
     BACK = 'BACK',
     DELETE = 'DELETE',
-    NONE = 'NONE'
+    NONE = 'NONE',
 }
 
 export interface PrayerRequestEditContext {
