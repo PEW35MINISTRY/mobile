@@ -70,7 +70,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                         ],
                         [
                             new SearchListKey({displayTitle:'Partner Requests'}),
-                            [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partner,
+                            [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PENDING_PARTNER, displayItem: partner,
                                 primaryButtonText:'View Contract', onPrimaryButtonCallback:(id:number, item) => setNewPartner(item as PartnerListItem)}))
                         ],
                         [
