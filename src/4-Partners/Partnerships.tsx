@@ -138,7 +138,7 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
                         ],
                         [
                             new SearchListKey({displayTitle:'Pending Partners', searchType: SearchType.NONE }),
-                            (userProfilePendingPartners || []).map((partnerItem) => new SearchListValue({displayType: ListItemTypesEnum.PENDING_PARTNER, displayItem: partnerItem,  primaryButtonText: 'Decline', onPrimaryButtonCallback: ((id, partnerItem) => declinePartnershipRequest(partnerItem as PartnerListItem)) }))
+                            (userProfilePendingPartners || []).map((partnerItem) => new SearchListValue({displayType: ListItemTypesEnum.PENDING_PARTNER, displayItem: partnerItem, onPrimaryButtonCallback: ((id, partnerItem) => declinePartnershipRequest(partnerItem as PartnerListItem)) }))
                         ],
                     ])}
             />
@@ -170,8 +170,8 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
             <PartnershipContractModal
                 visible={prayerContractModalVisible}
                 partner={newPartner}
-                acceptPartnershipRequest={() => {acceptPartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
-                declinePartnershipRequest={() => {declinePartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
+                assignPartnership={() => {acceptPartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
+                //declinePartnershipRequest={() => {declinePartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
                 onClose={() => setPrayerContractModalVisible(false)}
             />
 

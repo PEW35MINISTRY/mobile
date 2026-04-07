@@ -1,24 +1,16 @@
 import theme, { FONT_SIZES, COLORS } from "../theme";
-import { DOMAIN } from '@env';
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Modal } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Modal, Image } from 'react-native';
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types"
 import { RequestorProfileImage } from "../1-Profile/profile-widgets";
-import { RootState } from "../redux-store";
-import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { PARTNERSHIP_CONTRACT } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
-import { Outline_Button, Raised_Button } from "../widgets";
+import { PARTNERSHIP_CONTRACT_BLURB } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
+import { Confirmation, Raised_Button } from "../widgets";
 import Toast from "react-native-toast-message";
 
 export const PrayerPartnerListItem = (props:{partner:PartnerListItem, onButtonPress?:(id:number, partner:PartnerListItem) => void}):JSX.Element => {
-    const jwt = useAppSelector((state: RootState) => state.account.jwt);
-
-    const RequestAccountHeader = {
-        headers: {
-            "jwt": jwt, 
-        }
-    }
     
+    const [leaveModalVisible, setLeaveModalVisible] = useState<boolean>(false);
+
     const styles = StyleSheet.create({
         container: {
             marginLeft: 25,
@@ -64,13 +56,26 @@ export const PrayerPartnerListItem = (props:{partner:PartnerListItem, onButtonPr
                 </View>
                 <View style={styles.ShareButtonTopLevelView}>
                     <TouchableOpacity 
-                        onPress={() => props.onButtonPress && props.onButtonPress(props.partner.userID, props.partner)}
+                        onPress={() => setLeaveModalVisible(true)}
                     >  
                         <View style={styles.shareButtonView}>
                             <Text allowFontScaling={false} style={styles.textStyle}>Leave Partnership</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
+                <Modal 
+                    visible={leaveModalVisible}
+                    onRequestClose={() => setLeaveModalVisible(false)}
+                    animationType='slide'
+                    transparent={true}
+                >
+                    <Confirmation 
+                        callback={() => props.onButtonPress && props.onButtonPress(props.partner.userID, props.partner) && setLeaveModalVisible(false)}
+                        onCancel={() => setLeaveModalVisible(false)}
+                        promptText={'leave this partnership'}
+                        buttonText='Leave'
+                    />
+                </Modal>
             </View>
            
 
@@ -79,6 +84,7 @@ export const PrayerPartnerListItem = (props:{partner:PartnerListItem, onButtonPr
 }
 
 export const PendingPrayerPartnerListItem = (props:{partner:PartnerListItem, buttonText?:string, onButtonPress?:(id:number, partner:PartnerListItem) => void, onPress?:(id:number, item:PartnerListItem) => void}):JSX.Element => {
+    const DEFAULT_PROFILE_ICON = require("../../assets/profile-icon-blue.png");
 
     const styles = StyleSheet.create({
         container: {
@@ -131,6 +137,12 @@ export const PendingPrayerPartnerListItem = (props:{partner:PartnerListItem, but
             justifyContent: "center",
             alignSelf: "center",
             flexDirection: "row",
+        },
+        defaultProfileIcon: {
+            height: 40, 
+            width: 40, 
+            borderRadius: 15,
+            alignSelf: "center",
         }
     });
 
@@ -138,15 +150,17 @@ export const PendingPrayerPartnerListItem = (props:{partner:PartnerListItem, but
         <View style={styles.container} >
             <TouchableOpacity onPress={() => props.onPress && props.onPress(props.partner.userID, props.partner)} > 
                 <View style={styles.prayerRequestDataTopView}>
-                    <RequestorProfileImage style={{height: 40, width: 40}} imageUri={props.partner.image} userID={props.partner.userID}/>
+                    <Image style={styles.defaultProfileIcon} 
+                        source={DEFAULT_PROFILE_ICON}
+                    />
                     <View style={styles.middleData}>
-                        <Text allowFontScaling={false} style={styles.nameText}>{props.partner.displayName}</Text>
+                        <Text allowFontScaling={false} style={styles.nameText}>New Partner</Text>
                     </View>
                     {props.buttonText &&
                         <View style={styles.ShareButtonTopLevelView}>
                             <TouchableOpacity onPress={() => props.onButtonPress && props.onButtonPress(props.partner.userID, props.partner)} >  
-                                <View style={styles.contractButtonView}>
-                                    <Text allowFontScaling={false} style={styles.textStyle}>{props.buttonText}</Text>
+                                <View style={{ ...styles.contractButtonView, borderColor: props.buttonText === 'Cancel' ? COLORS.primary : COLORS.accent}}>
+                                    <Text allowFontScaling={false} style={{...styles.textStyle, color: props.buttonText === 'Cancel' ? COLORS.white : COLORS.accent}}>{props.buttonText}</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -158,11 +172,9 @@ export const PendingPrayerPartnerListItem = (props:{partner:PartnerListItem, but
 }
 
 
-export const PartnershipContractModal = ({visible, partner, acceptPartnershipRequest, declinePartnershipRequest, onClose}:{visible:boolean, partner:PartnerListItem, 
-        acceptPartnershipRequest:(id:number, item:PartnerListItem) => void, declinePartnershipRequest?:(id:number, item:PartnerListItem) => void, onClose:() => void}) => {
+export const PartnershipContractModal = ({visible, partner, assignPartnership, onClose}:{visible:boolean, partner:PartnerListItem, 
+        assignPartnership:(id:number, item:PartnerListItem) => void, onClose:() => void}) => {
     
-    const userProfile = useAppSelector((state: RootState) => state.account.userProfile);
-
     const styles = StyleSheet.create({
         modalView: {
             height: '50%',
@@ -193,14 +205,10 @@ export const PartnershipContractModal = ({visible, partner, acceptPartnershipReq
             <View style={styles.modalView}>
                 <View style={styles.newPartnerView}>
                     <Text allowFontScaling={false} style={styles.newPartnerTitle}>New Prayer Partner</Text>
-                    <Text allowFontScaling={false} style={styles.newPartnerText}>{PARTNERSHIP_CONTRACT(userProfile.displayName, partner.displayName || '')}</Text>
+                    <Text allowFontScaling={false} style={styles.newPartnerText}>{PARTNERSHIP_CONTRACT_BLURB}</Text>
                     <Raised_Button 
-                        text={'Accept Partnership'}
-                        onPress={() => acceptPartnershipRequest(partner.userID, partner)}
-                    />
-                    <Outline_Button 
-                        text={'Decline'}
-                        onPress={() => declinePartnershipRequest !== undefined && declinePartnershipRequest(partner.userID, partner)}
+                        text={'Ok'}
+                        onPress={() => assignPartnership(partner.userID, partner)}
                     />
                 </View>
             </View>
