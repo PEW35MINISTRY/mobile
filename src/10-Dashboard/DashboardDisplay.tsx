@@ -113,7 +113,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                 <PartnershipContractModal
                     visible={newPartner !== undefined}
                     partner={newPartner}
-                    acceptPartnershipRequest={(id, partnerItem) => 
+                    assignPartnership={(id, partnerItem) => 
                         axios.post(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/accept', {}, {headers: {jwt}})
                             .then((response:AxiosResponse) => {
                                 setNewPartner(undefined);
@@ -123,13 +123,6 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                             })
                             .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))
                     }
-                    declinePartnershipRequest={(id, partnerItem) => 
-                        axios.delete(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/decline', {headers: {jwt}})
-                            .then((response:AxiosResponse) => { 
-                                setNewPartner(undefined); 
-                                dispatch(removePartnerPendingUser(id)); 
-                            })
-                            .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}))}
                     onClose={() => setNewPartner(undefined)}
                 />
         }

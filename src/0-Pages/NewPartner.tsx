@@ -11,7 +11,6 @@ import ToastQueueManager from "../utilities/ToastQueueManager";
 import { PartnershipContractModal } from "../4-Partners/partnership-widgets";
 import WalkLevelQuiz from "../Widgets/WalkLevelQuiz/WalkLevelQuiz";
 import { CALLBACK_STATE } from "../TypesAndInterfaces/custom-types";
-import { CALLBACK_TYPE } from "react-native-gesture-handler/lib/typescript/handlers/gestures/gesture";
 
 const NewPartner = (props:{callback?:((val:CALLBACK_STATE) => void), continueNavigation?:boolean}):JSX.Element => {
 
@@ -47,7 +46,7 @@ const NewPartner = (props:{callback?:((val:CALLBACK_STATE) => void), continueNav
         });
     }
 
-    const acceptPartnershipRequest = () => {
+    const assignPartnership = () => {
         axios.post(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/accept', {}, RequestAccountHeader).then((response:AxiosResponse) => {
             dispatch(addPartnerPendingPartner(newPartner));
             dispatch(setLastNewPartnerRequest());
@@ -57,24 +56,16 @@ const NewPartner = (props:{callback?:((val:CALLBACK_STATE) => void), continueNav
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
-    const declinePartnershipRequest = () => {
-        axios.delete(`${DOMAIN}/api/partner-pending/`+ newPartner.userID + '/decline', RequestAccountHeader).then((response:AxiosResponse) => {
-            setRequestNewPartnerModalVisible(false);
-            props.callback !== undefined && props.callback(CALLBACK_STATE.SUCCESS);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
-    }
-
     return (
         
         <SafeAreaView style={{flex: 1, height: '100%'}}>
-                <WalkLevelQuiz callback={POST_NewPartner}/>
-                <PartnershipContractModal
-                    visible={requestNewPartnerModalVisible}
-                    partner={newPartner}
-                    acceptPartnershipRequest={() => acceptPartnershipRequest()}
-                    declinePartnershipRequest={() => declinePartnershipRequest()}
-                    onClose={() => setRequestNewPartnerModalVisible(false)}
-                />
+            <WalkLevelQuiz callback={POST_NewPartner}/>
+            <PartnershipContractModal
+                visible={requestNewPartnerModalVisible}
+                partner={newPartner}
+                assignPartnership={() => assignPartnership()}
+                onClose={() => setRequestNewPartnerModalVisible(false)}
+            />
         </SafeAreaView>
     )
 }
