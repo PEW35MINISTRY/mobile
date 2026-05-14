@@ -149,7 +149,10 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
                 displayMap={new Map([
                         [
                             new SearchListKey({displayTitle:'Partners', searchType: SearchType.NONE }),
-                            (userProfilePartners || []).map((partnerItem) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partnerItem, onPrimaryButtonCallback: leavePartnership, onAlternativeButtonCallback: reportPartnership, primaryButtonText: 'Leave Partnership', alternativeButtonText: 'Report Partnership'}))
+                            (userProfilePartners || []).map((partnerItem) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partnerItem, 
+                                onPrimaryButtonCallback: leavePartnership, primaryButtonText: 'Leave Partnership',
+                                onAlternativeButtonCallback: reportPartnership, alternativeButtonText: 'Report Partnership'
+                            }))
                         ],
                         [
                             new SearchListKey({displayTitle:'Pending Acceptance', searchType: SearchType.NONE }),
