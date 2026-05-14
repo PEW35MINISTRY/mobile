@@ -17,6 +17,7 @@ import SearchList from "../Widgets/SearchList/SearchList";
 import { SearchListKey, SearchListValue } from "../Widgets/SearchList/searchList-types";
 import { DisplayItemType, ListItemTypesEnum, SearchType } from "../TypesAndInterfaces/config-sync/input-config-sync/search-config";
 import { CALLBACK_STATE } from "../TypesAndInterfaces/custom-types";
+import { set } from "react-hook-form";
 
 
 const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continueNavigation?:boolean}):JSX.Element => {
@@ -46,6 +47,13 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
         }
     }
 
+    const assignNewPartnerFollowingReport = async (userID:number) => {
+        axios.post(`${DOMAIN}/api/user/` + userID + '/new-partner', {}, RequestAccountHeader).then((response:AxiosResponse<PartnerListItem>) => {
+            setNewPartner(response.data);
+            setPrayerContractModalVisible(true);
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+    }
+
     const acceptPartnershipRequest = (partner:PartnerListItem) => {
         axios.post(`${DOMAIN}/api/partner-pending/`+ partner.userID + '/accept', {}, RequestAccountHeader).then((response:AxiosResponse) => {
 
@@ -71,6 +79,17 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
     const declinePartnershipRequest = (partner:PartnerListItem) => {
         axios.delete(`${DOMAIN}/api/partner-pending/`+ partner.userID + '/decline', RequestAccountHeader).then((response:AxiosResponse) => {
             (partner.status == PartnerStatusEnum.PENDING_CONTRACT_PARTNER) ? dispatch(removePartnerPendingPartner(partner.userID)) : dispatch(removePartnerPendingUser(partner.userID));
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+    }
+
+    const reportPartnership = async (id: number, partner:DisplayItemType) => {
+        const requestBody = { clientID: id };
+
+        axios.post(`${DOMAIN}/api/user/${id}/report`, requestBody, RequestAccountHeader).then(async (response:AxiosResponse) => {
+            dispatch(removePartner(id));
+            ToastQueueManager.show({message: "User report received"});
+            setNewPartner({...newPartner, userID: -1});
+            setPrayerContractModalVisible(true);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
@@ -130,7 +149,7 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
                 displayMap={new Map([
                         [
                             new SearchListKey({displayTitle:'Partners', searchType: SearchType.NONE }),
-                            (userProfilePartners || []).map((partnerItem) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partnerItem, onPrimaryButtonCallback: leavePartnership }))
+                            (userProfilePartners || []).map((partnerItem) => new SearchListValue({displayType: ListItemTypesEnum.PARTNER, displayItem: partnerItem, onPrimaryButtonCallback: leavePartnership, onAlternativeButtonCallback: reportPartnership, primaryButtonText: 'Leave Partnership', alternativeButtonText: 'Report Partnership'}))
                         ],
                         [
                             new SearchListKey({displayTitle:'Pending Acceptance', searchType: SearchType.NONE }),
@@ -170,8 +189,7 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
             <PartnershipContractModal
                 visible={prayerContractModalVisible}
                 partner={newPartner}
-                assignPartnership={() => {acceptPartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
-                //declinePartnershipRequest={() => {declinePartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
+                assignPartnership={() => {newPartner.userID > 0 && acceptPartnershipRequest(newPartner); setPrayerContractModalVisible(false)}}
                 onClose={() => setPrayerContractModalVisible(false)}
             />
 

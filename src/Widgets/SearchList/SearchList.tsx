@@ -368,7 +368,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
                                 <LabelItem {...item} key={`label-${props.key}-${index}`} label={item.displayItem as LabelListItem} onPress={item.onPress} />
 
                             : item.displayType === ListItemTypesEnum.CONTENT_ARCHIVE ? 
-                                <ContentCard {...item} key={`content-${props.key}-${index}`} item={item.displayItem as ContentListItem} onPress={item.onPress} />
+                                <ContentCard {...item} key={`content-${props.key}-${index}`} item={item.displayItem as ContentListItem} onPress={item.onPress} onAltButtonPress={item.onAlternativeButtonCallback} />
 
                             : item.displayType === ListItemTypesEnum.PRAYER_REQUEST ? 
                                 <PrayerRequestTouchable {...item} key={`prayer-request-${props.key}-${index}`}
@@ -376,7 +376,7 @@ const SearchList = ({...props}:{key:any, name:string, defaultDisplayKey?:string,
 
                             : item.displayType === ListItemTypesEnum.PARTNER ? 
                                 <PrayerPartnerListItem {...item} key={`partner-${props.key}-${index}`}
-                                    partner={item.displayItem as PartnerListItem} onButtonPress={item.onPrimaryButtonCallback}
+                                    partner={item.displayItem as PartnerListItem} onButtonPress={item.onPrimaryButtonCallback} onAltButtonPress={item.onAlternativeButtonCallback}
                                 />
 
                             : item.displayType === ListItemTypesEnum.PENDING_PARTNER ? 

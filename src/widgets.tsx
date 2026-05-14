@@ -558,6 +558,39 @@ export const DeleteButton = (props:{callback:(() => void),  buttonView?:ViewStyl
     )
 }
 
+export const ReportButton = (props:{callback:(() => void), navigation?:NativeStackNavigationProp<any, string, undefined>, buttonView?:ViewStyle, buttonStyle?:ViewStyle, iconSize?:number}):JSX.Element => {
+    
+    const styles = StyleSheet.create({
+        reportButtonView: {
+            ...(props.buttonView ? props.buttonView : {position: "absolute", top: 1, right: 1}),
+        },
+        reportButton: {
+            ...(props.buttonStyle ? props.buttonStyle : {justifyContent: "center", alignItems: "center", height: 55, width: 55, borderRadius: 15}),
+            
+        }
+    })
+    
+    return (
+        <View style={styles.reportButtonView}>
+            <TouchableOpacity 
+                onPress={() => { 
+                    if(props.navigation) props.navigation.goBack();
+                    else if(props.callback) props.callback();
+                }}
+            >
+                <View style={styles.reportButton}>
+                    <Ionicons 
+                        name="flag-outline"
+                        color={COLORS.primary}
+                        size={props.iconSize ?? 30}
+                    />
+                </View>
+            </TouchableOpacity>
+
+        </View>
+    )
+}
+
 export const FolderButton = (props:{callback?:(() => void), buttonView?:ViewStyle}):JSX.Element => {
     const styles = StyleSheet.create({
         folderButton: {
@@ -608,7 +641,7 @@ export const Filler = (props:{fillerStyle?:ViewStyle}):JSX.Element => {
     )
 } 
 
-export const Confirmation = (props:{callback:(() => void), onCancel:(() => void), promptText:string, buttonText:string}):JSX.Element => {
+export const Confirmation = ({callback, onCancel, promptText, buttonText, addPunctuation = true}: {callback:(() => void), onCancel:(() => void), promptText:string, buttonText:string, addPunctuation?: boolean}):JSX.Element => {
     const styles = StyleSheet.create({
         deleteView: {
             backgroundColor: COLORS.black,
@@ -634,18 +667,17 @@ export const Confirmation = (props:{callback:(() => void), onCancel:(() => void)
     
     return (
         <SafeAreaView style={styles.deleteView}>
-            <Text allowFontScaling={false} style={styles.confirmDeleteText}>Are you sure you want to {props.promptText}?</Text>
+            <Text allowFontScaling={false} style={styles.confirmDeleteText}>Are you sure you want to {promptText}{addPunctuation ? '?' : ''}</Text>
             <View style={styles.buttons}>
                 <Raised_Button buttonStyle={styles.sign_in_button}
-                    text={props.buttonText}
-                    onPress={() => props.callback()}
+                    text={buttonText}
+                    onPress={() => callback()}
                 />
                 <Outline_Button 
                     text="Cancel"
-                    onPress={() => props.onCancel()}
+                    onPress={() => onCancel()}
                 />
             </View>
-            <Toast />
         </SafeAreaView>
     )
 }

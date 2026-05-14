@@ -1,16 +1,16 @@
 import { DOMAIN, PRAYER_REQUEST_TIME_COUNT_MAX } from '@env';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, KeyboardAvoidingView } from 'react-native';
+import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, KeyboardAvoidingView, DeviceEventEmitter } from 'react-native';
 import { PrayerRequestCommentListItem, PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { addAnsweredPrayerRequest, addOwnedPrayerRequest, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeOwnedPrayerRequest, RootState, setOwnedPrayerRequests, setPrayerRequestPrayedState, setPrayerRequestTimeState, updatePrayerRequestPrayedState } from '../redux-store';
+import { addAnsweredPrayerRequest, addOwnedPrayerRequest, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeNewPrayerRequest, removeOwnedPrayerRequest, RootState, setOwnedPrayerRequests, setPrayerRequestPrayedState, setPrayerRequestTimeState, updatePrayerRequestPrayedState } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import PrayerRequestEditForm from './PrayerRequestEditForm';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RequestorProfileImage } from '../1-Profile/profile-widgets';
-import { BackButton, EditButton, Filler } from '../widgets';
+import { BackButton, Confirmation, EditButton, Filler, ReportButton } from '../widgets';
 import { AppStackParamList, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { PrayerRequestComment } from './prayer-request-widgets';
 import { RequestorCircleImage } from '../2-Circles/circle-widgets';
@@ -20,7 +20,7 @@ import { CircleListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { set } from 'react-hook-form';
+import Toast from 'react-native-toast-message';
 
 export interface PrayerRequestDisplayParamList{
     PrayerRequestProps: PrayerRequestListItem,
@@ -63,9 +63,12 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const [circleRecipientData, setCircleRecipientData] = useState<CircleListItem[]>([]);
     const [tags, setTags] = useState<PrayerRequestTagEnum[]>([]);
     const [prayerRequestEditModalVisible, setPrayerRequestEditModalVisible] = useState(false);
+    const [reportPrayerRequestModalVisible, setReportPrayerRequestModalVisible] = useState(false);
+    const [reportCommentModalVisible, setReportCommentModalVisible] = useState(false);
     const [commentCreateModalVisible, setCommentCreateModalVisible] = useState(false);
     const [recipientPrayerCount, setRecipientPrayerCount] = useState<number>(0);
     const [userHasOpenedEditModal, setUserHasOpenedEditModal] = useState(false); // prevent recursive loading of the edit modal
+    const [reportedCommentID, setReportedCommentID] = useState<number>(0);
 
     const dispatch = useAppDispatch();
 
@@ -75,10 +78,15 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         }   
     }
 
+    const removeCommentLocal = (commentID:number) => {
+        setCommentsData((commentsData || []).filter((commentItem:PrayerRequestCommentListItem) => commentItem.commentID !== commentID ));
+    }
+    
     const renderComments = ():JSX.Element[] =>
         (commentsData || []).map((comment:PrayerRequestCommentListItem, index:number) => 
-            <PrayerRequestComment commentProp={comment} key={index} callback={(commentID:number) => {setCommentsData((commentsData || []).filter((commentItem:PrayerRequestCommentListItem) => commentItem.commentID !== commentID )); ToastQueueManager.show({message: "Comment deleted"});
-}} />
+            <PrayerRequestComment commentProp={comment} key={index} onDelete={(commentID:number) => { removeCommentLocal(commentID); ToastQueueManager.show({message: "Comment deleted"}); }} 
+                onReport={() => { setReportedCommentID(comment.commentID); setReportCommentModalVisible(true);  }} 
+            />
         );
 
     const renderUserRecipients = ():JSX.Element[] => 
@@ -102,6 +110,15 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
         return textProps;
     }
 
+    const reportComment = async () => {
+        await axios.post(`${DOMAIN}/api/prayer-request/${currPrayerRequestState?.prayerRequestID}/comment/${reportedCommentID}/report`, {}, RequestAccountHeader).then((response) => {
+            removeCommentLocal(reportedCommentID);
+            setReportedCommentID(0);
+            setReportCommentModalVisible(false);
+            ToastQueueManager.show({message: 'Report received'})
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+    }
+
     const onPrayPress = async () => {
         if (currPrayerRequestState !== undefined ) {
             await axios.post(`${DOMAIN}/api/prayer-request/` + currPrayerRequestState?.prayerRequestID + '/like', {}, RequestAccountHeader).then((response) => {
@@ -109,6 +126,21 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                 setRecipientPrayerCount((count) => count + 1);
             }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
         }
+    }
+
+    const reportPrayerRequest = async () => {
+        await axios.post(`${DOMAIN}/api/prayer-request/${currPrayerRequestState?.prayerRequestID}/report`, {}, RequestAccountHeader).then((response) => {
+
+            // index represents which tab in the BottomTabNavigator is focused
+            const parentNavigationIndex = navigation.getParent()?.getState()?.index || -1;
+
+            setReportPrayerRequestModalVisible(false);
+            dispatch(removeNewPrayerRequest(currPrayerRequestState?.prayerRequestID || -1));
+
+            //parentNavigationIndex === 2 && 
+            DeviceEventEmitter.emit('prayerRequestReported', currPrayerRequestState?.prayerRequestID); // only emit event if user viewed prayer request from Prayer Request List page
+            navigation.goBack();
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const setPrayerRequestState = (prayerRequestData:PrayerRequestResponseBody) => {
@@ -288,6 +320,34 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
                             </View>
 
                         </Modal>
+                        <Modal 
+                            visible={reportPrayerRequestModalVisible}
+                            onRequestClose={() => setReportPrayerRequestModalVisible(false)}
+                            animationType='slide'
+                            transparent={true}
+                        >
+                            <Confirmation 
+                                callback={() => reportPrayerRequest()}
+                                onCancel={() => setReportPrayerRequestModalVisible(false)}
+                                promptText={'report this prayer request? This action will remove this prayer request from your feed and send a report to our team for review.'}
+                                buttonText='Report'
+                                addPunctuation={false}
+                            />
+                        </Modal>
+                        <Modal 
+                            visible={reportCommentModalVisible}
+                            onRequestClose={() => setReportCommentModalVisible(false)}
+                            animationType='slide'
+                            transparent={true}
+                        >
+                            <Confirmation 
+                                callback={() => reportComment()}
+                                onCancel={() => setReportCommentModalVisible(false)}
+                                promptText={'report this comment? This action will remove this comment from your feed and send a report to our team for review.'}
+                                buttonText='Report'
+                                addPunctuation={false}
+                            />
+                        </Modal>
                         {
                             (commentsData !== undefined && commentsData.length !== 0) && <Text allowFontScaling={false} style={styles.commentsTitle}>Comments</Text>
                         }
@@ -313,8 +373,9 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
 
                        
                     </View>
-                    {appPrayerRequestListItem.requestorProfile.userID === userID && <EditButton callback={() => setPrayerRequestEditModalVisible(true)} /> }
+                    {appPrayerRequestListItem.requestorProfile.userID === userID ? <EditButton callback={() => setPrayerRequestEditModalVisible(true)} /> : <ReportButton callback={() => setReportPrayerRequestModalVisible(true)} />}
                     <BackButton navigation={navigation} />
+                    
                 </View>    
             )
         }
