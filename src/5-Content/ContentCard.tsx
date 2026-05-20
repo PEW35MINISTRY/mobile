@@ -9,18 +9,19 @@ import { makeDisplayText } from '../utilities/utilities';
 import { useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState } from '../redux-store';
 import { ContentSourceEnum, extractYouTubeVideoId } from '../TypesAndInterfaces/config-sync/input-config-sync/content-field-config';
-import { BackButton, IconCounter } from '../widgets';
+import { BackButton, IconCounter, ReportButton } from '../widgets';
 import { ContentThumbnail } from './content-widgets';
 
 
 interface ContentCardProps {
   item:ContentListItem;
   onPress?:(id:number, item:ContentListItem) => void;
+  onAltButtonPress?:(id:number, item:ContentListItem) => void;
   style?:StyleProp<ViewStyle>;
   onKeywordPress?:(keyword:string) => void;
 }
 
-const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywordPress }) => {
+const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywordPress, onAltButtonPress }) => {
 
   const userID = useAppSelector((state: RootState) => state.account.userID);  
   const [showDescription, setShowDescription] = useState(false);
@@ -40,11 +41,16 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, onPress, style, onKeywo
           <View style={styles.footerVertical}>
             <View style={styles.footerTitleRow}>
               <Text allowFontScaling={false} style={styles.contentCardTitle}>{item.title}</Text>
-              <IconCounter 
-                initialCount={item.likeCount}
-                ionsIconsName='thumbs-up-outline'
-                postURL={`${DOMAIN}/api/user/`+ userID + '/content/' + item.contentID + '/like'}
-              />
+
+              <View style={styles.footerButtonView}>
+              
+                <ReportButton callback={() => onAltButtonPress && onAltButtonPress(item.contentID, item)} buttonStyle={{ height: 25, width: 25}} buttonView={styles.reportButtonStyle}/>
+                <IconCounter 
+                  initialCount={item.likeCount}
+                  ionsIconsName='thumbs-up-outline'
+                  postURL={`${DOMAIN}/api/user/`+ userID + '/content/' + item.contentID + '/like'}
+                />
+              </View>
             </View>
             <View style={styles.footerDetailRow}>
               <Text allowFontScaling={false} style={styles.detailText} numberOfLines={1} ellipsizeMode='tail' >{makeDisplayText(item.source)}</Text>
@@ -156,7 +162,7 @@ const styles = StyleSheet.create({
   footerTitleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
+    alignItems: 'flex-start',
     padding: 0,
     paddingTop: 5,
   },
@@ -198,6 +204,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  footerButtonView: {
+    flexDirection: "column", 
+    alignSelf: "stretch"
+  },
+  reportButtonStyle: {
+    alignSelf: "center", 
+    justifyContent: "center", 
+    marginBottom: 5
+  }
 });
 
 export default ContentCard;

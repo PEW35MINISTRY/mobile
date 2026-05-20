@@ -4,12 +4,13 @@ import { StyleSheet, View, Text, TouchableOpacity, Modal, Image } from 'react-na
 import { PartnerListItem } from "../TypesAndInterfaces/config-sync/api-type-sync/profile-types"
 import { RequestorProfileImage } from "../1-Profile/profile-widgets";
 import { PARTNERSHIP_CONTRACT_BLURB } from "../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config";
-import { Confirmation, Raised_Button } from "../widgets";
+import { Confirmation, Raised_Button, ReportButton } from "../widgets";
 import Toast from "react-native-toast-message";
 
-export const PrayerPartnerListItem = (props:{partner:PartnerListItem, onButtonPress?:(id:number, partner:PartnerListItem) => void}):JSX.Element => {
+export const PrayerPartnerListItem = (props:{partner:PartnerListItem, onButtonPress?:(id:number, partner:PartnerListItem) => void, onAltButtonPress?:(id:number, partner:PartnerListItem) => void}):JSX.Element => {
     
     const [leaveModalVisible, setLeaveModalVisible] = useState<boolean>(false);
+    const [reportModalVisible, setReportModalVisible] = useState<boolean>(false);
 
     const styles = StyleSheet.create({
         container: {
@@ -35,6 +36,12 @@ export const PrayerPartnerListItem = (props:{partner:PartnerListItem, onButtonPr
             textAlign: "center",
             color: COLORS.accent
         },
+        warningTextStyle: {
+            ...theme.text,
+            fontWeight: '700',
+            textAlign: "center",
+            color: COLORS.primary
+        },
         shareButtonView:{
             width: 100,
             borderRadius: 5,
@@ -42,8 +49,7 @@ export const PrayerPartnerListItem = (props:{partner:PartnerListItem, onButtonPr
         ShareButtonTopLevelView: {
             position: "absolute",
             right: 10,
-            justifyContent: "center",
-            alignSelf: "center"
+            flexDirection: "row",
         }
     });
 
@@ -55,14 +61,34 @@ export const PrayerPartnerListItem = (props:{partner:PartnerListItem, onButtonPr
                     <Text allowFontScaling={false} style={styles.nameText}>{props.partner.displayName}</Text>
                 </View>
                 <View style={styles.ShareButtonTopLevelView}>
-                    <TouchableOpacity 
-                        onPress={() => setLeaveModalVisible(true)}
-                    >  
-                        <View style={styles.shareButtonView}>
-                            <Text allowFontScaling={false} style={styles.textStyle}>Leave Partnership</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <View>
+                        <ReportButton callback={() => setReportModalVisible(true)} buttonStyle={{ height: 40, width: 40}} buttonView={{justifyContent: "center", alignSelf: "center"}}/>
+                    </View>
+                    <View>
+                        <TouchableOpacity 
+                            onPress={() => setLeaveModalVisible(true)}
+                        >  
+                            <View style={styles.shareButtonView}>
+                                <Text allowFontScaling={false} style={styles.textStyle}>Leave Partnership</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
+                <Modal 
+                    visible={reportModalVisible}
+                    onRequestClose={() => setReportModalVisible(false)}
+                    animationType='slide'
+                    transparent={true}
+                >
+                    <Confirmation 
+                        callback={() => props.onAltButtonPress && props.onAltButtonPress(props.partner.userID, props.partner) && setReportModalVisible(false)}
+                        onCancel={() => setReportModalVisible(false)}
+                        promptText={'report this user? This action will end the partnership and send a report to our team for review. \n\nYou will be assigned a new partner.'}
+                        buttonText='Report'
+                        addPunctuation={false}
+                    />
+                </Modal>
                 <Modal 
                     visible={leaveModalVisible}
                     onRequestClose={() => setLeaveModalVisible(false)}

@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
-import { addMemberCircle, addPartner, addPartnerPendingPartner, removeInviteCircle, removePartnerPendingUser, RootState, setTabFocus } from '../redux-store';
+import { View, StyleSheet, SafeAreaView, Modal } from 'react-native';
+import { addMemberCircle, addPartner, addPartnerPendingPartner, removeInviteCircle, removePartnerPendingUser, removeRecommendedContent, RootState, setTabFocus } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import { DOMAIN } from '@env';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
@@ -16,7 +16,7 @@ import { ListItemTypesEnum } from '../TypesAndInterfaces/config-sync/input-confi
 import { PartnerListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/profile-types';
 import { CircleAnnouncementListItem, CircleListItem, CircleResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/circle-types';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
-import { Flat_Button, ProfileImage } from '../widgets';
+import { Confirmation, Flat_Button, ProfileImage } from '../widgets';
 import { BOTTOM_TAB_NAVIGATOR_ROUTE_NAMES, ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PartnershipContractModal } from '../4-Partners/partnership-widgets';
@@ -36,6 +36,23 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
     const expiringPrayerRequestList:PrayerRequestListItem[] = useAppSelector((state:RootState) => state.account.userProfile.expiringPrayerRequestList) || [];
     const recommendedContentList:ContentListItem[] = useAppSelector((state:RootState) => state.account.userProfile.recommendedContentList) || [];
     const [newPartner, setNewPartner] = useState<PartnerListItem|undefined>(undefined);
+    const [reportModalVisible, setReportModalVisible] = useState(false);
+    const [reportedContentID, setReportedContentID] = useState<number>(0);
+
+    const RequestAccountHeader = {
+        headers: {
+            "jwt": jwt,
+        }
+    }
+
+    const reportContent = async () => {
+        await axios.post(`${DOMAIN}/api/content-archive/${reportedContentID}/report`, {}, RequestAccountHeader).then((response) => {
+            setReportModalVisible(false);
+            dispatch(removeRecommendedContent(reportedContentID));
+            setReportedContentID(-1);
+            ToastQueueManager.show({message: 'Report received'})
+        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
+    }
 
     return (
         <SafeAreaView style={styles.pageContainer} >
@@ -95,7 +112,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                         ],
                         [
                             new SearchListKey({displayTitle:'Recommended'}),
-                            [...recommendedContentList].map((content) => new SearchListValue({displayType: ListItemTypesEnum.CONTENT_ARCHIVE, displayItem: content }))
+                            [...recommendedContentList].map((content) => new SearchListValue({displayType: ListItemTypesEnum.CONTENT_ARCHIVE, displayItem: content, onAlternativeButtonCallback: (id, item) => { setReportedContentID(id); setReportModalVisible(true); } }))
                         ],
                     ])}
                 footerItems={[
@@ -126,6 +143,21 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                     onClose={() => setNewPartner(undefined)}
                 />
         }
+
+            <Modal 
+                visible={reportModalVisible}
+                onRequestClose={() => setReportModalVisible(false)}
+                animationType='slide'
+                transparent={true}
+            >
+                <Confirmation 
+                    callback={() => reportContent()}
+                    onCancel={() => setReportModalVisible(false)}
+                    promptText={'report this content? This action will remove this content from your feed and send a report to our team for review.'}
+                    buttonText='Report'
+                    addPunctuation={false}
+                />
+            </Modal>
         </SafeAreaView>
     );
 };

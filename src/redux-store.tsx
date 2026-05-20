@@ -74,6 +74,10 @@ const accountSlice = createSlice({
     setAnsweredPrayerRequestList: (state, action:PayloadAction<PrayerRequestListItem[]>) => state = {...state, answeredPrayerRequestList: action.payload},
     removeAnsweredPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'answeredPrayerRequestList', 'prayerRequestID'),
     addAnsweredPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = addListItem(state, action, 'answeredPrayerRequestList'),
+    
+    // additional reducers for Dashboard page reporting
+    removeNewPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'newPrayerRequestList', 'prayerRequestID'),
+    removeRecommendedContent: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'recommendedContentList', 'contentID'),
   },
 });
 
@@ -84,7 +88,7 @@ export const { setAccount, resetAccount, updateJWT, clearJWT, updateProfile, upd
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
       setPartnerPendingPartners, setPartnerPendingUsers, setPartners, removeExpiringPrayerRequest, addOwnedPrayerRequest, 
       removeOwnedPrayerRequest, setOwnedPrayerRequests, addContact, removeContact, setContacts, 
-      setAnsweredPrayerRequestList, addAnsweredPrayerRequest, removeAnsweredPrayerRequest
+      setAnsweredPrayerRequestList, addAnsweredPrayerRequest, removeAnsweredPrayerRequest, removeNewPrayerRequest, removeRecommendedContent
     } = accountSlice.actions;
 
   export const saveJWTMiddleware:Middleware = store => next => action => {

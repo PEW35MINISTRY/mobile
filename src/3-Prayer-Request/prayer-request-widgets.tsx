@@ -11,6 +11,7 @@ import { RequestorProfileImage } from "../1-Profile/profile-widgets";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { ServerErrorResponse } from "../TypesAndInterfaces/config-sync/api-type-sync/utility-types";
 import ToastQueueManager from "../utilities/ToastQueueManager";
+import { ReportButton } from "../widgets";
 
 export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestListItem, onPress?:((id:number, item:PrayerRequestListItem) => void), callback?:(() => void)}):JSX.Element => {
     const PRAYER_ICON_ACCENT = require('../../assets/prayer-icon-blue.png');
@@ -174,7 +175,7 @@ export const PrayerRequestTouchable = (props:{prayerRequestProp:PrayerRequestLis
 }
 
 
-export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentListItem, callback:((commentID:number) => void), visible?:boolean}):JSX.Element => {
+export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentListItem, onDelete:((commentID:number) => void), onReport:((commentID:number) => void), visible?:boolean}):JSX.Element => {
     const jwt = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userProfile.userID);
     const [isLiked, setIsLiked] = useState(props.commentProp.isLikedByRecipient);
@@ -200,13 +201,12 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
 
     const onDeletePress = async () => {
         await axios.delete(`${DOMAIN}/api/prayer-request/` + props.commentProp.prayerRequestID + '/comment/' + props.commentProp.commentID, RequestAccountHeader).then((response) => {
-            props.callback(props.commentProp.commentID);
+            props.onDelete(props.commentProp.commentID);
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const styles = StyleSheet.create({
         container: {
-            justifyContent: "flex-start",
             left: 15,
             marginVertical: 6,
             color: props.visible ? 'purple' : undefined
@@ -259,12 +259,17 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
             alignItems: "center",
             marginLeft: -50
         },
+        profileImageView: {
+            flexDirection: "column",
+        }
     });
 
     return (
         <View style={styles.container}>
             <View style={styles.prayerRequestDataTopView}>
-                <RequestorProfileImage style={{height: 30, width: 30}} imageUri={props.commentProp.commenterProfile.image}/>
+                <View style={styles.profileImageView} >
+                    <RequestorProfileImage style={{height: 30, width: 30}} imageUri={props.commentProp.commenterProfile.image}/>
+                </View>
                 <View style={styles.middleData}>
                     <Text allowFontScaling={false} style={styles.nameText}>{props.commentProp.commenterProfile.displayName}</Text>
                     <Text allowFontScaling={false} style={styles.bodyText}>{props.commentProp.message}</Text>
@@ -282,7 +287,7 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
                             </View>
                         </TouchableOpacity>
                     </View>
-                    { props.commentProp.commenterProfile.userID == userID && 
+                    { props.commentProp.commenterProfile.userID == userID ?
                         <View style={styles.commentDataView}>
                             <TouchableOpacity onPress={onDeletePress}>
                                 <View style={styles.socialDataView}>
@@ -292,6 +297,10 @@ export const PrayerRequestComment = (props:{commentProp:PrayerRequestCommentList
                                     />
                                 </View>
                             </TouchableOpacity>
+                        </View>
+                        : 
+                        <View style={styles.commentDataView}>
+                           {<ReportButton callback={() => props.onReport(props.commentProp.commentID)} buttonView={{ position: 'relative', top: 0, right: 0}} buttonStyle={{ height: 22, width: 22}} iconSize={20}/> } 
                         </View>
                     }
                 </View>

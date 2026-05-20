@@ -1,21 +1,20 @@
 import { DOMAIN } from '@env';
 import axios, { all, AxiosError } from 'axios';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, Platform } from 'react-native';
+import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, Platform, DeviceEventEmitter } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { RootState, setAnsweredPrayerRequestList, setOwnedPrayerRequests } from '../redux-store';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import PrayerRequestCreate from './PrayerRequestCreateForm';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
-import { PrayerRequestTouchable } from './prayer-request-widgets';
 import { ROUTE_NAMES } from '../TypesAndInterfaces/routes';
 import { ServerErrorResponse } from '../TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import ToastQueueManager from '../utilities/ToastQueueManager';
 import { Filler, FolderButton } from '../widgets';
 import SearchList from '../Widgets/SearchList/SearchList';
 import { SearchFilterIdentifiable, SearchListKey, SearchListValue } from '../Widgets/SearchList/searchList-types';
-import { ListItemTypesEnum, SearchType } from '../TypesAndInterfaces/config-sync/input-config-sync/search-config';
+import { DisplayItemType, ListItemTypesEnum, SearchType } from '../TypesAndInterfaces/config-sync/input-config-sync/search-config';
 
 const MOBILE_SUPPORTED_PRAYER_REQUEST_FILTERS = ['Friends', 'Mine'];
 
@@ -48,10 +47,10 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
     
 
     const assembleAggregatedPrayerRequestList = async () => {
-        const recipientPrayerRequests = await GET_UserIsRecipientPrayerRequests();
+        const receivingPrayerRequests = await GET_UserIsRecipientPrayerRequests();
 
         // sort both lists by edited date
-        const allPrayerRequests = [...(ownedPrayerRequestList || []), ...recipientPrayerRequests].sort((a, b) => new Date(a.modifiedDT) > new Date(b.modifiedDT) ? -1 : 1 );
+        const allPrayerRequests = [...(ownedPrayerRequestList || []), ...receivingPrayerRequests].sort((a, b) => new Date(a.modifiedDT) > new Date(b.modifiedDT) ? -1 : 1 );
 
         setAggregatePrayerRequests(allPrayerRequests);
     };
@@ -61,10 +60,28 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
         setAggregatePrayerRequests(allPrayerRequests);
     }
 
+    const onReportPrayerRequest = (id: number) => {
+        ToastQueueManager.show({message: 'Report received'})
+
+        setRecipientPrayerRequests(recipientPrayerRequests.filter(prayerRequest => prayerRequest.prayerRequestID !== id));
+    }
+
     useEffect(() => {
         if (recipientPrayerRequests.length === 0) assembleAggregatedPrayerRequestList();
         else updateAggregatedPrayerRequestList();
-    }, [ownedPrayerRequestList]);
+    }, [ownedPrayerRequestList, recipientPrayerRequests]);
+
+    useEffect(() => {
+
+        // create event emitter to listen for prayer request reporting
+        const subscription = DeviceEventEmitter.addListener('prayerRequestReported', (id: number) => {
+            onReportPrayerRequest(id);
+        });
+          
+        return () => {
+            subscription.remove();
+        };
+    }, []);
 
  return (
         <SafeAreaView style={styles.backgroundColor}>
