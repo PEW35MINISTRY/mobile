@@ -47,12 +47,19 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
     }
 
     // Update circle list and re-render if a user joins or leaves a circle
+    
+    /*
     useEffect(() => {
         setCircleModals([...userCircles || [], ...userInviteCircles || [], ...userRequestCircles || []]);
     }, [userCircles, userInviteCircles, userRequestCircles]);
+    */
 
     return (
         <SafeAreaView style={styles.backgroundColor}>
+            <Text style={styles.headerText}>This feature coming in the future</Text>
+            <Text style={styles.bodyText}>it will allow you to build a circle of friends who pray and encourage each other</Text>
+            {
+                /*
             <SearchList
                 key='circle-list-page'
                 name='circle-list-page'
@@ -65,6 +72,9 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
                         ]
                     ])}
                 />
+                */
+            }
+
         </SafeAreaView>
     )
 }
@@ -72,7 +82,16 @@ export const CircleList = ({navigation}:StackNavigationProps):JSX.Element => {
 const styles = StyleSheet.create({
     backgroundColor: {
         backgroundColor: COLORS.black,
+        justifyContent: 'center',
         flex: 1,
+    },
+    headerText: {
+        ...theme.header,
+        textAlign: 'center',
+    },
+    bodyText: {
+        ...theme.text,
+        textAlign: 'center',
     },
     statusButton: {
         height: 50,

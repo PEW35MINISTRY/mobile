@@ -90,6 +90,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                             [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PENDING_PARTNER, displayItem: partner,
                                 primaryButtonText:'View Contract', onPrimaryButtonCallback:(id:number, item) => setNewPartner(item as PartnerListItem)}))
                         ],
+                        /*
                         [
                             new SearchListKey({displayTitle:'Circle Invites'}),
                             [...circleInviteList].map((circle) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE, displayItem: circle,
@@ -103,6 +104,7 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                                         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error})),
                             }))
                         ],
+                        */
                         [
                             new SearchListKey({displayTitle:'New Prayer Requests'}),
                             [...newPrayerRequestList].map((prayerRequest) => new SearchListValue({displayType: ListItemTypesEnum.PRAYER_REQUEST, displayItem: prayerRequest,

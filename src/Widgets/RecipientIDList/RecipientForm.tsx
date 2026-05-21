@@ -232,10 +232,12 @@ export const RecipientForm = (props:{callback: (state:CALLBACK_STATE) => void, c
                             new SearchListKey({displayTitle:'Profiles', searchType: SearchType.NONE }),
                             userRecipientList.map((userRecipient) => new SearchListValue({displayType: ListItemTypesEnum.PROFILE_CONTACT, displayItem: userRecipient, onPrimaryButtonCallback: updateUserRecipientStatus }))
                         ],
+                        /*
                         [
                             new SearchListKey({displayTitle:'Circles', searchType: SearchType.NONE }),
                             circleRecipientList.map((circleRecipient) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_CONTACT, displayItem: circleRecipient, onPrimaryButtonCallback: updateCircleRecipientStatus }))
                         ],
+                        */
                     ])}
             />
             <View style={styles.container}>
