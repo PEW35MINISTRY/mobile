@@ -76,7 +76,6 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                 ]}
                 showMultiListFilter={false}
                 displayMap={new Map([
-                        /*
                         [
                             new SearchListKey({displayTitle:'Notifications'}),
                             [...circleAnnouncementList].map((announcement) => new SearchListValue({displayType: ListItemTypesEnum.CIRCLE_ANNOUNCEMENT, displayItem: announcement,
@@ -86,7 +85,6 @@ const DashboardDisplay = ({navigation}:StackNavigationProps):JSX.Element => {
                                 })
                              }))
                         ],
-                        */
                         [
                             new SearchListKey({displayTitle:'Partner Requests'}),
                             [...partnerPendingUserList].map((partner) => new SearchListValue({displayType: ListItemTypesEnum.PENDING_PARTNER, displayItem: partner,
