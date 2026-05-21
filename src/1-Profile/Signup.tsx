@@ -1,7 +1,7 @@
 import { DOMAIN, ENVIRONMENT } from '@env';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { SIGNUP_PROFILE_FIELDS_USER } from '../TypesAndInterfaces/config-sync/input-config-sync/profile-field-config';
 import { StackNavigationProps } from '../TypesAndInterfaces/custom-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
@@ -46,6 +46,9 @@ const Signup = ({navigation}:StackNavigationProps):JSX.Element => {
               {
                 [ENVIRONMENT_TYPE.LOCAL, ENVIRONMENT_TYPE.DEVELOPMENT].includes(getEnvironment()) && <CheckBox onChange={() => setPopulateDemoProfile(!populateDemoProfile)} label='Populate Demo Profile' />
               }
+              <View style={{maxWidth: '90%', margin: 5}}>
+                <Text style={styles.noticeText}>By creating an account, you agree to our <Text style={styles.linkText} onPress={() => Linking.openURL('https://ep-cdn-data-prod.s3.us-east-2.amazonaws.com/EP_Terms_Of_Use.pdf')}>Terms of Use</Text> and <Text style={styles.linkText} onPress={() => Linking.openURL('https://ep-cdn-data-prod.s3.us-east-2.amazonaws.com/EP_Privacy_Policy.pdf')}>Privacy Policy</Text>.</Text>
+              </View>
               <Raised_Button buttonStyle={styles.sign_in_button}
                 text='Create Account'
                 onPress={() => formInputRef.current !== null && formInputRef.current.onHandleSubmit()}
@@ -102,6 +105,15 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 15,
   },
+  noticeText: {
+    ...theme.text,
+    textAlign: 'center',
+  },
+  linkText: {
+    ...theme.text,
+    color: COLORS.accent,
+    textAlign: 'center',
+  }
 });
 
 export default Signup;
