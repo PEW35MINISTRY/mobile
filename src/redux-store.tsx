@@ -10,6 +10,7 @@ import { CircleListItem } from './TypesAndInterfaces/config-sync/api-type-sync/c
 import { ServerErrorResponse } from './TypesAndInterfaces/config-sync/api-type-sync/utility-types';
 import { DeviceVerificationResponseType } from './TypesAndInterfaces/config-sync/api-type-sync/notification-types';
 import { generateDefaultDeviceName } from './utilities/notifications';
+import { ContentListItem } from './TypesAndInterfaces/config-sync/api-type-sync/content-types';
 
 /******************************
    Account | Credentials Redux Reducer
@@ -23,6 +24,13 @@ interface AccountStateRequired {
 
 export interface AccountState extends AccountStateRequired {
   answeredPrayerRequestList: PrayerRequestListItem[],
+  recipientPrayerRequestList:PrayerRequestListItem[], // Prayer requests for which user is recipient, including circles.
+  contentFeedList: ContentListItem[], // Content page
+  newPrayerRequestList: PrayerRequestListItem[], // Dashboard page
+}
+
+const isAccountStateKey = (k: string): k is keyof AccountState => {
+  return ["answeredPrayerRequestList", "recipientPrayerRequestList", "contentFeedList"].includes(k as keyof AccountState);
 }
 
 const initialAccountState:AccountState = {
@@ -30,7 +38,10 @@ const initialAccountState:AccountState = {
   jwt: '',
   userProfile: {} as ProfileResponse,
   answeredPrayerRequestList: [],
-}; 
+  recipientPrayerRequestList: [],
+  contentFeedList: [],
+  newPrayerRequestList: [],
+};
 
 const accountSlice = createSlice({
   name: 'account',
@@ -75,8 +86,20 @@ const accountSlice = createSlice({
     removeAnsweredPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'answeredPrayerRequestList', 'prayerRequestID'),
     addAnsweredPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = addListItem(state, action, 'answeredPrayerRequestList'),
     
+    //Not part of userProfile | prayerRequestRecipientList
+    setRecipientPrayerRequestList: (state, action:PayloadAction<PrayerRequestListItem[]>) => state = {...state, recipientPrayerRequestList: action.payload},
+    removeRecipientPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'recipientPrayerRequestList', 'prayerRequestID'),
+    addRecipientPrayerRequest: (state, action:PayloadAction<PrayerRequestListItem>) => state = addListItem(state, action, 'recipientPrayerRequestList'),
+    
+    //Not part of userProfile | contentList are fetched and saved in ContentDisplay
+    setContentFeedList: (state, action:PayloadAction<ContentListItem[]>) => state = {...state, contentFeedList: action.payload},
+    removeContentFeedItem: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'contentFeedList', 'contentID'),
+    addContentFeedItem: (state, action:PayloadAction<ContentListItem>) => state = addListItem(state, action, 'contentFeedList'),
+
     // additional reducers for Dashboard page reporting
+    setNewPrayerRequestList: (state, action:PayloadAction<PrayerRequestListItem[]>) => state = {...state, newPrayerRequestList: action.payload},
     removeNewPrayerRequest: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'newPrayerRequestList', 'prayerRequestID'),
+    setRecommendedContent: (state, action:PayloadAction<ContentListItem[]>) => state = {...state, userProfile: {...state.userProfile, recommendedContentList: action.payload}},
     removeRecommendedContent: (state, action:PayloadAction<number>) => state = removeListItem(state, action, 'recommendedContentList', 'contentID'),
   },
 });
@@ -88,7 +111,9 @@ export const { setAccount, resetAccount, updateJWT, clearJWT, updateProfile, upd
       addPartner, removePartner, addPartnerPendingUser, removePartnerPendingUser, addPartnerPendingPartner, removePartnerPendingPartner, 
       setPartnerPendingPartners, setPartnerPendingUsers, setPartners, removeExpiringPrayerRequest, addOwnedPrayerRequest, 
       removeOwnedPrayerRequest, setOwnedPrayerRequests, addContact, removeContact, setContacts, 
-      setAnsweredPrayerRequestList, addAnsweredPrayerRequest, removeAnsweredPrayerRequest, removeNewPrayerRequest, removeRecommendedContent
+      setAnsweredPrayerRequestList, addAnsweredPrayerRequest, removeAnsweredPrayerRequest, removeNewPrayerRequest, removeRecommendedContent,
+      setRecipientPrayerRequestList, addRecipientPrayerRequest, removeRecipientPrayerRequest,
+      setContentFeedList, addContentFeedItem, removeContentFeedItem, setRecommendedContent, setNewPrayerRequestList
     } = accountSlice.actions;
 
   export const saveJWTMiddleware:Middleware = store => next => action => {
@@ -127,18 +152,19 @@ const tabSlice = createSlice({
 export const { setTabFocus } = tabSlice.actions;
 
 //List Utilities
-const addListItem = <T, K extends keyof ProfileResponse | 'answeredPrayerRequestList'>(state:AccountState, action:PayloadAction<T>, listKey:K):AccountState => {
-    if(listKey === 'answeredPrayerRequestList')
-        return { ...state, answeredPrayerRequestList: [action.payload as PrayerRequestListItem, ...(state.answeredPrayerRequestList ?? [])] };
-    
+const addListItem = <T, K extends keyof ProfileResponse | keyof AccountState>(state:AccountState, action:PayloadAction<T>, listKey:K):AccountState => {
+  
+  if(isAccountStateKey(listKey)) {
+        return { ...state, [listKey]: [action.payload as PrayerRequestListItem, ...(state[listKey as keyof AccountState] as T[] ?? [])] };
+    }
     else
         return { ...state, userProfile: { ...state.userProfile, [listKey]: [action.payload, ...(state.userProfile[listKey as keyof ProfileResponse] as T[] ?? [])] }};
 }
 
-const removeListItem = <T, K extends keyof ProfileResponse | 'answeredPrayerRequestList'>(state:AccountState, action:PayloadAction<number>, listKey:K, idKey:keyof T | keyof PrayerRequestListItem):AccountState => {
-    if(listKey === 'answeredPrayerRequestList')
-        return { ...state, answeredPrayerRequestList: (state.answeredPrayerRequestList ?? []).filter((item:PrayerRequestListItem) => item[idKey as keyof PrayerRequestListItem] !== action.payload) };
-
+const removeListItem = <T, K extends keyof ProfileResponse | keyof AccountState>(state:AccountState, action:PayloadAction<number>, listKey:K, idKey:keyof T | keyof AccountState):AccountState => {
+    if(isAccountStateKey(listKey)) {
+        return { ...state, [listKey]: (state[listKey as keyof AccountState] as T[] ?? []).filter((item: T) => item[idKey as keyof T] !== action.payload) };
+    }
     else
         return { ...state, userProfile: { ...state.userProfile, [listKey]: ((state.userProfile[listKey as keyof ProfileResponse] as T[]) ?? []).filter((item: T) => item[idKey as keyof T] !== action.payload) }};
 }

@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { removeRecommendedContent, RootState } from '../redux-store';
+import { removeContentFeedItem, removeRecommendedContent, RootState, setContentFeedList } from '../redux-store';
 import { DOMAIN } from '@env';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -26,8 +26,8 @@ const ContentDisplay = (props:{callback?:(() => void), navigation:NativeStackNav
 
     const jwt:string = useAppSelector((state:RootState) => state.account.jwt);
     const userID:number = useAppSelector((state:RootState) => state.account.userID);
+    const contentList:ContentListItem[] = useAppSelector((state:RootState) => state.account.contentFeedList || []);
 
-    const [contentList, setContentList] = useState<ContentListItem[]>([]); //Apply filtering locally
     const [reportModalVisible, setReportModalVisible] = useState(false);
     const [reportedContentID, setReportedContentID] = useState<number>(0);
 
@@ -43,7 +43,7 @@ const ContentDisplay = (props:{callback?:(() => void), navigation:NativeStackNav
         await axios.post(`${DOMAIN}/api/content-archive/${reportedContentID}/report`, {}, RequestAccountHeader).then(() => {
 
         setReportModalVisible(false);
-        setContentList(current => current.filter(content => content.contentID !== reportedContentID));
+        dispatch(removeContentFeedItem(reportedContentID));
         dispatch(removeRecommendedContent(reportedContentID));
         
         setReportedContentID(-1);
@@ -56,8 +56,8 @@ const ContentDisplay = (props:{callback?:(() => void), navigation:NativeStackNav
         axios.get(`${DOMAIN}/api/user/`+ userID + '/content-list', { headers: { jwt }})
         .then((response:{data:ContentListItem[]}) => {
           const list:ContentListItem[] = [...response.data]
-            .filter((content:ContentListItem) => MOBILE_CONTENT_SUPPORTED_SOURCES.includes(content.source as ContentSourceEnum));
-          setContentList(list);
+            .filter((content:ContentListItem) => MOBILE_CONTENT_SUPPORTED_SOURCES.includes(content.source as ContentSourceEnum))
+          dispatch(setContentFeedList(list));
         }) //Custom strings won't match
         .catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));        
     }, []);

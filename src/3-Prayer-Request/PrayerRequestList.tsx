@@ -3,7 +3,7 @@ import axios, { all, AxiosError } from 'axios';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, Platform, DeviceEventEmitter } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { RootState, setAnsweredPrayerRequestList, setOwnedPrayerRequests } from '../redux-store';
+import { removeRecipientPrayerRequest, RootState, setAnsweredPrayerRequestList, setOwnedPrayerRequests, setRecipientPrayerRequestList } from '../redux-store';
 import { PrayerRequestListItem } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import PrayerRequestCreate from './PrayerRequestCreateForm';
@@ -23,9 +23,9 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
     const jwt:string = useAppSelector((state: RootState) => state.account.jwt);
     const userID = useAppSelector((state: RootState) => state.account.userID);
     const ownedPrayerRequestList = useAppSelector((state: RootState) => state.account.userProfile.ownedPrayerRequestList);
+    const recipientPrayerRequestList = useAppSelector((state: RootState) => state.account.recipientPrayerRequestList);
 
     const [aggregatePrayerRequests, setAggregatePrayerRequests] = useState<PrayerRequestListItem[]>([]);
-    const [recipientPrayerRequests, setRecipientPrayerRequests] = useState<PrayerRequestListItem[]>([]);
     const [prayerRequestCreateModalVisible, setPrayerRequestCreateModalVisible] = useState(false);
 
     const RequestAccountHeader = {
@@ -38,49 +38,21 @@ const PrayerRequestList = ({navigation, route}:StackNavigationProps):JSX.Element
 
     // contains all prayer requests where the user is a recipient, including circles
     const GET_UserIsRecipientPrayerRequests = async ():Promise<PrayerRequestListItem[]> => 
-        await axios.get(`${DOMAIN}/api/user/${userID}/prayer-request-recipient-list`, RequestAccountHeader).then((response) => {
+        await axios.get(`${DOMAIN}/api/user/${userID}/prayer-request-recipient-list`, RequestAccountHeader).then((response: { data: PrayerRequestListItem[] }) => {
             if (response.data !== undefined) {
-                setRecipientPrayerRequests(response.data);
+                dispatch(setRecipientPrayerRequestList(response.data));
                 return response.data;
             } return [];
         }).catch((error:AxiosError<ServerErrorResponse>) => { ToastQueueManager.show({error});  return []});
     
-
-    const assembleAggregatedPrayerRequestList = async () => {
-        const receivingPrayerRequests = await GET_UserIsRecipientPrayerRequests();
-
-        // sort both lists by edited date
-        const allPrayerRequests = [...(ownedPrayerRequestList || []), ...receivingPrayerRequests].sort((a, b) => new Date(a.modifiedDT) > new Date(b.modifiedDT) ? -1 : 1 );
+    useEffect(() => {
+        const allPrayerRequests = [...(ownedPrayerRequestList || []), ...recipientPrayerRequestList].sort((a, b) => new Date(a.modifiedDT) > new Date(b.modifiedDT) ? -1 : 1 );
 
         setAggregatePrayerRequests(allPrayerRequests);
-    };
-
-    const updateAggregatedPrayerRequestList = () => {
-        const allPrayerRequests = [...(ownedPrayerRequestList || []), ...recipientPrayerRequests].sort((a, b) => new Date(a.modifiedDT) > new Date(b.modifiedDT) ? -1 : 1 );
-        setAggregatePrayerRequests(allPrayerRequests);
-    }
-
-    const onReportPrayerRequest = (id: number) => {
-        ToastQueueManager.show({message: 'Report received'})
-
-        setRecipientPrayerRequests(recipientPrayerRequests.filter(prayerRequest => prayerRequest.prayerRequestID !== id));
-    }
+    }, [ownedPrayerRequestList, recipientPrayerRequestList])
 
     useEffect(() => {
-        if (recipientPrayerRequests.length === 0) assembleAggregatedPrayerRequestList();
-        else updateAggregatedPrayerRequestList();
-    }, [ownedPrayerRequestList, recipientPrayerRequests]);
-
-    useEffect(() => {
-
-        // create event emitter to listen for prayer request reporting
-        const subscription = DeviceEventEmitter.addListener('prayerRequestReported', (id: number) => {
-            onReportPrayerRequest(id);
-        });
-          
-        return () => {
-            subscription.remove();
-        };
+        if (recipientPrayerRequestList.length === 0) GET_UserIsRecipientPrayerRequests();
     }, []);
 
  return (
