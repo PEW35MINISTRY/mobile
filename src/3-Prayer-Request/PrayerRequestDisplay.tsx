@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, KeyboardAvoidingView, DeviceEventEmitter } from 'react-native';
 import { PrayerRequestCommentListItem, PrayerRequestListItem, PrayerRequestResponseBody } from '../TypesAndInterfaces/config-sync/api-type-sync/prayer-request-types';
 import { useAppDispatch, useAppSelector } from '../TypesAndInterfaces/hooks';
-import { addAnsweredPrayerRequest, addOwnedPrayerRequest, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeNewPrayerRequest, removeOwnedPrayerRequest, RootState, setOwnedPrayerRequests, setPrayerRequestPrayedState, setPrayerRequestTimeState, updatePrayerRequestPrayedState } from '../redux-store';
+import { addAnsweredPrayerRequest, addOwnedPrayerRequest, removeAnsweredPrayerRequest, removeExpiringPrayerRequest, removeNewPrayerRequest, removeOwnedPrayerRequest, removeRecipientPrayerRequest, RootState, setOwnedPrayerRequests, setPrayerRequestPrayedState, setPrayerRequestTimeState, updatePrayerRequestPrayedState } from '../redux-store';
 import theme, { COLORS, FONT_SIZES } from '../theme';
 import { PrayerRequestTagEnum } from '../TypesAndInterfaces/config-sync/input-config-sync/prayer-request-field-config';
 import PrayerRequestEditForm from './PrayerRequestEditForm';
@@ -131,14 +131,13 @@ const PrayerRequestDisplay = ({navigation, route}:PrayerRequestDisplayProps):JSX
     const reportPrayerRequest = async () => {
         await axios.post(`${DOMAIN}/api/prayer-request/${currPrayerRequestState?.prayerRequestID}/report`, {}, RequestAccountHeader).then((response) => {
 
-            // index represents which tab in the BottomTabNavigator is focused
-            const parentNavigationIndex = navigation.getParent()?.getState()?.index || -1;
-
             setReportPrayerRequestModalVisible(false);
+            
             dispatch(removeNewPrayerRequest(currPrayerRequestState?.prayerRequestID || -1));
+            dispatch(removeRecipientPrayerRequest(currPrayerRequestState?.prayerRequestID || -1));
 
-            //parentNavigationIndex === 2 && 
-            DeviceEventEmitter.emit('prayerRequestReported', currPrayerRequestState?.prayerRequestID); // only emit event if user viewed prayer request from Prayer Request List page
+            ToastQueueManager.show({message: 'Report received'})
+
             navigation.goBack();
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }

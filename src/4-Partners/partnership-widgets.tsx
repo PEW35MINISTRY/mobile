@@ -96,7 +96,7 @@ export const PrayerPartnerListItem = (props:{partner:PartnerListItem, onButtonPr
                     transparent={true}
                 >
                     <Confirmation 
-                        callback={() => props.onButtonPress && props.onButtonPress(props.partner.userID, props.partner) && setLeaveModalVisible(false)}
+                        callback={() => { props.onButtonPress && props.onButtonPress(props.partner.userID, props.partner); setLeaveModalVisible(false)}}
                         onCancel={() => setLeaveModalVisible(false)}
                         promptText={'leave this partnership'}
                         buttonText='Leave'

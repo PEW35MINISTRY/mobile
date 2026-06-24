@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { useAppDispatch, useAppSelector } from "../TypesAndInterfaces/hooks";
-import { addPartner, addPartnerPendingPartner, removePartner, removePartnerPendingPartner, removePartnerPendingUser, RootState, setPartnerPendingPartners, setPartnerPendingUsers, setPartners, setLocalSettings } from "../redux-store";
+import { addPartner, addPartnerPendingPartner, removePartner, removePartnerPendingPartner, removePartnerPendingUser, RootState, setPartnerPendingPartners, setPartnerPendingUsers, setPartners, setLocalSettings, setContentFeedList, setRecommendedContent, setNewPrayerRequestList, setRecipientPrayerRequestList } from "../redux-store";
 import theme, { COLORS, FONT_SIZES } from "../theme";
 import { BackButton, Dropdown_Select, Filler, Outline_Button, Raised_Button } from "../widgets";
 import { PartnershipContractModal, PendingPrayerPartnerListItem, PrayerPartnerListItem } from "./partnership-widgets";
@@ -17,8 +17,6 @@ import SearchList from "../Widgets/SearchList/SearchList";
 import { SearchListKey, SearchListValue } from "../Widgets/SearchList/searchList-types";
 import { DisplayItemType, ListItemTypesEnum, SearchType } from "../TypesAndInterfaces/config-sync/input-config-sync/search-config";
 import { CALLBACK_STATE } from "../TypesAndInterfaces/custom-types";
-import { set } from "react-hook-form";
-
 
 const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continueNavigation?:boolean}):JSX.Element => {
 
@@ -30,6 +28,13 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
     const maxPartners = useAppSelector((state: RootState) => state.account.userProfile.maxPartners);
     const settingsRef = useAppSelector((state:RootState) => state.localSettings);
     const dispatch = useAppDispatch();
+
+    // track for removing reported user content and prayer reequests following report
+    const contentFeedList = useAppSelector((state: RootState) => state.account.contentFeedList);
+    const recommendedContentList = useAppSelector((state: RootState) => state.account.userProfile.recommendedContentList);
+
+    const newPrayerRequestList = useAppSelector((state: RootState) => state.account.newPrayerRequestList);
+    const recipientPrayerRequestList = useAppSelector((state: RootState) => state.account.recipientPrayerRequestList);
 
     const [newPartner, setNewPartner] = useState<PartnerListItem>({
         status: PartnerStatusEnum.FAILED,
@@ -45,13 +50,6 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
         headers: {
           "jwt": jwt,
         }
-    }
-
-    const assignNewPartnerFollowingReport = async (userID:number) => {
-        axios.post(`${DOMAIN}/api/user/` + userID + '/new-partner', {}, RequestAccountHeader).then((response:AxiosResponse<PartnerListItem>) => {
-            setNewPartner(response.data);
-            setPrayerContractModalVisible(true);
-        }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
     const acceptPartnershipRequest = (partner:PartnerListItem) => {
@@ -90,6 +88,14 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
             ToastQueueManager.show({message: "User report received"});
             setNewPartner({...newPartner, userID: -1});
             setPrayerContractModalVisible(true);
+
+            // remove prayer requests and comments from user's feed
+            dispatch(setContentFeedList(contentFeedList.filter((content) => content.recorderID !== id)));
+            dispatch(setRecommendedContent((recommendedContentList || []).filter((content) => content.recorderID !== id)));
+
+            dispatch(setNewPrayerRequestList(newPrayerRequestList.filter((prayerRequest) => prayerRequest.requestorID !== id)));
+            dispatch(setRecipientPrayerRequestList(recipientPrayerRequestList.filter((prayerRequest) => prayerRequest.requestorID !== id)));
+
         }).catch((error:AxiosError<ServerErrorResponse>) => ToastQueueManager.show({error}));
     }
 
