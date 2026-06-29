@@ -152,7 +152,6 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
                 name='partner-main-page'
                 footerItems={[<Filler />]}
                 headerItems={[<Filler fillerStyle={Platform.OS === 'android' ? styles.fillerHeightAndroid : styles.fillerHeightIos}/>]}
-                additionalHeaderRows={[<BackButton callback={() => props.callback && props.callback(CALLBACK_STATE.BACK)} />]}
                 displayMap={new Map([
                         [
                             new SearchListKey({displayTitle:'Partners', searchType: SearchType.NONE }),
@@ -171,7 +170,7 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
                         ],
                     ])}
             />
-            
+        
             <View style={styles.bottomView}> 
                 
                 <Outline_Button 
@@ -203,6 +202,7 @@ const Partnerships = (props:{callback?:((state:CALLBACK_STATE) => void), continu
                 onClose={() => setPrayerContractModalVisible(false)}
             />
 
+            <BackButton callback={() => props.callback && props.callback(CALLBACK_STATE.BACK)} buttonView={ (Platform.OS === 'ios' && {top: 40}) || undefined}/>
             <Toast />
         </SafeAreaView>  
   );
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     height: 35
   },
   fillerHeightIos: {
-    height: 10
+    height: 15
   }
 })
 
